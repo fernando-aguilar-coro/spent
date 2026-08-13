@@ -1,0 +1,48 @@
+package com.example.spent.ui.dashboard
+
+import com.example.spent.data.local.entity.CategoryEntity
+import com.example.spent.data.local.entity.PayCycleEntity
+import com.example.spent.data.local.entity.TransactionEntity
+import com.example.spent.ui.mvi.UiEffect
+import com.example.spent.ui.mvi.UiIntent
+import com.example.spent.ui.mvi.UiState
+
+data class CategoryEnvelopeState(
+    val category: CategoryEntity,
+    val spentAmount: Double,
+    val remainingAmount: Double,
+    val progress: Float
+)
+
+data class DashboardUiState(
+    val isLoading: Boolean = true,
+    val currencySymbol: String = "$",
+    val totalIncome: Double = 0.0,
+    val totalSpent: Double = 0.0,
+    val safeToSpendToday: Double = 0.0,
+    val daysRemainingInCycle: Int = 30,
+    val categoriesWithProgress: List<CategoryEnvelopeState> = emptyList(),
+    val recentTransactions: List<TransactionEntity> = emptyList(),
+    val allCategories: List<CategoryEntity> = emptyList(),
+    val currentPayCycle: PayCycleEntity? = null,
+    val isWalkthroughCompleted: Boolean = true,
+    val activeProfileName: String = "Primary Account"
+) : UiState
+
+sealed class DashboardUiIntent : UiIntent {
+    object LoadData : DashboardUiIntent()
+    data class AddTransaction(
+        val amount: Double,
+        val type: String,
+        val categoryId: String,
+        val note: String
+    ) : DashboardUiIntent()
+    data class DeleteTransaction(val transaction: TransactionEntity) : DashboardUiIntent()
+    data class UndoDelete(val transaction: TransactionEntity) : DashboardUiIntent()
+    object DismissWalkthrough : DashboardUiIntent()
+}
+
+sealed class DashboardUiEffect : UiEffect {
+    data class ShowSnackbar(val message: String, val actionLabel: String? = null, val onAction: (() -> Unit)? = null) : DashboardUiEffect()
+    object OpenTransactionSheet : DashboardUiEffect()
+}
