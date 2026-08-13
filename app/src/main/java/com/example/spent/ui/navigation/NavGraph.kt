@@ -15,6 +15,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.example.spent.data.local.entity.CategoryEntity
+import com.example.spent.data.local.entity.RecurringRuleEntity
 import com.example.spent.data.local.entity.TransactionEntity
 import com.example.spent.data.repository.SpentRepository
 import com.example.spent.ui.analytics.AnalyticsScreen
@@ -35,7 +37,6 @@ fun SpentAppNavHost(
     val currentRoute = navBackStackEntry?.destination?.route
     val scope = rememberCoroutineScope()
 
-    // Show bottom bar only on core 3 tab screens
     val showBottomBar = currentRoute in listOf(
         Screen.Dashboard.route,
         Screen.Analytics.route,
@@ -105,15 +106,45 @@ fun SpentAppNavHost(
                     categories = categories,
                     currencySymbol = currencySymbol,
                     onNavigateBack = { navController.popBackStack() },
-                    onAddTransaction = { amount, type, categoryId, note ->
+                    onAddNewCategory = { name, colorHex ->
                         scope.launch {
-                            val newTx = TransactionEntity(
+                            val newCat = CategoryEntity(
                                 id = UUID.randomUUID().toString(),
+                                name = name,
+                                iconName = "Category",
+                                colorHex = colorHex,
+                                budgetAmount = 0.0,
+                                displayOrder = categories.size + 1
+                            )
+                            repository.addCategory(newCat)
+                        }
+                    },
+                    onAddTransaction = { amount, type, categoryId, note, isRecurring, frequency, timestamp ->
+                        scope.launch {
+                            val txId = UUID.randomUUID().toString()
+                            var ruleId: String? = null
+
+                            if (isRecurring) {
+                                ruleId = UUID.randomUUID().toString()
+                                val rule = RecurringRuleEntity(
+                                    id = ruleId,
+                                    amount = amount,
+                                    categoryId = categoryId,
+                                    frequency = frequency,
+                                    startDate = timestamp,
+                                    note = note
+                                )
+                                repository.addRecurringRule(rule)
+                            }
+
+                            val newTx = TransactionEntity(
+                                id = txId,
                                 amount = amount,
                                 type = type,
                                 categoryId = categoryId,
                                 note = note,
-                                timestamp = System.currentTimeMillis()
+                                timestamp = timestamp,
+                                recurringRuleId = ruleId
                             )
                             repository.addTransaction(newTx)
                         }

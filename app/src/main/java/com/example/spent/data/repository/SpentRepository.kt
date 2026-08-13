@@ -36,6 +36,7 @@ interface SpentRepository {
     suspend fun seedStarterDataIfEmpty()
 
     suspend fun setWalkthroughCompleted(completed: Boolean)
-    suspend fun setDarkTheme(enabled: Boolean)
+    suspend fun setDarkThemeMode(enabled: Boolean?)
+    suspend fun setCurrencySymbol(symbol: String)
     suspend fun resetAllData()
 }

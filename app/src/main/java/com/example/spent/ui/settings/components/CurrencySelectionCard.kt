@@ -7,9 +7,11 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material.icons.filled.AttachMoney
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -27,23 +29,43 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.example.spent.data.local.entity.PayCycleEntity
+import java.util.Currency
+
+data class CurrencyOption(
+    val code: String,
+    val symbol: String,
+    val name: String
+)
 
 @Composable
-fun PayCycleCard(
-    currentPayCycle: PayCycleEntity?,
-    onSelectPayCycleFrequency: (frequency: String) -> Unit
+fun CurrencySelectionCard(
+    currentCurrencySymbol: String,
+    onSelectCurrencySymbol: (symbol: String) -> Unit
 ) {
     var showDialog by remember { mutableStateOf(false) }
 
-    val frequencies = listOf(
-        "WEEKLY" to "Weekly",
-        "BIWEEKLY" to "Bi-weekly",
-        "SEMIMONTHLY" to "Semi-monthly",
-        "MONTHLY" to "Monthly"
-    )
+    val currencyList = remember {
+        listOf(
+            CurrencyOption("USD", "$", "US Dollar ($)"),
+            CurrencyOption("BOB", "Bs.", "Bolivian Boliviano (Bs.)"),
+            CurrencyOption("VES", "Bs.", "Venezuelan Bolívar (Bs.)"),
+            CurrencyOption("EUR", "€", "Euro (€)"),
+            CurrencyOption("GBP", "£", "British Pound (£)"),
+            CurrencyOption("MXN", "MXN $", "Mexican Peso (MXN $)"),
+            CurrencyOption("COP", "COP $", "Colombian Peso (COP $)"),
+            CurrencyOption("BRL", "R$", "Brazilian Real (R$)"),
+            CurrencyOption("PEN", "S/", "Peruvian Sol (S/)"),
+            CurrencyOption("CLP", "CLP $", "Chilean Peso (CLP $)"),
+            CurrencyOption("ARS", "ARS $", "Argentine Peso (ARS $)"),
+            CurrencyOption("UYU", "$U", "Uruguayan Peso ($U)"),
+            CurrencyOption("PYG", "₲", "Paraguayan Guaraní (₲)"),
+            CurrencyOption("JPY", "¥", "Japanese Yen (¥)")
+        )
+    }
 
-    val currentFrequencyLabel = frequencies.find { it.first == currentPayCycle?.frequency }?.second ?: "Monthly"
+    val selectedLabel = remember(currentCurrencySymbol) {
+        currencyList.find { it.symbol == currentCurrencySymbol }?.name ?: currentCurrencySymbol
+    }
 
     Card(
         modifier = Modifier
@@ -57,14 +79,14 @@ fun PayCycleCard(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Icon(
-                imageVector = Icons.Default.DateRange,
-                contentDescription = "Pay Cycle",
+                imageVector = Icons.Default.AttachMoney,
+                contentDescription = "Currency",
                 tint = MaterialTheme.colorScheme.primary
             )
             Spacer(modifier = Modifier.width(12.dp))
             Column {
-                Text("Pay Cycle Frequency", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-                Text(currentFrequencyLabel, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text("Default Currency", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                Text(selectedLabel, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
         }
     }
@@ -72,29 +94,29 @@ fun PayCycleCard(
     if (showDialog) {
         AlertDialog(
             onDismissRequest = { showDialog = false },
-            title = { Text("Select Pay Cycle Frequency", fontWeight = FontWeight.Bold) },
+            title = { Text("Select Currency (java.util.Currency)", fontWeight = FontWeight.Bold) },
             text = {
-                Column {
-                    frequencies.forEach { (freqKey, freqLabel) ->
+                LazyColumn {
+                    items(currencyList) { item ->
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .clickable {
-                                    onSelectPayCycleFrequency(freqKey)
+                                    onSelectCurrencySymbol(item.symbol)
                                     showDialog = false
                                 }
                                 .padding(vertical = 8.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             RadioButton(
-                                selected = (currentPayCycle?.frequency ?: "MONTHLY") == freqKey,
+                                selected = currentCurrencySymbol == item.symbol,
                                 onClick = {
-                                    onSelectPayCycleFrequency(freqKey)
+                                    onSelectCurrencySymbol(item.symbol)
                                     showDialog = false
                                 }
                             )
                             Spacer(modifier = Modifier.width(8.dp))
-                            Text(freqLabel, style = MaterialTheme.typography.bodyMedium)
+                            Text(item.name, style = MaterialTheme.typography.bodyMedium)
                         }
                     }
                 }

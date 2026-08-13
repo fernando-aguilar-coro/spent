@@ -38,9 +38,13 @@ class UserPreferencesRepository(private val context: Context) {
         }
     }
 
-    suspend fun setDarkTheme(enabled: Boolean) {
+    suspend fun setDarkThemeMode(enabled: Boolean?) {
         context.dataStore.edit { preferences ->
-            preferences[PreferencesKeys.DARK_THEME_ENABLED] = enabled
+            if (enabled == null) {
+                preferences.remove(PreferencesKeys.DARK_THEME_ENABLED)
+            } else {
+                preferences[PreferencesKeys.DARK_THEME_ENABLED] = enabled
+            }
         }
     }
 

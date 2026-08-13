@@ -9,7 +9,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -27,23 +27,19 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.example.spent.data.local.entity.PayCycleEntity
 
 @Composable
-fun PayCycleCard(
-    currentPayCycle: PayCycleEntity?,
-    onSelectPayCycleFrequency: (frequency: String) -> Unit
+fun ThemeSelectionCard(
+    isDarkThemeOverride: Boolean?,
+    onSelectThemeMode: (mode: Boolean?) -> Unit
 ) {
     var showDialog by remember { mutableStateOf(false) }
 
-    val frequencies = listOf(
-        "WEEKLY" to "Weekly",
-        "BIWEEKLY" to "Bi-weekly",
-        "SEMIMONTHLY" to "Semi-monthly",
-        "MONTHLY" to "Monthly"
-    )
-
-    val currentFrequencyLabel = frequencies.find { it.first == currentPayCycle?.frequency }?.second ?: "Monthly"
+    val currentLabel = when (isDarkThemeOverride) {
+        true -> "Dark Theme"
+        false -> "Light Theme"
+        null -> "System Default"
+    }
 
     Card(
         modifier = Modifier
@@ -57,14 +53,14 @@ fun PayCycleCard(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Icon(
-                imageVector = Icons.Default.DateRange,
-                contentDescription = "Pay Cycle",
+                imageVector = Icons.Default.DarkMode,
+                contentDescription = "App Theme",
                 tint = MaterialTheme.colorScheme.primary
             )
             Spacer(modifier = Modifier.width(12.dp))
             Column {
-                Text("Pay Cycle Frequency", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-                Text(currentFrequencyLabel, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text("App Theme", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                Text(currentLabel, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
         }
     }
@@ -72,29 +68,35 @@ fun PayCycleCard(
     if (showDialog) {
         AlertDialog(
             onDismissRequest = { showDialog = false },
-            title = { Text("Select Pay Cycle Frequency", fontWeight = FontWeight.Bold) },
+            title = { Text("Select App Theme", fontWeight = FontWeight.Bold) },
             text = {
                 Column {
-                    frequencies.forEach { (freqKey, freqLabel) ->
+                    val options = listOf(
+                        null to "System Default",
+                        false to "Light Theme",
+                        true to "Dark Theme"
+                    )
+
+                    options.forEach { (modeValue, modeLabel) ->
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .clickable {
-                                    onSelectPayCycleFrequency(freqKey)
+                                    onSelectThemeMode(modeValue)
                                     showDialog = false
                                 }
                                 .padding(vertical = 8.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             RadioButton(
-                                selected = (currentPayCycle?.frequency ?: "MONTHLY") == freqKey,
+                                selected = isDarkThemeOverride == modeValue,
                                 onClick = {
-                                    onSelectPayCycleFrequency(freqKey)
+                                    onSelectThemeMode(modeValue)
                                     showDialog = false
                                 }
                             )
                             Spacer(modifier = Modifier.width(8.dp))
-                            Text(freqLabel, style = MaterialTheme.typography.bodyMedium)
+                            Text(modeLabel, style = MaterialTheme.typography.bodyMedium)
                         }
                     }
                 }

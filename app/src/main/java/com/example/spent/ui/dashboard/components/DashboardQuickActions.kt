@@ -43,10 +43,10 @@ fun DashboardQuickActions(
             shape = RoundedCornerShape(16.dp),
             colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
         ) {
-            Icon(Icons.Default.Add, contentDescription = "Add")
+            Icon(Icons.Default.Add, contentDescription = "Add Expense")
             Spacer(modifier = Modifier.width(4.dp))
             Text(
-                text = "+ Add Expense",
+                text = "Add Expense",
                 fontWeight = FontWeight.Bold,
                 maxLines = 1,
                 softWrap = false,
@@ -63,10 +63,10 @@ fun DashboardQuickActions(
             shape = RoundedCornerShape(16.dp),
             colors = ButtonDefaults.buttonColors(containerColor = IncomeGreen)
         ) {
-            Icon(Icons.Default.Add, contentDescription = "Add")
+            Icon(Icons.Default.Add, contentDescription = "Add Income")
             Spacer(modifier = Modifier.width(4.dp))
             Text(
-                text = "+ Add Income",
+                text = "Add Income",
                 fontWeight = FontWeight.Bold,
                 maxLines = 1,
                 softWrap = false,

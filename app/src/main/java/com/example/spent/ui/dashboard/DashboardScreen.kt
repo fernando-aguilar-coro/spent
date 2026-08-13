@@ -38,6 +38,7 @@ import com.example.spent.ui.dashboard.components.CategoryEnvelopeRow
 import com.example.spent.ui.dashboard.components.DashboardHeaderCard
 import com.example.spent.ui.dashboard.components.DashboardProfileHeader
 import com.example.spent.ui.dashboard.components.DashboardQuickActions
+import com.example.spent.ui.dashboard.components.DashboardQuickTools
 import com.example.spent.ui.dashboard.components.TransactionItemRow
 import com.example.spent.ui.theme.ExpenseRed
 
@@ -81,7 +82,6 @@ fun DashboardScreen(
             // Profile Header Component
             item {
                 DashboardProfileHeader(
-                    activeProfileName = state.activeProfileName,
                     daysRemainingInCycle = state.daysRemainingInCycle
                 )
             }
@@ -105,7 +105,7 @@ fun DashboardScreen(
                 )
             }
 
-            // Hero Quick Action Buttons Component -> Navigates to dedicated AddTransactionScreen
+            // Hero Quick Action Buttons Component
             item {
                 DashboardQuickActions(
                     onAddExpenseClick = { onNavigateToAddTransaction("EXPENSE") },
@@ -118,6 +118,18 @@ fun DashboardScreen(
                 CategoryEnvelopeRow(
                     categoriesWithProgress = state.categoriesWithProgress,
                     currencySymbol = state.currencySymbol
+                )
+            }
+
+            // Extra Tools & Shortcuts Component (Lent/Debt, Recurring Payments, Export Excel)
+            item {
+                val generalCatId = state.allCategories.find { it.id == "cat_general" }?.id ?: state.allCategories.firstOrNull()?.id ?: ""
+                DashboardQuickTools(
+                    transactions = state.recentTransactions,
+                    categories = state.allCategories,
+                    onAddDebtLoanTransaction = { amount, type, note ->
+                        viewModel.onIntent(DashboardUiIntent.AddTransaction(amount, type, generalCatId, note))
+                    }
                 )
             }
 

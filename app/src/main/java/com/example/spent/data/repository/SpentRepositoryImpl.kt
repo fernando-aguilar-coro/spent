@@ -102,6 +102,7 @@ class SpentRepositoryImpl(
         val existingCategories = dao.getCategoriesFlow().firstOrNull() ?: emptyList()
         if (existingCategories.isEmpty()) {
             val defaultCategories = listOf(
+                CategoryEntity(id = "cat_general", name = "General", iconName = "Category", colorHex = "#64748B", budgetAmount = 0.0, displayOrder = 0),
                 CategoryEntity(id = "cat_groceries", name = "Groceries", iconName = "ShoppingCart", colorHex = "#4CAF50", budgetAmount = 0.0, displayOrder = 1),
                 CategoryEntity(id = "cat_utilities", name = "Utilities", iconName = "Bolt", colorHex = "#FF9800", budgetAmount = 0.0, displayOrder = 2),
                 CategoryEntity(id = "cat_transport", name = "Transport", iconName = "DirectionsCar", colorHex = "#2196F3", budgetAmount = 0.0, displayOrder = 3),
@@ -139,8 +140,12 @@ class SpentRepositoryImpl(
         preferencesRepository.setWalkthroughCompleted(completed)
     }
 
-    override suspend fun setDarkTheme(enabled: Boolean) {
-        preferencesRepository.setDarkTheme(enabled)
+    override suspend fun setDarkThemeMode(enabled: Boolean?) {
+        preferencesRepository.setDarkThemeMode(enabled)
+    }
+
+    override suspend fun setCurrencySymbol(symbol: String) {
+        preferencesRepository.setCurrencySymbol(symbol)
     }
 
     override suspend fun resetAllData() {

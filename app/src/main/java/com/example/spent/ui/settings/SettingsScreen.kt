@@ -9,14 +9,20 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.example.spent.data.local.entity.PayCycleEntity
 import com.example.spent.data.repository.SpentRepository
 import com.example.spent.ui.settings.components.AppInfoCard
+import com.example.spent.ui.settings.components.CurrencySelectionCard
+import com.example.spent.ui.settings.components.ExportCsvCard
 import com.example.spent.ui.settings.components.PayCycleCard
 import com.example.spent.ui.settings.components.ResetDataButton
+import com.example.spent.ui.settings.components.ThemeSelectionCard
 import com.example.spent.ui.settings.components.UserProfileCard
 import kotlinx.coroutines.launch
 
@@ -25,6 +31,12 @@ fun SettingsScreen(
     repository: SpentRepository
 ) {
     val scope = rememberCoroutineScope()
+
+    val currentPayCycle by repository.getCurrentPayCycleFlow().collectAsState(initial = null)
+    val isDarkThemeOverride by repository.isDarkThemeFlow.collectAsState(initial = null)
+    val currencySymbol by repository.currencySymbolFlow.collectAsState(initial = "$")
+    val transactions by repository.getTransactionsFlow().collectAsState(initial = emptyList())
+    val categories by repository.getCategoriesFlow().collectAsState(initial = emptyList())
 
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
@@ -50,9 +62,52 @@ fun SettingsScreen(
             Spacer(modifier = Modifier.height(12.dp))
         }
 
-        // Pay Cycle Configuration Component
+        // Pay Cycle Configuration Option
         item {
-            PayCycleCard()
+            PayCycleCard(
+                currentPayCycle = currentPayCycle,
+                onSelectPayCycleFrequency = { frequency ->
+                    scope.launch {
+                        val updatedCycle = (currentPayCycle ?: PayCycleEntity()).copy(frequency = frequency)
+                        repository.setPayCycle(updatedCycle)
+                    }
+                }
+            )
+            Spacer(modifier = Modifier.height(12.dp))
+        }
+
+        // App Theme Selector Option
+        item {
+            ThemeSelectionCard(
+                isDarkThemeOverride = isDarkThemeOverride,
+                onSelectThemeMode = { mode ->
+                    scope.launch {
+                        repository.setDarkThemeMode(mode)
+                    }
+                }
+            )
+            Spacer(modifier = Modifier.height(12.dp))
+        }
+
+        // Currency Selector Option
+        item {
+            CurrencySelectionCard(
+                currentCurrencySymbol = currencySymbol,
+                onSelectCurrencySymbol = { symbol ->
+                    scope.launch {
+                        repository.setCurrencySymbol(symbol)
+                    }
+                }
+            )
+            Spacer(modifier = Modifier.height(12.dp))
+        }
+
+        // Export Data (CSV) Option
+        item {
+            ExportCsvCard(
+                transactions = transactions,
+                categories = categories
+            )
             Spacer(modifier = Modifier.height(12.dp))
         }
 
