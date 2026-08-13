@@ -24,8 +24,8 @@ class UserPreferencesRepository(private val context: Context) {
         preferences[PreferencesKeys.IS_WALKTHROUGH_COMPLETED] ?: false
     }
 
-    val isDarkThemeFlow: Flow<Boolean> = context.dataStore.data.map { preferences ->
-        preferences[PreferencesKeys.DARK_THEME_ENABLED] ?: false
+    val isDarkThemeFlow: Flow<Boolean?> = context.dataStore.data.map { preferences ->
+        preferences[PreferencesKeys.DARK_THEME_ENABLED]
     }
 
     val currencySymbolFlow: Flow<String> = context.dataStore.data.map { preferences ->

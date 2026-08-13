@@ -33,7 +33,7 @@ class SpentRepositoryImpl(
     override fun getRecurringRulesFlow(): Flow<List<RecurringRuleEntity>> = dao.getRecurringRulesFlow()
 
     override val isWalkthroughCompletedFlow: Flow<Boolean> = preferencesRepository.isWalkthroughCompletedFlow
-    override val isDarkThemeFlow: Flow<Boolean> = preferencesRepository.isDarkThemeFlow
+    override val isDarkThemeFlow: Flow<Boolean?> = preferencesRepository.isDarkThemeFlow
     override val currencySymbolFlow: Flow<String> = preferencesRepository.currencySymbolFlow
 
     override suspend fun addTransaction(transaction: TransactionEntity) {
@@ -102,12 +102,12 @@ class SpentRepositoryImpl(
         val existingCategories = dao.getCategoriesFlow().firstOrNull() ?: emptyList()
         if (existingCategories.isEmpty()) {
             val defaultCategories = listOf(
-                CategoryEntity(id = "cat_groceries", name = "Groceries", iconName = "ShoppingCart", colorHex = "#4CAF50", budgetAmount = 500.0, displayOrder = 1),
-                CategoryEntity(id = "cat_utilities", name = "Utilities", iconName = "Bolt", colorHex = "#FF9800", budgetAmount = 350.0, displayOrder = 2),
-                CategoryEntity(id = "cat_transport", name = "Transport", iconName = "DirectionsCar", colorHex = "#2196F3", budgetAmount = 200.0, displayOrder = 3),
-                CategoryEntity(id = "cat_entertainment", name = "Entertainment", iconName = "Movie", colorHex = "#9C27B0", budgetAmount = 150.0, displayOrder = 4),
-                CategoryEntity(id = "cat_shopping", name = "Shopping", iconName = "ShoppingBag", colorHex = "#E91E63", budgetAmount = 250.0, displayOrder = 5),
-                CategoryEntity(id = "cat_savings", name = "Savings", iconName = "Savings", colorHex = "#009688", budgetAmount = 400.0, displayOrder = 6)
+                CategoryEntity(id = "cat_groceries", name = "Groceries", iconName = "ShoppingCart", colorHex = "#4CAF50", budgetAmount = 0.0, displayOrder = 1),
+                CategoryEntity(id = "cat_utilities", name = "Utilities", iconName = "Bolt", colorHex = "#FF9800", budgetAmount = 0.0, displayOrder = 2),
+                CategoryEntity(id = "cat_transport", name = "Transport", iconName = "DirectionsCar", colorHex = "#2196F3", budgetAmount = 0.0, displayOrder = 3),
+                CategoryEntity(id = "cat_entertainment", name = "Entertainment", iconName = "Movie", colorHex = "#9C27B0", budgetAmount = 0.0, displayOrder = 4),
+                CategoryEntity(id = "cat_shopping", name = "Shopping", iconName = "ShoppingBag", colorHex = "#E91E63", budgetAmount = 0.0, displayOrder = 5),
+                CategoryEntity(id = "cat_savings", name = "Savings", iconName = "Savings", colorHex = "#009688", budgetAmount = 0.0, displayOrder = 6)
             )
             dao.insertCategories(defaultCategories)
         }
@@ -118,7 +118,7 @@ class SpentRepositoryImpl(
                 id = "default_cycle",
                 frequency = "MONTHLY",
                 startDate = System.currentTimeMillis(),
-                income = 3500.0
+                income = 0.0
             )
             dao.insertPayCycle(defaultCycle)
         }

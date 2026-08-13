@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import com.example.spent.ui.navigation.SpentAppNavHost
@@ -18,9 +19,10 @@ class MainActivity : ComponentActivity() {
         val repository = app.repository
 
         setContent {
-            val isDarkTheme by repository.isDarkThemeFlow.collectAsState(initial = false)
+            val isDarkThemeOverride by repository.isDarkThemeFlow.collectAsState(initial = null)
+            val useDarkTheme = isDarkThemeOverride ?: isSystemInDarkTheme()
 
-            SpentTheme(darkTheme = isDarkTheme) {
+            SpentTheme(darkTheme = useDarkTheme) {
                 SpentAppNavHost(repository = repository)
             }
         }

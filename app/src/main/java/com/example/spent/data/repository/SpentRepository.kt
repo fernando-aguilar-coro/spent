@@ -19,7 +19,7 @@ interface SpentRepository {
     fun getRecurringRulesFlow(): Flow<List<RecurringRuleEntity>>
 
     val isWalkthroughCompletedFlow: Flow<Boolean>
-    val isDarkThemeFlow: Flow<Boolean>
+    val isDarkThemeFlow: Flow<Boolean?>
     val currencySymbolFlow: Flow<String>
 
     suspend fun addTransaction(transaction: TransactionEntity)
