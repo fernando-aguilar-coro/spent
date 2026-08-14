@@ -23,7 +23,8 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun DashboardProfileHeader(
-    daysRemainingInCycle: Int
+    daysRemainingInCycle: Int,
+    isPayCycleActive: Boolean = true
 ) {
     Row(
         modifier = Modifier
@@ -40,7 +41,7 @@ fun DashboardProfileHeader(
                 color = MaterialTheme.colorScheme.onBackground
             )
             Text(
-                text = "Pay Cycle • $daysRemainingInCycle days left",
+                text = if (isPayCycleActive) "Pay Cycle • $daysRemainingInCycle days left" else "Flexible Budget • No Fixed Pay Cycle",
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )

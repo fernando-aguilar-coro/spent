@@ -34,7 +34,8 @@ fun DashboardHeaderCard(
     currencySymbol: String,
     totalIncome: Double,
     totalSpent: Double,
-    safeToSpendToday: Double
+    safeToSpendToday: Double,
+    isPayCycleActive: Boolean = true
 ) {
     val netBalance = totalIncome - totalSpent
     Card(
@@ -61,7 +62,7 @@ fun DashboardHeaderCard(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Safe to Spend Chip
+            // Safe to Spend / Available Funds Chip
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -75,12 +76,12 @@ fun DashboardHeaderCard(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "Safe to Spend Today",
+                        text = if (isPayCycleActive) "Safe to Spend Today" else "Available Funds",
                         style = MaterialTheme.typography.bodyMedium,
                         fontWeight = FontWeight.Medium
                     )
                     Text(
-                        text = "$currencySymbol${"%.2f".format(safeToSpendToday)} / day",
+                        text = if (isPayCycleActive) "$currencySymbol${"%.2f".format(safeToSpendToday)} / day" else "$currencySymbol${"%.2f".format(safeToSpendToday)}",
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.primary

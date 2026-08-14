@@ -35,11 +35,14 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
+import androidx.compose.foundation.clickable
+
 @Composable
 fun TransactionItemRow(
     transaction: TransactionEntity,
     categories: List<CategoryEntity>,
-    currencySymbol: String
+    currencySymbol: String,
+    onClick: (() -> Unit)? = null
 ) {
     val category = categories.find { it.id == transaction.categoryId }
     val isExpense = transaction.type == "EXPENSE"
@@ -50,7 +53,8 @@ fun TransactionItemRow(
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 20.dp, vertical = 4.dp),
+            .padding(horizontal = 20.dp, vertical = 4.dp)
+            .then(if (onClick != null) Modifier.clickable { onClick() } else Modifier),
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
     ) {

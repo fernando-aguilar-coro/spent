@@ -66,9 +66,13 @@ fun SettingsScreen(
         item {
             PayCycleCard(
                 currentPayCycle = currentPayCycle,
-                onSelectPayCycleFrequency = { frequency ->
+                currencySymbol = currencySymbol,
+                onSavePayCycle = { frequency, income ->
                     scope.launch {
-                        val updatedCycle = (currentPayCycle ?: PayCycleEntity()).copy(frequency = frequency)
+                        val updatedCycle = (currentPayCycle ?: PayCycleEntity()).copy(
+                            frequency = frequency,
+                            income = income
+                        )
                         repository.setPayCycle(updatedCycle)
                     }
                 }

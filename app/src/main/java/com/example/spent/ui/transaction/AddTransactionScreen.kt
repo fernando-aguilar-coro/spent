@@ -205,7 +205,7 @@ fun AddTransactionScreen(
                 TextButton(onClick = { showAddCategoryDialog = true }) {
                     Icon(Icons.Default.Add, contentDescription = "New Category", modifier = Modifier.size(18.dp))
                     Spacer(modifier = Modifier.width(4.dp))
-                    Text("+ New", fontWeight = FontWeight.Bold)
+                    Text("New", fontWeight = FontWeight.Bold)
                 }
             }
             Spacer(modifier = Modifier.height(4.dp))

@@ -26,6 +26,7 @@ data class DashboardUiState(
     val allCategories: List<CategoryEntity> = emptyList(),
     val currentPayCycle: PayCycleEntity? = null,
     val isWalkthroughCompleted: Boolean = true,
+    val isPayCycleActive: Boolean = true,
     val activeProfileName: String = "Primary Account"
 ) : UiState
 
@@ -39,6 +40,7 @@ sealed class DashboardUiIntent : UiIntent {
     ) : DashboardUiIntent()
     data class DeleteTransaction(val transaction: TransactionEntity) : DashboardUiIntent()
     data class UndoDelete(val transaction: TransactionEntity) : DashboardUiIntent()
+    data class UpdateCategoryBudget(val categoryId: String, val budgetAmount: Double) : DashboardUiIntent()
     object DismissWalkthrough : DashboardUiIntent()
 }
 

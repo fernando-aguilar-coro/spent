@@ -23,7 +23,8 @@ class AnalyticsViewModel(
                 repository.currencySymbolFlow
             ) { transactions, categories, payCycle, currency ->
 
-                val totalIncome = (payCycle?.income ?: 0.0) + transactions
+                val isPayCycleActive = payCycle != null && payCycle.frequency != "NONE"
+                val totalIncome = (if (isPayCycleActive) payCycle?.income ?: 0.0 else 0.0) + transactions
                     .filter { it.type == "INCOME" }
                     .sumOf { it.amount }
 
