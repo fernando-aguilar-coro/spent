@@ -35,7 +35,7 @@ fun ExportCsvCard(
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { DataExportHelper.exportTransactionsToExcelCsv(context, transactions, categories) },
+            .clickable { DataExportHelper.exportTransactionsToExcel(context, transactions, categories) },
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
     ) {
@@ -45,13 +45,13 @@ fun ExportCsvCard(
         ) {
             Icon(
                 imageVector = Icons.Default.Description,
-                contentDescription = "Export Excel / CSV",
+                contentDescription = "Export Excel (.xlsx)",
                 tint = MaterialTheme.colorScheme.primary
             )
             Spacer(modifier = Modifier.width(12.dp))
             Column {
-                Text("Export to Excel / CSV", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-                Text("Download spreadsheet for Excel or Google Sheets (Clean format)", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text("Export to Excel (.xlsx)", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                Text("Download Excel spreadsheet with separate Date & Time columns", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
         }
     }

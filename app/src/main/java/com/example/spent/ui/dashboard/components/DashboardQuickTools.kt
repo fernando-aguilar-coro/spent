@@ -300,7 +300,7 @@ fun DashboardQuickTools(
 
         Spacer(modifier = Modifier.height(10.dp))
 
-        // Row 3: Export Excel / CSV Card
+        // Row 3: Export to Excel (.xlsx) Card
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -309,7 +309,7 @@ fun DashboardQuickTools(
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clickable { DataExportHelper.exportTransactionsToExcelCsv(context, transactions, categories) },
+                    .clickable { DataExportHelper.exportTransactionsToExcel(context, transactions, categories) },
                 shape = RoundedCornerShape(16.dp),
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
             ) {
@@ -336,12 +336,12 @@ fun DashboardQuickTools(
                     Spacer(modifier = Modifier.width(12.dp))
                     Column {
                         Text(
-                            text = "Export to Excel / CSV",
+                            text = "Export to Excel (.xlsx)",
                             style = MaterialTheme.typography.bodyMedium,
                             fontWeight = FontWeight.Bold
                         )
                         Text(
-                            text = "Download spreadsheet for Excel or Google Sheets",
+                            text = "Download spreadsheet with separate Date & Time columns",
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
