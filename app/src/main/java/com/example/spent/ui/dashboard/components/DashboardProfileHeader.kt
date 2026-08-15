@@ -18,8 +18,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.example.spent.R
 
 @Composable
 fun DashboardProfileHeader(
@@ -35,13 +37,22 @@ fun DashboardProfileHeader(
     ) {
         Column {
             Text(
-                text = "Spent Budget",
+                text = stringResource(R.string.app_name),
                 style = MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onBackground
             )
+            val subText = if (isPayCycleActive) {
+                if (daysRemainingInCycle == 1) {
+                    stringResource(R.string.day_left, daysRemainingInCycle)
+                } else {
+                    stringResource(R.string.days_left, daysRemainingInCycle)
+                }
+            } else {
+                stringResource(R.string.no_active_pay_cycle)
+            }
             Text(
-                text = if (isPayCycleActive) "Pay Cycle • $daysRemainingInCycle days left" else "Flexible Budget • No Fixed Pay Cycle",
+                text = subText,
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )

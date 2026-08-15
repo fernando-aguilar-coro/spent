@@ -17,8 +17,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.example.spent.R
 
 @Composable
 fun AppInfoCard() {
@@ -38,8 +40,16 @@ fun AppInfoCard() {
             )
             Spacer(modifier = Modifier.width(12.dp))
             Column {
-                Text("Spent Version", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-                Text("v1.0.0 • Pure MVI + Room Database", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text(
+                    text = stringResource(R.string.app_info_title),
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold
+                )
+                Text(
+                    text = "${stringResource(R.string.app_version)} • ${stringResource(R.string.app_description)}",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
             }
         }
     }

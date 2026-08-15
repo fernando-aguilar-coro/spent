@@ -35,6 +35,7 @@ class SpentRepositoryImpl(
     override val isWalkthroughCompletedFlow: Flow<Boolean> = preferencesRepository.isWalkthroughCompletedFlow
     override val isDarkThemeFlow: Flow<Boolean?> = preferencesRepository.isDarkThemeFlow
     override val currencySymbolFlow: Flow<String> = preferencesRepository.currencySymbolFlow
+    override val appLanguageFlow: Flow<String?> = preferencesRepository.appLanguageFlow
 
     override suspend fun addTransaction(transaction: TransactionEntity) {
         dao.insertTransaction(transaction)
@@ -146,6 +147,10 @@ class SpentRepositoryImpl(
 
     override suspend fun setCurrencySymbol(symbol: String) {
         preferencesRepository.setCurrencySymbol(symbol)
+    }
+
+    override suspend fun setAppLanguage(languageCode: String?) {
+        preferencesRepository.setAppLanguage(languageCode)
     }
 
     override suspend fun resetAllData() {

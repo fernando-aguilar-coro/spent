@@ -19,8 +19,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.example.spent.R
 import com.example.spent.data.local.entity.CategoryEntity
 import com.example.spent.data.local.entity.TransactionEntity
 import com.example.spent.util.DataExportHelper
@@ -50,8 +52,16 @@ fun ExportCsvCard(
             )
             Spacer(modifier = Modifier.width(12.dp))
             Column {
-                Text("Export to Excel (.xlsx)", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-                Text("Download Excel spreadsheet with separate Date & Time columns", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text(
+                    text = stringResource(R.string.tool_export_excel_title),
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold
+                )
+                Text(
+                    text = stringResource(R.string.tool_export_excel_desc),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
             }
         }
     }

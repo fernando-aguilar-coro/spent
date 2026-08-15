@@ -18,9 +18,11 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.example.spent.R
 import com.example.spent.ui.theme.IncomeGreen
 
 @Composable
@@ -46,7 +48,7 @@ fun DashboardQuickActions(
             Icon(Icons.Default.Add, contentDescription = "Add Expense")
             Spacer(modifier = Modifier.width(4.dp))
             Text(
-                text = "Add Expense",
+                text = stringResource(R.string.action_add_expense),
                 fontWeight = FontWeight.Bold,
                 maxLines = 1,
                 softWrap = false,
@@ -66,7 +68,7 @@ fun DashboardQuickActions(
             Icon(Icons.Default.Add, contentDescription = "Add Income")
             Spacer(modifier = Modifier.width(4.dp))
             Text(
-                text = "Add Income",
+                text = stringResource(R.string.action_add_income),
                 fontWeight = FontWeight.Bold,
                 maxLines = 1,
                 softWrap = false,

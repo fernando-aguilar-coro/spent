@@ -24,8 +24,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.example.spent.R
 import com.example.spent.ui.theme.ExpenseRed
 import com.example.spent.ui.theme.IncomeGreen
 
@@ -49,7 +51,7 @@ fun DashboardHeaderCard(
             modifier = Modifier.padding(20.dp)
         ) {
             Text(
-                text = "Net Balance",
+                text = stringResource(R.string.net_savings),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.8f)
             )
@@ -76,7 +78,7 @@ fun DashboardHeaderCard(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = if (isPayCycleActive) "Safe to Spend Today" else "Available Funds",
+                        text = stringResource(R.string.safe_to_spend_today),
                         style = MaterialTheme.typography.bodyMedium,
                         fontWeight = FontWeight.Medium
                     )
@@ -104,7 +106,7 @@ fun DashboardHeaderCard(
                     )
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
-                        text = "Income: $currencySymbol${"%.2f".format(totalIncome)}",
+                        text = "${stringResource(R.string.total_income)}: $currencySymbol${"%.2f".format(totalIncome)}",
                         style = MaterialTheme.typography.bodySmall
                     )
                 }
@@ -118,7 +120,7 @@ fun DashboardHeaderCard(
                     )
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
-                        text = "Spent: $currencySymbol${"%.2f".format(totalSpent)}",
+                        text = "${stringResource(R.string.total_spent)}: $currencySymbol${"%.2f".format(totalSpent)}",
                         style = MaterialTheme.typography.bodySmall
                     )
                 }

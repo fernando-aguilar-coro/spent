@@ -1,3 +1,181 @@
 <resources>
-    <string name="app_name">spent</string>
+    <string name="app_name">Spent</string>
+
+    <!-- Navigation -->
+    <string name="nav_dashboard">Dashboard</string>
+    <string name="nav_analytics">Analytics</string>
+    <string name="nav_settings">Settings</string>
+
+    <!-- Dashboard Header & Profile -->
+    <string name="user_greeting">Hello, Fernando</string>
+    <string name="safe_to_spend_today">Safe to spend today</string>
+    <string name="total_spent">Total Spent</string>
+    <string name="total_income">Total Income</string>
+    <string name="net_savings">Net Savings</string>
+    <string name="remaining_in_cycle">Days Left</string>
+    <string name="no_active_pay_cycle">No pay cycle active</string>
+    <string name="days_left">%1$d days left in pay cycle</string>
+    <string name="day_left">%1$d day left in pay cycle</string>
+    <string name="manage_cycle">Manage Pay Cycle</string>
+
+    <!-- Quick Actions -->
+    <string name="action_add_expense">+ Add Expense</string>
+    <string name="action_add_income">+ Add Income</string>
+
+    <!-- Category Envelopes -->
+    <string name="category_envelopes">Category Envelopes</string>
+    <string name="envelope_of">of</string>
+    <string name="no_budget_set">No budget set</string>
+    <string name="over_budget">Over budget</string>
+
+    <!-- Extra Tools & Shortcuts -->
+    <string name="extra_tools_title">Extra Tools &amp; Shortcuts</string>
+    <string name="tool_savings_title">Savings</string>
+    <string name="tool_savings_goal">Goal: %1$s%2$.0f</string>
+    <string name="tool_savings_desc">Track goals &amp; funds</string>
+    <string name="tool_loans_title">Loans</string>
+    <string name="tool_loans_debt">Debt: %1$s%2$.0f</string>
+    <string name="tool_loans_desc">Bank &amp; personal loans</string>
+    <string name="tool_lent_debt_title">Lent / Debt</string>
+    <string name="tool_lent_debt_desc">Track debts &amp; IOUs</string>
+    <string name="tool_recurring_title">Recurring Rules</string>
+    <string name="tool_recurring_desc">Auto-scheduled rules</string>
+    <string name="tool_recurring_toast">Active Recurring Rules: %1$d transactions auto-logged</string>
+    <string name="tool_export_excel_title">Export to Excel (.xlsx)</string>
+    <string name="tool_export_excel_desc">Download spreadsheet with separate Date &amp; Time columns</string>
+
+    <!-- Recent Activity -->
+    <string name="recent_activity">Recent Activity</string>
+    <string name="no_transactions_yet">No transactions yet. Tap + Add Expense to start tracking!</string>
+
+    <!-- Savings Tracker Dialog -->
+    <string name="savings_tracker_title">Savings Tracker</string>
+    <string name="total_saved">Total Saved</string>
+    <string name="savings_goal">Savings Goal</string>
+    <string name="savings_progress_text">%1$d%% of goal reached</string>
+    <string name="add_funds_to_savings">Add Funds to Savings</string>
+    <string name="deposit_amount_label">Deposit Amount (%1$s)</string>
+    <string name="note_goal_name_label">Note / Goal Name</string>
+    <string name="deposit_into_savings">Deposit into Savings</string>
+    <string name="edit_target_goal">Edit Target Goal</string>
+    <string name="update_target_savings_goal">Update Target Savings Goal</string>
+    <string name="goal_target_label">Goal Target (%1$s)</string>
+    <string name="back_to_deposit">Back to Deposit</string>
+    <string name="deposit_funds">Deposit Funds</string>
+    <string name="save_goal">Save Goal</string>
+
+    <!-- Loans Tracker Dialog -->
+    <string name="loans_tracker_title">Loans Tracker (Préstamos)</string>
+    <string name="outstanding_loan_debt">Outstanding Loan Debt</string>
+    <string name="borrowed_amount">Borrowed: %1$s%2$.2f</string>
+    <string name="repaid_amount">Repaid: %1$s%2$.2f</string>
+    <string name="pay_installment">Pay Installment</string>
+    <string name="register_loan">+ Register Loan</string>
+    <string name="loan_name_label">Loan Name / Description</string>
+    <string name="loan_name_placeholder">e.g. Car Loan, Bank Loan, Mortgage</string>
+    <string name="lender_bank_label">Lender / Bank Institution</string>
+    <string name="lender_bank_placeholder">e.g. Bank, Credit Union, Friend</string>
+    <string name="payment_amount_label">Payment Amount (%1$s)</string>
+    <string name="loan_capital_label">Loan Capital (%1$s)</string>
+    <string name="record_payment">Record Payment</string>
+
+    <!-- Lent / Debt Dialog -->
+    <string name="lent_debt_title">Log Lent / Debt Record</string>
+    <string name="i_lent_money">I Lent Money</string>
+    <string name="i_owe_money">I Owe Money</string>
+    <string name="person_name_label">Person Name</string>
+    <string name="person_name_placeholder">e.g. John, Maria</string>
+    <string name="amount_label">Amount (%1$s)</string>
+    <string name="lent_to_prefix">Lent to %1$s</string>
+    <string name="owed_to_prefix">Owed to %1$s</string>
+    <string name="save_record">Save Record</string>
+
+    <!-- Transaction Details Dialog -->
+    <string name="expense_details">Expense Details</string>
+    <string name="income_details">Income Details</string>
+    <string name="category_label">Category</string>
+    <string name="note_merchant_label">Note / Merchant</string>
+    <string name="no_note_provided">No note provided</string>
+    <string name="date_time_label">Date &amp; Time</string>
+    <string name="delete_record">Delete Record</string>
+    <string name="category_general">General</string>
+
+    <!-- Delete Transaction Confirmation Dialog -->
+    <string name="delete_transaction_title">Delete Transaction?</string>
+    <string name="delete_transaction_confirmation">Are you sure you want to permanently delete this transaction?</string>
+    <string name="delete_transaction_warning">This will update your net balance and pay-cycle budget.</string>
+
+    <!-- Common Dialog Actions -->
+    <string name="btn_close">Close</string>
+    <string name="btn_cancel">Cancel</string>
+    <string name="btn_change">Change</string>
+    <string name="btn_new">New</string>
+
+    <!-- Walkthrough Banner -->
+    <string name="walkthrough_title">Welcome to Spent!</string>
+    <string name="walkthrough_desc">Track your expenses per pay cycle, manage category envelopes, and reach your savings goals.</string>
+    <string name="walkthrough_dismiss">Got it</string>
+
+    <!-- Add Transaction Screen -->
+    <string name="add_expense_title">Add Expense</string>
+    <string name="add_income_title">Add Income</string>
+    <string name="type_expense">Expense</string>
+    <string name="type_income">Income</string>
+    <string name="category_envelope_optional">Category Envelope (Optional)</string>
+    <string name="note_merchant_optional">Note / Merchant (Optional)</string>
+    <string name="make_recurring_payment">Make Recurring Payment</string>
+    <string name="recurring_schedule_desc">Auto-log on specified schedule</string>
+    <string name="repeat_frequency">Repeat Frequency</string>
+    <string name="frequency_daily">Daily</string>
+    <string name="frequency_weekly">Weekly</string>
+    <string name="frequency_monthly">Monthly</string>
+    <string name="save_transaction">Save Transaction</string>
+
+    <!-- Create Category Dialog -->
+    <string name="create_category_title">Create New Category Envelope</string>
+    <string name="category_name_label">Category Name</string>
+    <string name="category_name_placeholder">e.g. Subscriptions, Pets</string>
+    <string name="select_color">Select Color</string>
+    <string name="save_category">Save Category</string>
+
+    <!-- Analytics Screen -->
+    <string name="analytics_title">Analytics &amp; Reports</string>
+    <string name="analytics_subtitle">Spending breakdown and cycle insights</string>
+    <string name="savings_rate">Savings Rate</string>
+    <string name="category_distribution">Category Distribution</string>
+    <string name="no_spending_recorded">No spending recorded for this cycle.</string>
+
+    <!-- Settings Screen -->
+    <string name="settings_title">Settings</string>
+    <string name="settings_subtitle">App preferences and data management</string>
+    <string name="profile_title">User Profile</string>
+    <string name="profile_name">Fernando Aguilar</string>
+    <string name="profile_email">fernando@example.com</string>
+    <string name="pay_cycle_title">Pay Cycle</string>
+    <string name="pay_cycle_desc">Set your cycle frequency and base income</string>
+    <string name="cycle_frequency">Frequency</string>
+    <string name="cycle_income_label">Base Income (%1$s)</string>
+    <string name="save_pay_cycle">Save Pay Cycle</string>
+    <string name="theme_title">Theme</string>
+    <string name="theme_system">System Default</string>
+    <string name="theme_light">Light</string>
+    <string name="theme_dark">Dark</string>
+    <string name="currency_title">Currency</string>
+    <string name="currency_desc">Select your preferred currency symbol</string>
+    <string name="language_title">Language / Idioma</string>
+    <string name="language_desc">Choose application display language</string>
+    <string name="language_system">System Default</string>
+    <string name="language_en">English</string>
+    <string name="language_es">Español</string>
+    <string name="export_data_title">Export Data (CSV)</string>
+    <string name="export_data_desc">Download transactions as CSV file</string>
+    <string name="export_csv_btn">Export CSV</string>
+    <string name="app_info_title">About Spent</string>
+    <string name="app_version">Version 1.0.0</string>
+    <string name="app_description">Spent helps you track expenses, budget by pay cycle, and achieve financial clarity.</string>
+    <string name="reset_data_title">Reset All Data</string>
+    <string name="reset_data_desc">Permanently delete all transactions, categories, and settings</string>
+    <string name="reset_data_btn">Reset Data</string>
+    <string name="reset_data_confirm_title">Reset All Data?</string>
+    <string name="reset_data_confirm_msg">This will permanently delete all records. This action cannot be undone.</string>
 </resources>

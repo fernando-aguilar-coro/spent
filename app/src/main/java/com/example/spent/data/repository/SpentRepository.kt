@@ -21,6 +21,7 @@ interface SpentRepository {
     val isWalkthroughCompletedFlow: Flow<Boolean>
     val isDarkThemeFlow: Flow<Boolean?>
     val currencySymbolFlow: Flow<String>
+    val appLanguageFlow: Flow<String?>
 
     suspend fun addTransaction(transaction: TransactionEntity)
     suspend fun deleteTransaction(transaction: TransactionEntity)
@@ -38,5 +39,6 @@ interface SpentRepository {
     suspend fun setWalkthroughCompleted(completed: Boolean)
     suspend fun setDarkThemeMode(enabled: Boolean?)
     suspend fun setCurrencySymbol(symbol: String)
+    suspend fun setAppLanguage(languageCode: String?)
     suspend fun resetAllData()
 }

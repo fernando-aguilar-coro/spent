@@ -10,7 +10,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.TrendingUp
+import androidx.compose.material.icons.automirrored.filled.TrendingUp
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -21,8 +21,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.example.spent.R
 import com.example.spent.ui.theme.ExpenseRed
 import com.example.spent.ui.theme.IncomeGreen
 
@@ -47,13 +49,13 @@ fun SavingsSummaryCard(
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(
-                        imageVector = Icons.Default.TrendingUp,
+                        imageVector = Icons.AutoMirrored.Filled.TrendingUp,
                         contentDescription = "Savings",
                         tint = MaterialTheme.colorScheme.primary
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        text = "Savings Rate",
+                        text = stringResource(R.string.savings_rate),
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.SemiBold
                     )
@@ -85,7 +87,7 @@ fun SavingsSummaryCard(
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Column {
-                    Text("Total Income", style = MaterialTheme.typography.bodySmall)
+                    Text(stringResource(R.string.total_income), style = MaterialTheme.typography.bodySmall)
                     Text(
                         "$currencySymbol${"%.2f".format(totalIncome)}",
                         style = MaterialTheme.typography.titleMedium,
@@ -94,7 +96,7 @@ fun SavingsSummaryCard(
                     )
                 }
                 Column {
-                    Text("Total Spent", style = MaterialTheme.typography.bodySmall)
+                    Text(stringResource(R.string.total_spent), style = MaterialTheme.typography.bodySmall)
                     Text(
                         "$currencySymbol${"%.2f".format(totalSpent)}",
                         style = MaterialTheme.typography.titleMedium,
@@ -103,7 +105,7 @@ fun SavingsSummaryCard(
                     )
                 }
                 Column {
-                    Text("Net Savings", style = MaterialTheme.typography.bodySmall)
+                    Text(stringResource(R.string.net_savings), style = MaterialTheme.typography.bodySmall)
                     Text(
                         "$currencySymbol${"%.2f".format(netSavings)}",
                         style = MaterialTheme.typography.titleMedium,

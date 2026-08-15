@@ -25,8 +25,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.example.spent.R
 
 @Composable
 fun ThemeSelectionCard(
@@ -36,9 +38,9 @@ fun ThemeSelectionCard(
     var showDialog by remember { mutableStateOf(false) }
 
     val currentLabel = when (isDarkThemeOverride) {
-        true -> "Dark Theme"
-        false -> "Light Theme"
-        null -> "System Default"
+        true -> stringResource(R.string.theme_dark)
+        false -> stringResource(R.string.theme_light)
+        null -> stringResource(R.string.theme_system)
     }
 
     Card(
@@ -59,8 +61,16 @@ fun ThemeSelectionCard(
             )
             Spacer(modifier = Modifier.width(12.dp))
             Column {
-                Text("App Theme", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-                Text(currentLabel, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text(
+                    text = stringResource(R.string.theme_title),
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold
+                )
+                Text(
+                    text = currentLabel,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
             }
         }
     }
@@ -68,13 +78,13 @@ fun ThemeSelectionCard(
     if (showDialog) {
         AlertDialog(
             onDismissRequest = { showDialog = false },
-            title = { Text("Select App Theme", fontWeight = FontWeight.Bold) },
+            title = { Text(stringResource(R.string.theme_title), fontWeight = FontWeight.Bold) },
             text = {
                 Column {
                     val options = listOf(
-                        null to "System Default",
-                        false to "Light Theme",
-                        true to "Dark Theme"
+                        null to stringResource(R.string.theme_system),
+                        false to stringResource(R.string.theme_light),
+                        true to stringResource(R.string.theme_dark)
                     )
 
                     options.forEach { (modeValue, modeLabel) ->
@@ -103,7 +113,7 @@ fun ThemeSelectionCard(
             },
             confirmButton = {
                 TextButton(onClick = { showDialog = false }) {
-                    Text("Close")
+                    Text(stringResource(R.string.btn_close))
                 }
             }
         )

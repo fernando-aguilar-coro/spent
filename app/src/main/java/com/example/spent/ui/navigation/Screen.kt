@@ -1,17 +1,19 @@
 package com.example.spent.ui.navigation
 
+import androidx.annotation.StringRes
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.BarChart
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.ui.graphics.vector.ImageVector
+import com.example.spent.R
 
-sealed class Screen(val route: String, val title: String, val icon: ImageVector) {
-    object Dashboard : Screen("dashboard", "Dashboard", Icons.Default.Home)
-    object Analytics : Screen("analytics", "Analytics", Icons.Default.BarChart)
-    object Settings : Screen("settings", "Settings", Icons.Default.Settings)
-    object AddTransaction : Screen("add_transaction/{initialType}", "Add Transaction", Icons.Default.Add) {
+sealed class Screen(val route: String, @StringRes val titleResId: Int, val icon: ImageVector) {
+    object Dashboard : Screen("dashboard", R.string.nav_dashboard, Icons.Default.Home)
+    object Analytics : Screen("analytics", R.string.nav_analytics, Icons.Default.BarChart)
+    object Settings : Screen("settings", R.string.nav_settings, Icons.Default.Settings)
+    object AddTransaction : Screen("add_transaction/{initialType}", R.string.action_add_expense, Icons.Default.Add) {
         fun createRoute(initialType: String) = "add_transaction/$initialType"
     }
 }

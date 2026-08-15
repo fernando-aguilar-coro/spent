@@ -18,6 +18,7 @@ class UserPreferencesRepository(private val context: Context) {
         val IS_WALKTHROUGH_COMPLETED = booleanPreferencesKey("is_walkthrough_completed")
         val DARK_THEME_ENABLED = booleanPreferencesKey("dark_theme_enabled")
         val CURRENCY_SYMBOL = stringPreferencesKey("currency_symbol")
+        val APP_LANGUAGE = stringPreferencesKey("app_language")
     }
 
     val isWalkthroughCompletedFlow: Flow<Boolean> = context.dataStore.data.map { preferences ->
@@ -30,6 +31,10 @@ class UserPreferencesRepository(private val context: Context) {
 
     val currencySymbolFlow: Flow<String> = context.dataStore.data.map { preferences ->
         preferences[PreferencesKeys.CURRENCY_SYMBOL] ?: "$"
+    }
+
+    val appLanguageFlow: Flow<String?> = context.dataStore.data.map { preferences ->
+        preferences[PreferencesKeys.APP_LANGUAGE]
     }
 
     suspend fun setWalkthroughCompleted(completed: Boolean) {
@@ -51,6 +56,16 @@ class UserPreferencesRepository(private val context: Context) {
     suspend fun setCurrencySymbol(symbol: String) {
         context.dataStore.edit { preferences ->
             preferences[PreferencesKeys.CURRENCY_SYMBOL] = symbol
+        }
+    }
+
+    suspend fun setAppLanguage(languageCode: String?) {
+        context.dataStore.edit { preferences ->
+            if (languageCode == null) {
+                preferences.remove(PreferencesKeys.APP_LANGUAGE)
+            } else {
+                preferences[PreferencesKeys.APP_LANGUAGE] = languageCode
+            }
         }
     }
 }

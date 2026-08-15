@@ -13,13 +13,16 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.example.spent.R
 import com.example.spent.data.local.entity.PayCycleEntity
 import com.example.spent.data.repository.SpentRepository
 import com.example.spent.ui.settings.components.AppInfoCard
 import com.example.spent.ui.settings.components.CurrencySelectionCard
 import com.example.spent.ui.settings.components.ExportCsvCard
+import com.example.spent.ui.settings.components.LanguageSelectionCard
 import com.example.spent.ui.settings.components.PayCycleCard
 import com.example.spent.ui.settings.components.ResetDataButton
 import com.example.spent.ui.settings.components.ThemeSelectionCard
@@ -35,6 +38,7 @@ fun SettingsScreen(
     val currentPayCycle by repository.getCurrentPayCycleFlow().collectAsState(initial = null)
     val isDarkThemeOverride by repository.isDarkThemeFlow.collectAsState(initial = null)
     val currencySymbol by repository.currencySymbolFlow.collectAsState(initial = "$")
+    val appLanguage by repository.appLanguageFlow.collectAsState(initial = null)
     val transactions by repository.getTransactionsFlow().collectAsState(initial = emptyList())
     val categories by repository.getCategoriesFlow().collectAsState(initial = emptyList())
 
@@ -44,12 +48,12 @@ fun SettingsScreen(
     ) {
         item {
             Text(
-                text = "Settings",
+                text = stringResource(R.string.settings_title),
                 style = MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.Bold
             )
             Text(
-                text = "App preferences and data management",
+                text = stringResource(R.string.settings_subtitle),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -100,6 +104,19 @@ fun SettingsScreen(
                 onSelectCurrencySymbol = { symbol ->
                     scope.launch {
                         repository.setCurrencySymbol(symbol)
+                    }
+                }
+            )
+            Spacer(modifier = Modifier.height(12.dp))
+        }
+
+        // Language Selector Option
+        item {
+            LanguageSelectionCard(
+                currentLanguageCode = appLanguage,
+                onSelectLanguage = { languageCode ->
+                    scope.launch {
+                        repository.setAppLanguage(languageCode)
                     }
                 }
             )

@@ -1,0 +1,181 @@
+<resources>
+    <string name="app_name">Spent</string>
+
+    <!-- Navigation -->
+    <string name="nav_dashboard">Panel</string>
+    <string name="nav_analytics">Análisis</string>
+    <string name="nav_settings">Ajustes</string>
+
+    <!-- Dashboard Header & Profile -->
+    <string name="user_greeting">Hola, Fernando</string>
+    <string name="safe_to_spend_today">Seguro para gastar hoy</string>
+    <string name="total_spent">Gasto Total</string>
+    <string name="total_income">Ingreso Total</string>
+    <string name="net_savings">Ahorro Neto</string>
+    <string name="remaining_in_cycle">Días restantes</string>
+    <string name="no_active_pay_cycle">Sin ciclo de pago activo</string>
+    <string name="days_left">Quedan %1$d días en el ciclo</string>
+    <string name="day_left">Queda %1$d día en el ciclo</string>
+    <string name="manage_cycle">Administrar Ciclo</string>
+
+    <!-- Quick Actions -->
+    <string name="action_add_expense">+ Añadir Gasto</string>
+    <string name="action_add_income">+ Añadir Ingreso</string>
+
+    <!-- Category Envelopes -->
+    <string name="category_envelopes">Sobres de Categoría</string>
+    <string name="envelope_of">de</string>
+    <string name="no_budget_set">Sin presupuesto fijado</string>
+    <string name="over_budget">Presupuesto superado</string>
+
+    <!-- Extra Tools & Shortcuts -->
+    <string name="extra_tools_title">Herramientas y Accesos Rápidos</string>
+    <string name="tool_savings_title">Ahorros</string>
+    <string name="tool_savings_goal">Meta: %1$s%2$.0f</string>
+    <string name="tool_savings_desc">Control de metas y fondos</string>
+    <string name="tool_loans_title">Préstamos</string>
+    <string name="tool_loans_debt">Deuda: %1$s%2$.0f</string>
+    <string name="tool_loans_desc">Préstamos bancarios y personales</string>
+    <string name="tool_lent_debt_title">Prestado / Deudas</string>
+    <string name="tool_lent_debt_desc">Control de deudas y préstamos</string>
+    <string name="tool_recurring_title">Reglas Recurrentes</string>
+    <string name="tool_recurring_desc">Transacciones automáticas</string>
+    <string name="tool_recurring_toast">Reglas recurrentes activas: %1$d transacciones programadas</string>
+    <string name="tool_export_excel_title">Exportar a Excel (.xlsx)</string>
+    <string name="tool_export_excel_desc">Descargar hoja de cálculo con columnas de Fecha y Hora</string>
+
+    <!-- Recent Activity -->
+    <string name="recent_activity">Actividad Reciente</string>
+    <string name="no_transactions_yet">¡Sin transacciones aún. Toca + Añadir Gasto para comenzar!</string>
+
+    <!-- Savings Tracker Dialog -->
+    <string name="savings_tracker_title">Control de Ahorros</string>
+    <string name="total_saved">Total Ahorrado</string>
+    <string name="savings_goal">Meta de Ahorro</string>
+    <string name="savings_progress_text">%1$d%% de la meta alcanzada</string>
+    <string name="add_funds_to_savings">Añadir Fondos al Ahorro</string>
+    <string name="deposit_amount_label">Monto a Depositar (%1$s)</string>
+    <string name="note_goal_name_label">Nota / Nombre de la Meta</string>
+    <string name="deposit_into_savings">Depósito de Ahorro</string>
+    <string name="edit_target_goal">Editar Meta</string>
+    <string name="update_target_savings_goal">Actualizar Meta de Ahorro</string>
+    <string name="goal_target_label">Meta Objetivo (%1$s)</string>
+    <string name="back_to_deposit">Volver a Depósito</string>
+    <string name="deposit_funds">Depositar Fondos</string>
+    <string name="save_goal">Guardar Meta</string>
+
+    <!-- Loans Tracker Dialog -->
+    <string name="loans_tracker_title">Control de Préstamos</string>
+    <string name="outstanding_loan_debt">Deuda de Préstamo Pendiente</string>
+    <string name="borrowed_amount">Prestado: %1$s%2$.2f</string>
+    <string name="repaid_amount">Pagado: %1$s%2$.2f</string>
+    <string name="pay_installment">Pagar Cuota</string>
+    <string name="register_loan">+ Registrar Préstamo</string>
+    <string name="loan_name_label">Nombre / Descripción del Préstamo</string>
+    <string name="loan_name_placeholder">ej. Préstamo Auto, Banco, Hipoteca</string>
+    <string name="lender_bank_label">Prestamista / Banco</string>
+    <string name="lender_bank_placeholder">ej. Banco, Cooperativa, Amigo</string>
+    <string name="payment_amount_label">Monto del Pago (%1$s)</string>
+    <string name="loan_capital_label">Capital del Préstamo (%1$s)</string>
+    <string name="record_payment">Registrar Pago</string>
+
+    <!-- Lent / Debt Dialog -->
+    <string name="lent_debt_title">Registrar Préstamo / Deuda</string>
+    <string name="i_lent_money">Yo Presté Dinero</string>
+    <string name="i_owe_money">Yo Debo Dinero</string>
+    <string name="person_name_label">Nombre de la Persona</string>
+    <string name="person_name_placeholder">ej. Juan, María</string>
+    <string name="amount_label">Monto (%1$s)</string>
+    <string name="lent_to_prefix">Prestado a %1$s</string>
+    <string name="owed_to_prefix">Debo a %1$s</string>
+    <string name="save_record">Guardar Registro</string>
+
+    <!-- Transaction Details Dialog -->
+    <string name="expense_details">Detalles del Gasto</string>
+    <string name="income_details">Detalles del Ingreso</string>
+    <string name="category_label">Categoría</string>
+    <string name="note_merchant_label">Nota / Comercio</string>
+    <string name="no_note_provided">Sin nota especificada</string>
+    <string name="date_time_label">Fecha y Hora</string>
+    <string name="delete_record">Eliminar Registro</string>
+    <string name="category_general">General</string>
+
+    <!-- Delete Transaction Confirmation Dialog -->
+    <string name="delete_transaction_title">¿Eliminar Transacción?</string>
+    <string name="delete_transaction_confirmation">¿Estás seguro de que deseas eliminar permanentemente esta transacción?</string>
+    <string name="delete_transaction_warning">Esto actualizará tu balance neto y el presupuesto de tu ciclo de pago.</string>
+
+    <!-- Common Dialog Actions -->
+    <string name="btn_close">Cerrar</string>
+    <string name="btn_cancel">Cancelar</string>
+    <string name="btn_change">Cambiar</string>
+    <string name="btn_new">Nuevo</string>
+
+    <!-- Walkthrough Banner -->
+    <string name="walkthrough_title">¡Bienvenido a Spent!</string>
+    <string name="walkthrough_desc">Controla tus gastos por ciclo de pago, gestiona sobres de categorías y alcanza tus metas de ahorro.</string>
+    <string name="walkthrough_dismiss">Entendido</string>
+
+    <!-- Add Transaction Screen -->
+    <string name="add_expense_title">Añadir Gasto</string>
+    <string name="add_income_title">Añadir Ingreso</string>
+    <string name="type_expense">Gasto</string>
+    <string name="type_income">Ingreso</string>
+    <string name="category_envelope_optional">Sobre de Categoría (Opcional)</string>
+    <string name="note_merchant_optional">Nota / Comercio (Opcional)</string>
+    <string name="make_recurring_payment">Hacer Pago Recurrente</string>
+    <string name="recurring_schedule_desc">Registro automático en el horario especificado</string>
+    <string name="repeat_frequency">Frecuencia de Repetición</string>
+    <string name="frequency_daily">Diario</string>
+    <string name="frequency_weekly">Semanal</string>
+    <string name="frequency_monthly">Mensual</string>
+    <string name="save_transaction">Guardar Transacción</string>
+
+    <!-- Create Category Dialog -->
+    <string name="create_category_title">Crear Nuevo Sobre de Categoría</string>
+    <string name="category_name_label">Nombre de Categoría</string>
+    <string name="category_name_placeholder">ej. Suscripciones, Mascotas</string>
+    <string name="select_color">Seleccionar Color</string>
+    <string name="save_category">Guardar Categoría</string>
+
+    <!-- Analytics Screen -->
+    <string name="analytics_title">Análisis e Informes</string>
+    <string name="analytics_subtitle">Desglose de gastos e información del ciclo</string>
+    <string name="savings_rate">Tasa de Ahorro</string>
+    <string name="category_distribution">Distribución por Categoría</string>
+    <string name="no_spending_recorded">No hay gastos registrados en este ciclo.</string>
+
+    <!-- Settings Screen -->
+    <string name="settings_title">Ajustes</string>
+    <string name="settings_subtitle">Preferencias de la aplicación y gestión de datos</string>
+    <string name="profile_title">Perfil de Usuario</string>
+    <string name="profile_name">Fernando Aguilar</string>
+    <string name="profile_email">fernando@example.com</string>
+    <string name="pay_cycle_title">Ciclo de Pago</string>
+    <string name="pay_cycle_desc">Configura la frecuencia de tu ciclo y tus ingresos base</string>
+    <string name="cycle_frequency">Frecuencia</string>
+    <string name="cycle_income_label">Ingreso Base (%1$s)</string>
+    <string name="save_pay_cycle">Guardar Ciclo de Pago</string>
+    <string name="theme_title">Tema</string>
+    <string name="theme_system">Predeterminado del Sistema</string>
+    <string name="theme_light">Claro</string>
+    <string name="theme_dark">Oscuro</string>
+    <string name="currency_title">Moneda</string>
+    <string name="currency_desc">Selecciona tu símbolo de moneda preferido</string>
+    <string name="language_title">Idioma / Language</string>
+    <string name="language_desc">Elige el idioma visual de la aplicación</string>
+    <string name="language_system">Predeterminado del Sistema</string>
+    <string name="language_en">English</string>
+    <string name="language_es">Español</string>
+    <string name="export_data_title">Exportar Datos (CSV)</string>
+    <string name="export_data_desc">Descarga las transacciones en archivo CSV</string>
+    <string name="export_csv_btn">Exportar CSV</string>
+    <string name="app_info_title">Acerca de Spent</string>
+    <string name="app_version">Versión 1.0.0</string>
+    <string name="app_description">Spent te ayuda a controlar gastos, presupuestar por ciclo de pago y lograr claridad financiera.</string>
+    <string name="reset_data_title">Restablecer Todos los Datos</string>
+    <string name="reset_data_desc">Eliminar permanentemente todas las transacciones, categorías y ajustes</string>
+    <string name="reset_data_btn">Restablecer Datos</string>
+    <string name="reset_data_confirm_title">¿Restablecer Todos los Datos?</string>
+    <string name="reset_data_confirm_msg">Esto eliminará permanentemente todos los registros. Esta acción no se puede deshacer.</string>
+</resources>

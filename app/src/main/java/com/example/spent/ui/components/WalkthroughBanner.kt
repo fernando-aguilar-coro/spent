@@ -23,7 +23,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.example.spent.R
 
 @Composable
 fun WalkthroughBanner(
@@ -50,7 +52,7 @@ fun WalkthroughBanner(
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
-                    text = "Welcome to Spent!",
+                    text = stringResource(R.string.walkthrough_title),
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.onPrimaryContainer
                 )
@@ -65,7 +67,7 @@ fun WalkthroughBanner(
         }
         Spacer(modifier = Modifier.height(4.dp))
         Text(
-            text = "Track expenses in < 3s, monitor category envelopes, and manage your pay cycle. Tap + Add Expense below to get started!",
+            text = stringResource(R.string.walkthrough_desc),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onPrimaryContainer
         )
@@ -74,7 +76,7 @@ fun WalkthroughBanner(
             onClick = onDismiss,
             colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
         ) {
-            Text("Got it!")
+            Text(stringResource(R.string.walkthrough_dismiss))
         }
     }
 }

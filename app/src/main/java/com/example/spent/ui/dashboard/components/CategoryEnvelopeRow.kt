@@ -31,8 +31,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.example.spent.R
 import com.example.spent.ui.dashboard.CategoryEnvelopeState
 
 @Composable
@@ -42,7 +44,7 @@ fun CategoryEnvelopeRow(
 ) {
     Column(modifier = Modifier.padding(vertical = 12.dp)) {
         Text(
-            text = "Category Envelopes",
+            text = stringResource(R.string.category_envelopes),
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.Bold,
             modifier = Modifier.padding(horizontal = 20.dp)

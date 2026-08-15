@@ -10,20 +10,15 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
@@ -38,10 +33,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-
+import com.example.spent.R
 import com.example.spent.data.local.entity.CategoryEntity
 import com.example.spent.ui.theme.ExpenseRed
 import com.example.spent.ui.theme.IncomeGreen
@@ -70,7 +66,7 @@ fun TransactionBottomSheet(
                 .padding(horizontal = 24.dp, vertical = 16.dp)
         ) {
             Text(
-                text = "Log Transaction",
+                text = stringResource(R.string.save_transaction),
                 style = MaterialTheme.typography.headlineSmall,
                 fontWeight = FontWeight.Bold
             )
@@ -96,7 +92,7 @@ fun TransactionBottomSheet(
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = "Expense",
+                        text = stringResource(R.string.type_expense),
                         color = if (selectedType == "EXPENSE") Color.White else MaterialTheme.colorScheme.onSurfaceVariant,
                         fontWeight = FontWeight.SemiBold
                     )
@@ -112,7 +108,7 @@ fun TransactionBottomSheet(
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = "Income",
+                        text = stringResource(R.string.type_income),
                         color = if (selectedType == "INCOME") Color.White else MaterialTheme.colorScheme.onSurfaceVariant,
                         fontWeight = FontWeight.SemiBold
                     )
@@ -129,7 +125,7 @@ fun TransactionBottomSheet(
                         amountText = input
                     }
                 },
-                label = { Text("Amount ($currencySymbol)") },
+                label = { Text(stringResource(R.string.amount_label, currencySymbol)) },
                 placeholder = { Text("0.00") },
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
@@ -140,7 +136,7 @@ fun TransactionBottomSheet(
 
             // Category Selection Row
             Text(
-                text = "Select Category Envelope",
+                text = stringResource(R.string.category_envelope_optional),
                 style = MaterialTheme.typography.bodyMedium,
                 fontWeight = FontWeight.Medium
             )
@@ -173,7 +169,7 @@ fun TransactionBottomSheet(
             OutlinedTextField(
                 value = noteText,
                 onValueChange = { noteText = it },
-                label = { Text("Note / Merchant (Optional)") },
+                label = { Text(stringResource(R.string.note_merchant_optional)) },
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth()
             )
@@ -197,7 +193,7 @@ fun TransactionBottomSheet(
                 )
             ) {
                 Text(
-                    text = "Save Transaction",
+                    text = stringResource(R.string.save_transaction),
                     fontWeight = FontWeight.Bold
                 )
             }
