@@ -103,7 +103,7 @@ fun DashboardHeaderCard(
                 modifier = Modifier
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(16.dp))
-                    .background(Color.White)
+                    .background(MaterialTheme.colorScheme.surface)
                     .padding(horizontal = 16.dp, vertical = 12.dp)
             ) {
                 Row(
@@ -116,13 +116,13 @@ fun DashboardHeaderCard(
                             modifier = Modifier
                                 .size(28.dp)
                                 .clip(CircleShape)
-                                .background(SageGreenLight),
+                                .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)),
                             contentAlignment = Alignment.Center
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Shield,
                                 contentDescription = null,
-                                tint = SageGreenPrimary,
+                                tint = MaterialTheme.colorScheme.primary,
                                 modifier = Modifier.size(16.dp)
                             )
                         }
@@ -139,7 +139,7 @@ fun DashboardHeaderCard(
                         text = "$currencySymbol${"%.2f".format(safeToSpendToday)} / day",
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
-                        color = SageGreenPrimary
+                        color = MaterialTheme.colorScheme.primary
                     )
                 }
             }
@@ -164,13 +164,13 @@ fun DashboardHeaderCard(
                         modifier = Modifier
                             .size(24.dp)
                             .clip(CircleShape)
-                            .background(IncomeGreenContainer),
+                            .background(IncomeGreen.copy(alpha = 0.25f)),
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
                             imageVector = Icons.Default.ArrowUpward,
                             contentDescription = "Income",
-                            tint = IncomeGreen,
+                            tint = Color.White,
                             modifier = Modifier.size(14.dp)
                         )
                     }
@@ -203,13 +203,13 @@ fun DashboardHeaderCard(
                         modifier = Modifier
                             .size(24.dp)
                             .clip(CircleShape)
-                            .background(ExpenseRedContainer),
+                            .background(ExpenseRed.copy(alpha = 0.25f)),
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
                             imageVector = Icons.Default.ArrowDownward,
                             contentDescription = "Expense",
-                            tint = ExpenseRed,
+                            tint = Color.White,
                             modifier = Modifier.size(14.dp)
                         )
                     }

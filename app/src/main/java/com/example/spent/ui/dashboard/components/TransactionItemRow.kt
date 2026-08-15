@@ -77,7 +77,7 @@ fun TransactionItemRow(
                     modifier = Modifier
                         .size(38.dp)
                         .clip(CircleShape)
-                        .background(if (isExpense) ExpenseRedContainer else IncomeGreenContainer),
+                        .background(if (isExpense) ExpenseRed.copy(alpha = 0.15f) else IncomeGreen.copy(alpha = 0.15f)),
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(

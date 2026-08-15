@@ -19,6 +19,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Calculate
@@ -45,6 +46,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -53,7 +55,6 @@ import com.example.spent.data.local.entity.CategoryEntity
 import com.example.spent.ui.components.CustomNumericKeypad
 import com.example.spent.ui.theme.ExpenseRed
 import com.example.spent.ui.theme.IncomeGreen
-import com.example.spent.ui.theme.SageGreenPrimary
 import com.example.spent.ui.transaction.components.AddCategoryDialog
 import com.example.spent.ui.transaction.components.CategoryEnvelopeSelector
 import com.example.spent.ui.transaction.components.DateTimePickerField
@@ -86,7 +87,7 @@ fun AddTransactionScreen(
     var showAddCategoryDialog by remember { mutableStateOf(false) }
 
     // Keypad visibility toggle
-    var showKeypad by remember { mutableStateOf(true) }
+    var showKeypad by remember { mutableStateOf(false) }
 
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
@@ -127,51 +128,52 @@ fun AddTransactionScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Prominent Amount Card Display
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(20.dp))
-                    .background(MaterialTheme.colorScheme.surface)
-                    .clickable { showKeypad = !showKeypad }
-                    .padding(horizontal = 20.dp, vertical = 16.dp)
-            ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Column {
-                        Text(
-                            text = stringResource(R.string.amount_label, currencySymbol),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                        Spacer(modifier = Modifier.height(4.dp))
-                        Text(
-                            text = if (amountExpression.isEmpty()) "$currencySymbol 0.00" else "$currencySymbol $amountExpression",
-                            fontSize = 32.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = if (selectedType == "EXPENSE") ExpenseRed else IncomeGreen
-                        )
+            // Native Amount Input Field with Calculator Toggle
+            OutlinedTextField(
+                value = amountExpression,
+                onValueChange = { input ->
+                    if (input.isEmpty() || input.matches(Regex("^[0-9+×÷\\-\\.\\,\\s]*$"))) {
+                        amountExpression = input
                     }
-
-                    Box(
-                        modifier = Modifier
-                            .size(44.dp)
-                            .clip(CircleShape)
-                            .background(MaterialTheme.colorScheme.surfaceVariant),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Calculate,
-                            contentDescription = "Keypad",
-                            tint = SageGreenPrimary,
-                            modifier = Modifier.size(24.dp)
-                        )
+                },
+                label = { Text(stringResource(R.string.amount_label, currencySymbol)) },
+                placeholder = { Text("0.00") },
+                prefix = {
+                    Text(
+                        text = "$currencySymbol ",
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 20.sp,
+                        color = if (selectedType == "EXPENSE") ExpenseRed else IncomeGreen
+                    )
+                },
+                singleLine = true,
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                shape = RoundedCornerShape(20.dp),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedContainerColor = MaterialTheme.colorScheme.surface,
+                    unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                    unfocusedBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f)
+                ),
+                trailingIcon = {
+                    IconButton(onClick = { showKeypad = !showKeypad }) {
+                        Box(
+                            modifier = Modifier
+                                .size(38.dp)
+                                .clip(CircleShape)
+                                .background(if (showKeypad) MaterialTheme.colorScheme.primary.copy(alpha = 0.2f) else MaterialTheme.colorScheme.surfaceVariant),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Calculate,
+                                contentDescription = "Toggle Calculator",
+                                tint = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.size(20.dp)
+                            )
+                        }
                     }
-                }
-            }
+                },
+                modifier = Modifier.fillMaxWidth()
+            )
 
             // Custom Keypad
             AnimatedVisibility(visible = showKeypad) {
@@ -251,7 +253,7 @@ fun AddTransactionScreen(
                     .height(52.dp),
                 shape = RoundedCornerShape(16.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = if (selectedType == "EXPENSE") ExpenseRed else SageGreenPrimary
+                    containerColor = if (selectedType == "EXPENSE") ExpenseRed else MaterialTheme.colorScheme.primary
                 )
             ) {
                 Text(

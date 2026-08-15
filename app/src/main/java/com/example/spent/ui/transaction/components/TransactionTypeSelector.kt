@@ -22,7 +22,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.spent.R
 import com.example.spent.ui.theme.ExpenseRed
-import com.example.spent.ui.theme.SageGreenPrimary
+
 
 @Composable
 fun TransactionTypeSelector(
@@ -61,7 +61,7 @@ fun TransactionTypeSelector(
             modifier = Modifier
                 .weight(1f)
                 .clip(RoundedCornerShape(12.dp))
-                .background(if (selectedType == "INCOME") SageGreenPrimary else Color.Transparent)
+                .background(if (selectedType == "INCOME") MaterialTheme.colorScheme.primary else Color.Transparent)
                 .clickable { onTypeSelected("INCOME") }
                 .padding(vertical = 12.dp),
             contentAlignment = Alignment.Center

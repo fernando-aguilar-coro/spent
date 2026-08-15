@@ -15,8 +15,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
-import com.example.spent.ui.theme.SageGreenLight
-import com.example.spent.ui.theme.SageGreenPrimary
+
 
 @Composable
 fun BottomNavBar(navController: NavController) {
@@ -53,9 +52,9 @@ fun BottomNavBar(navController: NavController) {
                 },
                 selected = isSelected,
                 colors = NavigationBarItemDefaults.colors(
-                    selectedIconColor = SageGreenPrimary,
-                    selectedTextColor = SageGreenPrimary,
-                    indicatorColor = SageGreenLight,
+                    selectedIconColor = MaterialTheme.colorScheme.primary,
+                    selectedTextColor = MaterialTheme.colorScheme.primary,
+                    indicatorColor = MaterialTheme.colorScheme.primaryContainer,
                     unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
                     unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant
                 ),

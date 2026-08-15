@@ -31,7 +31,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.spent.ui.theme.SageGreenPrimary
+
 
 @Composable
 fun CustomNumericKeypad(
@@ -51,6 +51,7 @@ fun CustomNumericKeypad(
             "=" -> {
                 val evaluated = evaluateSimpleMath(currentExpression)
                 onExpressionChanged(evaluated)
+                onConfirm?.invoke()
             }
             "+", "-", "×", "÷" -> {
                 if (currentExpression.isNotEmpty()) {
@@ -165,7 +166,7 @@ fun CustomNumericKeypad(
             )
         }
 
-        // Row 4: 1, 2, 3, =
+        // Row 4: 1, 2, 3, ✓ (Evaluate & Confirm)
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -174,15 +175,15 @@ fun CustomNumericKeypad(
             PadKey(text = "2", modifier = Modifier.weight(1f), onClick = { handleKey("2") })
             PadKey(text = "3", modifier = Modifier.weight(1f), onClick = { handleKey("3") })
             PadKey(
-                text = "=",
+                icon = Icons.Default.Check,
                 modifier = Modifier.weight(1f),
-                backgroundColor = SageGreenPrimary,
+                backgroundColor = MaterialTheme.colorScheme.primary,
                 textColor = Color.White,
                 onClick = { handleKey("=") }
             )
         }
 
-        // Row 5: 0, . and Confirm Done
+        // Row 5: 0, . and 00
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -197,24 +198,14 @@ fun CustomNumericKeypad(
                 modifier = Modifier.weight(1f),
                 onClick = { handleKey(".") }
             )
-            if (onConfirm != null) {
-                PadKey(
-                    icon = Icons.Default.Check,
-                    modifier = Modifier.weight(1f),
-                    backgroundColor = SageGreenPrimary,
-                    textColor = Color.White,
-                    onClick = onConfirm
-                )
-            } else {
-                PadKey(
-                    text = "00",
-                    modifier = Modifier.weight(1f),
-                    onClick = {
-                        handleKey("0")
-                        handleKey("0")
-                    }
-                )
-            }
+            PadKey(
+                text = "00",
+                modifier = Modifier.weight(1f),
+                onClick = {
+                    handleKey("0")
+                    handleKey("0")
+                }
+            )
         }
     }
 }
