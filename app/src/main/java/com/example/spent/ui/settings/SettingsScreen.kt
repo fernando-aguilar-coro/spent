@@ -26,7 +26,6 @@ import com.example.spent.ui.settings.components.LanguageSelectionCard
 import com.example.spent.ui.settings.components.PayCycleCard
 import com.example.spent.ui.settings.components.ResetDataButton
 import com.example.spent.ui.settings.components.ThemeSelectionCard
-import com.example.spent.ui.settings.components.UserProfileCard
 import kotlinx.coroutines.launch
 
 @Composable
@@ -58,12 +57,6 @@ fun SettingsScreen(
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
             Spacer(modifier = Modifier.height(16.dp))
-        }
-
-        // Profile Section Component
-        item {
-            UserProfileCard()
-            Spacer(modifier = Modifier.height(12.dp))
         }
 
         // Pay Cycle Configuration Option

@@ -49,7 +49,7 @@
     <string name="recent_activity">Actividad Reciente</string>
     <string name="no_transactions_yet">¡Sin transacciones aún. Toca + Añadir Gasto para comenzar!</string>
 
-    <!-- Savings Tracker Dialog -->
+    <!-- Savings Tracker Dialog & Screen -->
     <string name="savings_tracker_title">Control de Ahorros</string>
     <string name="total_saved">Total Ahorrado</string>
     <string name="savings_goal">Meta de Ahorro</string>
@@ -64,6 +64,13 @@
     <string name="back_to_deposit">Volver a Depósito</string>
     <string name="deposit_funds">Depositar Fondos</string>
     <string name="save_goal">Guardar Meta</string>
+    <string name="savings_history_title">Historial de Ahorros</string>
+    <string name="savings_no_history">No hay depósitos de ahorro registrados todavía. ¡Toca + para depositar fondos!</string>
+    <string name="savings_monthly_reservation">Reserva Mensual</string>
+    <string name="savings_months_left">~ %1$d meses restantes</string>
+    <string name="savings_to_go">Faltan %1$s%2$.2f</string>
+    <string name="savings_info_note">El monto de tu contribución mensual se descuenta de tu presupuesto diario Seguro para Gastar, protegiendo tu dinero del día a día mientras construyes tu meta a largo plazo.</string>
+    <string name="savings_default_deposit_note">Depósito de Ahorro</string>
 
     <!-- Loans Tracker Dialog -->
     <string name="loans_tracker_title">Control de Préstamos</string>
@@ -197,6 +204,15 @@
     <string name="savings_rate">Tasa de Ahorro</string>
     <string name="category_distribution">Distribución por Categoría</string>
     <string name="no_spending_recorded">No hay gastos registrados en este ciclo.</string>
+    <string name="chart_income_vs_expenses">Ingresos vs. Gastos en el Tiempo</string>
+    <string name="chart_income_vs_expenses_desc">Evolución de flujo de caja y desglose diario</string>
+    <string name="timeframe_7d">7 Días</string>
+    <string name="timeframe_30d">30 Días</string>
+    <string name="timeframe_6m">6 Meses</string>
+    <string name="chart_legend_income">Ingresos</string>
+    <string name="chart_legend_expense">Gastos</string>
+    <string name="chart_no_data">No hay transacciones registradas en este período.</string>
+    <string name="chart_net">Neto</string>
 
     <!-- Settings Screen -->
     <string name="settings_title">Ajustes</string>

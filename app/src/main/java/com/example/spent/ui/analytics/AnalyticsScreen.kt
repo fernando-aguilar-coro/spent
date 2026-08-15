@@ -26,6 +26,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.spent.R
 import com.example.spent.ui.analytics.components.CategoryDistributionItem
+import com.example.spent.ui.analytics.components.IncomeExpenseChart
 import com.example.spent.ui.analytics.components.SavingsSummaryCard
 
 @Composable
@@ -60,6 +61,15 @@ fun AnalyticsScreen(
                 totalSpent = state.totalSpent,
                 netSavings = state.netSavings,
                 savingsRatePercentage = state.savingsRatePercentage
+            )
+            Spacer(modifier = Modifier.height(20.dp))
+        }
+
+        // 2D Income vs Expenses Over Time Chart
+        item {
+            IncomeExpenseChart(
+                transactions = state.recentTransactions,
+                currencySymbol = state.currencySymbol
             )
             Spacer(modifier = Modifier.height(24.dp))
         }
