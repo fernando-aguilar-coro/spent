@@ -41,18 +41,22 @@ fun RecurringOptionsSection(
                 .fillMaxWidth()
                 .clip(RoundedCornerShape(16.dp))
                 .background(MaterialTheme.colorScheme.surfaceVariant)
+                .clickable { onRecurringChange(!isRecurring) }
                 .padding(16.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
+            Row(
+                modifier = Modifier.weight(1f),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
                 Icon(
                     imageVector = Icons.Default.EventRepeat,
                     contentDescription = "Recurring",
                     tint = MaterialTheme.colorScheme.primary
                 )
                 Spacer(modifier = Modifier.width(12.dp))
-                Column {
+                Column(modifier = Modifier.weight(1f, fill = false)) {
                     Text(
                         text = stringResource(R.string.make_recurring_payment),
                         style = MaterialTheme.typography.bodyMedium,
@@ -65,6 +69,7 @@ fun RecurringOptionsSection(
                     )
                 }
             }
+            Spacer(modifier = Modifier.width(8.dp))
             Switch(
                 checked = isRecurring,
                 onCheckedChange = onRecurringChange
