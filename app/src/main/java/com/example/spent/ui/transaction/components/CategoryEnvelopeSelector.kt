@@ -73,14 +73,13 @@ fun CategoryEnvelopeSelector(
                     },
                     label = { Text(cat.name, maxLines = 1, overflow = TextOverflow.Ellipsis) },
                     leadingIcon = {
-                        Box(
-                            modifier = Modifier
-                                .clip(CircleShape)
-                                .background(
-                                    runCatching { Color(android.graphics.Color.parseColor(cat.colorHex)) }
-                                        .getOrDefault(MaterialTheme.colorScheme.primary)
-                                )
-                                .padding(4.dp)
+                        val color = runCatching { Color(android.graphics.Color.parseColor(cat.colorHex)) }
+                            .getOrDefault(MaterialTheme.colorScheme.primary)
+                        Icon(
+                            imageVector = com.example.spent.ui.components.CategoryIconHelper.getIconByName(cat.iconName),
+                            contentDescription = cat.name,
+                            tint = color,
+                            modifier = Modifier.size(16.dp)
                         )
                     }
                 )

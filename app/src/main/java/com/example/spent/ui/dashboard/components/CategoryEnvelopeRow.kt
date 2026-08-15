@@ -58,7 +58,7 @@ fun CategoryEnvelopeRow(
                 fontWeight = FontWeight.Bold
             )
             Text(
-                text = "${categoriesWithProgress.size} Envelopes",
+                text = stringResource(R.string.envelopes_count, categoriesWithProgress.size),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -102,7 +102,7 @@ fun CategoryEnvelopeRow(
                                 contentAlignment = Alignment.Center
                             ) {
                                 Icon(
-                                    imageVector = Icons.Default.Category,
+                                    imageVector = com.example.spent.ui.components.CategoryIconHelper.getIconByName(cat.iconName),
                                     contentDescription = cat.name,
                                     tint = color,
                                     modifier = Modifier.size(18.dp)

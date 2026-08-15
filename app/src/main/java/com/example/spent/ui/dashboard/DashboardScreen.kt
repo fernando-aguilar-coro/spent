@@ -42,7 +42,10 @@ import com.example.spent.ui.dashboard.components.dialogs.TransactionDetailsDialo
 @Composable
 fun DashboardScreen(
     viewModel: DashboardViewModel,
-    onNavigateToAddTransaction: (type: String) -> Unit = {}
+    onNavigateToAddTransaction: (type: String) -> Unit = {},
+    onNavigateToSavingsTracker: () -> Unit = {},
+    onNavigateToFixedBills: () -> Unit = {},
+    onNavigateToLoansTracker: () -> Unit = {}
 ) {
     val state by viewModel.uiState.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
@@ -87,15 +90,6 @@ fun DashboardScreen(
                 )
             }
 
-            // Phase 2 Walkthrough Banner Component
-            if (!state.isWalkthroughCompleted) {
-                item {
-                    WalkthroughBanner(
-                        onDismiss = { viewModel.onIntent(DashboardUiIntent.DismissWalkthrough) }
-                    )
-                }
-            }
-
             // Balance Header Card Component
             item {
                 DashboardHeaderCard(
@@ -133,6 +127,9 @@ fun DashboardScreen(
                     categories = state.allCategories,
                     recurringRules = state.recurringRules,
                     currencySymbol = state.currencySymbol,
+                    onNavigateToSavingsTracker = onNavigateToSavingsTracker,
+                    onNavigateToFixedBills = onNavigateToFixedBills,
+                    onNavigateToLoansTracker = onNavigateToLoansTracker,
                     onAddDebtLoanTransaction = { amount, type, note ->
                         viewModel.onIntent(DashboardUiIntent.AddTransaction(amount, type, generalCatId, note))
                     },

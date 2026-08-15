@@ -52,6 +52,9 @@ fun DashboardQuickTools(
     categories: List<CategoryEntity>,
     recurringRules: List<RecurringRuleEntity> = emptyList(),
     currencySymbol: String = "$",
+    onNavigateToSavingsTracker: () -> Unit = {},
+    onNavigateToFixedBills: () -> Unit = {},
+    onNavigateToLoansTracker: () -> Unit = {},
     onAddDebtLoanTransaction: (amount: Double, type: String, note: String) -> Unit,
     onAddDebtInstallmentPlan: (installmentAmount: Double, durationMonths: Int, note: String) -> Unit = { _, _, _ -> },
     onAddFixedBill: (name: String, amount: Double, dueDay: Int, categoryId: String) -> Unit = { _, _, _, _ -> },
@@ -62,8 +65,6 @@ fun DashboardQuickTools(
     val context = LocalContext.current
 
     var showSavingsDialog by remember { mutableStateOf(false) }
-    var showDebtDialog by remember { mutableStateOf(false) }
-    var showFixedBillsDialog by remember { mutableStateOf(false) }
 
     // Savings computations
     val savingsCat = categories.find { it.id == "cat_savings" || it.name.equals("Savings", ignoreCase = true) }
@@ -104,7 +105,7 @@ fun DashboardQuickTools(
             Card(
                 modifier = Modifier
                     .weight(1f)
-                    .clickable { showSavingsDialog = true },
+                    .clickable { onNavigateToSavingsTracker() },
                 shape = RoundedCornerShape(16.dp),
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
             ) {
@@ -149,7 +150,7 @@ fun DashboardQuickTools(
             Card(
                 modifier = Modifier
                     .weight(1f)
-                    .clickable { showDebtDialog = true },
+                    .clickable { onNavigateToLoansTracker() },
                 shape = RoundedCornerShape(16.dp),
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
             ) {
@@ -204,7 +205,7 @@ fun DashboardQuickTools(
             Card(
                 modifier = Modifier
                     .weight(1f)
-                    .clickable { showFixedBillsDialog = true },
+                    .clickable { onNavigateToFixedBills() },
                 shape = RoundedCornerShape(16.dp),
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
             ) {
@@ -290,54 +291,5 @@ fun DashboardQuickTools(
                 }
             }
         }
-    }
-
-    // 1. Savings Tracker Dialog
-    if (showSavingsDialog) {
-        SavingsTrackerDialog(
-            totalSaved = totalSaved,
-            savingsGoal = savingsGoal,
-            currencySymbol = currencySymbol,
-            onDismiss = { showSavingsDialog = false },
-            onDeposit = { amount, note ->
-                onAddSavingsTransaction(amount, note)
-            },
-            onUpdateGoal = { goal ->
-                onUpdateSavingsGoal(goal)
-            }
-        )
-    }
-
-    // 2. Enhanced Debt & Loans Dialog
-    if (showDebtDialog) {
-        LoansTrackerDialog(
-            netLoanRemaining = netLoanRemaining,
-            totalLoansReceived = totalLoansReceived,
-            totalLoansPaid = totalLoansPaid,
-            currencySymbol = currencySymbol,
-            onDismiss = { showDebtDialog = false },
-            onAddDebtLoanTransaction = onAddDebtLoanTransaction,
-            onAddDebtInstallmentPlan = onAddDebtInstallmentPlan
-        )
-    }
-
-    // 3. Fixed Bills & Utilities Dialog
-    if (showFixedBillsDialog) {
-        FixedBillsDialog(
-            recurringRules = recurringRules,
-            transactions = transactions,
-            categories = categories,
-            currencySymbol = currencySymbol,
-            onDismiss = { showFixedBillsDialog = false },
-            onAddBill = { name, amount, dueDay, categoryId ->
-                onAddFixedBill(name, amount, dueDay, categoryId)
-            },
-            onDeleteBill = { ruleId ->
-                onDeleteFixedBill(ruleId)
-            },
-            onPayBill = { amount, name, categoryId ->
-                onAddDebtLoanTransaction(amount, "EXPENSE", "Bill Payment: $name")
-            }
-        )
     }
 }

@@ -36,6 +36,9 @@ class SpentRepositoryImpl(
     override val isDarkThemeFlow: Flow<Boolean?> = preferencesRepository.isDarkThemeFlow
     override val currencySymbolFlow: Flow<String> = preferencesRepository.currencySymbolFlow
     override val appLanguageFlow: Flow<String?> = preferencesRepository.appLanguageFlow
+    override val savingsGoalNameFlow: Flow<String> = preferencesRepository.savingsGoalNameFlow
+    override val savingsGoalTotalFlow: Flow<Double> = preferencesRepository.savingsGoalTotalFlow
+    override val savingsMonthlyContributionFlow: Flow<Double> = preferencesRepository.savingsMonthlyContributionFlow
 
     override suspend fun addTransaction(transaction: TransactionEntity) {
         dao.insertTransaction(transaction)
@@ -131,7 +134,8 @@ class SpentRepositoryImpl(
                 CategoryEntity(id = "cat_transport", name = "Transport", iconName = "DirectionsCar", colorHex = "#2196F3", budgetAmount = 0.0, displayOrder = 3),
                 CategoryEntity(id = "cat_entertainment", name = "Entertainment", iconName = "Movie", colorHex = "#9C27B0", budgetAmount = 0.0, displayOrder = 4),
                 CategoryEntity(id = "cat_shopping", name = "Shopping", iconName = "ShoppingBag", colorHex = "#E91E63", budgetAmount = 0.0, displayOrder = 5),
-                CategoryEntity(id = "cat_savings", name = "Savings", iconName = "Savings", colorHex = "#009688", budgetAmount = 0.0, displayOrder = 6)
+                CategoryEntity(id = "cat_savings", name = "Savings", iconName = "Savings", colorHex = "#009688", budgetAmount = 0.0, displayOrder = 6),
+                CategoryEntity(id = "cat_salary", name = "Salary", iconName = "Payments", colorHex = "#10B981", budgetAmount = 0.0, displayOrder = 7)
             )
             dao.insertCategories(defaultCategories)
         }
@@ -175,9 +179,18 @@ class SpentRepositoryImpl(
         preferencesRepository.setAppLanguage(languageCode)
     }
 
+    override suspend fun setSavingsGoal(name: String, totalGoal: Double, monthlyContribution: Double) {
+        preferencesRepository.setSavingsGoal(name, totalGoal, monthlyContribution)
+    }
+
+    override suspend fun clearSavingsGoal() {
+        preferencesRepository.clearSavingsGoal()
+    }
+
     override suspend fun resetAllData() {
         dao.deleteAllTransactions()
         dao.deleteAllCategories()
+        preferencesRepository.clearSavingsGoal()
         preferencesRepository.setWalkthroughCompleted(false)
         seedStarterDataIfEmpty()
     }

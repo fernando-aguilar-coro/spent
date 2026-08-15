@@ -14,7 +14,10 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.AlertDialog
@@ -36,36 +39,28 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.spent.R
+import com.example.spent.ui.components.CategoryIconHelper
 
 @Composable
 fun AddCategoryDialog(
     onDismiss: () -> Unit,
-    onSaveCategory: (name: String, colorHex: String) -> Unit
+    onSaveCategory: (name: String, colorHex: String, iconName: String) -> Unit
 ) {
     var newCategoryName by remember { mutableStateOf("") }
     var newCategoryColorHex by remember { mutableStateOf("#3B82F6") }
+    var newCategoryIconName by remember { mutableStateOf("Category") }
 
-    // 14 rich, modern curated color choices (doubled from original 6)
     val colorPaletteRow1 = listOf(
-        "#3B82F6", // Blue
-        "#10B981", // Emerald
-        "#EF4444", // Red
-        "#F59E0B", // Amber
-        "#8B5CF6", // Purple
-        "#EC4899", // Pink
-        "#06B6D4"  // Cyan
+        "#3B82F6", "#10B981", "#EF4444", "#F59E0B", "#8B5CF6", "#EC4899", "#06B6D4"
     )
 
     val colorPaletteRow2 = listOf(
-        "#14B8A6", // Teal
-        "#84CC16", // Lime
-        "#F97316", // Orange
-        "#6366F1", // Indigo
-        "#D946EF", // Fuchsia
-        "#0EA5E9", // Sky Blue
-        "#64748B"  // Slate Gray
+        "#14B8A6", "#84CC16", "#F97316", "#6366F1", "#D946EF", "#0EA5E9", "#64748B"
     )
+
+    val availableIcons = remember { CategoryIconHelper.availableIcons }
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -81,7 +76,47 @@ fun AddCategoryDialog(
                     modifier = Modifier.fillMaxWidth()
                 )
 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(14.dp))
+
+                // Icon Picker Section
+                Text(
+                    text = "Select Icon",
+                    style = MaterialTheme.typography.bodySmall,
+                    fontWeight = FontWeight.SemiBold
+                )
+                Spacer(modifier = Modifier.height(6.dp))
+
+                LazyRow(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    items(availableIcons) { iconOption ->
+                        val isSelected = newCategoryIconName == iconOption.iconName
+                        val currentColor = Color(android.graphics.Color.parseColor(newCategoryColorHex))
+
+                        Box(
+                            modifier = Modifier
+                                .size(40.dp)
+                                .clip(RoundedCornerShape(12.dp))
+                                .background(if (isSelected) currentColor.copy(alpha = 0.2f) else MaterialTheme.colorScheme.surfaceVariant)
+                                .then(
+                                    if (isSelected) Modifier.border(BorderStroke(2.dp, currentColor), RoundedCornerShape(12.dp))
+                                    else Modifier
+                                )
+                                .clickable { newCategoryIconName = iconOption.iconName },
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                imageVector = iconOption.icon,
+                                contentDescription = iconOption.label,
+                                tint = if (isSelected) currentColor else MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier.size(22.dp)
+                            )
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(14.dp))
 
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -94,7 +129,6 @@ fun AddCategoryDialog(
                         fontWeight = FontWeight.SemiBold
                     )
 
-                    // Visual badge indicating currently selected color
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Box(
                             modifier = Modifier
@@ -112,7 +146,7 @@ fun AddCategoryDialog(
                     }
                 }
 
-                Spacer(modifier = Modifier.height(10.dp))
+                Spacer(modifier = Modifier.height(8.dp))
 
                 // Color Palette Grid (Row 1)
                 Row(
@@ -125,7 +159,7 @@ fun AddCategoryDialog(
 
                         Box(
                             modifier = Modifier
-                                .size(36.dp)
+                                .size(34.dp)
                                 .clip(CircleShape)
                                 .background(color)
                                 .then(
@@ -140,14 +174,14 @@ fun AddCategoryDialog(
                                     imageVector = Icons.Default.Check,
                                     contentDescription = "Selected",
                                     tint = Color.White,
-                                    modifier = Modifier.size(20.dp)
+                                    modifier = Modifier.size(18.dp)
                                 )
                             }
                         }
                     }
                 }
 
-                Spacer(modifier = Modifier.height(10.dp))
+                Spacer(modifier = Modifier.height(8.dp))
 
                 // Color Palette Grid (Row 2)
                 Row(
@@ -160,7 +194,7 @@ fun AddCategoryDialog(
 
                         Box(
                             modifier = Modifier
-                                .size(36.dp)
+                                .size(34.dp)
                                 .clip(CircleShape)
                                 .background(color)
                                 .then(
@@ -175,7 +209,7 @@ fun AddCategoryDialog(
                                     imageVector = Icons.Default.Check,
                                     contentDescription = "Selected",
                                     tint = Color.White,
-                                    modifier = Modifier.size(20.dp)
+                                    modifier = Modifier.size(18.dp)
                                 )
                             }
                         }
@@ -187,7 +221,7 @@ fun AddCategoryDialog(
             Button(
                 onClick = {
                     if (newCategoryName.isNotBlank()) {
-                        onSaveCategory(newCategoryName.trim(), newCategoryColorHex)
+                        onSaveCategory(newCategoryName.trim(), newCategoryColorHex, newCategoryIconName)
                         onDismiss()
                     }
                 },

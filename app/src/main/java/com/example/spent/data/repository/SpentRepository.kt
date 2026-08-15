@@ -22,6 +22,9 @@ interface SpentRepository {
     val isDarkThemeFlow: Flow<Boolean?>
     val currencySymbolFlow: Flow<String>
     val appLanguageFlow: Flow<String?>
+    val savingsGoalNameFlow: Flow<String>
+    val savingsGoalTotalFlow: Flow<Double>
+    val savingsMonthlyContributionFlow: Flow<Double>
 
     suspend fun addTransaction(transaction: TransactionEntity)
     suspend fun deleteTransaction(transaction: TransactionEntity)
@@ -41,5 +44,7 @@ interface SpentRepository {
     suspend fun setDarkThemeMode(enabled: Boolean?)
     suspend fun setCurrencySymbol(symbol: String)
     suspend fun setAppLanguage(languageCode: String?)
+    suspend fun setSavingsGoal(name: String, totalGoal: Double, monthlyContribution: Double)
+    suspend fun clearSavingsGoal()
     suspend fun resetAllData()
 }

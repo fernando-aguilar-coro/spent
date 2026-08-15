@@ -24,6 +24,7 @@
 
     <!-- Category Envelopes -->
     <string name="category_envelopes">Sobres de Categoría</string>
+    <string name="envelopes_count">%1$d Sobres</string>
     <string name="envelope_of">de</string>
     <string name="no_budget_set">Sin presupuesto fijado</string>
     <string name="over_budget">Presupuesto superado</string>
@@ -131,14 +132,27 @@
     <string name="tool_fixed_bills_title">Facturas Fijas y Servicios</string>
     <string name="tool_fixed_bills_desc">Luz, agua, internet, gas y alquiler</string>
     <string name="fixed_bills_dialog_title">Facturas Fijas y Servicios</string>
+    <string name="fixed_bills_screen_title">Facturas Fijas y Servicios</string>
+    <string name="loans_tracker_screen_title">Préstamos y Deudas</string>
     <string name="add_fixed_bill_title">Añadir Nueva Factura</string>
+    <string name="quick_presets_title">Plantillas Rápidas</string>
     <string name="bill_name_label">Nombre de la Factura / Proveedor</string>
     <string name="bill_name_placeholder">ej. Luz, Agua, Internet, Gas</string>
+    <string name="custom_bill_notes_label">Detalles / Proveedor Personalizado (Opcional)</string>
+    <string name="custom_bill_notes_placeholder">ej. Dpto 4B, Cuenta #1234</string>
     <string name="bill_amount_label">Monto Estimado / Base (%1$s)</string>
-    <string name="bill_due_day_label">Día de Llegada / Vencimiento</string>
-    <string name="bill_due_day_format">Llega el día %1$d</string>
+    <string name="bill_due_day_label">Día de Vencimiento del Mes</string>
+    <string name="bill_due_day_format">Vence el día %1$d</string>
+    <string name="arrival_date_label">Fecha de Llegada / Emisión</string>
+    <string name="arrival_date_format">Llega: %1$s</string>
+    <string name="cycle_period_label">Frecuencia / Periodo</string>
+    <string name="period_30_days">Cada 30 Días (Mensual)</string>
     <string name="bill_status_paid">Pagado este ciclo</string>
     <string name="bill_status_pending">Pendiente (Estimado)</string>
+    <string name="unpaid_cycles_warning">%1$d ciclos acumulados sin pagar (%2$s%3$.2f)</string>
+    <string name="service_cutoff_alert">⚠️ ¡Aviso de Corte de Servicio! %1$d ciclos sin pagar</string>
+    <string name="service_cutoff_desc">Este servicio no se ha pagado durante 3 o más ciclos consecutivos. Paga ahora para evitar el corte.</string>
+    <string name="accumulated_total_label">Total Acumulado</string>
     <string name="pay_bill_btn">Registrar Pago</string>
     <string name="delete_bill_btn">Eliminar Factura</string>
     <string name="save_bill_btn">Guardar Factura</string>
@@ -147,6 +161,8 @@
     <string name="preset_internet">Internet / Wifi</string>
     <string name="preset_gas">Gas</string>
     <string name="preset_rent">Alquiler</string>
+    <string name="preset_phone">Teléfono</string>
+    <string name="preset_streaming">Streaming</string>
 
     <!-- Walkthrough Banner -->
     <string name="walkthrough_title">¡Bienvenido a Spent!</string>
@@ -222,4 +238,8 @@
     <string name="reset_data_btn">Restablecer Datos</string>
     <string name="reset_data_confirm_title">¿Restablecer Todos los Datos?</string>
     <string name="reset_data_confirm_msg">Esto eliminará permanentemente todos los registros. Esta acción no se puede deshacer.</string>
+    <string name="monthly_savings_contribution_label">Aporte Mensual (%1$s)</string>
+    <string name="no_savings_goal_yet">Sin meta de ahorro activa</string>
+    <string name="add_savings_goal_btn">Añadir Meta de Ahorro</string>
+    <string name="salary_funding_note">Categorizar como \'Salario\' financia tu presupuesto diario Seguro para Gastar.</string>
 </resources>

@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
+import androidx.datastore.preferences.core.doublePreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
@@ -19,6 +20,9 @@ class UserPreferencesRepository(private val context: Context) {
         val DARK_THEME_ENABLED = booleanPreferencesKey("dark_theme_enabled")
         val CURRENCY_SYMBOL = stringPreferencesKey("currency_symbol")
         val APP_LANGUAGE = stringPreferencesKey("app_language")
+        val SAVINGS_GOAL_NAME = stringPreferencesKey("savings_goal_name")
+        val SAVINGS_GOAL_TOTAL = doublePreferencesKey("savings_goal_total")
+        val SAVINGS_MONTHLY_CONTRIBUTION = doublePreferencesKey("savings_monthly_contribution")
     }
 
     val isWalkthroughCompletedFlow: Flow<Boolean> = context.dataStore.data.map { preferences ->
@@ -35,6 +39,18 @@ class UserPreferencesRepository(private val context: Context) {
 
     val appLanguageFlow: Flow<String?> = context.dataStore.data.map { preferences ->
         preferences[PreferencesKeys.APP_LANGUAGE]
+    }
+
+    val savingsGoalNameFlow: Flow<String> = context.dataStore.data.map { preferences ->
+        preferences[PreferencesKeys.SAVINGS_GOAL_NAME] ?: ""
+    }
+
+    val savingsGoalTotalFlow: Flow<Double> = context.dataStore.data.map { preferences ->
+        preferences[PreferencesKeys.SAVINGS_GOAL_TOTAL] ?: 0.0
+    }
+
+    val savingsMonthlyContributionFlow: Flow<Double> = context.dataStore.data.map { preferences ->
+        preferences[PreferencesKeys.SAVINGS_MONTHLY_CONTRIBUTION] ?: 0.0
     }
 
     suspend fun setWalkthroughCompleted(completed: Boolean) {
@@ -66,6 +82,22 @@ class UserPreferencesRepository(private val context: Context) {
             } else {
                 preferences[PreferencesKeys.APP_LANGUAGE] = languageCode
             }
+        }
+    }
+
+    suspend fun setSavingsGoal(name: String, totalGoal: Double, monthlyContribution: Double) {
+        context.dataStore.edit { preferences ->
+            preferences[PreferencesKeys.SAVINGS_GOAL_NAME] = name
+            preferences[PreferencesKeys.SAVINGS_GOAL_TOTAL] = totalGoal
+            preferences[PreferencesKeys.SAVINGS_MONTHLY_CONTRIBUTION] = monthlyContribution
+        }
+    }
+
+    suspend fun clearSavingsGoal() {
+        context.dataStore.edit { preferences ->
+            preferences.remove(PreferencesKeys.SAVINGS_GOAL_NAME)
+            preferences.remove(PreferencesKeys.SAVINGS_GOAL_TOTAL)
+            preferences.remove(PreferencesKeys.SAVINGS_MONTHLY_CONTRIBUTION)
         }
     }
 }

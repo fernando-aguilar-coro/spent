@@ -35,17 +35,15 @@ class DashboardViewModel(
             val metaDataFlow = combine(
                 repository.getRecurringRulesFlow(),
                 repository.isWalkthroughCompletedFlow,
-                repository.currencySymbolFlow
-            ) { recurringRules: List<RecurringRuleEntity>, walkthroughDone: Boolean, currency: String ->
-                Triple(recurringRules, walkthroughDone, currency)
+                repository.currencySymbolFlow,
+                repository.savingsMonthlyContributionFlow
+            ) { recurringRules: List<RecurringRuleEntity>, walkthroughDone: Boolean, currency: String, monthlySavings: Double ->
+                DashboardMetaData(recurringRules, walkthroughDone, currency, monthlySavings)
             }
 
-            combine(coreDataFlow, metaDataFlow) { (transactions, categories, payCycle), (recurringRules, walkthroughDone, currency) ->
+            combine(coreDataFlow, metaDataFlow) { (transactions, categories, payCycle), meta ->
+                val (recurringRules, walkthroughDone, currency, monthlySavings) = meta
                 val isPayCycleActive = payCycle != null && payCycle.frequency != "NONE"
-
-                // Savings Target from category envelopes or savings goal
-                val savingsCategory = categories.find { it.id == "cat_savings" || it.name.equals("Savings", ignoreCase = true) }
-                val savingsTarget = savingsCategory?.budgetAmount ?: 0.0
 
                 val cyclePeriod = if (isPayCycleActive) {
                     calculateCyclePeriod(payCycle?.frequency ?: "MONTHLY", payCycle?.startDate ?: System.currentTimeMillis())
@@ -97,38 +95,43 @@ class DashboardViewModel(
                     .filter { it.type == "EXPENSE" }
                     .sumOf { it.amount }
 
-                // Safe to Spend Today using the Discretionary Formula with pending fixed bill reservations
+                // Safe to Spend Today: funded strictly by Base Salary + Salary-categorized income, reserving monthly savings contribution
                 val safeToSpend = if (isPayCycleActive) {
-                    // Structured Pay Cycle
+                    // Structured Pay Cycle: Base Salary + extra income categorized under Salary
                     val baseIncome = payCycle?.income ?: 0.0
-                    val extraIncome = transactions
+                    val extraSalaryIncome = transactions
                         .filter {
                             it.type == "INCOME" &&
                             it.timestamp in cyclePeriod.startTimestamp..cyclePeriod.endTimestamp &&
+                            (it.categoryId == "cat_salary" || it.note.contains("Salary", ignoreCase = true) || it.note.contains("Sueldo", ignoreCase = true)) &&
                             !it.note.contains("Payday Base Salary", ignoreCase = true)
                         }
                         .sumOf { it.amount }
-                    val cycleTotalIncome = baseIncome + extraIncome
+                    val cycleTotalIncome = baseIncome + extraSalaryIncome
 
                     val spentInCycle = transactions
                         .filter { it.type == "EXPENSE" && it.timestamp in cyclePeriod.startTimestamp..cyclePeriod.endTimestamp }
                         .sumOf { it.amount }
 
-                    // Remaining Discretionary Income = Income - Pending Fixed Bills (Approx) - Savings Target - Spent In Cycle
-                    val remainingDiscretionary = cycleTotalIncome - pendingFixedBills - savingsTarget - spentInCycle
+                    // Remaining Discretionary Income = Salary Income - Pending Fixed Bills (Approx) - Monthly Savings Contribution - Spent In Cycle
+                    val remainingDiscretionary = cycleTotalIncome - pendingFixedBills - monthlySavings - spentInCycle
                     (remainingDiscretionary.coerceAtLeast(0.0)) / (daysRemaining + 1)
                 } else {
-                    // Freelance / Flexible Mode (Virtual Salary from actual month's income)
-                    val earnedIncomeThisMonth = transactions
-                        .filter { it.type == "INCOME" && it.timestamp in cyclePeriod.startTimestamp..cyclePeriod.endTimestamp }
+                    // Freelance / Flexible / Unemployed Mode: Funded strictly by income transactions categorized as Salary
+                    val salaryIncomeThisMonth = transactions
+                        .filter {
+                            it.type == "INCOME" &&
+                            (it.categoryId == "cat_salary" || it.note.contains("Salary", ignoreCase = true) || it.note.contains("Sueldo", ignoreCase = true)) &&
+                            it.timestamp in cyclePeriod.startTimestamp..cyclePeriod.endTimestamp
+                        }
                         .sumOf { it.amount }
 
                     val spentThisMonth = transactions
                         .filter { it.type == "EXPENSE" && it.timestamp in cyclePeriod.startTimestamp..cyclePeriod.endTimestamp }
                         .sumOf { it.amount }
 
-                    // Freelance Safe Daily Spend = (Actual Month Income - Pending Fixed Bills - Savings Target - Spent) / (Days Remaining + 1)
-                    val remainingDiscretionary = earnedIncomeThisMonth - pendingFixedBills - savingsTarget - spentThisMonth
+                    // Freelance Safe Daily Spend = (Salary Income - Pending Fixed Bills - Monthly Savings - Spent) / (Days Remaining + 1)
+                    val remainingDiscretionary = salaryIncomeThisMonth - pendingFixedBills - monthlySavings - spentThisMonth
                     (remainingDiscretionary.coerceAtLeast(0.0)) / (daysRemaining + 1)
                 }
 
@@ -172,6 +175,13 @@ class DashboardViewModel(
             }
         }
     }
+
+    private data class DashboardMetaData(
+        val recurringRules: List<RecurringRuleEntity>,
+        val walkthroughDone: Boolean,
+        val currency: String,
+        val monthlySavings: Double
+    )
 
     private data class CyclePeriod(
         val startTimestamp: Long,

@@ -12,10 +12,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Repeat
+import androidx.compose.material.icons.filled.EventRepeat
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -47,7 +47,7 @@ fun RecurringOptionsSection(
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(
-                    imageVector = Icons.Default.Repeat,
+                    imageVector = Icons.Default.EventRepeat,
                     contentDescription = "Recurring",
                     tint = MaterialTheme.colorScheme.primary
                 )
@@ -78,27 +78,29 @@ fun RecurringOptionsSection(
                 style = MaterialTheme.typography.bodySmall,
                 fontWeight = FontWeight.SemiBold
             )
+            Spacer(modifier = Modifier.height(6.dp))
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceEvenly
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 listOf(
                     "DAILY" to stringResource(R.string.frequency_daily),
                     "WEEKLY" to stringResource(R.string.frequency_weekly),
                     "MONTHLY" to stringResource(R.string.frequency_monthly)
                 ).forEach { (freqKey, freqLabel) ->
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier
-                            .clickable { onFrequencySelected(freqKey) }
-                            .padding(vertical = 4.dp, horizontal = 8.dp)
-                    ) {
-                        RadioButton(
-                            selected = selectedFrequency == freqKey,
-                            onClick = { onFrequencySelected(freqKey) }
-                        )
-                        Text(text = freqLabel, style = MaterialTheme.typography.bodyMedium)
-                    }
+                    FilterChip(
+                        selected = selectedFrequency == freqKey,
+                        onClick = { onFrequencySelected(freqKey) },
+                        label = {
+                            Text(
+                                text = freqLabel,
+                                style = MaterialTheme.typography.bodySmall,
+                                maxLines = 1,
+                                softWrap = false
+                            )
+                        },
+                        modifier = Modifier.weight(1f)
+                    )
                 }
             }
         }

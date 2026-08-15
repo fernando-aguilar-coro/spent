@@ -26,6 +26,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -73,18 +74,21 @@ fun TransactionItemRow(
                 modifier = Modifier.weight(1f),
                 verticalAlignment = Alignment.CenterVertically
             ) {
+                val catColor = runCatching { Color(android.graphics.Color.parseColor(category?.colorHex ?: "#64748B")) }
+                    .getOrDefault(if (isExpense) ExpenseRed else IncomeGreen)
+
                 Box(
                     modifier = Modifier
                         .size(38.dp)
                         .clip(CircleShape)
-                        .background(if (isExpense) ExpenseRed.copy(alpha = 0.15f) else IncomeGreen.copy(alpha = 0.15f)),
+                        .background(catColor.copy(alpha = 0.15f)),
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
-                        imageVector = if (isExpense) Icons.Default.ArrowDownward else Icons.Default.ArrowUpward,
-                        contentDescription = transaction.type,
-                        tint = if (isExpense) ExpenseRed else IncomeGreen,
-                        modifier = Modifier.size(18.dp)
+                        imageVector = com.example.spent.ui.components.CategoryIconHelper.getIconByName(category?.iconName),
+                        contentDescription = category?.name,
+                        tint = catColor,
+                        modifier = Modifier.size(20.dp)
                     )
                 }
 

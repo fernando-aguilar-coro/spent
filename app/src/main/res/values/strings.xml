@@ -24,6 +24,7 @@
 
     <!-- Category Envelopes -->
     <string name="category_envelopes">Category Envelopes</string>
+    <string name="envelopes_count">%1$d Envelopes</string>
     <string name="envelope_of">of</string>
     <string name="no_budget_set">No budget set</string>
     <string name="over_budget">Over budget</string>
@@ -131,14 +132,27 @@
     <string name="tool_fixed_bills_title">Fixed Bills &amp; Utilities</string>
     <string name="tool_fixed_bills_desc">Electricity, water, internet, gas &amp; rent</string>
     <string name="fixed_bills_dialog_title">Fixed Bills &amp; Utilities</string>
+    <string name="fixed_bills_screen_title">Fixed Bills &amp; Services</string>
+    <string name="loans_tracker_screen_title">Loans &amp; Debts</string>
     <string name="add_fixed_bill_title">Add New Bill</string>
+    <string name="quick_presets_title">Quick Presets</string>
     <string name="bill_name_label">Bill Name / Provider</string>
     <string name="bill_name_placeholder">e.g. Electricity (Luz), Water, Internet</string>
+    <string name="custom_bill_notes_label">Custom Details / Provider (Optional)</string>
+    <string name="custom_bill_notes_placeholder">e.g. Apartment 4B, Account #1234</string>
     <string name="bill_amount_label">Estimated / Baseline Amount (%1$s)</string>
-    <string name="bill_due_day_label">Arrival / Due Day of Month</string>
+    <string name="bill_due_day_label">Due Day of Month</string>
     <string name="bill_due_day_format">Due on day %1$d</string>
+    <string name="arrival_date_label">Arrival / Issue Date</string>
+    <string name="arrival_date_format">Arrives: %1$s</string>
+    <string name="cycle_period_label">Billing Cadence</string>
+    <string name="period_30_days">Every 30 Days (Monthly)</string>
     <string name="bill_status_paid">Paid this cycle</string>
     <string name="bill_status_pending">Pending (Estimated)</string>
+    <string name="unpaid_cycles_warning">%1$d unpaid cycles accumulated (%2$s%3$.2f)</string>
+    <string name="service_cutoff_alert">⚠️ Service Cut-Off Warning! %1$d unpaid cycles</string>
+    <string name="service_cutoff_desc">This service has not been paid for 3 or more consecutive cycles. Pay now to prevent disconnection.</string>
+    <string name="accumulated_total_label">Accumulated Total</string>
     <string name="pay_bill_btn">Log Bill Payment</string>
     <string name="delete_bill_btn">Delete Bill</string>
     <string name="save_bill_btn">Save Bill</string>
@@ -147,6 +161,8 @@
     <string name="preset_internet">Internet / Wifi</string>
     <string name="preset_gas">Gas</string>
     <string name="preset_rent">Rent</string>
+    <string name="preset_phone">Phone</string>
+    <string name="preset_streaming">Streaming</string>
 
     <!-- Walkthrough Banner -->
     <string name="walkthrough_title">Welcome to Spent!</string>
@@ -222,4 +238,8 @@
     <string name="reset_data_btn">Reset Data</string>
     <string name="reset_data_confirm_title">Reset All Data?</string>
     <string name="reset_data_confirm_msg">This will permanently delete all records. This action cannot be undone.</string>
+    <string name="monthly_savings_contribution_label">Monthly Contribution (%1$s)</string>
+    <string name="no_savings_goal_yet">No savings goal active</string>
+    <string name="add_savings_goal_btn">Add Savings Goal</string>
+    <string name="salary_funding_note">Categorizing income under \'Salary\' funds your daily Safe-to-Spend allowance.</string>
 </resources>

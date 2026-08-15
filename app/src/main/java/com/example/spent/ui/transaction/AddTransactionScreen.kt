@@ -44,6 +44,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -68,7 +70,7 @@ fun AddTransactionScreen(
     categories: List<CategoryEntity>,
     currencySymbol: String,
     onNavigateBack: () -> Unit,
-    onAddNewCategory: (name: String, colorHex: String) -> Unit,
+    onAddNewCategory: (name: String, colorHex: String, iconName: String) -> Unit,
     onAddTransaction: (amount: Double, type: String, categoryId: String, note: String, isRecurring: Boolean, frequency: String, timestamp: Long) -> Unit
 ) {
     var amountExpression by remember { mutableStateOf("") }
@@ -85,6 +87,9 @@ fun AddTransactionScreen(
 
     // Category Dialog State
     var showAddCategoryDialog by remember { mutableStateOf(false) }
+
+    val keyboardController = LocalSoftwareKeyboardController.current
+    val focusManager = LocalFocusManager.current
 
     // Keypad visibility toggle
     var showKeypad by remember { mutableStateOf(false) }
@@ -126,6 +131,24 @@ fun AddTransactionScreen(
                 onTypeSelected = { selectedType = it }
             )
 
+            if (selectedType == "INCOME") {
+                Spacer(modifier = Modifier.height(10.dp))
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(IncomeGreen.copy(alpha = 0.12f))
+                        .padding(horizontal = 14.dp, vertical = 10.dp)
+                ) {
+                    Text(
+                        text = stringResource(R.string.salary_funding_note),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        fontWeight = FontWeight.Medium
+                    )
+                }
+            }
+
             Spacer(modifier = Modifier.height(16.dp))
 
             // Native Amount Input Field with Calculator Toggle
@@ -155,7 +178,15 @@ fun AddTransactionScreen(
                     unfocusedBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f)
                 ),
                 trailingIcon = {
-                    IconButton(onClick = { showKeypad = !showKeypad }) {
+                    IconButton(
+                        onClick = {
+                            if (!showKeypad) {
+                                keyboardController?.hide()
+                                focusManager.clearFocus()
+                            }
+                            showKeypad = !showKeypad
+                        }
+                    ) {
                         Box(
                             modifier = Modifier
                                 .size(38.dp)
@@ -274,8 +305,8 @@ fun AddTransactionScreen(
     if (showAddCategoryDialog) {
         AddCategoryDialog(
             onDismiss = { showAddCategoryDialog = false },
-            onSaveCategory = { name, colorHex ->
-                onAddNewCategory(name, colorHex)
+            onSaveCategory = { name, colorHex, iconName ->
+                onAddNewCategory(name, colorHex, iconName)
             }
         )
     }

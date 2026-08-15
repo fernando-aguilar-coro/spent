@@ -21,11 +21,15 @@ import com.example.spent.data.local.entity.TransactionEntity
 import com.example.spent.data.repository.SpentRepository
 import com.example.spent.ui.analytics.AnalyticsScreen
 import com.example.spent.ui.analytics.AnalyticsViewModel
+import com.example.spent.ui.dashboard.FixedBillsScreen
+import com.example.spent.ui.dashboard.LoansTrackerScreen
+import com.example.spent.ui.dashboard.SavingsScreen
 import com.example.spent.ui.dashboard.DashboardScreen
 import com.example.spent.ui.dashboard.DashboardViewModel
 import com.example.spent.ui.settings.SettingsScreen
 import com.example.spent.ui.transaction.AddTransactionScreen
 import kotlinx.coroutines.launch
+import java.util.Calendar
 import java.util.UUID
 
 @Composable
@@ -68,6 +72,15 @@ fun SpentAppNavHost(
                     viewModel = dashboardViewModel,
                     onNavigateToAddTransaction = { type ->
                         navController.navigate(Screen.AddTransaction.createRoute(type))
+                    },
+                    onNavigateToSavingsTracker = {
+                        navController.navigate(Screen.SavingsTracker.route)
+                    },
+                    onNavigateToFixedBills = {
+                        navController.navigate(Screen.FixedBills.route)
+                    },
+                    onNavigateToLoansTracker = {
+                        navController.navigate(Screen.LoansTracker.route)
                     }
                 )
             }
@@ -106,12 +119,12 @@ fun SpentAppNavHost(
                     categories = categories,
                     currencySymbol = currencySymbol,
                     onNavigateBack = { navController.popBackStack() },
-                    onAddNewCategory = { name, colorHex ->
+                    onAddNewCategory = { name, colorHex, iconName ->
                         scope.launch {
                             val newCat = CategoryEntity(
                                 id = UUID.randomUUID().toString(),
                                 name = name,
-                                iconName = "Category",
+                                iconName = iconName,
                                 colorHex = colorHex,
                                 budgetAmount = 0.0,
                                 displayOrder = categories.size + 1
@@ -147,6 +160,142 @@ fun SpentAppNavHost(
                                 recurringRuleId = ruleId
                             )
                             repository.addTransaction(newTx)
+                        }
+                    }
+                )
+            }
+
+            composable(Screen.FixedBills.route) {
+                val recurringRules by repository.getRecurringRulesFlow().collectAsState(initial = emptyList())
+                val transactions by repository.getTransactionsFlow().collectAsState(initial = emptyList())
+                val categories by repository.getCategoriesFlow().collectAsState(initial = emptyList())
+                val currencySymbol by repository.currencySymbolFlow.collectAsState(initial = "$")
+
+                FixedBillsScreen(
+                    recurringRules = recurringRules,
+                    transactions = transactions,
+                    categories = categories,
+                    currencySymbol = currencySymbol,
+                    onNavigateBack = { navController.popBackStack() },
+                    onAddBill = { name, amount, dueDay, categoryId, arrivalTimestamp ->
+                        scope.launch {
+                            val rule = RecurringRuleEntity(
+                                id = UUID.randomUUID().toString(),
+                                amount = amount,
+                                categoryId = categoryId,
+                                frequency = "MONTHLY",
+                                startDate = arrivalTimestamp,
+                                note = "Bill: $name"
+                            )
+                            repository.addRecurringRule(rule)
+                        }
+                    },
+                    onDeleteBill = { ruleId ->
+                        scope.launch {
+                            repository.deleteRecurringRuleById(ruleId)
+                        }
+                    },
+                    onPayBill = { amount, name, categoryId, ruleId ->
+                        scope.launch {
+                            val tx = TransactionEntity(
+                                id = UUID.randomUUID().toString(),
+                                amount = amount,
+                                type = "EXPENSE",
+                                categoryId = categoryId,
+                                note = "Bill Payment: $name",
+                                timestamp = System.currentTimeMillis(),
+                                recurringRuleId = ruleId
+                            )
+                            repository.addTransaction(tx)
+                        }
+                    }
+                )
+            }
+
+            composable(Screen.LoansTracker.route) {
+                val transactions by repository.getTransactionsFlow().collectAsState(initial = emptyList())
+                val currencySymbol by repository.currencySymbolFlow.collectAsState(initial = "$")
+                val categories by repository.getCategoriesFlow().collectAsState(initial = emptyList())
+                val generalCatId = categories.find { it.id == "cat_general" }?.id ?: categories.firstOrNull()?.id ?: "cat_general"
+
+                LoansTrackerScreen(
+                    transactions = transactions,
+                    currencySymbol = currencySymbol,
+                    onNavigateBack = { navController.popBackStack() },
+                    onAddDebtLoanTransaction = { amount, type, note ->
+                        scope.launch {
+                            val tx = TransactionEntity(
+                                id = UUID.randomUUID().toString(),
+                                amount = amount,
+                                type = type,
+                                categoryId = generalCatId,
+                                note = note,
+                                timestamp = System.currentTimeMillis()
+                            )
+                            repository.addTransaction(tx)
+                        }
+                    },
+                    onAddDebtInstallmentPlan = { installmentAmount, durationMonths, note ->
+                        scope.launch {
+                            val cal = Calendar.getInstance()
+                            val startDate = cal.timeInMillis
+                            cal.add(Calendar.MONTH, durationMonths)
+                            val endDate = cal.timeInMillis
+
+                            val rule = RecurringRuleEntity(
+                                id = UUID.randomUUID().toString(),
+                                amount = installmentAmount,
+                                categoryId = generalCatId,
+                                frequency = "MONTHLY",
+                                startDate = startDate,
+                                endDate = endDate,
+                                note = note
+                            )
+                            repository.addRecurringRule(rule)
+                        }
+                    }
+                )
+            }
+
+            composable(Screen.SavingsTracker.route) {
+                val savingsGoalName by repository.savingsGoalNameFlow.collectAsState(initial = "")
+                val savingsGoalTotal by repository.savingsGoalTotalFlow.collectAsState(initial = 0.0)
+                val savingsMonthlyContribution by repository.savingsMonthlyContributionFlow.collectAsState(initial = 0.0)
+                val transactions by repository.getTransactionsFlow().collectAsState(initial = emptyList())
+                val categories by repository.getCategoriesFlow().collectAsState(initial = emptyList())
+                val currencySymbol by repository.currencySymbolFlow.collectAsState(initial = "$")
+
+                val savingsCatId = categories.find { it.id == "cat_savings" || it.name.equals("Savings", ignoreCase = true) }?.id ?: "cat_savings"
+
+                SavingsScreen(
+                    savingsGoalName = savingsGoalName,
+                    savingsGoalTotal = savingsGoalTotal,
+                    savingsMonthlyContribution = savingsMonthlyContribution,
+                    transactions = transactions,
+                    categories = categories,
+                    currencySymbol = currencySymbol,
+                    onNavigateBack = { navController.popBackStack() },
+                    onSetSavingsGoal = { name, totalGoal, monthlyContribution ->
+                        scope.launch {
+                            repository.setSavingsGoal(name, totalGoal, monthlyContribution)
+                        }
+                    },
+                    onClearSavingsGoal = {
+                        scope.launch {
+                            repository.clearSavingsGoal()
+                        }
+                    },
+                    onDepositFunds = { amount, note ->
+                        scope.launch {
+                            val tx = TransactionEntity(
+                                id = UUID.randomUUID().toString(),
+                                amount = amount,
+                                type = "EXPENSE",
+                                categoryId = savingsCatId,
+                                note = note.ifBlank { "Savings Deposit" },
+                                timestamp = System.currentTimeMillis()
+                            )
+                            repository.addTransaction(tx)
                         }
                     }
                 )
