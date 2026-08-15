@@ -118,6 +118,11 @@
     <string name="btn_cancel">Cancelar</string>
     <string name="btn_change">Cambiar</string>
     <string name="btn_new">Nuevo</string>
+    <string name="btn_ok">Aceptar</string>
+    <string name="btn_next">Siguiente</string>
+    <string name="btn_select">Seleccionar</string>
+    <string name="select_date">Seleccionar Fecha</string>
+    <string name="select_time">Seleccionar Hora</string>
 
     <!-- Enhanced Debt & Loans -->
     <string name="debt_type_direct">Directa / Personal</string>

@@ -6,7 +6,6 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -29,11 +28,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Calculate
 import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -54,7 +50,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
@@ -102,11 +97,7 @@ fun AddTransactionScreen(
     val keyboardController = LocalSoftwareKeyboardController.current
     val focusManager = LocalFocusManager.current
 
-    // Screen Form Factor (Tablet vs Phone)
-    val configuration = LocalConfiguration.current
-    val isTablet = configuration.screenWidthDp >= 600
-
-    // Keypad visibility toggle
+    // Calculator keypad toggle
     var showKeypad by remember { mutableStateOf(false) }
 
     Scaffold(
@@ -143,7 +134,7 @@ fun AddTransactionScreen(
                     .verticalScroll(rememberScrollState())
                     .imePadding()
                     .padding(horizontal = 20.dp, vertical = 12.dp)
-                    .padding(bottom = if (showKeypad && !isTablet) 320.dp else 24.dp)
+                    .padding(bottom = if (showKeypad) 320.dp else 24.dp)
             ) {
                 // Type Toggle (Expense / Income)
                 TransactionTypeSelector(
@@ -171,83 +162,60 @@ fun AddTransactionScreen(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Amount Input Field with Keypad / Calculator Trigger
-                Box(modifier = Modifier.fillMaxWidth()) {
-                    OutlinedTextField(
-                        value = amountExpression,
-                        onValueChange = { input ->
-                            if (input.isEmpty() || input.matches(Regex("^[0-9+×÷\\-\\.\\,\\s]*$"))) {
-                                amountExpression = input
-                            }
-                        },
-                        readOnly = !isTablet,
-                        label = { Text(stringResource(R.string.amount_label, currencySymbol)) },
-                        placeholder = { Text("0.00") },
-                        prefix = {
-                            Text(
-                                text = "$currencySymbol ",
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 20.sp,
-                                color = if (selectedType == "EXPENSE") ExpenseRed else IncomeGreen
-                            )
-                        },
-                        singleLine = true,
-                        keyboardOptions = if (isTablet) KeyboardOptions(keyboardType = KeyboardType.Decimal) else KeyboardOptions.Default,
-                        shape = RoundedCornerShape(20.dp),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedContainerColor = MaterialTheme.colorScheme.surface,
-                            unfocusedContainerColor = MaterialTheme.colorScheme.surface,
-                            unfocusedBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f)
-                        ),
-                        trailingIcon = {
-                            IconButton(
-                                onClick = {
-                                    if (!showKeypad) {
-                                        keyboardController?.hide()
-                                        focusManager.clearFocus()
-                                    }
-                                    showKeypad = !showKeypad
-                                }
-                            ) {
-                                Box(
-                                    modifier = Modifier
-                                        .size(38.dp)
-                                        .clip(CircleShape)
-                                        .background(if (showKeypad) MaterialTheme.colorScheme.primary.copy(alpha = 0.2f) else MaterialTheme.colorScheme.surfaceVariant),
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Default.Calculate,
-                                        contentDescription = "Toggle Calculator",
-                                        tint = MaterialTheme.colorScheme.primary,
-                                        modifier = Modifier.size(20.dp)
-                                    )
-                                }
-                            }
-                        },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable(!isTablet) {
-                                keyboardController?.hide()
-                                focusManager.clearFocus()
-                                showKeypad = true
-                            }
-                    )
-                }
-
-                // Inline Keypad for Tablet mode
-                if (isTablet) {
-                    AnimatedVisibility(visible = showKeypad) {
-                        Column {
-                            Spacer(modifier = Modifier.height(12.dp))
-                            CustomNumericKeypad(
-                                currentExpression = amountExpression,
-                                onExpressionChanged = { amountExpression = it },
-                                onConfirm = { showKeypad = false }
-                            )
+                // Amount Input Field with Native Soft Keyboard & Calculator Icon
+                OutlinedTextField(
+                    value = amountExpression,
+                    onValueChange = { input ->
+                        if (input.isEmpty() || input.matches(Regex("^[0-9+×÷\\-\\.\\,\\s]*$"))) {
+                            amountExpression = input
                         }
-                    }
-                }
+                    },
+                    label = { Text(stringResource(R.string.amount_label, currencySymbol)) },
+                    placeholder = { Text("0.00") },
+                    prefix = {
+                        Text(
+                            text = "$currencySymbol ",
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 20.sp,
+                            color = if (selectedType == "EXPENSE") ExpenseRed else IncomeGreen
+                        )
+                    },
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                    shape = RoundedCornerShape(20.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedContainerColor = MaterialTheme.colorScheme.surface,
+                        unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                        unfocusedBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f)
+                    ),
+                    trailingIcon = {
+                        IconButton(
+                            onClick = {
+                                if (!showKeypad) {
+                                    keyboardController?.hide()
+                                    focusManager.clearFocus()
+                                }
+                                showKeypad = !showKeypad
+                            }
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .size(38.dp)
+                                    .clip(CircleShape)
+                                    .background(if (showKeypad) MaterialTheme.colorScheme.primary.copy(alpha = 0.2f) else MaterialTheme.colorScheme.surfaceVariant),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Calculate,
+                                    contentDescription = "Toggle Calculator",
+                                    tint = MaterialTheme.colorScheme.primary,
+                                    modifier = Modifier.size(20.dp)
+                                )
+                            }
+                        }
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                )
 
                 Spacer(modifier = Modifier.height(16.dp))
 
@@ -331,71 +299,69 @@ fun AddTransactionScreen(
                 Spacer(modifier = Modifier.height(24.dp))
             }
 
-            // Bottom Docked Custom Numeric Keypad for Mobile (overlaid at bottom like Android IME)
-            if (!isTablet) {
-                AnimatedVisibility(
-                    visible = showKeypad,
-                    enter = slideInVertically { it } + fadeIn(),
-                    exit = slideOutVertically { it } + fadeOut(),
-                    modifier = Modifier.align(Alignment.BottomCenter)
+            // Bottom Docked Custom Numeric Keypad (shown when calculator icon is tapped)
+            AnimatedVisibility(
+                visible = showKeypad,
+                enter = slideInVertically { it } + fadeIn(),
+                exit = slideOutVertically { it } + fadeOut(),
+                modifier = Modifier.align(Alignment.BottomCenter)
+            ) {
+                Surface(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .navigationBarsPadding(),
+                    shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp),
+                    color = MaterialTheme.colorScheme.surface,
+                    tonalElevation = 8.dp,
+                    shadowElevation = 16.dp
                 ) {
-                    Surface(
+                    Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .navigationBarsPadding(),
-                        shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp),
-                        color = MaterialTheme.colorScheme.surface,
-                        tonalElevation = 8.dp,
-                        shadowElevation = 16.dp
+                            .padding(horizontal = 14.dp, vertical = 10.dp)
                     ) {
-                        Column(
+                        // Keypad Header Bar with Drag Handle, Live Amount & Done Button
+                        Row(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(horizontal = 14.dp, vertical = 10.dp)
+                                .padding(bottom = 6.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
                         ) {
-                            // Keypad Header Bar with Drag Handle & Close
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(bottom = 6.dp),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Row(verticalAlignment = Alignment.CenterVertically) {
-                                    Box(
-                                        modifier = Modifier
-                                            .width(36.dp)
-                                            .height(4.dp)
-                                            .clip(CircleShape)
-                                            .background(MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f))
-                                    )
-                                    Spacer(modifier = Modifier.width(12.dp))
-                                    Text(
-                                        text = "$currencySymbol${amountExpression.ifEmpty { "0.00" }}",
-                                        style = MaterialTheme.typography.titleMedium,
-                                        fontWeight = FontWeight.Bold,
-                                        color = if (selectedType == "EXPENSE") ExpenseRed else IncomeGreen
-                                    )
-                                }
-
-                                IconButton(
-                                    onClick = { showKeypad = false },
-                                    modifier = Modifier.size(32.dp)
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Default.Check,
-                                        contentDescription = "Done",
-                                        tint = MaterialTheme.colorScheme.primary
-                                    )
-                                }
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Box(
+                                    modifier = Modifier
+                                        .width(36.dp)
+                                        .height(4.dp)
+                                        .clip(CircleShape)
+                                        .background(MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f))
+                                )
+                                Spacer(modifier = Modifier.width(12.dp))
+                                Text(
+                                    text = "$currencySymbol${amountExpression.ifEmpty { "0.00" }}",
+                                    style = MaterialTheme.typography.titleMedium,
+                                    fontWeight = FontWeight.Bold,
+                                    color = if (selectedType == "EXPENSE") ExpenseRed else IncomeGreen
+                                )
                             }
 
-                            CustomNumericKeypad(
-                                currentExpression = amountExpression,
-                                onExpressionChanged = { amountExpression = it },
-                                onConfirm = { showKeypad = false }
-                            )
+                            IconButton(
+                                onClick = { showKeypad = false },
+                                modifier = Modifier.size(32.dp)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Check,
+                                    contentDescription = "Done",
+                                    tint = MaterialTheme.colorScheme.primary
+                                )
+                            }
                         }
+
+                        CustomNumericKeypad(
+                            currentExpression = amountExpression,
+                            onExpressionChanged = { amountExpression = it },
+                            onConfirm = { showKeypad = false }
+                        )
                     }
                 }
             }
