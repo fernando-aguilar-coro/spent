@@ -1,6 +1,7 @@
 package com.example.spent.ui.dashboard.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -26,16 +27,18 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.spent.data.local.entity.CategoryEntity
 import com.example.spent.data.local.entity.TransactionEntity
 import com.example.spent.ui.theme.ExpenseRed
+import com.example.spent.ui.theme.ExpenseRedContainer
 import com.example.spent.ui.theme.IncomeGreen
+import com.example.spent.ui.theme.IncomeGreenContainer
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
-
-import androidx.compose.foundation.clickable
 
 @Composable
 fun TransactionItemRow(
@@ -47,7 +50,7 @@ fun TransactionItemRow(
     val category = categories.find { it.id == transaction.categoryId }
     val isExpense = transaction.type == "EXPENSE"
     val formattedDate = remember(transaction.timestamp) {
-        SimpleDateFormat("MMM dd, HH:mm", Locale.getDefault()).format(Date(transaction.timestamp))
+        SimpleDateFormat("MMM dd • HH:mm", Locale.getDefault()).format(Date(transaction.timestamp))
     }
 
     Card(
@@ -56,50 +59,60 @@ fun TransactionItemRow(
             .padding(horizontal = 20.dp, vertical = 4.dp)
             .then(if (onClick != null) Modifier.clickable { onClick() } else Modifier),
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.5.dp)
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp),
+                .padding(horizontal = 14.dp, vertical = 12.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
+            Row(
+                modifier = Modifier.weight(1f),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
                 Box(
                     modifier = Modifier
-                        .size(40.dp)
+                        .size(38.dp)
                         .clip(CircleShape)
-                        .background(if (isExpense) ExpenseRed.copy(alpha = 0.15f) else IncomeGreen.copy(alpha = 0.15f)),
+                        .background(if (isExpense) ExpenseRedContainer else IncomeGreenContainer),
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
                         imageVector = if (isExpense) Icons.Default.ArrowDownward else Icons.Default.ArrowUpward,
                         contentDescription = transaction.type,
                         tint = if (isExpense) ExpenseRed else IncomeGreen,
-                        modifier = Modifier.size(20.dp)
+                        modifier = Modifier.size(18.dp)
                     )
                 }
 
                 Spacer(modifier = Modifier.width(12.dp))
 
-                Column {
+                Column(modifier = Modifier.weight(1f)) {
                     Text(
                         text = transaction.note.ifEmpty { category?.name ?: "Transaction" },
                         style = MaterialTheme.typography.bodyMedium,
-                        fontWeight = FontWeight.SemiBold
+                        fontWeight = FontWeight.SemiBold,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
                     )
                     Text(
                         text = "${category?.name ?: "General"} • $formattedDate",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        fontSize = 11.sp,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
                     )
                 }
             }
 
+            Spacer(modifier = Modifier.width(8.dp))
+
             Text(
                 text = "${if (isExpense) "-" else "+"}$currencySymbol${"%.2f".format(transaction.amount)}",
-                style = MaterialTheme.typography.titleMedium,
+                fontSize = 15.sp,
                 fontWeight = FontWeight.Bold,
                 color = if (isExpense) ExpenseRed else IncomeGreen
             )

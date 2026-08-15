@@ -18,8 +18,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Category
 import androidx.compose.material.icons.filled.Lock
-import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -33,7 +33,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.spent.R
 import com.example.spent.ui.dashboard.CategoryEnvelopeState
 
@@ -42,13 +44,26 @@ fun CategoryEnvelopeRow(
     categoriesWithProgress: List<CategoryEnvelopeState>,
     currencySymbol: String
 ) {
-    Column(modifier = Modifier.padding(vertical = 12.dp)) {
-        Text(
-            text = stringResource(R.string.category_envelopes),
-            style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(horizontal = 20.dp)
-        )
+    Column(modifier = Modifier.padding(vertical = 10.dp)) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 20.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = stringResource(R.string.category_envelopes),
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold
+            )
+            Text(
+                text = "${categoriesWithProgress.size} Envelopes",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+
         Spacer(modifier = Modifier.height(8.dp))
 
         LazyRow(
@@ -62,10 +77,11 @@ fun CategoryEnvelopeRow(
 
                 Card(
                     modifier = Modifier
-                        .width(160.dp)
-                        .height(130.dp),
-                    shape = RoundedCornerShape(16.dp),
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+                        .width(155.dp)
+                        .height(125.dp),
+                    shape = RoundedCornerShape(18.dp),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
                 ) {
                     Column(
                         modifier = Modifier
@@ -80,13 +96,13 @@ fun CategoryEnvelopeRow(
                         ) {
                             Box(
                                 modifier = Modifier
-                                    .size(32.dp)
+                                    .size(34.dp)
                                     .clip(CircleShape)
-                                    .background(color.copy(alpha = 0.2f)),
+                                    .background(color.copy(alpha = 0.15f)),
                                 contentAlignment = Alignment.Center
                             ) {
                                 Icon(
-                                    imageVector = Icons.Default.ShoppingCart,
+                                    imageVector = Icons.Default.Category,
                                     contentDescription = cat.name,
                                     tint = color,
                                     modifier = Modifier.size(18.dp)
@@ -106,12 +122,14 @@ fun CategoryEnvelopeRow(
                             Text(
                                 text = cat.name,
                                 style = MaterialTheme.typography.bodyMedium,
-                                fontWeight = FontWeight.Bold,
-                                maxLines = 1
+                                fontWeight = FontWeight.SemiBold,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
                             )
+                            Spacer(modifier = Modifier.height(2.dp))
                             Text(
                                 text = "$currencySymbol${"%.0f".format(envelope.spentAmount)} / $currencySymbol${"%.0f".format(cat.budgetAmount)}",
-                                style = MaterialTheme.typography.bodySmall,
+                                fontSize = 11.sp,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
@@ -120,10 +138,10 @@ fun CategoryEnvelopeRow(
                             progress = { envelope.progress },
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .height(6.dp)
+                                .height(5.dp)
                                 .clip(RoundedCornerShape(3.dp)),
                             color = color,
-                            trackColor = color.copy(alpha = 0.2f)
+                            trackColor = color.copy(alpha = 0.15f)
                         )
                     }
                 }

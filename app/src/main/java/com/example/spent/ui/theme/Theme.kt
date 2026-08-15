@@ -17,28 +17,43 @@ import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 
 private val DarkColorScheme = darkColorScheme(
-    primary = EmeraldPrimary,
-    onPrimary = Color.Black,
-    primaryContainer = EmeraldDark,
-    secondary = AccentBlue,
-    tertiary = AccentPurple,
-    background = FinanceBackgroundDark,
-    surface = FinanceSurfaceDark,
-    surfaceVariant = FinanceCardDark,
-    onBackground = Color.White,
-    onSurface = Color.White
+    primary = SageGreenMedium,
+    onPrimary = Color.White,
+    primaryContainer = SageGreenDark,
+    onPrimaryContainer = SageGreenLight,
+    secondary = AccentSlate,
+    onSecondary = Color.White,
+    secondaryContainer = CharcoalSurfaceVariant,
+    onSecondaryContainer = CharcoalTextPrimary,
+    tertiary = AccentAmber,
+    onTertiary = Color.Black,
+    background = CharcoalBackgroundDark,
+    onBackground = CharcoalTextPrimary,
+    surface = CharcoalSurfaceDark,
+    onSurface = CharcoalTextPrimary,
+    surfaceVariant = CharcoalSurfaceVariant,
+    onSurfaceVariant = CharcoalTextSecondary,
+    outline = CharcoalBorder
 )
 
 private val LightColorScheme = lightColorScheme(
-    primary = EmeraldPrimary,
+    primary = SageGreenPrimary,
     onPrimary = Color.White,
-    primaryContainer = EmeraldLight,
-    secondary = AccentBlue,
-    tertiary = AccentPurple,
-    background = FinanceBackgroundLight,
-    surface = FinanceSurfaceLight,
-    onBackground = Color(0xFF0F172A),
-    onSurface = Color(0xFF0F172A)
+    primaryContainer = SageGreenLight,
+    onPrimaryContainer = SageGreenDark,
+    secondary = AccentSlate,
+    onSecondary = Color.White,
+    secondaryContainer = SoftGraySurfaceVariant,
+    onSecondaryContainer = SoftGrayTextPrimary,
+    tertiary = AccentAmber,
+    onTertiary = Color.White,
+    background = SoftGrayBackgroundLight,
+    onBackground = SoftGrayTextPrimary,
+    surface = SoftGraySurfaceLight,
+    onSurface = SoftGrayTextPrimary,
+    surfaceVariant = SoftGraySurfaceVariant,
+    onSurfaceVariant = SoftGrayTextSecondary,
+    outline = SoftGrayBorder
 )
 
 @Composable
@@ -60,7 +75,6 @@ fun SpentTheme(
     if (!view.isInEditMode) {
         SideEffect {
             val window = (view.context as Activity).window
-            window.statusBarColor = colorScheme.background.toArgb()
             WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = !darkTheme
         }
     }

@@ -19,9 +19,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.spent.R
 import com.example.spent.ui.theme.ExpenseRed
-import com.example.spent.ui.theme.IncomeGreen
+import com.example.spent.ui.theme.SageGreenPrimary
 
 @Composable
 fun TransactionTypeSelector(
@@ -32,7 +33,7 @@ fun TransactionTypeSelector(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(12.dp))
+            .clip(RoundedCornerShape(16.dp))
             .background(MaterialTheme.colorScheme.surfaceVariant)
             .padding(4.dp),
         horizontalArrangement = Arrangement.SpaceEvenly
@@ -40,7 +41,7 @@ fun TransactionTypeSelector(
         Box(
             modifier = Modifier
                 .weight(1f)
-                .clip(RoundedCornerShape(8.dp))
+                .clip(RoundedCornerShape(12.dp))
                 .background(if (selectedType == "EXPENSE") ExpenseRed else Color.Transparent)
                 .clickable { onTypeSelected("EXPENSE") }
                 .padding(vertical = 12.dp),
@@ -50,6 +51,7 @@ fun TransactionTypeSelector(
                 text = stringResource(R.string.type_expense),
                 color = if (selectedType == "EXPENSE") Color.White else MaterialTheme.colorScheme.onSurfaceVariant,
                 fontWeight = FontWeight.SemiBold,
+                fontSize = 14.sp,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
@@ -58,8 +60,8 @@ fun TransactionTypeSelector(
         Box(
             modifier = Modifier
                 .weight(1f)
-                .clip(RoundedCornerShape(8.dp))
-                .background(if (selectedType == "INCOME") IncomeGreen else Color.Transparent)
+                .clip(RoundedCornerShape(12.dp))
+                .background(if (selectedType == "INCOME") SageGreenPrimary else Color.Transparent)
                 .clickable { onTypeSelected("INCOME") }
                 .padding(vertical = 12.dp),
             contentAlignment = Alignment.Center
@@ -68,6 +70,7 @@ fun TransactionTypeSelector(
                 text = stringResource(R.string.type_income),
                 color = if (selectedType == "INCOME") Color.White else MaterialTheme.colorScheme.onSurfaceVariant,
                 fontWeight = FontWeight.SemiBold,
+                fontSize = 14.sp,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
