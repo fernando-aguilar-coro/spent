@@ -41,11 +41,15 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -54,6 +58,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -61,7 +66,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.spent.R
-import com.example.spent.data.local.entity.TransactionEntity
 import com.example.spent.ui.theme.ExpenseRed
 import com.example.spent.ui.theme.IncomeGreen
 import java.text.SimpleDateFormat
@@ -71,12 +75,25 @@ import java.util.Locale
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LoansTrackerScreen(
-    transactions: List<TransactionEntity>,
-    currencySymbol: String,
-    onNavigateBack: () -> Unit,
-    onAddDebtLoanTransaction: (amount: Double, type: String, note: String) -> Unit,
-    onAddDebtInstallmentPlan: (installmentAmount: Double, durationMonths: Int, note: String) -> Unit = { _, _, _ -> }
+    viewModel: LoansTrackerViewModel,
+    onNavigateBack: () -> Unit
 ) {
+    val state by viewModel.uiState.collectAsState()
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    val transactions = state.transactions
+    val currencySymbol = state.currencySymbol
+
+    LaunchedEffect(Unit) {
+        viewModel.effect.collect { effect ->
+            when (effect) {
+                is LoansTrackerUiEffect.ShowSnackbar -> {
+                    snackbarHostState.showSnackbar(effect.message)
+                }
+            }
+        }
+    }
+
     var isAddingNewDebt by remember { mutableStateOf(false) }
     var loanActionType by remember { mutableStateOf("NEW") } // "NEW" vs "PAY"
     var selectedDebtType by remember { mutableStateOf("CARD") } // "DIRECT", "CARD", "BANK", "INTEREST"
@@ -116,6 +133,7 @@ fun LoansTrackerScreen(
     val currentDebtTypeLabel = debtTypeOptions.find { it.first == selectedDebtType }?.second?.first ?: "Debt"
 
     Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             TopAppBar(
@@ -157,73 +175,7 @@ fun LoansTrackerScreen(
             contentPadding = PaddingValues(horizontal = 20.dp, vertical = 12.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            // Hero Debt Summary Card
-            item {
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(20.dp),
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
-                ) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(18.dp),
-                        verticalArrangement = Arrangement.spacedBy(10.dp)
-                    ) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Column {
-                                Text(
-                                    text = stringResource(R.string.outstanding_loan_debt),
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                                Text(
-                                    text = "$currencySymbol${"%.2f".format(netLoanRemaining)}",
-                                    style = MaterialTheme.typography.headlineMedium,
-                                    fontWeight = FontWeight.Bold,
-                                    color = if (netLoanRemaining > 0) ExpenseRed else IncomeGreen
-                                )
-                            }
-                            Box(
-                                modifier = Modifier
-                                    .size(44.dp)
-                                    .clip(CircleShape)
-                                    .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.AccountBalance,
-                                    contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.primary,
-                                    modifier = Modifier.size(24.dp)
-                                )
-                            }
-                        }
-
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween
-                        ) {
-                            Text(
-                                text = stringResource(R.string.borrowed_amount, currencySymbol, totalLoansReceived),
-                                style = MaterialTheme.typography.bodySmall
-                            )
-                            Text(
-                                text = stringResource(R.string.repaid_amount, currencySymbol, totalLoansPaid),
-                                style = MaterialTheme.typography.bodySmall,
-                                color = IncomeGreen,
-                                fontWeight = FontWeight.Bold
-                            )
-                        }
-                    }
-                }
-            }
-
-            // Expandable Add Debt / Repayment Form
+            // New Debt / Loan Action Card (When Activated)
             item {
                 AnimatedVisibility(visible = isAddingNewDebt) {
                     Card(
@@ -234,8 +186,8 @@ fun LoansTrackerScreen(
                         Column(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(16.dp),
-                            verticalArrangement = Arrangement.spacedBy(12.dp)
+                                .padding(18.dp),
+                            verticalArrangement = Arrangement.spacedBy(14.dp)
                         ) {
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
@@ -243,7 +195,7 @@ fun LoansTrackerScreen(
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Text(
-                                    text = if (loanActionType == "NEW") stringResource(R.string.register_loan) else stringResource(R.string.pay_installment),
+                                    text = if (loanActionType == "NEW") stringResource(R.string.register_loan) else stringResource(R.string.record_payment),
                                     style = MaterialTheme.typography.titleMedium,
                                     fontWeight = FontWeight.Bold
                                 )
@@ -251,47 +203,72 @@ fun LoansTrackerScreen(
                                     onClick = { isAddingNewDebt = false },
                                     modifier = Modifier.size(28.dp)
                                 ) {
-                                    Icon(Icons.Default.Close, contentDescription = "Cancel")
+                                    Icon(
+                                        imageVector = Icons.Default.Close,
+                                        contentDescription = "Cancel",
+                                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
                                 }
                             }
 
-                            // Action Type Toggle
+                            // Action Toggle (Take Loan vs Repay Loan)
                             Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clip(RoundedCornerShape(12.dp))
+                                    .background(MaterialTheme.colorScheme.surface)
+                                    .padding(4.dp),
+                                horizontalArrangement = Arrangement.SpaceEvenly
                             ) {
-                                FilterChip(
-                                    selected = loanActionType == "NEW",
+                                Button(
                                     onClick = { loanActionType = "NEW" },
-                                    label = { Text(stringResource(R.string.register_loan)) },
+                                    colors = ButtonDefaults.buttonColors(
+                                        containerColor = if (loanActionType == "NEW") MaterialTheme.colorScheme.primary else Color.Transparent,
+                                        contentColor = if (loanActionType == "NEW") Color.White else MaterialTheme.colorScheme.onSurface
+                                    ),
+                                    shape = RoundedCornerShape(10.dp),
                                     modifier = Modifier.weight(1f)
-                                )
-                                FilterChip(
-                                    selected = loanActionType == "PAY",
+                                ) {
+                                    Text(stringResource(R.string.register_loan), fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                                }
+                                Button(
                                     onClick = { loanActionType = "PAY" },
-                                    label = { Text(stringResource(R.string.pay_installment)) },
+                                    colors = ButtonDefaults.buttonColors(
+                                        containerColor = if (loanActionType == "PAY") ExpenseRed else Color.Transparent,
+                                        contentColor = if (loanActionType == "PAY") Color.White else MaterialTheme.colorScheme.onSurface
+                                    ),
+                                    shape = RoundedCornerShape(10.dp),
                                     modifier = Modifier.weight(1f)
-                                )
+                                ) {
+                                    Text(stringResource(R.string.record_payment), fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                                }
                             }
 
                             if (loanActionType == "NEW") {
-                                // Debt Type Selector Chips
-                                Text(
-                                    text = "Debt Classification",
-                                    style = MaterialTheme.typography.bodySmall,
-                                    fontWeight = FontWeight.SemiBold
-                                )
-                                LazyRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                                    items(debtTypeOptions) { (key, pair) ->
-                                        val (label, icon) = pair
-                                        FilterChip(
-                                            selected = selectedDebtType == key,
-                                            onClick = { selectedDebtType = key },
-                                            leadingIcon = {
-                                                Icon(imageVector = icon, contentDescription = label, modifier = Modifier.size(16.dp))
-                                            },
-                                            label = { Text(label, style = MaterialTheme.typography.bodySmall) }
-                                        )
+                                // Debt Type Category Chips
+                                Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                                    Text(
+                                        text = stringResource(R.string.category_label),
+                                        style = MaterialTheme.typography.labelSmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                    LazyRow(
+                                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                        modifier = Modifier.fillMaxWidth()
+                                    ) {
+                                        items(debtTypeOptions) { (key, data) ->
+                                            val (title, icon) = data
+                                            val isSelected = selectedDebtType == key
+                                            FilterChip(
+                                                selected = isSelected,
+                                                onClick = { selectedDebtType = key },
+                                                label = { Text(title, fontSize = 12.sp) },
+                                                leadingIcon = {
+                                                    Icon(imageVector = icon, contentDescription = null, modifier = Modifier.size(16.dp))
+                                                },
+                                                shape = RoundedCornerShape(12.dp)
+                                            )
+                                        }
                                     }
                                 }
 
@@ -435,22 +412,25 @@ fun LoansTrackerScreen(
                                     if (isValid) {
                                         if (loanActionType == "NEW") {
                                             val note = "Debt ($currentDebtTypeLabel): ${lenderNameText.trim()}"
-                                            onAddDebtLoanTransaction(parsedAmount, "INCOME", note)
+                                            viewModel.onIntent(LoansTrackerUiIntent.AddDebtLoanTransaction(parsedAmount, "INCOME", note))
 
                                             if (isInstallmentPlan) {
                                                 val monthlyInstallment = installmentAmountText.toDoubleOrNull() ?: (parsedAmount / installmentDurationMonths)
                                                 if (monthlyInstallment > 0) {
-                                                    onAddDebtInstallmentPlan(
-                                                        monthlyInstallment,
-                                                        installmentDurationMonths,
-                                                        "Debt Installment ($currentDebtTypeLabel): ${lenderNameText.trim()}"
+                                                    viewModel.onIntent(
+                                                        LoansTrackerUiIntent.AddDebtInstallmentPlan(
+                                                            installmentAmount = monthlyInstallment,
+                                                            durationMonths = installmentDurationMonths,
+                                                            note = "Debt Installment ($currentDebtTypeLabel): ${lenderNameText.trim()}"
+                                                        )
                                                     )
                                                 }
                                             }
                                         } else {
                                             val note = "Debt Repayment: ${lenderNameText.trim()}"
-                                            onAddDebtLoanTransaction(parsedAmount, "EXPENSE", note)
+                                            viewModel.onIntent(LoansTrackerUiIntent.AddDebtLoanTransaction(parsedAmount, "EXPENSE", note))
                                         }
+
                                         lenderNameText = ""
                                         principalAmountText = ""
                                         installmentAmountText = ""
@@ -462,10 +442,12 @@ fun LoansTrackerScreen(
                                     .fillMaxWidth()
                                     .height(48.dp),
                                 shape = RoundedCornerShape(14.dp),
-                                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = if (loanActionType == "NEW") MaterialTheme.colorScheme.primary else ExpenseRed
+                                )
                             ) {
                                 Text(
-                                    if (loanActionType == "NEW") stringResource(R.string.save_debt) else stringResource(R.string.record_payment),
+                                    text = if (loanActionType == "NEW") stringResource(R.string.save_debt) else stringResource(R.string.record_payment),
                                     fontWeight = FontWeight.Bold
                                 )
                             }
@@ -474,7 +456,87 @@ fun LoansTrackerScreen(
                 }
             }
 
-            // List of Recent Debt & Repayment Activities
+            // Summary Card
+            item {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(20.dp),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(20.dp),
+                        verticalArrangement = Arrangement.spacedBy(14.dp)
+                    ) {
+                        Text(
+                            text = stringResource(R.string.outstanding_loan_debt),
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold
+                        )
+
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Column {
+                                Text(
+                                    text = stringResource(R.string.total_income),
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                                Text(
+                                    text = "$currencySymbol${"%.2f".format(totalLoansReceived)}",
+                                    style = MaterialTheme.typography.titleMedium,
+                                    fontWeight = FontWeight.Bold,
+                                    color = IncomeGreen
+                                )
+                            }
+                            Column(horizontalAlignment = Alignment.End) {
+                                Text(
+                                    text = stringResource(R.string.total_spent),
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                                Text(
+                                    text = "$currencySymbol${"%.2f".format(totalLoansPaid)}",
+                                    style = MaterialTheme.typography.titleMedium,
+                                    fontWeight = FontWeight.Bold,
+                                    color = ExpenseRed
+                                )
+                            }
+                        }
+
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clip(RoundedCornerShape(12.dp))
+                                .background(MaterialTheme.colorScheme.surface)
+                                .padding(horizontal = 14.dp, vertical = 10.dp)
+                        ) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    text = stringResource(R.string.outstanding_loan_debt),
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    fontWeight = FontWeight.SemiBold
+                                )
+                                Text(
+                                    text = "$currencySymbol${"%.2f".format(netLoanRemaining)}",
+                                    style = MaterialTheme.typography.titleLarge,
+                                    fontWeight = FontWeight.Bold,
+                                    color = if (netLoanRemaining > 0) ExpenseRed else IncomeGreen
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Loan History Section Header
             item {
                 Text(
                     text = stringResource(R.string.recent_activity),
@@ -488,11 +550,11 @@ fun LoansTrackerScreen(
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(32.dp),
+                            .padding(30.dp),
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
-                            text = "No loans or debt records found. Tap + to register one!",
+                            text = "No debt or loan records registered yet.",
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -500,15 +562,13 @@ fun LoansTrackerScreen(
                 }
             } else {
                 items(debtTransactions, key = { it.id }) { tx ->
-                    val isRepayment = tx.type == "EXPENSE"
-                    val formattedDate = remember(tx.timestamp) {
-                        SimpleDateFormat("MMM dd, yyyy • HH:mm", Locale.getDefault()).format(Date(tx.timestamp))
-                    }
+                    val isLoanIncome = tx.type == "INCOME"
+                    val formattedDate = SimpleDateFormat("MMM dd, yyyy • hh:mm a", Locale.getDefault()).format(Date(tx.timestamp))
 
                     Card(
                         modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(16.dp),
-                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+                        shape = RoundedCornerShape(14.dp),
+                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
                     ) {
                         Row(
                             modifier = Modifier
@@ -518,29 +578,29 @@ fun LoansTrackerScreen(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Row(
+                                modifier = Modifier.weight(1f),
                                 verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(12.dp)
+                                horizontalArrangement = Arrangement.spacedBy(10.dp)
                             ) {
                                 Box(
                                     modifier = Modifier
-                                        .size(38.dp)
+                                        .size(36.dp)
                                         .clip(CircleShape)
-                                        .background(if (isRepayment) IncomeGreen.copy(alpha = 0.15f) else ExpenseRed.copy(alpha = 0.15f)),
+                                        .background(if (isLoanIncome) IncomeGreen.copy(alpha = 0.15f) else ExpenseRed.copy(alpha = 0.15f)),
                                     contentAlignment = Alignment.Center
                                 ) {
                                     Icon(
-                                        imageVector = if (isRepayment) Icons.Default.CreditCard else Icons.Default.AccountBalance,
+                                        imageVector = if (isLoanIncome) Icons.Default.Handshake else Icons.Default.CreditCard,
                                         contentDescription = null,
-                                        tint = if (isRepayment) IncomeGreen else ExpenseRed,
-                                        modifier = Modifier.size(20.dp)
+                                        tint = if (isLoanIncome) IncomeGreen else ExpenseRed,
+                                        modifier = Modifier.size(18.dp)
                                     )
                                 }
-
                                 Column {
                                     Text(
-                                        text = tx.note.ifBlank { "Debt Record" },
+                                        text = tx.note.ifBlank { if (isLoanIncome) "Loan Borrowed" else "Loan Repayment" },
                                         style = MaterialTheme.typography.bodyMedium,
-                                        fontWeight = FontWeight.Bold,
+                                        fontWeight = FontWeight.SemiBold,
                                         maxLines = 1,
                                         overflow = TextOverflow.Ellipsis
                                     )
@@ -553,10 +613,10 @@ fun LoansTrackerScreen(
                             }
 
                             Text(
-                                text = "${if (isRepayment) "-" else "+"}$currencySymbol${"%.2f".format(tx.amount)}",
-                                style = MaterialTheme.typography.titleMedium,
+                                text = "${if (isLoanIncome) "+" else "-"}$currencySymbol${"%.2f".format(tx.amount)}",
+                                style = MaterialTheme.typography.bodyLarge,
                                 fontWeight = FontWeight.Bold,
-                                color = if (isRepayment) IncomeGreen else ExpenseRed
+                                color = if (isLoanIncome) IncomeGreen else ExpenseRed
                             )
                         }
                     }

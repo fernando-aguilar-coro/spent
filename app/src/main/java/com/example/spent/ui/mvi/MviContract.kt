@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 interface UiState
@@ -34,7 +35,7 @@ abstract class BaseViewModel<State : UiState, Intent : UiIntent, Effect : UiEffe
     abstract fun onIntent(intent: Intent)
 
     protected fun setState(reduce: State.() -> State) {
-        _uiState.value = currentState.reduce()
+        _uiState.update { it.reduce() }
     }
 
     protected fun sendEffect(effect: Effect) {

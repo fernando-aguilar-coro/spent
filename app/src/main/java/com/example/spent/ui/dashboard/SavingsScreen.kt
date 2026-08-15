@@ -39,10 +39,14 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -69,17 +73,29 @@ import java.util.Locale
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SavingsScreen(
-    savingsGoalName: String,
-    savingsGoalTotal: Double,
-    savingsMonthlyContribution: Double,
-    transactions: List<TransactionEntity>,
-    categories: List<CategoryEntity>,
-    currencySymbol: String,
-    onNavigateBack: () -> Unit,
-    onSetSavingsGoal: (name: String, totalGoal: Double, monthlyContribution: Double) -> Unit,
-    onClearSavingsGoal: () -> Unit,
-    onDepositFunds: (amount: Double, note: String) -> Unit
+    viewModel: SavingsViewModel,
+    onNavigateBack: () -> Unit
 ) {
+    val state by viewModel.uiState.collectAsState()
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    val savingsGoalName = state.savingsGoalName
+    val savingsGoalTotal = state.savingsGoalTotal
+    val savingsMonthlyContribution = state.savingsMonthlyContribution
+    val transactions = state.transactions
+    val categories = state.categories
+    val currencySymbol = state.currencySymbol
+
+    LaunchedEffect(Unit) {
+        viewModel.effect.collect { effect ->
+            when (effect) {
+                is SavingsUiEffect.ShowSnackbar -> {
+                    snackbarHostState.showSnackbar(effect.message)
+                }
+            }
+        }
+    }
+
     val savingsCat = categories.find { it.id == "cat_savings" || it.name.equals("Savings", ignoreCase = true) }
     val savingsTransactions = transactions.filter { it.categoryId == savingsCat?.id && it.type == "EXPENSE" }
     val totalSaved = savingsTransactions.sumOf { it.amount }
@@ -89,6 +105,7 @@ fun SavingsScreen(
     val hasActiveGoal = savingsGoalTotal > 0
 
     Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             SavingsTopBar(onNavigateBack = onNavigateBack)
@@ -113,7 +130,7 @@ fun SavingsScreen(
                         currencySymbol = currencySymbol,
                         onCancelEdit = { isEditingGoal = false },
                         onSaveGoal = { name, total, monthly ->
-                            onSetSavingsGoal(name, total, monthly)
+                            viewModel.onIntent(SavingsUiIntent.SetSavingsGoal(name, total, monthly))
                             isEditingGoal = false
                         }
                     )
@@ -125,7 +142,9 @@ fun SavingsScreen(
                         totalSaved = totalSaved,
                         currencySymbol = currencySymbol,
                         onEditGoal = { isEditingGoal = true },
-                        onClearGoal = onClearSavingsGoal
+                        onClearGoal = {
+                            viewModel.onIntent(SavingsUiIntent.ClearSavingsGoal)
+                        }
                     )
                 }
             }
@@ -137,7 +156,7 @@ fun SavingsScreen(
                     currencySymbol = currencySymbol,
                     onToggleDepositing = { isDepositing = it },
                     onConfirmDeposit = { amount, note ->
-                        onDepositFunds(amount, note)
+                        viewModel.onIntent(SavingsUiIntent.DepositFunds(amount, note))
                         isDepositing = false
                     }
                 )

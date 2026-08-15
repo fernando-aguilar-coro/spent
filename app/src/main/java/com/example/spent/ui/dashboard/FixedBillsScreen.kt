@@ -52,12 +52,16 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableLongStateOf
@@ -77,9 +81,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.spent.R
-import com.example.spent.data.local.entity.CategoryEntity
-import com.example.spent.data.local.entity.RecurringRuleEntity
-import com.example.spent.data.local.entity.TransactionEntity
 import com.example.spent.ui.theme.ExpenseRed
 import com.example.spent.ui.theme.IncomeGreen
 import java.text.SimpleDateFormat
@@ -97,15 +98,27 @@ data class QuickPreset(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FixedBillsScreen(
-    recurringRules: List<RecurringRuleEntity>,
-    transactions: List<TransactionEntity>,
-    categories: List<CategoryEntity>,
-    currencySymbol: String,
-    onNavigateBack: () -> Unit,
-    onAddBill: (name: String, amount: Double, dueDay: Int, categoryId: String, arrivalTimestamp: Long) -> Unit,
-    onDeleteBill: (ruleId: String) -> Unit,
-    onPayBill: (amount: Double, name: String, categoryId: String, ruleId: String) -> Unit
+    viewModel: FixedBillsViewModel,
+    onNavigateBack: () -> Unit
 ) {
+    val state by viewModel.uiState.collectAsState()
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    val recurringRules = state.recurringRules
+    val transactions = state.transactions
+    val categories = state.categories
+    val currencySymbol = state.currencySymbol
+
+    LaunchedEffect(Unit) {
+        viewModel.effect.collect { effect ->
+            when (effect) {
+                is FixedBillsUiEffect.ShowSnackbar -> {
+                    snackbarHostState.showSnackbar(effect.message)
+                }
+            }
+        }
+    }
+
     val context = LocalContext.current
     var isAddingNewBill by remember { mutableStateOf(false) }
 
@@ -120,7 +133,7 @@ fun FixedBillsScreen(
         mutableIntStateOf(todayDay)
     }
 
-    var selectedCategoryId by remember {
+    var selectedCategoryId by remember(categories) {
         val utilCat = categories.find { it.id == "cat_utilities" || it.name.contains("Utility", ignoreCase = true) || it.name.contains("Servicio", ignoreCase = true) }
         mutableStateOf(utilCat?.id ?: categories.firstOrNull()?.id ?: "cat_general")
     }
@@ -128,13 +141,18 @@ fun FixedBillsScreen(
     val quickPresets = remember {
         listOf(
             QuickPreset(R.string.preset_electricity, Icons.Default.Bolt, Color(0xFFF59E0B)),
-            QuickPreset(R.string.preset_water, Icons.Default.WaterDrop, Color(0xFF0284C7)),
+            QuickPreset(R.string.preset_water, Icons.Default.WaterDrop, Color(0xFF3B82F6)),
+            QuickPreset(R.string.preset_gas, Icons.Default.LocalFireDepartment, Color(0xFFEF4444)),
             QuickPreset(R.string.preset_internet, Icons.Default.Wifi, Color(0xFF8B5CF6)),
-            QuickPreset(R.string.preset_gas, Icons.Default.LocalFireDepartment, Color(0xFFEA580C)),
-            QuickPreset(R.string.preset_rent, Icons.Default.Home, Color(0xFF10B981)),
-            QuickPreset(R.string.preset_phone, Icons.Default.PhoneAndroid, Color(0xFF06B6D4)),
+            QuickPreset(R.string.preset_phone, Icons.Default.PhoneAndroid, Color(0xFF10B981)),
+            QuickPreset(R.string.preset_rent, Icons.Default.Home, Color(0xFF6366F1)),
             QuickPreset(R.string.preset_streaming, Icons.Default.Tv, Color(0xFFEC4899))
         )
+    }
+
+    // Filter only fixed bills (excluding debt installment plans)
+    val billRules = remember(recurringRules) {
+        recurringRules.filter { !it.note.startsWith("Debt Installment:") }
     }
 
     val currentCal = Calendar.getInstance()
@@ -142,12 +160,8 @@ fun FixedBillsScreen(
     val currentYear = currentCal.get(Calendar.YEAR)
     val currentMillis = System.currentTimeMillis()
 
-    // Filter active bills
-    val billRules = recurringRules.filter {
-        it.endDate == null || it.endDate >= currentMillis
-    }
-
     Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             TopAppBar(
@@ -200,8 +214,8 @@ fun FixedBillsScreen(
                         Column(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(16.dp),
-                            verticalArrangement = Arrangement.spacedBy(12.dp)
+                                .padding(18.dp),
+                            verticalArrangement = Arrangement.spacedBy(14.dp)
                         ) {
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
@@ -217,63 +231,67 @@ fun FixedBillsScreen(
                                     onClick = { isAddingNewBill = false },
                                     modifier = Modifier.size(28.dp)
                                 ) {
-                                    Icon(Icons.Default.Close, contentDescription = "Cancel")
+                                    Icon(
+                                        imageVector = Icons.Default.Close,
+                                        contentDescription = "Cancel",
+                                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
                                 }
                             }
 
-                            // 1. Highlighted Quick Presets Section
-                            Text(
-                                text = stringResource(R.string.quick_presets_title),
-                                style = MaterialTheme.typography.bodySmall,
-                                fontWeight = FontWeight.SemiBold,
-                                color = MaterialTheme.colorScheme.primary
-                            )
-
-                            LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                                items(quickPresets) { preset ->
-                                    val label = stringResource(preset.titleResId)
-                                    val isSelected = selectedPresetName == label
-
-                                    Box(
-                                        modifier = Modifier
-                                            .clip(RoundedCornerShape(14.dp))
-                                            .background(
-                                                if (isSelected) MaterialTheme.colorScheme.primary
-                                                else preset.color.copy(alpha = 0.15f)
-                                            )
-                                            .clickable {
-                                                selectedPresetName = label
-                                            }
-                                            .padding(horizontal = 12.dp, vertical = 8.dp),
-                                        contentAlignment = Alignment.Center
-                                    ) {
-                                        Row(
-                                            verticalAlignment = Alignment.CenterVertically,
-                                            horizontalArrangement = Arrangement.spacedBy(6.dp)
-                                        ) {
-                                            Icon(
-                                                imageVector = preset.icon,
-                                                contentDescription = label,
-                                                tint = if (isSelected) Color.White else preset.color,
-                                                modifier = Modifier.size(16.dp)
-                                            )
-                                            Text(
-                                                text = label,
-                                                fontSize = 13.sp,
-                                                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
-                                                color = if (isSelected) Color.White else MaterialTheme.colorScheme.onSurface
-                                            )
-                                        }
+                            // 1. Quick Presets Chips
+                            Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                                Text(
+                                    text = stringResource(R.string.quick_presets_title),
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                                LazyRow(
+                                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                    modifier = Modifier.fillMaxWidth()
+                                ) {
+                                    items(quickPresets) { preset ->
+                                        val presetTitle = stringResource(preset.titleResId)
+                                        val isSelected = selectedPresetName == presetTitle
+                                        FilterChip(
+                                            selected = isSelected,
+                                            onClick = {
+                                                selectedPresetName = if (isSelected) null else presetTitle
+                                            },
+                                            label = {
+                                                Text(
+                                                    text = presetTitle,
+                                                    fontSize = 12.sp,
+                                                    fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
+                                                )
+                                            },
+                                            leadingIcon = {
+                                                Icon(
+                                                    imageVector = preset.icon,
+                                                    contentDescription = null,
+                                                    tint = if (isSelected) Color.White else preset.color,
+                                                    modifier = Modifier.size(16.dp)
+                                                )
+                                            },
+                                            shape = RoundedCornerShape(12.dp)
+                                        )
                                     }
                                 }
                             }
 
-                            // 2. Custom Notes / Provider details (optional)
+                            // 2. Custom Bill Name or Description
                             OutlinedTextField(
                                 value = customBillNotesText,
                                 onValueChange = { customBillNotesText = it },
-                                label = { Text(stringResource(R.string.custom_bill_notes_label)) },
-                                placeholder = { Text(stringResource(R.string.custom_bill_notes_placeholder)) },
+                                label = {
+                                    Text(
+                                        if (selectedPresetName != null) stringResource(R.string.custom_bill_notes_label)
+                                        else stringResource(R.string.bill_name_label)
+                                    )
+                                },
+                                placeholder = {
+                                    Text(if (selectedPresetName != null) "e.g. Account #1234 or Main House" else "e.g. Electricity, Water, Rent")
+                                },
                                 singleLine = true,
                                 shape = RoundedCornerShape(14.dp),
                                 colors = OutlinedTextFieldDefaults.colors(
@@ -283,16 +301,23 @@ fun FixedBillsScreen(
                                 modifier = Modifier.fillMaxWidth()
                             )
 
-                            // 3. Amount Field
+                            // 3. Amount Input Field
                             OutlinedTextField(
                                 value = billAmountText,
                                 onValueChange = { input ->
-                                    if (input.isEmpty() || input.matches(Regex("^\\d*\\.?\\d{0,2}$"))) {
+                                    if (input.isEmpty() || input.matches(Regex("^[0-9+×÷\\-\\.\\,\\s]*$"))) {
                                         billAmountText = input
                                     }
                                 },
-                                label = { Text(stringResource(R.string.bill_amount_label, currencySymbol)) },
-                                placeholder = { Text("50.00") },
+                                label = { Text(stringResource(R.string.bill_amount_label)) },
+                                placeholder = { Text("0.00") },
+                                prefix = {
+                                    Text(
+                                        text = "$currencySymbol ",
+                                        fontWeight = FontWeight.Bold,
+                                        color = ExpenseRed
+                                    )
+                                },
                                 singleLine = true,
                                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                                 shape = RoundedCornerShape(14.dp),
@@ -391,7 +416,15 @@ fun FixedBillsScreen(
                                         } else {
                                             finalBillName
                                         }
-                                        onAddBill(fullName, parsedAmount, billDueDay, selectedCategoryId, arrivalTimestamp)
+                                        viewModel.onIntent(
+                                            FixedBillsUiIntent.AddBill(
+                                                name = fullName,
+                                                amount = parsedAmount,
+                                                dueDay = billDueDay,
+                                                categoryId = selectedCategoryId,
+                                                arrivalTimestamp = arrivalTimestamp
+                                            )
+                                        )
                                         selectedPresetName = null
                                         customBillNotesText = ""
                                         billAmountText = ""
@@ -539,7 +572,7 @@ fun FixedBillsScreen(
                                 }
 
                                 IconButton(
-                                    onClick = { onDeleteBill(rule.id) },
+                                    onClick = { viewModel.onIntent(FixedBillsUiIntent.DeleteBill(rule.id)) },
                                     modifier = Modifier.size(32.dp)
                                 ) {
                                     Icon(
@@ -616,7 +649,14 @@ fun FixedBillsScreen(
                                     if (unpaidCycles > 0) {
                                         Button(
                                             onClick = {
-                                                onPayBill(accumulatedAmount, cleanName, rule.categoryId, rule.id)
+                                                viewModel.onIntent(
+                                                    FixedBillsUiIntent.PayBill(
+                                                        amount = accumulatedAmount,
+                                                        name = cleanName,
+                                                        categoryId = rule.categoryId,
+                                                        ruleId = rule.id
+                                                    )
+                                                )
                                             },
                                             colors = ButtonDefaults.buttonColors(
                                                 containerColor = if (isCutoffWarning) ExpenseRed else MaterialTheme.colorScheme.primary

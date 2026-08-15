@@ -37,15 +37,17 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -59,7 +61,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.spent.R
-import com.example.spent.data.local.entity.CategoryEntity
 import com.example.spent.ui.components.CustomNumericKeypad
 import com.example.spent.ui.theme.ExpenseRed
 import com.example.spent.ui.theme.IncomeGreen
@@ -72,42 +73,35 @@ import com.example.spent.ui.transaction.components.TransactionTypeSelector
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddTransactionScreen(
-    initialType: String = "EXPENSE",
-    categories: List<CategoryEntity>,
-    currencySymbol: String,
-    onNavigateBack: () -> Unit,
-    onAddNewCategory: (name: String, colorHex: String, iconName: String) -> Unit,
-    onAddTransaction: (amount: Double, type: String, categoryId: String, note: String, isRecurring: Boolean, frequency: String, timestamp: Long) -> Unit
+    viewModel: AddTransactionViewModel,
+    onNavigateBack: () -> Unit
 ) {
-    var amountExpression by remember { mutableStateOf("") }
-    var noteText by remember { mutableStateOf("") }
-    var selectedType by remember { mutableStateOf(initialType) }
-    var selectedCategoryId by remember { mutableStateOf("") }
-
-    // Date & Time Picker State
-    var selectedTimestamp by remember { mutableStateOf(System.currentTimeMillis()) }
-
-    // Recurring Options State
-    var isRecurring by remember { mutableStateOf(false) }
-    var selectedFrequency by remember { mutableStateOf("MONTHLY") }
-
-    // Category Dialog State
-    var showAddCategoryDialog by remember { mutableStateOf(false) }
+    val state by viewModel.uiState.collectAsState()
+    val snackbarHostState = remember { SnackbarHostState() }
 
     val keyboardController = LocalSoftwareKeyboardController.current
     val focusManager = LocalFocusManager.current
 
-    // Calculator keypad toggle
-    var showKeypad by remember { mutableStateOf(false) }
+    LaunchedEffect(Unit) {
+        viewModel.effect.collect { effect ->
+            when (effect) {
+                is AddTransactionUiEffect.NavigateBack -> onNavigateBack()
+                is AddTransactionUiEffect.ShowSnackbar -> {
+                    snackbarHostState.showSnackbar(effect.message)
+                }
+            }
+        }
+    }
 
     Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             TopAppBar(
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background),
                 title = {
                     Text(
-                        text = if (selectedType == "EXPENSE") stringResource(R.string.add_expense_title) else stringResource(R.string.add_income_title),
+                        text = if (state.selectedType == "EXPENSE") stringResource(R.string.add_expense_title) else stringResource(R.string.add_income_title),
                         fontWeight = FontWeight.Bold,
                         fontSize = 18.sp
                     )
@@ -134,15 +128,15 @@ fun AddTransactionScreen(
                     .verticalScroll(rememberScrollState())
                     .imePadding()
                     .padding(horizontal = 20.dp, vertical = 12.dp)
-                    .padding(bottom = if (showKeypad) 320.dp else 24.dp)
+                    .padding(bottom = if (state.showKeypad) 320.dp else 24.dp)
             ) {
                 // Type Toggle (Expense / Income)
                 TransactionTypeSelector(
-                    selectedType = selectedType,
-                    onTypeSelected = { selectedType = it }
+                    selectedType = state.selectedType,
+                    onTypeSelected = { viewModel.onIntent(AddTransactionUiIntent.SelectType(it)) }
                 )
 
-                if (selectedType == "INCOME") {
+                if (state.selectedType == "INCOME") {
                     Spacer(modifier = Modifier.height(10.dp))
                     Box(
                         modifier = Modifier
@@ -164,20 +158,20 @@ fun AddTransactionScreen(
 
                 // Amount Input Field with Native Soft Keyboard & Calculator Icon
                 OutlinedTextField(
-                    value = amountExpression,
+                    value = state.amountExpression,
                     onValueChange = { input ->
                         if (input.isEmpty() || input.matches(Regex("^[0-9+×÷\\-\\.\\,\\s]*$"))) {
-                            amountExpression = input
+                            viewModel.onIntent(AddTransactionUiIntent.UpdateAmount(input))
                         }
                     },
-                    label = { Text(stringResource(R.string.amount_label, currencySymbol)) },
+                    label = { Text(stringResource(R.string.amount_label, state.currencySymbol)) },
                     placeholder = { Text("0.00") },
                     prefix = {
                         Text(
-                            text = "$currencySymbol ",
+                            text = "${state.currencySymbol} ",
                             fontWeight = FontWeight.Bold,
                             fontSize = 20.sp,
-                            color = if (selectedType == "EXPENSE") ExpenseRed else IncomeGreen
+                            color = if (state.selectedType == "EXPENSE") ExpenseRed else IncomeGreen
                         )
                     },
                     singleLine = true,
@@ -191,18 +185,18 @@ fun AddTransactionScreen(
                     trailingIcon = {
                         IconButton(
                             onClick = {
-                                if (!showKeypad) {
+                                if (!state.showKeypad) {
                                     keyboardController?.hide()
                                     focusManager.clearFocus()
                                 }
-                                showKeypad = !showKeypad
+                                viewModel.onIntent(AddTransactionUiIntent.ToggleKeypad(!state.showKeypad))
                             }
                         ) {
                             Box(
                                 modifier = Modifier
                                     .size(38.dp)
                                     .clip(CircleShape)
-                                    .background(if (showKeypad) MaterialTheme.colorScheme.primary.copy(alpha = 0.2f) else MaterialTheme.colorScheme.surfaceVariant),
+                                    .background(if (state.showKeypad) MaterialTheme.colorScheme.primary.copy(alpha = 0.2f) else MaterialTheme.colorScheme.surfaceVariant),
                                 contentAlignment = Alignment.Center
                             ) {
                                 Icon(
@@ -221,18 +215,18 @@ fun AddTransactionScreen(
 
                 // Category Envelope Selector Row
                 CategoryEnvelopeSelector(
-                    categories = categories,
-                    selectedCategoryId = selectedCategoryId,
-                    onCategorySelected = { selectedCategoryId = it },
-                    onAddNewCategoryClick = { showAddCategoryDialog = true }
+                    categories = state.categories,
+                    selectedCategoryId = state.selectedCategoryId,
+                    onCategorySelected = { viewModel.onIntent(AddTransactionUiIntent.SelectCategory(it)) },
+                    onAddNewCategoryClick = { viewModel.onIntent(AddTransactionUiIntent.ShowAddCategoryDialog(true)) }
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
 
                 // Note / Merchant Input Field
                 OutlinedTextField(
-                    value = noteText,
-                    onValueChange = { noteText = it },
+                    value = state.noteText,
+                    onValueChange = { viewModel.onIntent(AddTransactionUiIntent.UpdateNote(it)) },
                     label = { Text(stringResource(R.string.note_merchant_optional)) },
                     singleLine = true,
                     shape = RoundedCornerShape(16.dp),
@@ -248,42 +242,33 @@ fun AddTransactionScreen(
 
                 // Date & Time Picker Section
                 DateTimePickerField(
-                    timestamp = selectedTimestamp,
-                    onTimestampChanged = { selectedTimestamp = it }
+                    timestamp = state.selectedTimestamp,
+                    onTimestampChanged = { viewModel.onIntent(AddTransactionUiIntent.UpdateTimestamp(it)) }
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
 
                 // Recurring Payment Section
                 RecurringOptionsSection(
-                    isRecurring = isRecurring,
-                    onRecurringChange = { isRecurring = it },
-                    selectedFrequency = selectedFrequency,
-                    onFrequencySelected = { selectedFrequency = it }
+                    isRecurring = state.isRecurring,
+                    onRecurringChange = { viewModel.onIntent(AddTransactionUiIntent.ToggleRecurring(it)) },
+                    selectedFrequency = state.selectedFrequency,
+                    onFrequencySelected = { viewModel.onIntent(AddTransactionUiIntent.SelectFrequency(it)) }
                 )
 
                 Spacer(modifier = Modifier.height(28.dp))
 
-                val parsedAmount = amountExpression.toDoubleOrNull() ?: 0.0
-                val isValid = parsedAmount > 0
-
                 Button(
                     onClick = {
-                        if (isValid) {
-                            val targetCatId = selectedCategoryId.ifEmpty {
-                                categories.find { it.id == "cat_general" }?.id ?: categories.firstOrNull()?.id ?: "cat_general"
-                            }
-                            onAddTransaction(parsedAmount, selectedType, targetCatId, noteText, isRecurring, selectedFrequency, selectedTimestamp)
-                            onNavigateBack()
-                        }
+                        viewModel.onIntent(AddTransactionUiIntent.SaveTransaction)
                     },
-                    enabled = isValid,
+                    enabled = state.isValid && !state.isSaving,
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(52.dp),
                     shape = RoundedCornerShape(16.dp),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = if (selectedType == "EXPENSE") ExpenseRed else MaterialTheme.colorScheme.primary
+                        containerColor = if (state.selectedType == "EXPENSE") ExpenseRed else MaterialTheme.colorScheme.primary
                     )
                 ) {
                     Text(
@@ -301,7 +286,7 @@ fun AddTransactionScreen(
 
             // Bottom Docked Custom Numeric Keypad (shown when calculator icon is tapped)
             AnimatedVisibility(
-                visible = showKeypad,
+                visible = state.showKeypad,
                 enter = slideInVertically { it } + fadeIn(),
                 exit = slideOutVertically { it } + fadeOut(),
                 modifier = Modifier.align(Alignment.BottomCenter)
@@ -338,15 +323,15 @@ fun AddTransactionScreen(
                                 )
                                 Spacer(modifier = Modifier.width(12.dp))
                                 Text(
-                                    text = "$currencySymbol${amountExpression.ifEmpty { "0.00" }}",
+                                    text = "${state.currencySymbol}${state.amountExpression.ifEmpty { "0.00" }}",
                                     style = MaterialTheme.typography.titleMedium,
                                     fontWeight = FontWeight.Bold,
-                                    color = if (selectedType == "EXPENSE") ExpenseRed else IncomeGreen
+                                    color = if (state.selectedType == "EXPENSE") ExpenseRed else IncomeGreen
                                 )
                             }
 
                             IconButton(
-                                onClick = { showKeypad = false },
+                                onClick = { viewModel.onIntent(AddTransactionUiIntent.ToggleKeypad(false)) },
                                 modifier = Modifier.size(32.dp)
                             ) {
                                 Icon(
@@ -358,9 +343,9 @@ fun AddTransactionScreen(
                         }
 
                         CustomNumericKeypad(
-                            currentExpression = amountExpression,
-                            onExpressionChanged = { amountExpression = it },
-                            onConfirm = { showKeypad = false }
+                            currentExpression = state.amountExpression,
+                            onExpressionChanged = { viewModel.onIntent(AddTransactionUiIntent.UpdateAmount(it)) },
+                            onConfirm = { viewModel.onIntent(AddTransactionUiIntent.ToggleKeypad(false)) }
                         )
                     }
                 }
@@ -369,11 +354,11 @@ fun AddTransactionScreen(
     }
 
     // Add New Category Dialog
-    if (showAddCategoryDialog) {
+    if (state.showAddCategoryDialog) {
         AddCategoryDialog(
-            onDismiss = { showAddCategoryDialog = false },
+            onDismiss = { viewModel.onIntent(AddTransactionUiIntent.ShowAddCategoryDialog(false)) },
             onSaveCategory = { name, colorHex, iconName ->
-                onAddNewCategory(name, colorHex, iconName)
+                viewModel.onIntent(AddTransactionUiIntent.CreateCategory(name, colorHex, iconName))
             }
         )
     }
