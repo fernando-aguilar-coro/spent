@@ -111,6 +111,43 @@
     <string name="btn_change">Cambiar</string>
     <string name="btn_new">Nuevo</string>
 
+    <!-- Enhanced Debt & Loans -->
+    <string name="debt_type_direct">Directa / Personal</string>
+    <string name="debt_type_card">Tarjeta de Crédito</string>
+    <string name="debt_type_bank">Préstamo Bancario</string>
+    <string name="debt_type_interest">Intereses / Financiación</string>
+    <string name="installment_plan_toggle">Plan de cuotas (Pagar a plazos mensuales)</string>
+    <string name="installment_monthly_amount">Cuota Mensual (%1$s)</string>
+    <string name="installment_duration_months">Duración (Meses)</string>
+    <string name="installment_months_label">%1$d meses</string>
+    <string name="debt_total_capital">Deuda / Capital Total (%1$s)</string>
+    <string name="interest_rate_optional">Intereses / Recargos (%1$s, Opcional)</string>
+    <string name="lender_entity_label">Acreedor / Entidad / Persona</string>
+    <string name="lender_entity_placeholder">ej. Visa, Santander, Juan, Auto</string>
+    <string name="save_debt">Guardar Deuda</string>
+    <string name="debt_registered_toast">¡Deuda guardada y cuota programada como factura fija!</string>
+
+    <!-- Fixed Bills & Utilities -->
+    <string name="tool_fixed_bills_title">Facturas Fijas y Servicios</string>
+    <string name="tool_fixed_bills_desc">Luz, agua, internet, gas y alquiler</string>
+    <string name="fixed_bills_dialog_title">Facturas Fijas y Servicios</string>
+    <string name="add_fixed_bill_title">Añadir Nueva Factura</string>
+    <string name="bill_name_label">Nombre de la Factura / Proveedor</string>
+    <string name="bill_name_placeholder">ej. Luz, Agua, Internet, Gas</string>
+    <string name="bill_amount_label">Monto Estimado / Base (%1$s)</string>
+    <string name="bill_due_day_label">Día de Llegada / Vencimiento</string>
+    <string name="bill_due_day_format">Llega el día %1$d</string>
+    <string name="bill_status_paid">Pagado este ciclo</string>
+    <string name="bill_status_pending">Pendiente (Estimado)</string>
+    <string name="pay_bill_btn">Registrar Pago</string>
+    <string name="delete_bill_btn">Eliminar Factura</string>
+    <string name="save_bill_btn">Guardar Factura</string>
+    <string name="preset_electricity">Luz (Electricidad)</string>
+    <string name="preset_water">Agua</string>
+    <string name="preset_internet">Internet / Wifi</string>
+    <string name="preset_gas">Gas</string>
+    <string name="preset_rent">Alquiler</string>
+
     <!-- Walkthrough Banner -->
     <string name="walkthrough_title">¡Bienvenido a Spent!</string>
     <string name="walkthrough_desc">Controla tus gastos por ciclo de pago, gestiona sobres de categorías y alcanza tus metas de ahorro.</string>

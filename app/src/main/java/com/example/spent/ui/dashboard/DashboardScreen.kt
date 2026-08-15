@@ -131,9 +131,35 @@ fun DashboardScreen(
                 DashboardQuickTools(
                     transactions = state.recentTransactions,
                     categories = state.allCategories,
+                    recurringRules = state.recurringRules,
                     currencySymbol = state.currencySymbol,
                     onAddDebtLoanTransaction = { amount, type, note ->
                         viewModel.onIntent(DashboardUiIntent.AddTransaction(amount, type, generalCatId, note))
+                    },
+                    onAddDebtInstallmentPlan = { installmentAmount, durationMonths, note ->
+                        viewModel.onIntent(
+                            DashboardUiIntent.AddRecurringRule(
+                                amount = installmentAmount,
+                                categoryId = generalCatId,
+                                note = note,
+                                dueDay = 1,
+                                durationMonths = durationMonths
+                            )
+                        )
+                    },
+                    onAddFixedBill = { name, amount, dueDay, categoryId ->
+                        viewModel.onIntent(
+                            DashboardUiIntent.AddRecurringRule(
+                                amount = amount,
+                                categoryId = categoryId,
+                                note = "Bill: $name",
+                                dueDay = dueDay,
+                                durationMonths = null
+                            )
+                        )
+                    },
+                    onDeleteFixedBill = { ruleId ->
+                        viewModel.onIntent(DashboardUiIntent.DeleteRecurringRule(ruleId))
                     },
                     onAddSavingsTransaction = { amount, note ->
                         viewModel.onIntent(DashboardUiIntent.AddTransaction(amount, "EXPENSE", savingsCatId, note))

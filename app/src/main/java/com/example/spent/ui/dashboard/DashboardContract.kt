@@ -2,6 +2,7 @@ package com.example.spent.ui.dashboard
 
 import com.example.spent.data.local.entity.CategoryEntity
 import com.example.spent.data.local.entity.PayCycleEntity
+import com.example.spent.data.local.entity.RecurringRuleEntity
 import com.example.spent.data.local.entity.TransactionEntity
 import com.example.spent.ui.mvi.UiEffect
 import com.example.spent.ui.mvi.UiIntent
@@ -24,6 +25,7 @@ data class DashboardUiState(
     val categoriesWithProgress: List<CategoryEnvelopeState> = emptyList(),
     val recentTransactions: List<TransactionEntity> = emptyList(),
     val allCategories: List<CategoryEntity> = emptyList(),
+    val recurringRules: List<RecurringRuleEntity> = emptyList(),
     val currentPayCycle: PayCycleEntity? = null,
     val isWalkthroughCompleted: Boolean = true,
     val isPayCycleActive: Boolean = true,
@@ -38,6 +40,14 @@ sealed class DashboardUiIntent : UiIntent {
         val categoryId: String,
         val note: String
     ) : DashboardUiIntent()
+    data class AddRecurringRule(
+        val amount: Double,
+        val categoryId: String,
+        val note: String,
+        val dueDay: Int = 1,
+        val durationMonths: Int? = null
+    ) : DashboardUiIntent()
+    data class DeleteRecurringRule(val ruleId: String) : DashboardUiIntent()
     data class DeleteTransaction(val transaction: TransactionEntity) : DashboardUiIntent()
     data class UndoDelete(val transaction: TransactionEntity) : DashboardUiIntent()
     data class UpdateCategoryBudget(val categoryId: String, val budgetAmount: Double) : DashboardUiIntent()

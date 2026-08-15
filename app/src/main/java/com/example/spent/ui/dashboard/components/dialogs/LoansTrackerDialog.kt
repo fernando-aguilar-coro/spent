@@ -1,6 +1,7 @@
 package com.example.spent.ui.dashboard.components.dialogs
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -10,16 +11,26 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountBalance
+import androidx.compose.material.icons.filled.CreditCard
+import androidx.compose.material.icons.filled.Handshake
+import androidx.compose.material.icons.filled.Percent
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -44,12 +55,29 @@ fun LoansTrackerDialog(
     totalLoansPaid: Double,
     currencySymbol: String,
     onDismiss: () -> Unit,
-    onAddDebtLoanTransaction: (amount: Double, type: String, note: String) -> Unit
+    onAddDebtLoanTransaction: (amount: Double, type: String, note: String) -> Unit,
+    onAddDebtInstallmentPlan: (installmentAmount: Double, durationMonths: Int, note: String) -> Unit = { _, _, _ -> }
 ) {
-    var loanActionType by remember { mutableStateOf("PAY") } // "PAY" (pay installment) vs "NEW" (borrow/receive loan)
-    var loanNameText by remember { mutableStateOf("") }
-    var lenderBankText by remember { mutableStateOf("") }
-    var loanAmountText by remember { mutableStateOf("") }
+    var loanActionType by remember { mutableStateOf("NEW") } // "NEW" (register debt) vs "PAY" (pay installment)
+    var selectedDebtType by remember { mutableStateOf("CARD") } // "DIRECT", "CARD", "BANK", "INTEREST"
+
+    var lenderNameText by remember { mutableStateOf("") }
+    var principalAmountText by remember { mutableStateOf("") }
+    var interestExtraText by remember { mutableStateOf("") }
+
+    // Installment Plan
+    var isInstallmentPlan by remember { mutableStateOf(false) }
+    var installmentAmountText by remember { mutableStateOf("") }
+    var installmentDurationMonths by remember { mutableStateOf(12) }
+
+    val debtTypeOptions = listOf(
+        "DIRECT" to (stringResource(R.string.debt_type_direct) to Icons.Default.Handshake),
+        "CARD" to (stringResource(R.string.debt_type_card) to Icons.Default.CreditCard),
+        "BANK" to (stringResource(R.string.debt_type_bank) to Icons.Default.AccountBalance),
+        "INTEREST" to (stringResource(R.string.debt_type_interest) to Icons.Default.Percent)
+    )
+
+    val currentDebtTypeLabel = debtTypeOptions.find { it.first == selectedDebtType }?.second?.first ?: "Debt"
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -72,7 +100,7 @@ fun LoansTrackerDialog(
         title = { Text(stringResource(R.string.loans_tracker_title), fontWeight = FontWeight.Bold) },
         text = {
             Column {
-                // Loan Summary Card
+                // Debt Overview Summary Card
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -110,83 +138,202 @@ fun LoansTrackerDialog(
                     }
                 }
 
-                Spacer(modifier = Modifier.height(12.dp))
+                Spacer(modifier = Modifier.height(10.dp))
 
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     TextButton(
-                        onClick = { loanActionType = "PAY" },
-                        modifier = Modifier.weight(1f)
-                    ) {
-                        Text(stringResource(R.string.pay_installment), fontWeight = if (loanActionType == "PAY") FontWeight.Bold else FontWeight.Normal)
-                    }
-                    TextButton(
                         onClick = { loanActionType = "NEW" },
                         modifier = Modifier.weight(1f)
                     ) {
                         Text(stringResource(R.string.register_loan), fontWeight = if (loanActionType == "NEW") FontWeight.Bold else FontWeight.Normal)
                     }
+                    TextButton(
+                        onClick = { loanActionType = "PAY" },
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Text(stringResource(R.string.pay_installment), fontWeight = if (loanActionType == "PAY") FontWeight.Bold else FontWeight.Normal)
+                    }
                 }
 
                 Spacer(modifier = Modifier.height(6.dp))
 
-                OutlinedTextField(
-                    value = loanNameText,
-                    onValueChange = { loanNameText = it },
-                    label = { Text(stringResource(R.string.loan_name_label)) },
-                    placeholder = { Text(stringResource(R.string.loan_name_placeholder)) },
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth()
-                )
-
                 if (loanActionType == "NEW") {
-                    Spacer(modifier = Modifier.height(6.dp))
+                    // Debt Type Selector Chips
+                    Text(
+                        text = "Debt Classification",
+                        style = MaterialTheme.typography.bodySmall,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    LazyRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                        items(debtTypeOptions) { (key, pair) ->
+                            val (label, icon) = pair
+                            FilterChip(
+                                selected = selectedDebtType == key,
+                                onClick = { selectedDebtType = key },
+                                leadingIcon = {
+                                    Icon(imageVector = icon, contentDescription = label, modifier = Modifier.size(16.dp))
+                                },
+                                label = { Text(label, style = MaterialTheme.typography.bodySmall) }
+                            )
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
                     OutlinedTextField(
-                        value = lenderBankText,
-                        onValueChange = { lenderBankText = it },
-                        label = { Text(stringResource(R.string.lender_bank_label)) },
-                        placeholder = { Text(stringResource(R.string.lender_bank_placeholder)) },
+                        value = lenderNameText,
+                        onValueChange = { lenderNameText = it },
+                        label = { Text(stringResource(R.string.lender_entity_label)) },
+                        placeholder = { Text(stringResource(R.string.lender_entity_placeholder)) },
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth()
                     )
-                }
 
-                Spacer(modifier = Modifier.height(6.dp))
+                    Spacer(modifier = Modifier.height(8.dp))
 
-                OutlinedTextField(
-                    value = loanAmountText,
-                    onValueChange = { input ->
-                        if (input.isEmpty() || input.matches(Regex("^\\d*\\.?\\d{0,2}$"))) {
-                            loanAmountText = input
+                    OutlinedTextField(
+                        value = principalAmountText,
+                        onValueChange = { input ->
+                            if (input.isEmpty() || input.matches(Regex("^\\d*\\.?\\d{0,2}$"))) {
+                                principalAmountText = input
+                            }
+                        },
+                        label = { Text(stringResource(R.string.debt_total_capital, currencySymbol)) },
+                        placeholder = { Text("0.00") },
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    // Installment Plan Switch
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(10.dp))
+                            .background(MaterialTheme.colorScheme.surfaceVariant)
+                            .padding(horizontal = 12.dp, vertical = 8.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                text = stringResource(R.string.installment_plan_toggle),
+                                style = MaterialTheme.typography.bodySmall,
+                                fontWeight = FontWeight.SemiBold
+                            )
+                            Text(
+                                text = "Auto-deducted from Safe Daily Spend",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
                         }
-                    },
-                    label = { Text(if (loanActionType == "PAY") stringResource(R.string.payment_amount_label, currencySymbol) else stringResource(R.string.loan_capital_label, currencySymbol)) },
-                    placeholder = { Text("0.00") },
-                    singleLine = true,
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                    modifier = Modifier.fillMaxWidth()
-                )
+                        Switch(
+                            checked = isInstallmentPlan,
+                            onCheckedChange = { isInstallmentPlan = it }
+                        )
+                    }
+
+                    if (isInstallmentPlan) {
+                        Spacer(modifier = Modifier.height(8.dp))
+                        OutlinedTextField(
+                            value = installmentAmountText,
+                            onValueChange = { input ->
+                                if (input.isEmpty() || input.matches(Regex("^\\d*\\.?\\d{0,2}$"))) {
+                                    installmentAmountText = input
+                                }
+                            },
+                            label = { Text(stringResource(R.string.installment_monthly_amount, currencySymbol)) },
+                            placeholder = { Text("50.00") },
+                            singleLine = true,
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                            modifier = Modifier.fillMaxWidth()
+                        )
+
+                        Spacer(modifier = Modifier.height(6.dp))
+                        Text(
+                            text = stringResource(R.string.installment_duration_months),
+                            style = MaterialTheme.typography.bodySmall,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                        Spacer(modifier = Modifier.height(4.dp))
+                        LazyRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                            items(listOf(3, 6, 12, 18, 24, 36, 48)) { months ->
+                                FilterChip(
+                                    selected = installmentDurationMonths == months,
+                                    onClick = { installmentDurationMonths = months },
+                                    label = { Text(stringResource(R.string.installment_months_label, months)) }
+                                )
+                            }
+                        }
+                    }
+                } else {
+                    // Repayment Form
+                    OutlinedTextField(
+                        value = lenderNameText,
+                        onValueChange = { lenderNameText = it },
+                        label = { Text(stringResource(R.string.lender_entity_label)) },
+                        placeholder = { Text("e.g. Visa, Chase, Loan Payment") },
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    OutlinedTextField(
+                        value = principalAmountText,
+                        onValueChange = { input ->
+                            if (input.isEmpty() || input.matches(Regex("^\\d*\\.?\\d{0,2}$"))) {
+                                principalAmountText = input
+                            }
+                        },
+                        label = { Text(stringResource(R.string.payment_amount_label, currencySymbol)) },
+                        placeholder = { Text("0.00") },
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
             }
         },
         confirmButton = {
-            val parsed = loanAmountText.toDoubleOrNull() ?: 0.0
+            val parsedAmount = principalAmountText.toDoubleOrNull() ?: 0.0
+            val isValid = parsedAmount > 0 && lenderNameText.isNotBlank()
+
             Button(
                 onClick = {
-                    if (parsed > 0 && loanNameText.isNotBlank()) {
+                    if (isValid) {
                         if (loanActionType == "NEW") {
-                            val lender = if (lenderBankText.isNotBlank()) " from $lenderBankText" else ""
-                            onAddDebtLoanTransaction(parsed, "INCOME", "Loan: $loanNameText$lender")
+                            val note = "Debt ($currentDebtTypeLabel): ${lenderNameText.trim()}"
+                            // Log the loan incoming
+                            onAddDebtLoanTransaction(parsedAmount, "INCOME", note)
+
+                            // If installment plan, schedule recurring rule for fixed bills
+                            if (isInstallmentPlan) {
+                                val monthlyInstallment = installmentAmountText.toDoubleOrNull() ?: (parsedAmount / installmentDurationMonths)
+                                if (monthlyInstallment > 0) {
+                                    onAddDebtInstallmentPlan(
+                                        monthlyInstallment,
+                                        installmentDurationMonths,
+                                        "Debt Installment ($currentDebtTypeLabel): ${lenderNameText.trim()}"
+                                    )
+                                }
+                            }
                         } else {
-                            onAddDebtLoanTransaction(parsed, "EXPENSE", "Loan Payment: $loanNameText")
+                            val note = "Debt Repayment: ${lenderNameText.trim()}"
+                            onAddDebtLoanTransaction(parsedAmount, "EXPENSE", note)
                         }
                         onDismiss()
                     }
                 },
-                enabled = parsed > 0 && loanNameText.isNotBlank()
+                enabled = isValid
             ) {
-                Text(if (loanActionType == "PAY") stringResource(R.string.record_payment) else stringResource(R.string.register_loan))
+                Text(if (loanActionType == "NEW") stringResource(R.string.save_debt) else stringResource(R.string.record_payment))
             }
         },
         dismissButton = {

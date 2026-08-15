@@ -87,6 +87,10 @@ class SpentRepositoryImpl(
         dao.insertRecurringRule(rule)
     }
 
+    override suspend fun deleteRecurringRuleById(id: String) {
+        dao.deleteRecurringRuleById(id)
+    }
+
     override suspend fun executePendingRecurringRules() {
         val rules = dao.getAllRecurringRules()
         val now = System.currentTimeMillis()

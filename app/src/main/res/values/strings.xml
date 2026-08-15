@@ -111,6 +111,43 @@
     <string name="btn_change">Change</string>
     <string name="btn_new">New</string>
 
+    <!-- Enhanced Debt & Loans -->
+    <string name="debt_type_direct">Direct / Personal</string>
+    <string name="debt_type_card">Credit Card</string>
+    <string name="debt_type_bank">Bank Loan</string>
+    <string name="debt_type_interest">Interest / Financing</string>
+    <string name="installment_plan_toggle">Installment Plan (Pay in monthly installments)</string>
+    <string name="installment_monthly_amount">Monthly Installment (%1$s)</string>
+    <string name="installment_duration_months">Duration (Months)</string>
+    <string name="installment_months_label">%1$d months</string>
+    <string name="debt_total_capital">Total Principal Debt (%1$s)</string>
+    <string name="interest_rate_optional">Interest / Surcharges (%1$s, Optional)</string>
+    <string name="lender_entity_label">Lender / Entity / Person</string>
+    <string name="lender_entity_placeholder">e.g. Chase, Visa, John, Auto Loan</string>
+    <string name="save_debt">Save Debt Record</string>
+    <string name="debt_registered_toast">Debt record saved and installment scheduled as Fixed Bill!</string>
+
+    <!-- Fixed Bills & Utilities -->
+    <string name="tool_fixed_bills_title">Fixed Bills &amp; Utilities</string>
+    <string name="tool_fixed_bills_desc">Electricity, water, internet, gas &amp; rent</string>
+    <string name="fixed_bills_dialog_title">Fixed Bills &amp; Utilities</string>
+    <string name="add_fixed_bill_title">Add New Bill</string>
+    <string name="bill_name_label">Bill Name / Provider</string>
+    <string name="bill_name_placeholder">e.g. Electricity (Luz), Water, Internet</string>
+    <string name="bill_amount_label">Estimated / Baseline Amount (%1$s)</string>
+    <string name="bill_due_day_label">Arrival / Due Day of Month</string>
+    <string name="bill_due_day_format">Due on day %1$d</string>
+    <string name="bill_status_paid">Paid this cycle</string>
+    <string name="bill_status_pending">Pending (Estimated)</string>
+    <string name="pay_bill_btn">Log Bill Payment</string>
+    <string name="delete_bill_btn">Delete Bill</string>
+    <string name="save_bill_btn">Save Bill</string>
+    <string name="preset_electricity">Electricity</string>
+    <string name="preset_water">Water</string>
+    <string name="preset_internet">Internet / Wifi</string>
+    <string name="preset_gas">Gas</string>
+    <string name="preset_rent">Rent</string>
+
     <!-- Walkthrough Banner -->
     <string name="walkthrough_title">Welcome to Spent!</string>
     <string name="walkthrough_desc">Track your expenses per pay cycle, manage category envelopes, and reach your savings goals.</string>

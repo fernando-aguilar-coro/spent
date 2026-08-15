@@ -33,6 +33,7 @@ interface SpentRepository {
 
     suspend fun setPayCycle(payCycle: PayCycleEntity)
     suspend fun addRecurringRule(rule: RecurringRuleEntity)
+    suspend fun deleteRecurringRuleById(id: String)
     suspend fun executePendingRecurringRules()
     suspend fun seedStarterDataIfEmpty()
 

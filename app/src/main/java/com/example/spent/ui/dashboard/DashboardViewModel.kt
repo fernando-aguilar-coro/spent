@@ -47,11 +47,6 @@ class DashboardViewModel(
                 val savingsCategory = categories.find { it.id == "cat_savings" || it.name.equals("Savings", ignoreCase = true) }
                 val savingsTarget = savingsCategory?.budgetAmount ?: 0.0
 
-                // Fixed bills and active recurring expenses
-                val fixedBills = recurringRules
-                    .filter { it.endDate == null || it.endDate >= System.currentTimeMillis() }
-                    .sumOf { it.amount }
-
                 val cyclePeriod = if (isPayCycleActive) {
                     calculateCyclePeriod(payCycle?.frequency ?: "MONTHLY", payCycle?.startDate ?: System.currentTimeMillis())
                 } else {
@@ -59,6 +54,39 @@ class DashboardViewModel(
                 }
 
                 val daysRemaining = cyclePeriod.daysRemaining
+
+                // Calculate Previous Cycle Window for variable bill approximations (Water, Electricity, Gas, Internet)
+                val previousCycleDuration = (cyclePeriod.endTimestamp - cyclePeriod.startTimestamp).coerceAtLeast(1L)
+                val prevCycleStart = cyclePeriod.startTimestamp - previousCycleDuration
+                val prevCycleEnd = cyclePeriod.startTimestamp - 1
+
+                // Smart Fixed Bills calculation with dynamic approximation for pending bills
+                val nowMillis = System.currentTimeMillis()
+                val activeRules = recurringRules.filter { it.endDate == null || it.endDate >= nowMillis }
+
+                var pendingFixedBills = 0.0
+
+                activeRules.forEach { rule ->
+                    val cleanRuleName = rule.note.removePrefix("Bill: ").removePrefix("Factura: ").removePrefix("Debt Installment: ").trim()
+
+                    // Check if this bill/installment has already been paid/logged in the CURRENT cycle
+                    val hasBeenPaidThisCycle = transactions.any { tx ->
+                        tx.type == "EXPENSE" &&
+                        (tx.recurringRuleId == rule.id || (cleanRuleName.isNotBlank() && tx.note.contains(cleanRuleName, ignoreCase = true))) &&
+                        tx.timestamp in cyclePeriod.startTimestamp..cyclePeriod.endTimestamp
+                    }
+
+                    if (!hasBeenPaidThisCycle) {
+                        // Not paid yet: approximate from previous cycle transaction if available, otherwise baseline rule amount
+                        val prevCyclePayment = transactions.firstOrNull { tx ->
+                            tx.type == "EXPENSE" &&
+                            (tx.recurringRuleId == rule.id || (cleanRuleName.isNotBlank() && tx.note.contains(cleanRuleName, ignoreCase = true))) &&
+                            tx.timestamp in prevCycleStart..prevCycleEnd
+                        }
+                        val estimatedAmount = prevCyclePayment?.amount ?: rule.amount
+                        pendingFixedBills += estimatedAmount
+                    }
+                }
 
                 // Overall total income & spent across all time for ledger cards
                 val totalIncome = transactions
@@ -69,7 +97,7 @@ class DashboardViewModel(
                     .filter { it.type == "EXPENSE" }
                     .sumOf { it.amount }
 
-                // Safe to Spend Today using the Discretionary Formula
+                // Safe to Spend Today using the Discretionary Formula with pending fixed bill reservations
                 val safeToSpend = if (isPayCycleActive) {
                     // Structured Pay Cycle
                     val baseIncome = payCycle?.income ?: 0.0
@@ -86,8 +114,8 @@ class DashboardViewModel(
                         .filter { it.type == "EXPENSE" && it.timestamp in cyclePeriod.startTimestamp..cyclePeriod.endTimestamp }
                         .sumOf { it.amount }
 
-                    // Remaining Discretionary Income = Income - Fixed Bills - Savings Target - Spent In Cycle
-                    val remainingDiscretionary = cycleTotalIncome - fixedBills - savingsTarget - spentInCycle
+                    // Remaining Discretionary Income = Income - Pending Fixed Bills (Approx) - Savings Target - Spent In Cycle
+                    val remainingDiscretionary = cycleTotalIncome - pendingFixedBills - savingsTarget - spentInCycle
                     (remainingDiscretionary.coerceAtLeast(0.0)) / (daysRemaining + 1)
                 } else {
                     // Freelance / Flexible Mode (Virtual Salary from actual month's income)
@@ -99,8 +127,8 @@ class DashboardViewModel(
                         .filter { it.type == "EXPENSE" && it.timestamp in cyclePeriod.startTimestamp..cyclePeriod.endTimestamp }
                         .sumOf { it.amount }
 
-                    // Freelance Safe Daily Spend = (Actual Month Income - Fixed Bills - Savings Target - Spent) / (Days Remaining + 1)
-                    val remainingDiscretionary = earnedIncomeThisMonth - fixedBills - savingsTarget - spentThisMonth
+                    // Freelance Safe Daily Spend = (Actual Month Income - Pending Fixed Bills - Savings Target - Spent) / (Days Remaining + 1)
+                    val remainingDiscretionary = earnedIncomeThisMonth - pendingFixedBills - savingsTarget - spentThisMonth
                     (remainingDiscretionary.coerceAtLeast(0.0)) / (daysRemaining + 1)
                 }
 
@@ -135,6 +163,7 @@ class DashboardViewModel(
                     categoriesWithProgress = envelopes,
                     recentTransactions = transactions.take(20),
                     allCategories = categories,
+                    recurringRules = recurringRules,
                     currentPayCycle = payCycle,
                     isWalkthroughCompleted = walkthroughDone
                 )
@@ -289,10 +318,50 @@ class DashboardViewModel(
         when (intent) {
             is DashboardUiIntent.LoadData -> observeData()
             is DashboardUiIntent.AddTransaction -> addTransaction(intent.amount, intent.type, intent.categoryId, intent.note)
+            is DashboardUiIntent.AddRecurringRule -> addRecurringRule(intent.amount, intent.categoryId, intent.note, intent.dueDay, intent.durationMonths)
+            is DashboardUiIntent.DeleteRecurringRule -> deleteRecurringRule(intent.ruleId)
             is DashboardUiIntent.DeleteTransaction -> deleteTransaction(intent.transaction)
             is DashboardUiIntent.UndoDelete -> undoDelete(intent.transaction)
             is DashboardUiIntent.UpdateCategoryBudget -> updateCategoryBudget(intent.categoryId, intent.budgetAmount)
             is DashboardUiIntent.DismissWalkthrough -> dismissWalkthrough()
+        }
+    }
+
+    private fun addRecurringRule(amount: Double, categoryId: String, note: String, dueDay: Int, durationMonths: Int?) {
+        viewModelScope.launch {
+            val cal = Calendar.getInstance().apply {
+                val maxD = getActualMaximum(Calendar.DAY_OF_MONTH)
+                set(Calendar.DAY_OF_MONTH, dueDay.coerceAtMost(maxD))
+                set(Calendar.HOUR_OF_DAY, 0)
+                set(Calendar.MINUTE, 0)
+                set(Calendar.SECOND, 0)
+                set(Calendar.MILLISECOND, 0)
+            }
+
+            val endCalMillis = if (durationMonths != null && durationMonths > 0) {
+                (cal.clone() as Calendar).apply {
+                    add(Calendar.MONTH, durationMonths)
+                }.timeInMillis
+            } else null
+
+            val rule = RecurringRuleEntity(
+                id = UUID.randomUUID().toString(),
+                amount = amount,
+                categoryId = categoryId,
+                frequency = "MONTHLY",
+                startDate = cal.timeInMillis,
+                endDate = endCalMillis,
+                note = note
+            )
+            repository.addRecurringRule(rule)
+            sendEffect(DashboardUiEffect.ShowSnackbar("Recurring bill / installment scheduled!"))
+        }
+    }
+
+    private fun deleteRecurringRule(ruleId: String) {
+        viewModelScope.launch {
+            repository.deleteRecurringRuleById(ruleId)
+            sendEffect(DashboardUiEffect.ShowSnackbar("Bill removed successfully"))
         }
     }
 

@@ -100,6 +100,9 @@ interface SpentDao {
     @Update
     suspend fun updateRecurringRule(rule: RecurringRuleEntity)
 
+    @Query("DELETE FROM recurring_rules WHERE id = :id")
+    suspend fun deleteRecurringRuleById(id: String)
+
     // Data Reset
     @Query("DELETE FROM transactions")
     suspend fun deleteAllTransactions()
