@@ -63,6 +63,24 @@ class SpentRepositoryImpl(
 
     override suspend fun setPayCycle(payCycle: PayCycleEntity) {
         dao.insertPayCycle(payCycle)
+        if (payCycle.frequency != "NONE" && payCycle.income > 0) {
+            val existingTxList = dao.getTransactionsFlow().firstOrNull() ?: emptyList()
+            val hasRecentSalary = existingTxList.any {
+                it.type == "INCOME" && it.amount == payCycle.income && it.note.contains("Salary", ignoreCase = true)
+            }
+            if (!hasRecentSalary) {
+                val catId = dao.getCategoriesFlow().firstOrNull()?.find { it.id == "cat_general" }?.id ?: "cat_general"
+                val salaryTx = TransactionEntity(
+                    id = UUID.randomUUID().toString(),
+                    amount = payCycle.income,
+                    type = "INCOME",
+                    categoryId = catId,
+                    timestamp = System.currentTimeMillis(),
+                    note = "Payday Base Salary (${payCycle.frequency})"
+                )
+                dao.insertTransaction(salaryTx)
+            }
+        }
     }
 
     override suspend fun addRecurringRule(rule: RecurringRuleEntity) {

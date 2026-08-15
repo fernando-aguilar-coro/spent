@@ -19,8 +19,8 @@
     <string name="manage_cycle">Administrar Ciclo</string>
 
     <!-- Quick Actions -->
-    <string name="action_add_expense">+ Añadir Gasto</string>
-    <string name="action_add_income">+ Añadir Ingreso</string>
+    <string name="action_add_expense">Añadir Gasto</string>
+    <string name="action_add_income">Añadir Ingreso</string>
 
     <!-- Category Envelopes -->
     <string name="category_envelopes">Sobres de Categoría</string>
@@ -155,6 +155,13 @@
     <string name="pay_cycle_desc">Configura la frecuencia de tu ciclo y tus ingresos base</string>
     <string name="cycle_frequency">Frecuencia</string>
     <string name="cycle_income_label">Ingreso Base (%1$s)</string>
+    <string name="payday_label">Día de Pago / Fecha de Inicio</string>
+    <string name="payday_monthly_day">Día de pago: Día %1$d del mes</string>
+    <string name="payday_anchor_date">Fecha ancla del ciclo: %1$s</string>
+    <string name="select_payday_title">Seleccionar Día de Pago / Inicio</string>
+    <string name="freelance_flexible_title">Freelance / Ingreso Variable</string>
+    <string name="freelance_flexible_desc">Sueldo variable según ingresos reales del mes</string>
+    <string name="salary_income_note">Sueldo Base / Día de Pago (%1$s)</string>
     <string name="save_pay_cycle">Guardar Ciclo de Pago</string>
     <string name="theme_title">Tema</string>
     <string name="theme_system">Predeterminado del Sistema</string>

@@ -1,6 +1,9 @@
 package com.example.spent.ui.dashboard
 
 import androidx.lifecycle.viewModelScope
+import com.example.spent.data.local.entity.CategoryEntity
+import com.example.spent.data.local.entity.PayCycleEntity
+import com.example.spent.data.local.entity.RecurringRuleEntity
 import com.example.spent.data.local.entity.TransactionEntity
 import com.example.spent.data.repository.SpentRepository
 import com.example.spent.ui.mvi.BaseViewModel
@@ -21,17 +24,44 @@ class DashboardViewModel(
         viewModelScope.launch {
             repository.seedStarterDataIfEmpty()
 
-            combine(
+            val coreDataFlow = combine(
                 repository.getTransactionsFlow(),
                 repository.getCategoriesFlow(),
-                repository.getCurrentPayCycleFlow(),
+                repository.getCurrentPayCycleFlow()
+            ) { transactions: List<TransactionEntity>, categories: List<CategoryEntity>, payCycle: PayCycleEntity? ->
+                Triple(transactions, categories, payCycle)
+            }
+
+            val metaDataFlow = combine(
+                repository.getRecurringRulesFlow(),
                 repository.isWalkthroughCompletedFlow,
                 repository.currencySymbolFlow
-            ) { transactions, categories, payCycle, walkthroughDone, currency ->
+            ) { recurringRules: List<RecurringRuleEntity>, walkthroughDone: Boolean, currency: String ->
+                Triple(recurringRules, walkthroughDone, currency)
+            }
 
+            combine(coreDataFlow, metaDataFlow) { (transactions, categories, payCycle), (recurringRules, walkthroughDone, currency) ->
                 val isPayCycleActive = payCycle != null && payCycle.frequency != "NONE"
 
-                val totalIncome = (if (isPayCycleActive) payCycle?.income ?: 0.0 else 0.0) + transactions
+                // Savings Target from category envelopes or savings goal
+                val savingsCategory = categories.find { it.id == "cat_savings" || it.name.equals("Savings", ignoreCase = true) }
+                val savingsTarget = savingsCategory?.budgetAmount ?: 0.0
+
+                // Fixed bills and active recurring expenses
+                val fixedBills = recurringRules
+                    .filter { it.endDate == null || it.endDate >= System.currentTimeMillis() }
+                    .sumOf { it.amount }
+
+                val cyclePeriod = if (isPayCycleActive) {
+                    calculateCyclePeriod(payCycle?.frequency ?: "MONTHLY", payCycle?.startDate ?: System.currentTimeMillis())
+                } else {
+                    calculateCyclePeriod("NONE", System.currentTimeMillis())
+                }
+
+                val daysRemaining = cyclePeriod.daysRemaining
+
+                // Overall total income & spent across all time for ledger cards
+                val totalIncome = transactions
                     .filter { it.type == "INCOME" }
                     .sumOf { it.amount }
 
@@ -39,38 +69,48 @@ class DashboardViewModel(
                     .filter { it.type == "EXPENSE" }
                     .sumOf { it.amount }
 
-                // Calculate pay cycle period window and days remaining
-                val cyclePeriod = if (isPayCycleActive) {
-                    calculateCyclePeriod(payCycle?.frequency ?: "MONTHLY", payCycle?.startDate ?: System.currentTimeMillis())
-                } else null
-
-                val daysRemaining = cyclePeriod?.daysRemaining ?: 0
-
-                // Safe to Spend based on current pay cycle's income & expenses
-                val safeToSpend = if (isPayCycleActive && cyclePeriod != null) {
-                    val cycleExpectedIncome = payCycle?.income ?: 0.0
-                    val cycleExtraIncome = transactions
-                        .filter { it.type == "INCOME" && it.timestamp >= cyclePeriod.startTimestamp && it.timestamp <= cyclePeriod.endTimestamp }
+                // Safe to Spend Today using the Discretionary Formula
+                val safeToSpend = if (isPayCycleActive) {
+                    // Structured Pay Cycle
+                    val baseIncome = payCycle?.income ?: 0.0
+                    val extraIncome = transactions
+                        .filter {
+                            it.type == "INCOME" &&
+                            it.timestamp in cyclePeriod.startTimestamp..cyclePeriod.endTimestamp &&
+                            !it.note.contains("Payday Base Salary", ignoreCase = true)
+                        }
                         .sumOf { it.amount }
-                    val cycleTotalIncome = cycleExpectedIncome + cycleExtraIncome
+                    val cycleTotalIncome = baseIncome + extraIncome
 
-                    val cycleExpenses = transactions
-                        .filter { it.type == "EXPENSE" && it.timestamp >= cyclePeriod.startTimestamp && it.timestamp <= cyclePeriod.endTimestamp }
+                    val spentInCycle = transactions
+                        .filter { it.type == "EXPENSE" && it.timestamp in cyclePeriod.startTimestamp..cyclePeriod.endTimestamp }
                         .sumOf { it.amount }
 
-                    val remainingInCycle = (cycleTotalIncome - cycleExpenses).coerceAtLeast(0.0)
-                    if (daysRemaining > 0) remainingInCycle / daysRemaining else remainingInCycle
+                    // Remaining Discretionary Income = Income - Fixed Bills - Savings Target - Spent In Cycle
+                    val remainingDiscretionary = cycleTotalIncome - fixedBills - savingsTarget - spentInCycle
+                    (remainingDiscretionary.coerceAtLeast(0.0)) / (daysRemaining + 1)
                 } else {
-                    (totalIncome - totalSpent).coerceAtLeast(0.0)
+                    // Freelance / Flexible Mode (Virtual Salary from actual month's income)
+                    val earnedIncomeThisMonth = transactions
+                        .filter { it.type == "INCOME" && it.timestamp in cyclePeriod.startTimestamp..cyclePeriod.endTimestamp }
+                        .sumOf { it.amount }
+
+                    val spentThisMonth = transactions
+                        .filter { it.type == "EXPENSE" && it.timestamp in cyclePeriod.startTimestamp..cyclePeriod.endTimestamp }
+                        .sumOf { it.amount }
+
+                    // Freelance Safe Daily Spend = (Actual Month Income - Fixed Bills - Savings Target - Spent) / (Days Remaining + 1)
+                    val remainingDiscretionary = earnedIncomeThisMonth - fixedBills - savingsTarget - spentThisMonth
+                    (remainingDiscretionary.coerceAtLeast(0.0)) / (daysRemaining + 1)
                 }
 
-                // Envelope calculations (scoped to current cycle if active)
+                // Envelope calculations (scoped to current cycle period)
                 val envelopes = categories.map { cat ->
                     val spentInCat = transactions
                         .filter {
                             it.categoryId == cat.id &&
                             it.type == "EXPENSE" &&
-                            (cyclePeriod == null || (it.timestamp >= cyclePeriod.startTimestamp && it.timestamp <= cyclePeriod.endTimestamp))
+                            it.timestamp in cyclePeriod.startTimestamp..cyclePeriod.endTimestamp
                         }
                         .sumOf { it.amount }
                     val remaining = (cat.budgetAmount - spentInCat).coerceAtLeast(0.0)
@@ -116,19 +156,24 @@ class DashboardViewModel(
 
         return when (frequency) {
             "WEEKLY" -> {
+                val anchorCal = Calendar.getInstance().apply { timeInMillis = startDateTimestamp }
+                val anchorDayOfWeek = anchorCal.get(Calendar.DAY_OF_WEEK)
+
                 val cal = Calendar.getInstance().apply {
-                    firstDayOfWeek = Calendar.MONDAY
-                    set(Calendar.DAY_OF_WEEK, Calendar.MONDAY)
+                    firstDayOfWeek = anchorDayOfWeek
+                    set(Calendar.DAY_OF_WEEK, anchorDayOfWeek)
                     set(Calendar.HOUR_OF_DAY, 0)
                     set(Calendar.MINUTE, 0)
                     set(Calendar.SECOND, 0)
                     set(Calendar.MILLISECOND, 0)
                 }
+                if (cal.timeInMillis > nowMillis) {
+                    cal.add(Calendar.DAY_OF_YEAR, -7)
+                }
                 val start = cal.timeInMillis
                 cal.add(Calendar.DAY_OF_YEAR, 7)
                 val end = cal.timeInMillis - 1
-                val daysPassed = ((nowMillis - start) / (1000 * 60 * 60 * 24)).toInt().coerceIn(0, 6)
-                val daysRemaining = (7 - daysPassed).coerceAtLeast(1)
+                val daysRemaining = (((end - nowMillis) / (1000 * 60 * 60 * 24)).toInt()).coerceAtLeast(0)
                 CyclePeriod(start, end, daysRemaining)
             }
             "BIWEEKLY" -> {
@@ -140,12 +185,11 @@ class DashboardViewModel(
                     set(Calendar.MILLISECOND, 0)
                 }
                 val biweeklyMillis = 14L * 24 * 60 * 60 * 1000
-                val diff = (nowMillis - cal.timeInMillis).coerceAtLeast(0)
-                val cycles = diff / biweeklyMillis
+                val diff = nowMillis - cal.timeInMillis
+                val cycles = if (diff >= 0) diff / biweeklyMillis else (diff / biweeklyMillis) - 1
                 val start = cal.timeInMillis + (cycles * biweeklyMillis)
                 val end = start + biweeklyMillis - 1
-                val daysPassed = ((nowMillis - start) / (1000 * 60 * 60 * 24)).toInt().coerceIn(0, 13)
-                val daysRemaining = (14 - daysPassed).coerceAtLeast(1)
+                val daysRemaining = (((end - nowMillis) / (1000 * 60 * 60 * 24)).toInt()).coerceAtLeast(0)
                 CyclePeriod(start, end, daysRemaining)
             }
             "SEMIMONTHLY" -> {
@@ -166,7 +210,7 @@ class DashboardViewModel(
                         set(Calendar.SECOND, 59)
                         set(Calendar.MILLISECOND, 999)
                     }.timeInMillis
-                    val daysRemaining = (15 - currentDay + 1).coerceAtLeast(1)
+                    val daysRemaining = (15 - currentDay).coerceAtLeast(0)
                     CyclePeriod(start, end, daysRemaining)
                 } else {
                     val start = (now.clone() as Calendar).apply {
@@ -183,11 +227,42 @@ class DashboardViewModel(
                         set(Calendar.SECOND, 59)
                         set(Calendar.MILLISECOND, 999)
                     }.timeInMillis
-                    val daysRemaining = (maxDays - currentDay + 1).coerceAtLeast(1)
+                    val daysRemaining = (maxDays - currentDay).coerceAtLeast(0)
                     CyclePeriod(start, end, daysRemaining)
                 }
             }
-            else -> { // MONTHLY default
+            "MONTHLY" -> {
+                val anchorCal = Calendar.getInstance().apply { timeInMillis = startDateTimestamp }
+                val anchorDay = anchorCal.get(Calendar.DAY_OF_MONTH).coerceIn(1, 31)
+                val currentDay = now.get(Calendar.DAY_OF_MONTH)
+
+                val startCal = (now.clone() as Calendar).apply {
+                    set(Calendar.HOUR_OF_DAY, 0)
+                    set(Calendar.MINUTE, 0)
+                    set(Calendar.SECOND, 0)
+                    set(Calendar.MILLISECOND, 0)
+                }
+
+                if (currentDay >= anchorDay) {
+                    val maxDayThisMonth = startCal.getActualMaximum(Calendar.DAY_OF_MONTH)
+                    startCal.set(Calendar.DAY_OF_MONTH, anchorDay.coerceAtMost(maxDayThisMonth))
+                } else {
+                    startCal.add(Calendar.MONTH, -1)
+                    val maxDayPrevMonth = startCal.getActualMaximum(Calendar.DAY_OF_MONTH)
+                    startCal.set(Calendar.DAY_OF_MONTH, anchorDay.coerceAtMost(maxDayPrevMonth))
+                }
+
+                val endCal = (startCal.clone() as Calendar).apply {
+                    add(Calendar.MONTH, 1)
+                    add(Calendar.MILLISECOND, -1)
+                }
+
+                val start = startCal.timeInMillis
+                val end = endCal.timeInMillis
+                val daysRemaining = (((end - nowMillis) / (1000 * 60 * 60 * 24)).toInt()).coerceAtLeast(0)
+                CyclePeriod(start, end, daysRemaining)
+            }
+            else -> { // "NONE" / Flexible Month Period
                 val currentDay = now.get(Calendar.DAY_OF_MONTH)
                 val maxDays = now.getActualMaximum(Calendar.DAY_OF_MONTH)
                 val start = (now.clone() as Calendar).apply {
@@ -204,7 +279,7 @@ class DashboardViewModel(
                     set(Calendar.SECOND, 59)
                     set(Calendar.MILLISECOND, 999)
                 }.timeInMillis
-                val daysRemaining = (maxDays - currentDay + 1).coerceAtLeast(1)
+                val daysRemaining = (maxDays - currentDay).coerceAtLeast(0)
                 CyclePeriod(start, end, daysRemaining)
             }
         }
@@ -252,7 +327,7 @@ class DashboardViewModel(
             sendEffect(
                 DashboardUiEffect.ShowSnackbar(
                     message = "Transaction deleted",
-                    actionLabel = "UNDO",
+                    actionLabel = "Undo",
                     onAction = { onIntent(DashboardUiIntent.UndoDelete(transaction)) }
                 )
             )
@@ -262,6 +337,7 @@ class DashboardViewModel(
     private fun undoDelete(transaction: TransactionEntity) {
         viewModelScope.launch {
             repository.addTransaction(transaction)
+            sendEffect(DashboardUiEffect.ShowSnackbar("Transaction restored"))
         }
     }
 

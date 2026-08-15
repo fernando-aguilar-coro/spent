@@ -71,11 +71,12 @@ fun SettingsScreen(
             PayCycleCard(
                 currentPayCycle = currentPayCycle,
                 currencySymbol = currencySymbol,
-                onSavePayCycle = { frequency, income ->
+                onSavePayCycle = { frequency, income, startDate ->
                     scope.launch {
                         val updatedCycle = (currentPayCycle ?: PayCycleEntity()).copy(
                             frequency = frequency,
-                            income = income
+                            income = income,
+                            startDate = startDate
                         )
                         repository.setPayCycle(updatedCycle)
                     }

@@ -19,8 +19,8 @@
     <string name="manage_cycle">Manage Pay Cycle</string>
 
     <!-- Quick Actions -->
-    <string name="action_add_expense">+ Add Expense</string>
-    <string name="action_add_income">+ Add Income</string>
+    <string name="action_add_expense">Add Expense</string>
+    <string name="action_add_income">Add Income</string>
 
     <!-- Category Envelopes -->
     <string name="category_envelopes">Category Envelopes</string>
@@ -155,6 +155,13 @@
     <string name="pay_cycle_desc">Set your cycle frequency and base income</string>
     <string name="cycle_frequency">Frequency</string>
     <string name="cycle_income_label">Base Income (%1$s)</string>
+    <string name="payday_label">Payday / Start Date</string>
+    <string name="payday_monthly_day">Payday: Day %1$d of month</string>
+    <string name="payday_anchor_date">Cycle Anchor Date: %1$s</string>
+    <string name="select_payday_title">Select Payday / Start Date</string>
+    <string name="freelance_flexible_title">Freelance / Flexible Income</string>
+    <string name="freelance_flexible_desc">Variable salary from actual month earnings</string>
+    <string name="salary_income_note">Payday Base Salary (%1$s)</string>
     <string name="save_pay_cycle">Save Pay Cycle</string>
     <string name="theme_title">Theme</string>
     <string name="theme_system">System Default</string>
