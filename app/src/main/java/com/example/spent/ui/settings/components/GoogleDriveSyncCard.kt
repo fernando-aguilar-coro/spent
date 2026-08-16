@@ -49,6 +49,11 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
+import com.example.spent.data.sync.GoogleDriveRestService
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount
+import com.google.android.gms.common.api.ApiException
+
 @Composable
 fun GoogleDriveSyncCard(
     repository: SpentRepository,
@@ -59,34 +64,26 @@ fun GoogleDriveSyncCard(
     val coroutineScope = rememberCoroutineScope()
     var isProcessing by remember { mutableStateOf(false) }
 
+    var signedInAccount by remember { mutableStateOf(GoogleDriveRestService.getSignedInAccount(context)) }
+
     val formattedSyncTime = remember(lastSyncTimestamp) {
         if (lastSyncTimestamp > 0) {
             SimpleDateFormat("MMM dd, yyyy HH:mm", Locale.getDefault()).format(Date(lastSyncTimestamp))
         } else null
     }
 
-    // Document Picker for Restoring
-    val restoreLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.OpenDocument()
-    ) { uri: Uri? ->
-        uri?.let {
-            coroutineScope.launch {
-                isProcessing = true
-                val json = DriveBackupManager.readBackupFromUri(context, it)
-                if (json != null) {
-                    val result = DriveBackupManager.restoreFromJson(json, repository)
-                    isProcessing = false
-                    if (result.isSuccess) {
-                        onSyncComplete(context.getString(R.string.drive_restore_success))
-                    } else {
-                        val msg = result.exceptionOrNull()?.localizedMessage ?: "Unknown error"
-                        onSyncComplete(context.getString(R.string.drive_sync_error, msg))
-                    }
-                } else {
-                    isProcessing = false
-                    onSyncComplete(context.getString(R.string.drive_sync_error, "Could not read backup file"))
-                }
-            }
+    // Google Sign In Launcher
+    val googleSignInLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
+        try {
+            val account = task.getResult(ApiException::class.java)
+            signedInAccount = account
+            onSyncComplete("Google Account connected: ${account?.email}")
+        } catch (e: Exception) {
+            e.printStackTrace()
+            onSyncComplete("Sign in failed: ${e.localizedMessage}")
         }
     }
 
@@ -171,28 +168,24 @@ fun GoogleDriveSyncCard(
                     // Backup / Sync Button
                     Button(
                         onClick = {
-                            coroutineScope.launch {
-                                isProcessing = true
-                                val json = DriveBackupManager.generateBackupJson(repository)
-                                val backupFile = DriveBackupManager.createLocalBackupFile(context, json)
-                                repository.setLastDriveSyncTimestamp(System.currentTimeMillis())
-                                isProcessing = false
-
-                                val uri = FileProvider.getUriForFile(
-                                    context,
-                                    "${context.packageName}.fileprovider",
-                                    backupFile
-                                )
-                                val sendIntent = Intent(Intent.ACTION_SEND).apply {
-                                    type = "application/json"
-                                    putExtra(Intent.EXTRA_SUBJECT, backupFile.name)
-                                    putExtra(Intent.EXTRA_STREAM, uri)
-                                    addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                            val account = signedInAccount
+                            if (account == null) {
+                                val signInClient = GoogleDriveRestService.getGoogleSignInClient(context)
+                                googleSignInLauncher.launch(signInClient.signInIntent)
+                            } else {
+                                coroutineScope.launch {
+                                    isProcessing = true
+                                    val json = DriveBackupManager.generateBackupJson(repository)
+                                    val result = GoogleDriveRestService.uploadBackupToDrive(context, account, json)
+                                    isProcessing = false
+                                    if (result.isSuccess) {
+                                        repository.setLastDriveSyncTimestamp(System.currentTimeMillis())
+                                        onSyncComplete(context.getString(R.string.drive_backup_success))
+                                    } else {
+                                        val err = result.exceptionOrNull()?.localizedMessage ?: "Unknown error"
+                                        onSyncComplete(context.getString(R.string.drive_sync_error, err))
+                                    }
                                 }
-                                val chooser = Intent.createChooser(sendIntent, context.getString(R.string.drive_export_chooser))
-                                chooser.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                                context.startActivity(chooser)
-                                onSyncComplete(context.getString(R.string.drive_backup_success))
                             }
                         },
                         modifier = Modifier.weight(1f),
@@ -205,13 +198,37 @@ fun GoogleDriveSyncCard(
                             modifier = Modifier.size(18.dp)
                         )
                         Spacer(modifier = Modifier.width(6.dp))
-                        Text(stringResource(R.string.drive_backup_now))
+                        Text(if (signedInAccount != null) stringResource(R.string.drive_backup_now) else "Connect Drive")
                     }
 
                     // Restore Button
                     OutlinedButton(
                         onClick = {
-                            restoreLauncher.launch(arrayOf("application/json", "text/*", "*/*"))
+                            val account = signedInAccount
+                            if (account == null) {
+                                val signInClient = GoogleDriveRestService.getGoogleSignInClient(context)
+                                googleSignInLauncher.launch(signInClient.signInIntent)
+                            } else {
+                                coroutineScope.launch {
+                                    isProcessing = true
+                                    val result = GoogleDriveRestService.downloadBackupFromDrive(context, account)
+                                    if (result.isSuccess) {
+                                        val json = result.getOrNull().orEmpty()
+                                        val restoreRes = DriveBackupManager.restoreFromJson(json, repository)
+                                        isProcessing = false
+                                        if (restoreRes.isSuccess) {
+                                            onSyncComplete(context.getString(R.string.drive_restore_success))
+                                        } else {
+                                            val err = restoreRes.exceptionOrNull()?.localizedMessage ?: "Invalid JSON"
+                                            onSyncComplete(context.getString(R.string.drive_sync_error, err))
+                                        }
+                                    } else {
+                                        isProcessing = false
+                                        val err = result.exceptionOrNull()?.localizedMessage ?: "Backup not found"
+                                        onSyncComplete(context.getString(R.string.drive_sync_error, err))
+                                    }
+                                }
+                            }
                         },
                         modifier = Modifier.weight(1f),
                         shape = RoundedCornerShape(12.dp)
