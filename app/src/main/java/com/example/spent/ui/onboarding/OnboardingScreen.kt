@@ -49,9 +49,6 @@ fun OnboardingScreen(
     val googleSignInLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult()
     ) { result ->
-        if (result.resultCode != android.app.Activity.RESULT_OK) {
-            return@rememberLauncherForActivityResult
-        }
         val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
         try {
             val account = task.getResult(ApiException::class.java)
@@ -72,10 +69,23 @@ fun OnboardingScreen(
                     viewModel.handleConnectResult(context, account)
                 }
             }
+        } catch (e: ApiException) {
+            android.util.Log.e("GoogleSignIn", "Google Sign In failed. Status Code: ${e.statusCode}", e)
+            val errorMsg = when (e.statusCode) {
+                10 -> "Developer Error (10): Ensure SHA-1 & Package Name match in Google Cloud Console."
+                12500 -> "Sign-in Failed (12500): Check Google Cloud Console setup or Play Services."
+                12501 -> "Sign-in cancelled"
+                else -> "Sign-in error (${e.statusCode}): ${e.localizedMessage ?: "Unknown"}"
+            }
+            if (e.statusCode != 12501) {
+                coroutineScope.launch {
+                    snackbarHostState.showSnackbar(errorMsg)
+                }
+            }
         } catch (e: Exception) {
-            e.printStackTrace()
+            android.util.Log.e("GoogleSignIn", "Unexpected sign in error", e)
             coroutineScope.launch {
-                snackbarHostState.showSnackbar("Google Sign-In failed: ${e.localizedMessage ?: "Unknown error"}")
+                snackbarHostState.showSnackbar("Error: ${e.localizedMessage ?: "Unknown error"}")
             }
         }
     }

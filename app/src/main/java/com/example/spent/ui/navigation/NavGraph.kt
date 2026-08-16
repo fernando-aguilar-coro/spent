@@ -6,7 +6,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -52,14 +54,16 @@ fun SpentAppNavHost(
         Screen.Settings.route
     )
 
-    // Decide start destination only once when data is available
-    val startDest = remember(isWalkthroughCompleted) {
-        if (isWalkthroughCompleted == null) null
-        else if (isWalkthroughCompleted == false) Screen.Onboarding.route
-        else Screen.Dashboard.route
+    // Decide start destination only once when initial data is available to prevent flicker
+    var initialStartDestination by remember { mutableStateOf<String?>(null) }
+    LaunchedEffect(isWalkthroughCompleted) {
+        if (initialStartDestination == null && isWalkthroughCompleted != null) {
+            initialStartDestination = if (isWalkthroughCompleted == false) Screen.Onboarding.route else Screen.Dashboard.route
+        }
     }
 
-    if (startDest == null) return // Wait for data
+    val startDest = initialStartDestination
+    if (startDest == null) return // Wait for initial data
 
     Scaffold(
         bottomBar = {

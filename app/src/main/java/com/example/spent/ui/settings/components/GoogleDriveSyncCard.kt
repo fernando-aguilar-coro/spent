@@ -76,16 +76,24 @@ fun GoogleDriveSyncCard(
     val googleSignInLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult()
     ) { result ->
-        if (result.resultCode != android.app.Activity.RESULT_OK) {
-            return@rememberLauncherForActivityResult
-        }
         val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
         try {
             val account = task.getResult(ApiException::class.java)
             signedInAccount = account
             onSyncComplete("Google Account connected: ${account?.email}")
+        } catch (e: ApiException) {
+            android.util.Log.e("GoogleSignIn", "Google Sign In failed in settings. Status Code: ${e.statusCode}", e)
+            val errorMsg = when (e.statusCode) {
+                10 -> "Developer Error (10): Ensure SHA-1 & Package Name match in Google Cloud Console."
+                12500 -> "Sign-in Failed (12500): Check Google Cloud Console setup or Play Services."
+                12501 -> "Sign-in cancelled"
+                else -> "Sign-in error (${e.statusCode}): ${e.localizedMessage ?: "Unknown"}"
+            }
+            if (e.statusCode != 12501) {
+                onSyncComplete(errorMsg)
+            }
         } catch (e: Exception) {
-            e.printStackTrace()
+            android.util.Log.e("GoogleSignIn", "Unexpected sign in error in settings", e)
             onSyncComplete("Sign in failed: ${e.localizedMessage ?: "Unknown error"}")
         }
     }
