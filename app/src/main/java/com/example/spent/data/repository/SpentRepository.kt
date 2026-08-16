@@ -25,6 +25,7 @@ interface SpentRepository {
     val savingsGoalNameFlow: Flow<String>
     val savingsGoalTotalFlow: Flow<Double>
     val savingsMonthlyContributionFlow: Flow<Double>
+    val lastDriveSyncTimestampFlow: Flow<Long>
 
     suspend fun addTransaction(transaction: TransactionEntity)
     suspend fun deleteTransaction(transaction: TransactionEntity)
@@ -46,5 +47,13 @@ interface SpentRepository {
     suspend fun setAppLanguage(languageCode: String?)
     suspend fun setSavingsGoal(name: String, totalGoal: Double, monthlyContribution: Double)
     suspend fun clearSavingsGoal()
+    suspend fun setLastDriveSyncTimestamp(timestamp: Long)
+    suspend fun restoreAllData(
+        categories: List<CategoryEntity>,
+        transactions: List<TransactionEntity>,
+        payCycle: PayCycleEntity?,
+        recurringRules: List<RecurringRuleEntity>,
+        userAccount: UserAccountEntity?
+    )
     suspend fun resetAllData()
 }

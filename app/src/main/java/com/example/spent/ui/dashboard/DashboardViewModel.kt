@@ -232,43 +232,20 @@ class DashboardViewModel(
                 CyclePeriod(start, end, daysRemaining)
             }
             "SEMIMONTHLY" -> {
-                val currentDay = now.get(Calendar.DAY_OF_MONTH)
-                val maxDays = now.getActualMaximum(Calendar.DAY_OF_MONTH)
-                if (currentDay <= 15) {
-                    val start = (now.clone() as Calendar).apply {
-                        set(Calendar.DAY_OF_MONTH, 1)
-                        set(Calendar.HOUR_OF_DAY, 0)
-                        set(Calendar.MINUTE, 0)
-                        set(Calendar.SECOND, 0)
-                        set(Calendar.MILLISECOND, 0)
-                    }.timeInMillis
-                    val end = (now.clone() as Calendar).apply {
-                        set(Calendar.DAY_OF_MONTH, 15)
-                        set(Calendar.HOUR_OF_DAY, 23)
-                        set(Calendar.MINUTE, 59)
-                        set(Calendar.SECOND, 59)
-                        set(Calendar.MILLISECOND, 999)
-                    }.timeInMillis
-                    val daysRemaining = (15 - currentDay).coerceAtLeast(0)
-                    CyclePeriod(start, end, daysRemaining)
-                } else {
-                    val start = (now.clone() as Calendar).apply {
-                        set(Calendar.DAY_OF_MONTH, 16)
-                        set(Calendar.HOUR_OF_DAY, 0)
-                        set(Calendar.MINUTE, 0)
-                        set(Calendar.SECOND, 0)
-                        set(Calendar.MILLISECOND, 0)
-                    }.timeInMillis
-                    val end = (now.clone() as Calendar).apply {
-                        set(Calendar.DAY_OF_MONTH, maxDays)
-                        set(Calendar.HOUR_OF_DAY, 23)
-                        set(Calendar.MINUTE, 59)
-                        set(Calendar.SECOND, 59)
-                        set(Calendar.MILLISECOND, 999)
-                    }.timeInMillis
-                    val daysRemaining = (maxDays - currentDay).coerceAtLeast(0)
-                    CyclePeriod(start, end, daysRemaining)
+                val cal = Calendar.getInstance().apply {
+                    timeInMillis = startDateTimestamp
+                    set(Calendar.HOUR_OF_DAY, 0)
+                    set(Calendar.MINUTE, 0)
+                    set(Calendar.SECOND, 0)
+                    set(Calendar.MILLISECOND, 0)
                 }
+                val semimonthlyMillis = 15L * 24 * 60 * 60 * 1000
+                val diff = nowMillis - cal.timeInMillis
+                val cycles = if (diff >= 0) diff / semimonthlyMillis else (diff / semimonthlyMillis) - 1
+                val start = cal.timeInMillis + (cycles * semimonthlyMillis)
+                val end = start + semimonthlyMillis - 1
+                val daysRemaining = (((end - nowMillis) / (1000 * 60 * 60 * 24)).toInt()).coerceAtLeast(0)
+                CyclePeriod(start, end, daysRemaining)
             }
             "MONTHLY" -> {
                 val anchorCal = Calendar.getInstance().apply { timeInMillis = startDateTimestamp }

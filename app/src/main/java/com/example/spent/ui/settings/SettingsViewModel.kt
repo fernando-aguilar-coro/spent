@@ -23,9 +23,10 @@ class SettingsViewModel(
                 repository.getCurrentPayCycleFlow(),
                 repository.isDarkThemeFlow,
                 repository.currencySymbolFlow,
-                repository.appLanguageFlow
-            ) { payCycle, isDark, currency, language ->
-                SettingsCoreData(payCycle, isDark, currency, language)
+                repository.appLanguageFlow,
+                repository.lastDriveSyncTimestampFlow
+            ) { payCycle, isDark, currency, language, lastSync ->
+                SettingsCoreData(payCycle, isDark, currency, language, lastSync)
             }
 
             val dataFlow = combine(
@@ -43,6 +44,7 @@ class SettingsViewModel(
                     appLanguage = core.language,
                     transactions = transactions,
                     categories = categories,
+                    lastDriveSyncTimestamp = core.lastSync,
                     isLoading = false
                 )
             }.collect { newState ->
@@ -55,7 +57,8 @@ class SettingsViewModel(
         val payCycle: PayCycleEntity?,
         val isDark: Boolean?,
         val currency: String,
-        val language: String?
+        val language: String?,
+        val lastSync: Long
     )
 
     override fun onIntent(intent: SettingsUiIntent) {
@@ -64,6 +67,7 @@ class SettingsViewModel(
             is SettingsUiIntent.SetDarkThemeMode -> setThemeMode(intent.isDark)
             is SettingsUiIntent.SetCurrencySymbol -> setCurrencySymbol(intent.symbol)
             is SettingsUiIntent.SetAppLanguage -> setAppLanguage(intent.languageCode)
+            is SettingsUiIntent.NotifySyncMessage -> sendEffect(SettingsUiEffect.ShowSnackbar(intent.message))
             is SettingsUiIntent.ResetAllData -> resetAllData()
         }
     }

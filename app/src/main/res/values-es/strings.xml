@@ -263,4 +263,54 @@
     <string name="no_savings_goal_yet">Sin meta de ahorro activa</string>
     <string name="add_savings_goal_btn">Añadir Meta de Ahorro</string>
     <string name="salary_funding_note">Categorizar como \'Salario\' financia tu presupuesto diario Seguro para Gastar.</string>
+
+    <!-- Google Drive & Cloud Backup Sync -->
+    <string name="drive_sync_title">Sincronización y Respaldo Google Drive</string>
+    <string name="drive_sync_desc">Guarda, sincroniza y restaura tus datos financieros de forma segura</string>
+    <string name="drive_backup_now">Respaldar en Drive</string>
+    <string name="drive_restore_now">Restaurar de Drive</string>
+    <string name="drive_sync_now">Sincronizar Ahora</string>
+    <string name="drive_last_synced">Última sinc.: %1$s</string>
+    <string name="drive_not_synced_yet">No sincronizado aún</string>
+    <string name="drive_backup_success">Respaldo guardado exitosamente</string>
+    <string name="drive_restore_success">Datos restaurados exitosamente</string>
+    <string name="drive_sync_success">Google Drive sincronizado</string>
+    <string name="drive_sync_error">Error al sincronizar con Drive: %1$s</string>
+    <string name="drive_export_chooser">Guardar Respaldo de Spent en Drive</string>
+    <string name="drive_import_chooser">Seleccionar Archivo de Respaldo de Spent</string>
+
+    <!-- Onboarding Walkthrough -->
+    <string name="onboarding_welcome_title">Bienvenido a Spent</string>
+    <string name="onboarding_welcome_desc">bienvenido , empieza a administrar tus finanzas de forma rapida y privada.</string>
+    <string name="onboarding_btn_connect_drive">Conectar / Restaurar de Google Drive</string>
+    <string name="onboarding_btn_continue_no_account">Seguir adelante sin conectar una cuenta</string>
+    <string name="onboarding_profile_title">¿Qué tipo de perfil se adapta mejor a ti?</string>
+    <string name="onboarding_profile_subtitle">Esto personaliza tu ciclo de presupuesto y flujo de dinero</string>
+    <string name="onboarding_profile_unemployed">Desempleado</string>
+    <string name="onboarding_profile_unemployed_desc">Presupuesto flexible sin períodos fijos de pago</string>
+    <string name="onboarding_profile_freelancer">Freelancer</string>
+    <string name="onboarding_profile_freelancer_desc">Ingresos variables por proyectos y facturación libre</string>
+    <string name="onboarding_profile_employed">Empleado / Asalariado</string>
+    <string name="onboarding_profile_employed_desc">Ciclo de pago recurrente (Semanal, Quincenal, 15 días, Mensual)</string>
+    <string name="onboarding_schedule_title">¿Cada cuánto y cuándo te pagan?</string>
+    <string name="onboarding_schedule_subtitle">Configura tu ciclo de cobro y fecha inicial</string>
+    <string name="onboarding_schedule_frequency">Frecuencia de Pago</string>
+    <string name="onboarding_schedule_payday">Primer Día de Pago / Fecha Ancla</string>
+    <string name="onboarding_schedule_salary_optional">Sueldo Base Estimado (%1$s, Opcional)</string>
+    <string name="onboarding_btn_finish_setup">Finalizar Configuración</string>
+    <string name="onboarding_btn_next">Continuar</string>
+    <string name="frequency_biweekly">Quincenal (14 días)</string>
+    <string name="frequency_semimonthly">Medio mes (15 días)</string>
+
+    <!-- Interactive Focus Tutorial -->
+    <string name="tutorial_step_header_title">Seguro para Gastar</string>
+    <string name="tutorial_step_header_desc">Tu presupuesto diario calculado dinámicamente para proteger tu dinero hasta el próximo cobro.</string>
+    <string name="tutorial_step_actions_title">Botones de Acción Rápida</string>
+    <string name="tutorial_step_actions_desc">Registra gastos e ingresos en menos de 3 segundos con un solo toque.</string>
+    <string name="tutorial_step_envelopes_title">Sobres de Categorías</string>
+    <string name="tutorial_step_envelopes_desc">Monitorea tus gastos en supermercado, transporte, servicios y más en tiempo real.</string>
+    <string name="tutorial_step_tools_title">Caja de Herramientas Financieras</string>
+    <string name="tutorial_step_tools_desc">Gestiona metas de ahorro, préstamos bancarios, facturas de servicios y exporta a Excel.</string>
+    <string name="tutorial_tap_to_skip">Toca en cualquier parte para continuar o saltar</string>
+    <string name="tutorial_btn_got_it">¡Entendido!</string>
 </resources>

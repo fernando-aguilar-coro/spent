@@ -263,4 +263,54 @@
     <string name="no_savings_goal_yet">No savings goal active</string>
     <string name="add_savings_goal_btn">Add Savings Goal</string>
     <string name="salary_funding_note">Categorizing income under \'Salary\' funds your daily Safe-to-Spend allowance.</string>
+
+    <!-- Google Drive & Cloud Backup Sync -->
+    <string name="drive_sync_title">Google Drive Sync &amp; Backup</string>
+    <string name="drive_sync_desc">Save, sync, and restore your financial data securely</string>
+    <string name="drive_backup_now">Backup to Drive</string>
+    <string name="drive_restore_now">Restore from Drive</string>
+    <string name="drive_sync_now">Sync Now</string>
+    <string name="drive_last_synced">Last Synced: %1$s</string>
+    <string name="drive_not_synced_yet">Not synced yet</string>
+    <string name="drive_backup_success">Backup saved successfully</string>
+    <string name="drive_restore_success">Data restored successfully</string>
+    <string name="drive_sync_success">Google Drive synchronized</string>
+    <string name="drive_sync_error">Error syncing with Drive: %1$s</string>
+    <string name="drive_export_chooser">Save Spent Backup to Drive</string>
+    <string name="drive_import_chooser">Select Spent Backup File</string>
+
+    <!-- Onboarding Walkthrough -->
+    <string name="onboarding_welcome_title">Welcome to Spent</string>
+    <string name="onboarding_welcome_desc">Welcome, start managing your finances quickly and privately.</string>
+    <string name="onboarding_btn_connect_drive">Connect / Restore from Google Drive</string>
+    <string name="onboarding_btn_continue_no_account">Continue without connecting an account</string>
+    <string name="onboarding_profile_title">What type of profile fits you best?</string>
+    <string name="onboarding_profile_subtitle">This helps customize your budgeting cycle and cash flow</string>
+    <string name="onboarding_profile_unemployed">Unemployed</string>
+    <string name="onboarding_profile_unemployed_desc">Flexible budgeting without fixed pay periods</string>
+    <string name="onboarding_profile_freelancer">Freelancer</string>
+    <string name="onboarding_profile_freelancer_desc">Variable project-based income and flexible tracking</string>
+    <string name="onboarding_profile_employed">Employed / Salaryman</string>
+    <string name="onboarding_profile_employed_desc">Regular recurring pay cycle (Weekly, Bi-weekly, 15-day, Monthly)</string>
+    <string name="onboarding_schedule_title">When and how often do you get paid?</string>
+    <string name="onboarding_schedule_subtitle">Configure your payday cycle and anchor date</string>
+    <string name="onboarding_schedule_frequency">Pay Frequency</string>
+    <string name="onboarding_schedule_payday">First Payday / Anchor Date</string>
+    <string name="onboarding_schedule_salary_optional">Estimated Base Salary (%1$s, Optional)</string>
+    <string name="onboarding_btn_finish_setup">Finish Setup</string>
+    <string name="onboarding_btn_next">Continue</string>
+    <string name="frequency_biweekly">Bi-weekly (14 days)</string>
+    <string name="frequency_semimonthly">Semi-monthly (15 days)</string>
+
+    <!-- Interactive Focus Tutorial -->
+    <string name="tutorial_step_header_title">Safe to Spend Allowance</string>
+    <string name="tutorial_step_header_desc">Your daily budget dynamically calculated to protect your savings until the next payday.</string>
+    <string name="tutorial_step_actions_title">Fast Action Buttons</string>
+    <string name="tutorial_step_actions_desc">Log expenses and income in under 3 seconds with one tap.</string>
+    <string name="tutorial_step_envelopes_title">Category Envelopes</string>
+    <string name="tutorial_step_envelopes_desc">Track spending across groceries, transport, utilities, and more.</string>
+    <string name="tutorial_step_tools_title">Financial Toolbox</string>
+    <string name="tutorial_step_tools_desc">Manage savings goals, bank loans, utility bills, and export reports to Excel.</string>
+    <string name="tutorial_tap_to_skip">Tap anywhere to proceed or skip</string>
+    <string name="tutorial_btn_got_it">Got it!</string>
 </resources>

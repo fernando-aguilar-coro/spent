@@ -23,6 +23,11 @@ class UserPreferencesRepository(private val context: Context) {
         val SAVINGS_GOAL_NAME = stringPreferencesKey("savings_goal_name")
         val SAVINGS_GOAL_TOTAL = doublePreferencesKey("savings_goal_total")
         val SAVINGS_MONTHLY_CONTRIBUTION = doublePreferencesKey("savings_monthly_contribution")
+        val LAST_DRIVE_SYNC_TIMESTAMP = androidx.datastore.preferences.core.longPreferencesKey("last_drive_sync_timestamp")
+    }
+
+    val lastDriveSyncTimestampFlow: Flow<Long> = context.dataStore.data.map { preferences ->
+        preferences[PreferencesKeys.LAST_DRIVE_SYNC_TIMESTAMP] ?: 0L
     }
 
     val isWalkthroughCompletedFlow: Flow<Boolean> = context.dataStore.data.map { preferences ->
@@ -98,6 +103,12 @@ class UserPreferencesRepository(private val context: Context) {
             preferences.remove(PreferencesKeys.SAVINGS_GOAL_NAME)
             preferences.remove(PreferencesKeys.SAVINGS_GOAL_TOTAL)
             preferences.remove(PreferencesKeys.SAVINGS_MONTHLY_CONTRIBUTION)
+        }
+    }
+
+    suspend fun setLastDriveSyncTimestamp(timestamp: Long) {
+        context.dataStore.edit { preferences ->
+            preferences[PreferencesKeys.LAST_DRIVE_SYNC_TIMESTAMP] = timestamp
         }
     }
 }

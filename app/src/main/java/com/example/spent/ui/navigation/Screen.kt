@@ -19,6 +19,7 @@ sealed class Screen(val route: String, @StringRes val titleResId: Int, val icon:
     object FixedBills : Screen("fixed_bills", R.string.fixed_bills_screen_title, Icons.Default.Bolt)
     object LoansTracker : Screen("loans_tracker", R.string.loans_tracker_screen_title, Icons.Default.AccountBalance)
     object SavingsTracker : Screen("savings_tracker", R.string.savings_tracker_title, Icons.Default.Savings)
+    object Onboarding : Screen("onboarding", R.string.onboarding_welcome_title, Icons.Default.AccountBalance)
     object AddTransaction : Screen("add_transaction/{initialType}", R.string.action_add_expense, Icons.Default.Add) {
         fun createRoute(initialType: String) = "add_transaction/$initialType"
     }

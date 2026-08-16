@@ -81,6 +81,9 @@ interface SpentDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertTransaction(transaction: TransactionEntity)
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertTransactions(transactions: List<TransactionEntity>)
+
     @Delete
     suspend fun deleteTransaction(transaction: TransactionEntity)
 
@@ -97,16 +100,25 @@ interface SpentDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertRecurringRule(rule: RecurringRuleEntity)
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertRecurringRules(rules: List<RecurringRuleEntity>)
+
     @Update
     suspend fun updateRecurringRule(rule: RecurringRuleEntity)
 
     @Query("DELETE FROM recurring_rules WHERE id = :id")
     suspend fun deleteRecurringRuleById(id: String)
 
-    // Data Reset
+    // Data Reset / Restore
     @Query("DELETE FROM transactions")
     suspend fun deleteAllTransactions()
 
     @Query("DELETE FROM categories")
     suspend fun deleteAllCategories()
+
+    @Query("DELETE FROM recurring_rules")
+    suspend fun deleteAllRecurringRules()
+
+    @Query("DELETE FROM pay_cycles")
+    suspend fun deleteAllPayCycles()
 }

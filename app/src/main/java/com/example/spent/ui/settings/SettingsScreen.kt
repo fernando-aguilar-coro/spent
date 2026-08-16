@@ -21,9 +21,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.spent.R
+import com.example.spent.data.repository.SpentRepository
 import com.example.spent.ui.settings.components.AppInfoCard
 import com.example.spent.ui.settings.components.CurrencySelectionCard
 import com.example.spent.ui.settings.components.ExportCsvCard
+import com.example.spent.ui.settings.components.GoogleDriveSyncCard
 import com.example.spent.ui.settings.components.LanguageSelectionCard
 import com.example.spent.ui.settings.components.PayCycleCard
 import com.example.spent.ui.settings.components.ResetDataButton
@@ -31,7 +33,8 @@ import com.example.spent.ui.settings.components.ThemeSelectionCard
 
 @Composable
 fun SettingsScreen(
-    viewModel: SettingsViewModel
+    viewModel: SettingsViewModel,
+    repository: SpentRepository
 ) {
     val state by viewModel.uiState.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
@@ -68,6 +71,18 @@ fun SettingsScreen(
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 Spacer(modifier = Modifier.height(16.dp))
+            }
+
+            // Google Drive Cloud Backup & Sync Option
+            item {
+                GoogleDriveSyncCard(
+                    repository = repository,
+                    lastSyncTimestamp = state.lastDriveSyncTimestamp,
+                    onSyncComplete = { message ->
+                        viewModel.onIntent(SettingsUiIntent.NotifySyncMessage(message))
+                    }
+                )
+                Spacer(modifier = Modifier.height(12.dp))
             }
 
             // Pay Cycle Configuration Option

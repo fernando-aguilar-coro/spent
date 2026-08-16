@@ -33,7 +33,7 @@ fun BottomNavBar(navController: NavController) {
         tonalElevation = 4.dp
     ) {
         items.forEach { screen ->
-            val isSelected = currentRoute == screen.route
+            val isSelected = currentRoute == screen.route || (screen == Screen.Dashboard && currentRoute == "dashboard_with_tutorial")
             val title = stringResource(screen.titleResId)
             NavigationBarItem(
                 icon = {

@@ -14,6 +14,7 @@ data class SettingsUiState(
     val appLanguage: String? = null,
     val transactions: List<TransactionEntity> = emptyList(),
     val categories: List<CategoryEntity> = emptyList(),
+    val lastDriveSyncTimestamp: Long = 0L,
     val isLoading: Boolean = false
 ) : UiState
 
@@ -22,6 +23,7 @@ sealed class SettingsUiIntent : UiIntent {
     data class SetDarkThemeMode(val isDark: Boolean?) : SettingsUiIntent()
     data class SetCurrencySymbol(val symbol: String) : SettingsUiIntent()
     data class SetAppLanguage(val languageCode: String?) : SettingsUiIntent()
+    data class NotifySyncMessage(val message: String) : SettingsUiIntent()
     object ResetAllData : SettingsUiIntent()
 }
 

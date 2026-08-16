@@ -3,6 +3,7 @@ package com.example.spent.ui.navigation
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.ViewModel
@@ -26,6 +27,8 @@ import com.example.spent.ui.dashboard.LoansTrackerScreen
 import com.example.spent.ui.dashboard.LoansTrackerViewModel
 import com.example.spent.ui.dashboard.SavingsScreen
 import com.example.spent.ui.dashboard.SavingsViewModel
+import com.example.spent.ui.onboarding.OnboardingScreen
+import com.example.spent.ui.onboarding.OnboardingViewModel
 import com.example.spent.ui.settings.SettingsScreen
 import com.example.spent.ui.settings.SettingsViewModel
 import com.example.spent.ui.transaction.AddTransactionScreen
@@ -39,11 +42,25 @@ fun SpentAppNavHost(
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
 
+    val isWalkthroughCompleted by repository.isWalkthroughCompletedFlow.collectAsState(initial = null)
+
     val showBottomBar = currentRoute in listOf(
         Screen.Dashboard.route,
+        "dashboard_with_tutorial",
         Screen.Analytics.route,
         Screen.Settings.route
     )
+
+    if (isWalkthroughCompleted == null) {
+        // DataStore loading state
+        return
+    }
+
+    val startDest = if (isWalkthroughCompleted == false) {
+        Screen.Onboarding.route
+    } else {
+        Screen.Dashboard.route
+    }
 
     Scaffold(
         bottomBar = {
@@ -54,9 +71,28 @@ fun SpentAppNavHost(
     ) { innerPadding ->
         NavHost(
             navController = navController,
-            startDestination = Screen.Dashboard.route,
+            startDestination = startDest,
             modifier = Modifier.padding(innerPadding)
         ) {
+            composable(Screen.Onboarding.route) {
+                val onboardingViewModel: OnboardingViewModel = viewModel(
+                    factory = object : ViewModelProvider.Factory {
+                        @Suppress("UNCHECKED_CAST")
+                        override fun <T : ViewModel> create(modelClass: Class<T>): T {
+                            return OnboardingViewModel(repository) as T
+                        }
+                    }
+                )
+                OnboardingScreen(
+                    viewModel = onboardingViewModel,
+                    onNavigateToDashboard = {
+                        navController.navigate("dashboard_with_tutorial") {
+                            popUpTo(Screen.Onboarding.route) { inclusive = true }
+                        }
+                    }
+                )
+            }
+
             composable(Screen.Dashboard.route) {
                 val dashboardViewModel: DashboardViewModel = viewModel(
                     factory = object : ViewModelProvider.Factory {
@@ -68,6 +104,34 @@ fun SpentAppNavHost(
                 )
                 DashboardScreen(
                     viewModel = dashboardViewModel,
+                    showInitialTutorial = false,
+                    onNavigateToAddTransaction = { type ->
+                        navController.navigate(Screen.AddTransaction.createRoute(type))
+                    },
+                    onNavigateToSavingsTracker = {
+                        navController.navigate(Screen.SavingsTracker.route)
+                    },
+                    onNavigateToFixedBills = {
+                        navController.navigate(Screen.FixedBills.route)
+                    },
+                    onNavigateToLoansTracker = {
+                        navController.navigate(Screen.LoansTracker.route)
+                    }
+                )
+            }
+
+            composable("dashboard_with_tutorial") {
+                val dashboardViewModel: DashboardViewModel = viewModel(
+                    factory = object : ViewModelProvider.Factory {
+                        @Suppress("UNCHECKED_CAST")
+                        override fun <T : ViewModel> create(modelClass: Class<T>): T {
+                            return DashboardViewModel(repository) as T
+                        }
+                    }
+                )
+                DashboardScreen(
+                    viewModel = dashboardViewModel,
+                    showInitialTutorial = true,
                     onNavigateToAddTransaction = { type ->
                         navController.navigate(Screen.AddTransaction.createRoute(type))
                     },
@@ -104,7 +168,10 @@ fun SpentAppNavHost(
                         }
                     }
                 )
-                SettingsScreen(viewModel = settingsViewModel)
+                SettingsScreen(
+                    viewModel = settingsViewModel,
+                    repository = repository
+                )
             }
 
             composable(

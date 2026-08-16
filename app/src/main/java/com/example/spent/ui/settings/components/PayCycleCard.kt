@@ -1,7 +1,6 @@
 package com.example.spent.ui.settings.components
 
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -9,8 +8,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -23,7 +20,6 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -173,34 +169,6 @@ fun PayCycleCard(
                             style = MaterialTheme.typography.bodySmall,
                             fontWeight = FontWeight.SemiBold
                         )
-                        Spacer(modifier = Modifier.height(6.dp))
-
-                        if (selectedFrequency == "MONTHLY") {
-                            Text(
-                                text = stringResource(R.string.payday_monthly_day, paydayDayOfMonth),
-                                style = MaterialTheme.typography.bodyMedium,
-                                fontWeight = FontWeight.Medium,
-                                color = MaterialTheme.colorScheme.primary
-                            )
-                            Spacer(modifier = Modifier.height(6.dp))
-                            LazyRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                                items(listOf(1, 5, 10, 15, 20, 25, 28, 30, 31)) { dayNum ->
-                                    FilterChip(
-                                        selected = paydayDayOfMonth == dayNum,
-                                        onClick = {
-                                            val cal = Calendar.getInstance().apply {
-                                                timeInMillis = selectedStartDate
-                                                val maxD = getActualMaximum(Calendar.DAY_OF_MONTH)
-                                                set(Calendar.DAY_OF_MONTH, dayNum.coerceAtMost(maxD))
-                                            }
-                                            selectedStartDate = cal.timeInMillis
-                                        },
-                                        label = { Text("$dayNum") }
-                                    )
-                                }
-                            }
-                        }
-
                         Spacer(modifier = Modifier.height(6.dp))
 
                         Row(

@@ -39,6 +39,7 @@ class SpentRepositoryImpl(
     override val savingsGoalNameFlow: Flow<String> = preferencesRepository.savingsGoalNameFlow
     override val savingsGoalTotalFlow: Flow<Double> = preferencesRepository.savingsGoalTotalFlow
     override val savingsMonthlyContributionFlow: Flow<Double> = preferencesRepository.savingsMonthlyContributionFlow
+    override val lastDriveSyncTimestampFlow: Flow<Long> = preferencesRepository.lastDriveSyncTimestampFlow
 
     override suspend fun addTransaction(transaction: TransactionEntity) {
         dao.insertTransaction(transaction)
@@ -187,11 +188,47 @@ class SpentRepositoryImpl(
         preferencesRepository.clearSavingsGoal()
     }
 
+    override suspend fun setLastDriveSyncTimestamp(timestamp: Long) {
+        preferencesRepository.setLastDriveSyncTimestamp(timestamp)
+    }
+
+    override suspend fun restoreAllData(
+        categories: List<CategoryEntity>,
+        transactions: List<TransactionEntity>,
+        payCycle: PayCycleEntity?,
+        recurringRules: List<RecurringRuleEntity>,
+        userAccount: UserAccountEntity?
+    ) {
+        dao.deleteAllTransactions()
+        dao.deleteAllCategories()
+        dao.deleteAllRecurringRules()
+        dao.deleteAllPayCycles()
+
+        if (categories.isNotEmpty()) {
+            dao.insertCategories(categories)
+        }
+        if (transactions.isNotEmpty()) {
+            dao.insertTransactions(transactions)
+        }
+        if (recurringRules.isNotEmpty()) {
+            dao.insertRecurringRules(recurringRules)
+        }
+        if (payCycle != null) {
+            dao.insertPayCycle(payCycle)
+        }
+        if (userAccount != null) {
+            dao.insertOrUpdateUserAccount(userAccount)
+        }
+    }
+
     override suspend fun resetAllData() {
         dao.deleteAllTransactions()
         dao.deleteAllCategories()
+        dao.deleteAllRecurringRules()
+        dao.deleteAllPayCycles()
         preferencesRepository.clearSavingsGoal()
         preferencesRepository.setWalkthroughCompleted(false)
+        preferencesRepository.setLastDriveSyncTimestamp(0L)
         seedStarterDataIfEmpty()
     }
 }
