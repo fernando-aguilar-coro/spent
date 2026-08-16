@@ -281,10 +281,10 @@
 
     <!-- Onboarding Walkthrough -->
     <string name="onboarding_welcome_title">Bienvenido a Spent</string>
-    <string name="onboarding_welcome_desc">bienvenido , empieza a administrar tus finanzas de forma rapida y privada.</string>
+    <string name="onboarding_welcome_desc">Empieza a administrar tus finanzas de forma rápida y privada.</string>
     <string name="onboarding_btn_connect_drive">Restaurar datos de Google Drive</string>
     <string name="onboarding_btn_connect_drive_only">Conectar con Google Drive</string>
-    <string name="onboarding_btn_continue_no_account">Seguir adelante sin conectar una cuenta</string>
+    <string name="onboarding_btn_continue_no_account">Continuar sin conectar una cuenta</string>
     <string name="onboarding_profile_title">¿Qué tipo de perfil se adapta mejor a ti?</string>
     <string name="onboarding_profile_subtitle">Esto personaliza tu ciclo de presupuesto y flujo de dinero</string>
     <string name="onboarding_profile_unemployed">Desempleado</string>
@@ -302,16 +302,4 @@
     <string name="onboarding_btn_next">Continuar</string>
     <string name="frequency_biweekly">Quincenal (14 días)</string>
     <string name="frequency_semimonthly">Medio mes (15 días)</string>
-
-    <!-- Interactive Focus Tutorial -->
-    <string name="tutorial_step_header_title">Seguro para Gastar</string>
-    <string name="tutorial_step_header_desc">Tu presupuesto diario calculado dinámicamente para proteger tu dinero hasta el próximo cobro.</string>
-    <string name="tutorial_step_actions_title">Botones de Acción Rápida</string>
-    <string name="tutorial_step_actions_desc">Registra gastos e ingresos en menos de 3 segundos con un solo toque.</string>
-    <string name="tutorial_step_envelopes_title">Sobres de Categorías</string>
-    <string name="tutorial_step_envelopes_desc">Monitorea tus gastos en supermercado, transporte, servicios y más en tiempo real.</string>
-    <string name="tutorial_step_tools_title">Caja de Herramientas Financieras</string>
-    <string name="tutorial_step_tools_desc">Gestiona metas de ahorro, préstamos bancarios, facturas de servicios y exporta a Excel.</string>
-    <string name="tutorial_tap_to_skip">Toca en cualquier parte para continuar o saltar</string>
-    <string name="tutorial_btn_got_it">¡Entendido!</string>
 </resources>

@@ -49,6 +49,9 @@ fun OnboardingScreen(
     val googleSignInLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult()
     ) { result ->
+        if (result.resultCode != android.app.Activity.RESULT_OK) {
+            return@rememberLauncherForActivityResult
+        }
         val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
         try {
             val account = task.getResult(ApiException::class.java)
@@ -60,7 +63,8 @@ fun OnboardingScreen(
                             val json = downloadRes.getOrNull().orEmpty()
                             viewModel.onIntent(OnboardingUiIntent.RestoreFromDriveJson(json))
                         } else {
-                            viewModel.onIntent(OnboardingUiIntent.RestoreFromDriveJson(""))
+                            val err = downloadRes.exceptionOrNull()?.localizedMessage ?: "No backup file found in Google Drive"
+                            snackbarHostState.showSnackbar(err)
                         }
                     }
                 } else {
@@ -70,7 +74,9 @@ fun OnboardingScreen(
             }
         } catch (e: Exception) {
             e.printStackTrace()
-            viewModel.onIntent(OnboardingUiIntent.RestoreFromDriveJson(""))
+            coroutineScope.launch {
+                snackbarHostState.showSnackbar("Google Sign-In failed: ${e.localizedMessage ?: "Unknown error"}")
+            }
         }
     }
 

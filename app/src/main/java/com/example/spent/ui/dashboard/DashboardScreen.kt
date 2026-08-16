@@ -28,7 +28,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.spent.R
 import com.example.spent.data.local.entity.TransactionEntity
-import com.example.spent.ui.components.InteractiveTutorialOverlay
 import com.example.spent.ui.components.WalkthroughBanner
 import com.example.spent.ui.dashboard.components.CategoryEnvelopeRow
 import com.example.spent.ui.dashboard.components.DashboardHeaderCard
@@ -43,7 +42,6 @@ import com.example.spent.ui.dashboard.components.dialogs.TransactionDetailsDialo
 @Composable
 fun DashboardScreen(
     viewModel: DashboardViewModel,
-    showInitialTutorial: Boolean = false,
     onNavigateToAddTransaction: (type: String) -> Unit = {},
     onNavigateToSavingsTracker: () -> Unit = {},
     onNavigateToFixedBills: () -> Unit = {},
@@ -52,7 +50,6 @@ fun DashboardScreen(
     val state by viewModel.uiState.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
 
-    var showTutorialOverlay by remember { mutableStateOf(showInitialTutorial) }
     var selectedTransactionForDetails by remember { mutableStateOf<TransactionEntity?>(null) }
     var transactionToDelete by remember { mutableStateOf<TransactionEntity?>(null) }
 
@@ -233,10 +230,4 @@ fun DashboardScreen(
         )
     }
 
-    // Interactive Focus Mini-Tutorial Overlay
-    if (showTutorialOverlay) {
-        InteractiveTutorialOverlay(
-            onDismiss = { showTutorialOverlay = false }
-        )
-    }
 }

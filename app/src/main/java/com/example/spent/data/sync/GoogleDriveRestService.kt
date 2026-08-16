@@ -27,10 +27,6 @@ object GoogleDriveRestService {
             .requestEmail()
             .requestScopes(Scope(DriveScopes.DRIVE_FILE), Scope(DriveScopes.DRIVE_APPDATA))
 
-        if (GoogleDriveConfig.WEB_CLIENT_ID.isNotBlank()) {
-            builder.requestIdToken(GoogleDriveConfig.WEB_CLIENT_ID)
-        }
-
         return GoogleSignIn.getClient(context, builder.build())
     }
 
@@ -40,10 +36,10 @@ object GoogleDriveRestService {
 
     private fun getDriveService(context: Context, account: GoogleSignInAccount): Drive {
         val credential = com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential.usingOAuth2(
-            context,
+            context.applicationContext,
             listOf(DriveScopes.DRIVE_FILE, DriveScopes.DRIVE_APPDATA)
         )
-        credential.selectedAccount = account.account
+        credential.selectedAccount = account.account ?: account.email?.let { android.accounts.Account(it, "com.google") }
 
         return Drive.Builder(
             NetHttpTransport(),

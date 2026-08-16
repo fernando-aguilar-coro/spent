@@ -66,17 +66,10 @@ class OnboardingViewModel(
             setState { copy(isRestoring = true) }
             val downloadRes = GoogleDriveRestService.downloadBackupFromDrive(context, account)
             if (downloadRes.isSuccess) {
-                sendEffect(OnboardingUiEffect.ShowSnackbar("Backup found! Use 'Restore' to load your data."))
+                sendEffect(OnboardingUiEffect.ShowSnackbar("Backup found on Google Drive!"))
             } else {
-                val initialJson = DriveBackupManager.generateBackupJson(repository)
-                val uploadRes = GoogleDriveRestService.uploadBackupToDrive(context, account, initialJson)
-                if (uploadRes.isSuccess) {
-                    sendEffect(OnboardingUiEffect.ShowSnackbar("Connected! Initial backup created on Google Drive."))
-                } else {
-                    sendEffect(OnboardingUiEffect.ShowSnackbar("Connected, but failed to create initial backup."))
-                }
+                sendEffect(OnboardingUiEffect.ShowSnackbar("Google Account connected (${account.email})"))
             }
-            // Transition to profile selection after connect logic completes
             setState { 
                 copy(
                     isRestoring = false,
@@ -104,7 +97,7 @@ class OnboardingViewModel(
                     income = 0.0
                 )
                 repository.setPayCycle(payCycle)
-                // We DON'T set walkthrough completed here to ensure tutorial shows up correctly
+                repository.setWalkthroughCompleted(true)
                 setState { copy(isLoading = false) }
                 sendEffect(OnboardingUiEffect.NavigateToDashboard)
             }
@@ -123,7 +116,7 @@ class OnboardingViewModel(
                 income = parsedIncome
             )
             repository.setPayCycle(payCycle)
-            // We DON'T set walkthrough completed here to ensure tutorial shows up correctly
+            repository.setWalkthroughCompleted(true)
             setState { copy(isLoading = false) }
             sendEffect(OnboardingUiEffect.NavigateToDashboard)
         }

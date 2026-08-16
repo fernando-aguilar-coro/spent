@@ -48,7 +48,6 @@ fun SpentAppNavHost(
 
     val showBottomBar = currentRoute in listOf(
         Screen.Dashboard.route,
-        "dashboard_with_tutorial",
         Screen.Analytics.route,
         Screen.Settings.route
     )
@@ -86,7 +85,7 @@ fun SpentAppNavHost(
                 OnboardingScreen(
                     viewModel = onboardingViewModel,
                     onNavigateToDashboard = {
-                        navController.navigate("dashboard_with_tutorial") {
+                        navController.navigate(Screen.Dashboard.route) {
                             popUpTo(Screen.Onboarding.route) { inclusive = true }
                         }
                     }
@@ -104,34 +103,6 @@ fun SpentAppNavHost(
                 )
                 DashboardScreen(
                     viewModel = dashboardViewModel,
-                    showInitialTutorial = false,
-                    onNavigateToAddTransaction = { type ->
-                        navController.navigate(Screen.AddTransaction.createRoute(type))
-                    },
-                    onNavigateToSavingsTracker = {
-                        navController.navigate(Screen.SavingsTracker.route)
-                    },
-                    onNavigateToFixedBills = {
-                        navController.navigate(Screen.FixedBills.route)
-                    },
-                    onNavigateToLoansTracker = {
-                        navController.navigate(Screen.LoansTracker.route)
-                    }
-                )
-            }
-
-            composable("dashboard_with_tutorial") {
-                val dashboardViewModel: DashboardViewModel = viewModel(
-                    factory = object : ViewModelProvider.Factory {
-                        @Suppress("UNCHECKED_CAST")
-                        override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                            return DashboardViewModel(repository) as T
-                        }
-                    }
-                )
-                DashboardScreen(
-                    viewModel = dashboardViewModel,
-                    showInitialTutorial = true,
                     onNavigateToAddTransaction = { type ->
                         navController.navigate(Screen.AddTransaction.createRoute(type))
                     },

@@ -76,6 +76,9 @@ fun GoogleDriveSyncCard(
     val googleSignInLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult()
     ) { result ->
+        if (result.resultCode != android.app.Activity.RESULT_OK) {
+            return@rememberLauncherForActivityResult
+        }
         val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
         try {
             val account = task.getResult(ApiException::class.java)
@@ -83,7 +86,7 @@ fun GoogleDriveSyncCard(
             onSyncComplete("Google Account connected: ${account?.email}")
         } catch (e: Exception) {
             e.printStackTrace()
-            onSyncComplete("Sign in failed: ${e.localizedMessage}")
+            onSyncComplete("Sign in failed: ${e.localizedMessage ?: "Unknown error"}")
         }
     }
 

@@ -281,7 +281,7 @@
 
     <!-- Onboarding Walkthrough -->
     <string name="onboarding_welcome_title">Welcome to Spent</string>
-    <string name="onboarding_welcome_desc">Welcome, start managing your finances quickly and privately.</string>
+    <string name="onboarding_welcome_desc">Start managing your finances quickly and privately.</string>
     <string name="onboarding_btn_connect_drive">Restore Google Drive Data</string>
     <string name="onboarding_btn_connect_drive_only">Connect with Google Drive</string>
     <string name="onboarding_btn_continue_no_account">Continue without connecting an account</string>
@@ -302,16 +302,4 @@
     <string name="onboarding_btn_next">Continue</string>
     <string name="frequency_biweekly">Bi-weekly (14 days)</string>
     <string name="frequency_semimonthly">Semi-monthly (15 days)</string>
-
-    <!-- Interactive Focus Tutorial -->
-    <string name="tutorial_step_header_title">Safe to Spend Allowance</string>
-    <string name="tutorial_step_header_desc">Your daily budget dynamically calculated to protect your savings until the next payday.</string>
-    <string name="tutorial_step_actions_title">Fast Action Buttons</string>
-    <string name="tutorial_step_actions_desc">Log expenses and income in under 3 seconds with one tap.</string>
-    <string name="tutorial_step_envelopes_title">Category Envelopes</string>
-    <string name="tutorial_step_envelopes_desc">Track spending across groceries, transport, utilities, and more.</string>
-    <string name="tutorial_step_tools_title">Financial Toolbox</string>
-    <string name="tutorial_step_tools_desc">Manage savings goals, bank loans, utility bills, and export reports to Excel.</string>
-    <string name="tutorial_tap_to_skip">Tap anywhere to proceed or skip</string>
-    <string name="tutorial_btn_got_it">Got it!</string>
 </resources>

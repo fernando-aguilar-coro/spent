@@ -152,7 +152,7 @@ fun WelcomeStep(
                     onClick = onConnectDrive,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(64.dp),
+                        .height(54.dp),
                     shape = RoundedCornerShape(16.dp),
                     colors = ButtonDefaults.outlinedButtonColors(
                         contentColor = MaterialTheme.colorScheme.primary
@@ -161,14 +161,13 @@ fun WelcomeStep(
                     Icon(
                         imageVector = Icons.Default.Link,
                         contentDescription = null,
-                        modifier = Modifier.size(24.dp)
+                        modifier = Modifier.size(22.dp)
                     )
-                    Spacer(modifier = Modifier.width(12.dp))
+                    Spacer(modifier = Modifier.width(10.dp))
                     Text(
                         text = stringResource(R.string.onboarding_btn_connect_drive_only),
                         fontWeight = FontWeight.Bold,
-                        textAlign = TextAlign.Center,
-                        lineHeight = 18.sp
+                        textAlign = TextAlign.Center
                     )
                 }
 
@@ -179,7 +178,7 @@ fun WelcomeStep(
                     onClick = onRestoreDrive,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(64.dp),
+                        .height(54.dp),
                     shape = RoundedCornerShape(16.dp),
                     colors = ButtonDefaults.outlinedButtonColors(
                         contentColor = MaterialTheme.colorScheme.secondary
@@ -188,25 +187,24 @@ fun WelcomeStep(
                     Icon(
                         imageVector = Icons.Default.CloudDownload,
                         contentDescription = null,
-                        modifier = Modifier.size(24.dp)
+                        modifier = Modifier.size(22.dp)
                     )
-                    Spacer(modifier = Modifier.width(12.dp))
+                    Spacer(modifier = Modifier.width(10.dp))
                     Text(
                         text = stringResource(R.string.onboarding_btn_connect_drive),
                         fontWeight = FontWeight.Bold,
-                        textAlign = TextAlign.Center,
-                        lineHeight = 18.sp
+                        textAlign = TextAlign.Center
                     )
                 }
 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(14.dp))
 
                 // Button 3: Continue without connecting
                 Button(
                     onClick = onContinue,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(64.dp),
+                        .height(54.dp),
                     shape = RoundedCornerShape(16.dp),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = MaterialTheme.colorScheme.primary
@@ -215,13 +213,12 @@ fun WelcomeStep(
                     Text(
                         text = stringResource(R.string.onboarding_btn_continue_no_account),
                         fontWeight = FontWeight.ExtraBold,
-                        textAlign = TextAlign.Center,
-                        lineHeight = 18.sp
+                        textAlign = TextAlign.Center
                     )
                 }
             }
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(16.dp))
         }
     }
 }
