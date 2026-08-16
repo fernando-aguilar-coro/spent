@@ -3,6 +3,7 @@ package com.example.spent.ui.navigation
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -51,15 +52,18 @@ fun SpentAppNavHost(
         Screen.Settings.route
     )
 
-    if (isWalkthroughCompleted == null) {
-        // DataStore loading state
-        return
-    }
-
     val startDest = if (isWalkthroughCompleted == false) {
         Screen.Onboarding.route
     } else {
         Screen.Dashboard.route
+    }
+
+    LaunchedEffect(isWalkthroughCompleted) {
+        if (isWalkthroughCompleted == false && currentRoute != Screen.Onboarding.route) {
+            navController.navigate(Screen.Onboarding.route) {
+                popUpTo(Screen.Dashboard.route) { inclusive = true }
+            }
+        }
     }
 
     Scaffold(
