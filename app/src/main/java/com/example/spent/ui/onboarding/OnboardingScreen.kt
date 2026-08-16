@@ -18,7 +18,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import com.example.spent.data.sync.DriveBackupManager
@@ -41,6 +43,8 @@ fun OnboardingScreen(
     val snackbarHostState = remember { SnackbarHostState() }
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
+    
+    var isRestoreAction by remember { mutableStateOf(false) }
 
     val googleSignInLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult()
@@ -49,14 +53,19 @@ fun OnboardingScreen(
         try {
             val account = task.getResult(ApiException::class.java)
             if (account != null) {
-                coroutineScope.launch {
-                    val downloadRes = GoogleDriveRestService.downloadBackupFromDrive(context, account)
-                    if (downloadRes.isSuccess) {
-                        val json = downloadRes.getOrNull().orEmpty()
-                        viewModel.onIntent(OnboardingUiIntent.RestoreFromDriveJson(json))
-                    } else {
-                        viewModel.onIntent(OnboardingUiIntent.RestoreFromDriveJson(""))
+                if (isRestoreAction) {
+                    coroutineScope.launch {
+                        val downloadRes = GoogleDriveRestService.downloadBackupFromDrive(context, account)
+                        if (downloadRes.isSuccess) {
+                            val json = downloadRes.getOrNull().orEmpty()
+                            viewModel.onIntent(OnboardingUiIntent.RestoreFromDriveJson(json))
+                        } else {
+                            viewModel.onIntent(OnboardingUiIntent.RestoreFromDriveJson(""))
+                        }
                     }
+                } else {
+                    // Connect Only logic
+                    viewModel.handleConnectResult(context, account)
                 }
             }
         } catch (e: Exception) {
@@ -70,7 +79,13 @@ fun OnboardingScreen(
             when (effect) {
                 is OnboardingUiEffect.NavigateToDashboard -> onNavigateToDashboard()
                 is OnboardingUiEffect.ShowSnackbar -> snackbarHostState.showSnackbar(effect.message)
-                is OnboardingUiEffect.LaunchDriveFilePicker -> {
+                is OnboardingUiEffect.LaunchDriveSignInForRestore -> {
+                    isRestoreAction = true
+                    val signInClient = GoogleDriveRestService.getGoogleSignInClient(context)
+                    googleSignInLauncher.launch(signInClient.signInIntent)
+                }
+                is OnboardingUiEffect.LaunchDriveSignInForConnect -> {
+                    isRestoreAction = false
                     val signInClient = GoogleDriveRestService.getGoogleSignInClient(context)
                     googleSignInLauncher.launch(signInClient.signInIntent)
                 }
@@ -96,8 +111,10 @@ fun OnboardingScreen(
                     OnboardingStep.WELCOME -> WelcomeStep(
                         isRestoring = state.isRestoring,
                         onConnectDrive = {
-                            val signInClient = GoogleDriveRestService.getGoogleSignInClient(context)
-                            googleSignInLauncher.launch(signInClient.signInIntent)
+                            viewModel.onIntent(OnboardingUiIntent.ConnectDriveOnly)
+                        },
+                        onRestoreDrive = {
+                            viewModel.onIntent(OnboardingUiIntent.RestoreFromDrive)
                         },
                         onContinue = {
                             viewModel.onIntent(OnboardingUiIntent.ProceedFromWelcome)

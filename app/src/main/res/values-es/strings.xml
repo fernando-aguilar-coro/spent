@@ -282,7 +282,8 @@
     <!-- Onboarding Walkthrough -->
     <string name="onboarding_welcome_title">Bienvenido a Spent</string>
     <string name="onboarding_welcome_desc">bienvenido , empieza a administrar tus finanzas de forma rapida y privada.</string>
-    <string name="onboarding_btn_connect_drive">Conectar / Restaurar de Google Drive</string>
+    <string name="onboarding_btn_connect_drive">Restaurar datos de Google Drive</string>
+    <string name="onboarding_btn_connect_drive_only">Conectar con Google Drive</string>
     <string name="onboarding_btn_continue_no_account">Seguir adelante sin conectar una cuenta</string>
     <string name="onboarding_profile_title">¿Qué tipo de perfil se adapta mejor a ti?</string>
     <string name="onboarding_profile_subtitle">Esto personaliza tu ciclo de presupuesto y flujo de dinero</string>

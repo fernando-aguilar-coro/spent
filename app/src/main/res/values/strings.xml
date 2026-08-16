@@ -282,7 +282,8 @@
     <!-- Onboarding Walkthrough -->
     <string name="onboarding_welcome_title">Welcome to Spent</string>
     <string name="onboarding_welcome_desc">Welcome, start managing your finances quickly and privately.</string>
-    <string name="onboarding_btn_connect_drive">Connect / Restore from Google Drive</string>
+    <string name="onboarding_btn_connect_drive">Restore Google Drive Data</string>
+    <string name="onboarding_btn_connect_drive_only">Connect with Google Drive</string>
     <string name="onboarding_btn_continue_no_account">Continue without connecting an account</string>
     <string name="onboarding_profile_title">What type of profile fits you best?</string>
     <string name="onboarding_profile_subtitle">This helps customize your budgeting cycle and cash flow</string>

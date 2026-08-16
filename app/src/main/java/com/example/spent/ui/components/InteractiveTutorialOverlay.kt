@@ -9,6 +9,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -25,7 +26,6 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountBalanceWallet
@@ -33,7 +33,6 @@ import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.ArrowDownward
 import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.Category
-import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
@@ -49,24 +48,26 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.spent.R
-import kotlin.math.roundToInt
 
 private data class TutorialStep(
     val titleRes: Int,
     val descRes: Int,
     val icon: ImageVector,
     val focusLabel: String,
-    val positionRatioY: Float // 0.0 top, 1.0 bottom
+    val positionRatioY: Float,
+    val spotlightSize: Size
 )
 
 @Composable
@@ -80,41 +81,45 @@ fun InteractiveTutorialOverlay(
                 descRes = R.string.tutorial_step_header_desc,
                 icon = Icons.Default.AccountBalanceWallet,
                 focusLabel = "Safe-to-Spend & Balance",
-                positionRatioY = 0.20f
+                positionRatioY = 0.22f,
+                spotlightSize = Size(900f, 480f)
             ),
             TutorialStep(
                 titleRes = R.string.tutorial_step_actions_title,
                 descRes = R.string.tutorial_step_actions_desc,
                 icon = Icons.Default.AddCircle,
                 focusLabel = "Quick Action Buttons",
-                positionRatioY = 0.42f
+                positionRatioY = 0.44f,
+                spotlightSize = Size(900f, 220f)
             ),
             TutorialStep(
                 titleRes = R.string.tutorial_step_envelopes_title,
                 descRes = R.string.tutorial_step_envelopes_desc,
                 icon = Icons.Default.Category,
                 focusLabel = "Category Envelopes",
-                positionRatioY = 0.58f
+                positionRatioY = 0.58f,
+                spotlightSize = Size(900f, 280f)
             ),
             TutorialStep(
                 titleRes = R.string.tutorial_step_tools_title,
                 descRes = R.string.tutorial_step_tools_desc,
                 icon = Icons.Default.Build,
-                focusLabel = "Financial Toolbox & Excel",
-                positionRatioY = 0.76f
+                focusLabel = "Financial Toolbox",
+                positionRatioY = 0.78f,
+                spotlightSize = Size(900f, 420f)
             )
         )
     }
 
     var currentStepIndex by remember { mutableIntStateOf(0) }
+    val step = steps[currentStepIndex]
 
-    // Floating bounce animation for pointing arrow
     val infiniteTransition = rememberInfiniteTransition(label = "arrow_bounce")
     val arrowOffsetAnim by infiniteTransition.animateFloat(
-        initialValue = -6f,
-        targetValue = 6f,
+        initialValue = -10f,
+        targetValue = 10f,
         animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 650),
+            animation = tween(durationMillis = 600),
             repeatMode = RepeatMode.Reverse
         ),
         label = "arrow_offset"
@@ -128,33 +133,44 @@ fun InteractiveTutorialOverlay(
         }
     }
 
-    val step = steps[currentStepIndex]
-
-    // Tap anywhere on the full-screen overlay to advance or dismiss
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.Black.copy(alpha = 0.82f))
+            .graphicsLayer(alpha = 0.99f)
             .clickable(
                 interactionSource = remember { MutableInteractionSource() },
                 indication = null
-            ) {
-                handleNextOrDismiss()
-            }
-            .padding(24.dp)
+            ) { handleNextOrDismiss() }
     ) {
+        // Spotlight Effect using BlendMode.Clear
+        Canvas(modifier = Modifier.fillMaxSize()) {
+            drawRect(color = Color.Black.copy(alpha = 0.8f))
+            
+            val spotlightCenter = Offset(size.width / 2, size.height * step.positionRatioY)
+            
+            drawRoundRect(
+                color = Color.Transparent,
+                topLeft = Offset(
+                    spotlightCenter.x - step.spotlightSize.width / 2,
+                    spotlightCenter.y - step.spotlightSize.height / 2
+                ),
+                size = step.spotlightSize,
+                cornerRadius = androidx.compose.ui.geometry.CornerRadius(28.dp.toPx()),
+                blendMode = BlendMode.Clear
+            )
+        }
+
         Column(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(24.dp),
             verticalArrangement = Arrangement.SpaceBetween,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Top Step Progress Indicator
+            // Progress indicators
             Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 28.dp),
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically
+                modifier = Modifier.padding(top = 32.dp),
+                horizontalArrangement = Arrangement.Center
             ) {
                 steps.forEachIndexed { idx, _ ->
                     Box(
@@ -164,161 +180,125 @@ fun InteractiveTutorialOverlay(
                             .width(if (idx == currentStepIndex) 32.dp else 12.dp)
                             .clip(RoundedCornerShape(3.dp))
                             .background(
-                                if (idx <= currentStepIndex)
-                                    MaterialTheme.colorScheme.primary
-                                else
-                                    Color.White.copy(alpha = 0.3f)
+                                if (idx <= currentStepIndex) MaterialTheme.colorScheme.primary 
+                                else Color.White.copy(alpha = 0.3f)
                             )
                     )
                 }
             }
 
-            // Animated Spotlight & Tooltip Content
+            // Info Card
             AnimatedContent(
                 targetState = step,
-                transitionSpec = { fadeIn(tween(250)) togetherWith fadeOut(tween(200)) },
-                label = "tutorial_step_content"
+                transitionSpec = { fadeIn() togetherWith fadeOut() },
+                label = "step_content",
+                modifier = Modifier.weight(1f)
             ) { targetStep ->
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 16.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    // Pulsing Arrow Indicator pointing to focus area
-                    Box(
+                Box(modifier = Modifier.fillMaxSize()) {
+                    val isTop = targetStep.positionRatioY < 0.5f
+                    val alignment = if (isTop) Alignment.BottomCenter else Alignment.TopCenter
+                    val verticalOffset = if (isTop) (-60).dp else 60.dp
+
+                    Column(
                         modifier = Modifier
-                            .offset { IntOffset(0, arrowOffsetAnim.roundToInt()) }
-                            .size(48.dp)
-                            .clip(CircleShape)
-                            .background(
-                                Brush.linearGradient(
-                                    colors = listOf(
-                                        MaterialTheme.colorScheme.primary,
-                                        MaterialTheme.colorScheme.tertiary
-                                    )
-                                )
-                            ),
-                        contentAlignment = Alignment.Center
+                            .align(alignment)
+                            .offset(y = verticalOffset)
+                            .fillMaxWidth(),
+                        horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        Icon(
-                            imageVector = Icons.Default.ArrowDownward,
-                            contentDescription = "Pointer",
-                            tint = Color.White,
-                            modifier = Modifier.size(28.dp)
-                        )
-                    }
-
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    // Spotlight Tooltip Card
-                    Surface(
-                        shape = RoundedCornerShape(24.dp),
-                        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.95f),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .shadow(16.dp, RoundedCornerShape(24.dp))
-                            .border(
-                                width = 1.5.dp,
-                                brush = Brush.linearGradient(
-                                    listOf(
-                                        MaterialTheme.colorScheme.primary,
-                                        MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)
-                                    )
-                                ),
-                                shape = RoundedCornerShape(24.dp)
+                        if (!isTop) {
+                            Icon(
+                                imageVector = Icons.Default.ArrowDownward,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier
+                                    .size(44.dp)
+                                    .graphicsLayer(rotationZ = 180f)
+                                    .offset(y = arrowOffsetAnim.dp)
                             )
-                    ) {
-                        Column(
-                            modifier = Modifier.padding(20.dp),
-                            horizontalAlignment = Alignment.CenterHorizontally
+                            Spacer(modifier = Modifier.height(12.dp))
+                        }
+
+                        Surface(
+                            shape = RoundedCornerShape(24.dp),
+                            color = MaterialTheme.colorScheme.surface,
+                            tonalElevation = 8.dp,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .shadow(16.dp, RoundedCornerShape(24.dp))
+                                .border(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.2f), RoundedCornerShape(24.dp))
                         ) {
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.Center
+                            Column(
+                                modifier = Modifier.padding(24.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally
                             ) {
-                                Icon(
-                                    imageVector = targetStep.icon,
-                                    contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.primary,
-                                    modifier = Modifier.size(24.dp)
-                                )
-                                Spacer(modifier = Modifier.width(8.dp))
-                                Text(
-                                    text = targetStep.focusLabel,
-                                    style = MaterialTheme.typography.labelMedium,
-                                    color = MaterialTheme.colorScheme.primary,
-                                    fontWeight = FontWeight.Bold,
-                                    letterSpacing = 1.sp
-                                )
-                            }
-
-                            Spacer(modifier = Modifier.height(8.dp))
-
-                            Text(
-                                text = stringResource(targetStep.titleRes),
-                                style = MaterialTheme.typography.titleLarge,
-                                fontWeight = FontWeight.Bold,
-                                textAlign = TextAlign.Center,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-
-                            Spacer(modifier = Modifier.height(8.dp))
-
-                            Text(
-                                text = stringResource(targetStep.descRes),
-                                style = MaterialTheme.typography.bodyMedium,
-                                textAlign = TextAlign.Center,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.85f),
-                                lineHeight = 20.sp
-                            )
-
-                            Spacer(modifier = Modifier.height(16.dp))
-
-                            Button(
-                                onClick = { handleNextOrDismiss() },
-                                shape = RoundedCornerShape(12.dp),
-                                colors = ButtonDefaults.buttonColors(
-                                    containerColor = MaterialTheme.colorScheme.primary
-                                ),
-                                modifier = Modifier.fillMaxWidth(0.7f)
-                            ) {
-                                val isLast = currentStepIndex == steps.size - 1
-                                if (isLast) {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
                                     Icon(
-                                        imageVector = Icons.Default.Check,
+                                        imageVector = targetStep.icon,
                                         contentDescription = null,
-                                        modifier = Modifier.size(18.dp)
+                                        tint = MaterialTheme.colorScheme.primary,
+                                        modifier = Modifier.size(24.dp)
                                     )
-                                    Spacer(modifier = Modifier.width(6.dp))
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Text(
+                                        text = targetStep.focusLabel,
+                                        style = MaterialTheme.typography.labelMedium,
+                                        color = MaterialTheme.colorScheme.primary,
+                                        fontWeight = FontWeight.Bold
+                                    )
                                 }
+                                Spacer(modifier = Modifier.height(12.dp))
                                 Text(
-                                    text = if (isLast)
-                                        stringResource(R.string.tutorial_btn_got_it)
-                                    else
-                                        stringResource(R.string.btn_next),
-                                    fontWeight = FontWeight.Bold
+                                    text = stringResource(targetStep.titleRes),
+                                    style = MaterialTheme.typography.titleLarge,
+                                    fontWeight = FontWeight.ExtraBold,
+                                    textAlign = TextAlign.Center
                                 )
+                                Spacer(modifier = Modifier.height(8.dp))
+                                Text(
+                                    text = stringResource(targetStep.descRes),
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    textAlign = TextAlign.Center,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    lineHeight = 22.sp
+                                )
+                                Spacer(modifier = Modifier.height(24.dp))
+                                Button(
+                                    onClick = { handleNextOrDismiss() },
+                                    modifier = Modifier.fillMaxWidth(0.7f),
+                                    shape = RoundedCornerShape(14.dp),
+                                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+                                ) {
+                                    Text(
+                                        text = if (currentStepIndex == steps.size - 1) stringResource(R.string.tutorial_btn_got_it) 
+                                               else stringResource(R.string.btn_next),
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                }
                             }
+                        }
+
+                        if (isTop) {
+                            Spacer(modifier = Modifier.height(12.dp))
+                            Icon(
+                                imageVector = Icons.Default.ArrowDownward,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier
+                                    .size(44.dp)
+                                    .offset(y = arrowOffsetAnim.dp)
+                            )
                         }
                     }
                 }
             }
 
-            // Bottom Tap to Skip Prompt
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 24.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text(
-                    text = stringResource(R.string.tutorial_tap_to_skip),
-                    style = MaterialTheme.typography.labelMedium,
-                    color = Color.White.copy(alpha = 0.65f),
-                    textAlign = TextAlign.Center
-                )
-            }
+            Text(
+                text = stringResource(R.string.tutorial_tap_to_skip),
+                style = MaterialTheme.typography.labelSmall,
+                color = Color.White.copy(alpha = 0.5f),
+                modifier = Modifier.padding(bottom = 16.dp)
+            )
         }
     }
 }

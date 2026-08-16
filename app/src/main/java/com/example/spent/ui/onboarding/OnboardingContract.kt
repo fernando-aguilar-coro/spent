@@ -28,11 +28,18 @@ sealed class OnboardingUiIntent : UiIntent {
     data class SelectStartDate(val timestamp: Long) : OnboardingUiIntent()
     data class UpdateSalaryText(val salary: String) : OnboardingUiIntent()
     object CompleteSetup : OnboardingUiIntent()
+    
+    // Drive intents
+    object ConnectDriveOnly : OnboardingUiIntent()
+    object RestoreFromDrive : OnboardingUiIntent()
+    
     data class RestoreFromDriveJson(val jsonString: String) : OnboardingUiIntent()
+    data class ConnectAndCheckBackup(val accountEmail: String) : OnboardingUiIntent()
 }
 
 sealed class OnboardingUiEffect : UiEffect {
     object NavigateToDashboard : OnboardingUiEffect()
     data class ShowSnackbar(val message: String) : OnboardingUiEffect()
-    object LaunchDriveFilePicker : OnboardingUiEffect()
+    object LaunchDriveSignInForRestore : OnboardingUiEffect()
+    object LaunchDriveSignInForConnect : OnboardingUiEffect()
 }

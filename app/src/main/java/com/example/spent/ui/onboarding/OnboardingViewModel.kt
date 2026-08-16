@@ -2,9 +2,9 @@ package com.example.spent.ui.onboarding
 
 import androidx.lifecycle.viewModelScope
 import com.example.spent.data.local.entity.PayCycleEntity
-import com.example.spent.data.local.entity.UserAccountEntity
 import com.example.spent.data.repository.SpentRepository
 import com.example.spent.data.sync.DriveBackupManager
+import com.example.spent.data.sync.GoogleDriveRestService
 import com.example.spent.ui.mvi.BaseViewModel
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
@@ -46,8 +46,42 @@ class OnboardingViewModel(
             is OnboardingUiIntent.CompleteSetup -> {
                 finishEmployedSetup()
             }
+            is OnboardingUiIntent.ConnectDriveOnly -> {
+                sendEffect(OnboardingUiEffect.LaunchDriveSignInForConnect)
+            }
+            is OnboardingUiIntent.RestoreFromDrive -> {
+                sendEffect(OnboardingUiEffect.LaunchDriveSignInForRestore)
+            }
             is OnboardingUiIntent.RestoreFromDriveJson -> {
                 restoreFromDrive(intent.jsonString)
+            }
+            is OnboardingUiIntent.ConnectAndCheckBackup -> {
+                // UI handles account, then calls handleConnectResult
+            }
+        }
+    }
+
+    fun handleConnectResult(context: android.content.Context, account: com.google.android.gms.auth.api.signin.GoogleSignInAccount) {
+        viewModelScope.launch {
+            setState { copy(isRestoring = true) }
+            val downloadRes = GoogleDriveRestService.downloadBackupFromDrive(context, account)
+            if (downloadRes.isSuccess) {
+                sendEffect(OnboardingUiEffect.ShowSnackbar("Backup found! Use 'Restore' to load your data."))
+            } else {
+                val initialJson = DriveBackupManager.generateBackupJson(repository)
+                val uploadRes = GoogleDriveRestService.uploadBackupToDrive(context, account, initialJson)
+                if (uploadRes.isSuccess) {
+                    sendEffect(OnboardingUiEffect.ShowSnackbar("Connected! Initial backup created on Google Drive."))
+                } else {
+                    sendEffect(OnboardingUiEffect.ShowSnackbar("Connected, but failed to create initial backup."))
+                }
+            }
+            // Transition to profile selection after connect logic completes
+            setState { 
+                copy(
+                    isRestoring = false,
+                    currentStep = OnboardingStep.PROFILE_SELECTION 
+                )
             }
         }
     }
@@ -61,14 +95,8 @@ class OnboardingViewModel(
                 )
             }
         } else {
-            // UNEMPLOYED or FREELANCER: Set flexible cycle and complete onboarding immediately
             viewModelScope.launch {
                 setState { copy(isLoading = true) }
-                val userAccount = UserAccountEntity(
-                    id = "primary_account",
-                    displayName = if (role == "FREELANCER") "Freelancer" else "User",
-                    role = role
-                )
                 val payCycle = PayCycleEntity(
                     id = "default_cycle",
                     frequency = "NONE",
@@ -76,7 +104,7 @@ class OnboardingViewModel(
                     income = 0.0
                 )
                 repository.setPayCycle(payCycle)
-                repository.setWalkthroughCompleted(true)
+                // We DON'T set walkthrough completed here to ensure tutorial shows up correctly
                 setState { copy(isLoading = false) }
                 sendEffect(OnboardingUiEffect.NavigateToDashboard)
             }
@@ -95,7 +123,7 @@ class OnboardingViewModel(
                 income = parsedIncome
             )
             repository.setPayCycle(payCycle)
-            repository.setWalkthroughCompleted(true)
+            // We DON'T set walkthrough completed here to ensure tutorial shows up correctly
             setState { copy(isLoading = false) }
             sendEffect(OnboardingUiEffect.NavigateToDashboard)
         }
@@ -103,11 +131,16 @@ class OnboardingViewModel(
 
     private fun restoreFromDrive(jsonString: String) {
         viewModelScope.launch {
+            if (jsonString.isBlank()) {
+                sendEffect(OnboardingUiEffect.ShowSnackbar("No backup file found in Google Drive"))
+                return@launch
+            }
             setState { copy(isRestoring = true) }
             val result = DriveBackupManager.restoreFromJson(jsonString, repository)
             setState { copy(isRestoring = false) }
             if (result.isSuccess) {
                 sendEffect(OnboardingUiEffect.ShowSnackbar("Data restored from Google Drive successfully"))
+                // Restoration includes walkthrough completion state from backup usually
                 sendEffect(OnboardingUiEffect.NavigateToDashboard)
             } else {
                 val errorMsg = result.exceptionOrNull()?.localizedMessage ?: "Failed to restore backup"
