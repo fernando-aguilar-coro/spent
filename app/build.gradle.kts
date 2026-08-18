@@ -1,5 +1,7 @@
-import java.io.File
 import java.io.FileInputStream
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 import java.util.Properties
 
 plugins {
@@ -11,6 +13,7 @@ plugins {
 
 val keystorePropertiesFile = rootProject.file("keystore.properties")
 val keystoreProperties = Properties()
+
 if (keystorePropertiesFile.exists()) {
     keystoreProperties.load(FileInputStream(keystorePropertiesFile))
 }
@@ -19,12 +22,26 @@ android {
     namespace = "com.app.spent"
     compileSdk = 35
 
+    val calculatedVersionCode: Int = run {
+        (project.findProperty("versionCode") as? String)?.toIntOrNull()
+            ?: System.getenv("VERSION_CODE")?.toIntOrNull()
+            ?: (System.currentTimeMillis() / 1000).toInt()
+    }
+    val calculatedVersionName: String = run {
+        (project.findProperty("versionName") as? String)
+            ?: System.getenv("VERSION_NAME")
+            ?: run {
+                val buildDate = SimpleDateFormat("yy.MM.dd", Locale.US).format(Date())
+                "1.0.$buildDate"
+            }
+    }
+
     defaultConfig {
         applicationId = "com.app.spent"
         minSdk = 24
         targetSdk = 35
-        versionCode = (System.getenv("GITHUB_RUN_NUMBER")?.toIntOrNull() ?: 1)
-        versionName = "1.0.${System.getenv("GITHUB_RUN_NUMBER") ?: "0"}"
+        versionCode = calculatedVersionCode
+        versionName = calculatedVersionName
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -41,8 +58,10 @@ android {
             if (releaseKeyFile.exists()) {
                 storeFile = releaseKeyFile
                 storePassword = envStorePass ?: keystoreProperties.getProperty("storePassword")
-                keyAlias = envKeyAlias ?: keystoreProperties.getProperty("keyAlias") ?: "spent-release-key"
-                keyPassword = envKeyPass ?: keystoreProperties.getProperty("keyPassword") ?: storePassword
+                keyAlias =
+                    envKeyAlias ?: keystoreProperties.getProperty("keyAlias") ?: "spent-release-key"
+                keyPassword =
+                    envKeyPass ?: keystoreProperties.getProperty("keyPassword") ?: storePassword
             }
         }
     }
@@ -50,18 +69,21 @@ android {
     buildTypes {
         release {
             isMinifyEnabled = false
-            
+
             val releaseSigning = signingConfigs.getByName("release")
-            // Verificación: si el archivo existe y tenemos contraseña, firmamos. Si no, fallback a debug.
-            signingConfig = if (releaseSigning.storeFile?.exists() == true && !releaseSigning.storePassword.isNullOrBlank()) {
-                releaseSigning
-            } else {
-                signingConfigs.getByName("debug")
-            }
-            
+            // Verificación: si el archivo existe y tenemos contraseña, firmamos. Si no, fallback a
+            // debug.
+            signingConfig =
+                if (
+                    releaseSigning.storeFile?.exists() == true &&
+                        !releaseSigning.storePassword.isNullOrBlank()
+                ) {
+                    releaseSigning
+                }
+
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
+                "proguard-rules.pro",
             )
         }
     }
