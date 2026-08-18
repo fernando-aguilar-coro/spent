@@ -10,6 +10,12 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      GITHUB_RUN_NUMBER: ${{ github.run_number }}
+      KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+      KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+      KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+      KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
 
     steps:
     - name: Checkout code
@@ -41,25 +47,19 @@ jobs:
         path: app/build/outputs/apk/debug/*.apk
         if-no-files-found: error
 
-    # 2. Decode Release Keystore from GitHub Secrets
+    # 2. Decode Release Keystore from Job Environment
     - name: Decode Release Keystore
-      env:
-        KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
       run: |
         if [ -z "$KEYSTORE_BASE64" ]; then
           echo "ERROR: KEYSTORE_BASE64 secret is not set in Repository Secrets!"
           exit 1
         fi
         echo "$KEYSTORE_BASE64" | base64 -d > release-keystore.jks
-        echo "Keystore file created. Size:"
+        echo "Keystore file created successfully. Size:"
         ls -lh release-keystore.jks
 
     # 3. Build Signed Release App Bundle (.aab)
     - name: Build Release App Bundle (.aab)
-      env:
-        KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
-        KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
-        KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
       run: ./gradlew :app:bundleRelease --stacktrace
 
     # 4. Upload Release App Bundle (.aab)
