@@ -46,26 +46,16 @@ jobs:
       env:
         KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
       run: |
-        if [ -n "$KEYSTORE_BASE64" ]; then
-          echo "$KEYSTORE_BASE64" | base64 --decode > /tmp/release-keystore.jks
-        else
-          echo "KEYSTORE_BASE64 secret is not set, skipping release signing."
-        fi
+        echo "$KEYSTORE_BASE64" | base64 --decode > /tmp/release-keystore.jks
 
     # 3. Build Signed Release App Bundle (.aab)
     - name: Build Release App Bundle (.aab)
       env:
-        KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
         KEYSTORE_FILE_PATH: /tmp/release-keystore.jks
         KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
         KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
         KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
-      run: |
-        if [ -f /tmp/release-keystore.jks ]; then
-          ./gradlew :app:bundleRelease
-        else
-          echo "No keystore found, skipping bundleRelease."
-        fi
+      run: ./gradlew :app:bundleRelease
 
     # 4. Upload Release App Bundle (.aab)
     - name: Upload Release App Bundle (.aab)
@@ -73,4 +63,4 @@ jobs:
       with:
         name: spent-release-bundle
         path: app/build/outputs/bundle/release/*.aab
-        if-no-files-found: warn
+        if-no-files-found: error
