@@ -10,6 +10,11 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+      KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+      KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+      KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
 
     steps:
     - name: Checkout code
@@ -41,29 +46,22 @@ jobs:
         path: app/build/outputs/apk/debug/*.apk
         if-no-files-found: error
 
-    # 2. Decode Release Keystore from GitHub Secrets (if provided)
+    # 2. Decode Release Keystore from GitHub Secrets
     - name: Decode Release Keystore
-      if: ${{ env.KEYSTORE_BASE64 != '' }}
-      env:
-        KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+      if: ${{ secrets.KEYSTORE_BASE64 != '' }}
       run: |
         echo "$KEYSTORE_BASE64" | base64 --decode > /tmp/release-keystore.jks
 
     # 3. Build Signed Release App Bundle (.aab)
     - name: Build Release App Bundle (.aab)
-      if: ${{ env.KEYSTORE_BASE64 != '' }}
+      if: ${{ secrets.KEYSTORE_BASE64 != '' }}
       env:
-        KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
         KEYSTORE_FILE_PATH: /tmp/release-keystore.jks
-        KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
-        KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
-        KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
       run: ./gradlew :app:bundleRelease
 
+    # 4. Upload Release App Bundle (.aab)
     - name: Upload Release App Bundle (.aab)
-      if: ${{ env.KEYSTORE_BASE64 != '' }}
-      env:
-        KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+      if: ${{ secrets.KEYSTORE_BASE64 != '' }}
       uses: actions/upload-artifact@v4
       with:
         name: spent-release-bundle
