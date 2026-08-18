@@ -20,7 +20,7 @@ class SpentApplication : Application() {
         super.onCreate()
         val database = SpentDatabase.getInstance(this)
         val preferencesRepository = UserPreferencesRepository(this)
-        repository = SpentRepositoryImpl(database.spentDao(), preferencesRepository)
+        repository = SpentRepositoryImpl(this, database.spentDao(), preferencesRepository)
 
         scheduleRecurringTransactionsWorker()
     }

@@ -11,7 +11,7 @@ val ownerProfileId: String = "primary_account",
 val name: String,
 val iconName: String,
 val colorHex: String,
-val budgetAmount: Double,
+val budgetAmount: Double = 0.0,
 val displayOrder: Int = 0,
 val isParentalLocked: Boolean = false
 )
