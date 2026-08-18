@@ -70,16 +70,7 @@ android {
         release {
             isMinifyEnabled = false
 
-            val releaseSigning = signingConfigs.getByName("release")
-            // Verificación: si el archivo existe y tenemos contraseña, firmamos. Si no, fallback a
-            // debug.
-            signingConfig =
-                if (
-                    releaseSigning.storeFile?.exists() == true &&
-                        !releaseSigning.storePassword.isNullOrBlank()
-                ) {
-                    releaseSigning
-                }
+            signingConfig = signingConfigs.getByName("release")
 
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
