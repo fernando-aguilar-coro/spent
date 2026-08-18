@@ -1,3 +1,4 @@
+import java.io.File
 import java.io.FileInputStream
 import java.util.Properties
 
@@ -30,13 +31,30 @@ android {
 
     signingConfigs {
         create("release") {
+            val envKeystorePath = System.getenv("KEYSTORE_FILE_PATH")
+            val envStorePass = System.getenv("KEYSTORE_PASSWORD")
+            val envKeyAlias = System.getenv("KEY_ALIAS")
+            val envKeyPass = System.getenv("KEY_PASSWORD")
+
             if (keystorePropertiesFile.exists()) {
                 val propStoreFile = keystoreProperties.getProperty("storeFile") ?: "release-keystore.jks"
-                val resolvedFile = rootProject.file(propStoreFile.removePrefix("../"))
-                storeFile = if (resolvedFile.exists()) resolvedFile else rootProject.file(propStoreFile)
+                storeFile = rootProject.file(propStoreFile.removePrefix("../"))
                 storePassword = keystoreProperties.getProperty("storePassword")
                 keyAlias = keystoreProperties.getProperty("keyAlias")
                 keyPassword = keystoreProperties.getProperty("keyPassword")
+            } else {
+                val targetFile = if (!envKeystorePath.isNullOrEmpty()) {
+                    File(envKeystorePath)
+                } else {
+                    rootProject.file("release-keystore.jks")
+                }
+
+                if (targetFile.exists() && !envStorePass.isNullOrEmpty()) {
+                    storeFile = targetFile
+                    storePassword = envStorePass
+                    keyAlias = envKeyAlias ?: "spent-release-key"
+                    keyPassword = envKeyPass ?: envStorePass
+                }
             }
         }
     }
