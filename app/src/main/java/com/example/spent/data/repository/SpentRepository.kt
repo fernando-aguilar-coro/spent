@@ -28,11 +28,20 @@ interface SpentRepository {
   val isDriveConnectedFlow: Flow<Boolean>
   val driveAccountEmailFlow: Flow<String?>
   val isSyncingDriveFlow: Flow<Boolean>
+  val partnerDriveFileIdFlow: Flow<String?>
+  val partnerNameFlow: Flow<String?>
+  val partnerEmailFlow: Flow<String?>
+  val partnerLastSyncTimestampFlow: Flow<Long>
+  val isPartnerPairedFlow: Flow<Boolean>
 
   suspend fun connectGoogleDrive(account: com.google.android.gms.auth.api.signin.GoogleSignInAccount): com.app.spent.data.sync.DriveConnectResult
   suspend fun disconnectGoogleDrive()
   suspend fun syncToGoogleDrive(): Result<Boolean>
   fun triggerAutoSync()
+
+  suspend fun savePartnerInfo(fileId: String, name: String, email: String?)
+  suspend fun setPartnerLastSyncTimestamp(timestamp: Long)
+  suspend fun clearPartnerInfo()
 
   suspend fun addTransaction(transaction: TransactionEntity)
   suspend fun deleteTransaction(transaction: TransactionEntity)

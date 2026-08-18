@@ -25,6 +25,31 @@ class UserPreferencesRepository(private val context: Context) {
     val LAST_DRIVE_SYNC_TIMESTAMP = androidx.datastore.preferences.core.longPreferencesKey("last_drive_sync_timestamp")
     val IS_DRIVE_CONNECTED = booleanPreferencesKey("is_drive_connected")
     val DRIVE_ACCOUNT_EMAIL = stringPreferencesKey("drive_account_email")
+    val PARTNER_DRIVE_FILE_ID = stringPreferencesKey("partner_drive_file_id")
+    val PARTNER_NAME = stringPreferencesKey("partner_name")
+    val PARTNER_EMAIL = stringPreferencesKey("partner_email")
+    val PARTNER_LAST_SYNC_TIMESTAMP = androidx.datastore.preferences.core.longPreferencesKey("partner_last_sync_timestamp")
+    val IS_PARTNER_PAIRED = booleanPreferencesKey("is_partner_paired")
+  }
+
+  val partnerDriveFileIdFlow: Flow<String?> = context.dataStore.data.map { preferences ->
+    preferences[PreferencesKeys.PARTNER_DRIVE_FILE_ID]
+  }
+
+  val partnerNameFlow: Flow<String?> = context.dataStore.data.map { preferences ->
+    preferences[PreferencesKeys.PARTNER_NAME]
+  }
+
+  val partnerEmailFlow: Flow<String?> = context.dataStore.data.map { preferences ->
+    preferences[PreferencesKeys.PARTNER_EMAIL]
+  }
+
+  val partnerLastSyncTimestampFlow: Flow<Long> = context.dataStore.data.map { preferences ->
+    preferences[PreferencesKeys.PARTNER_LAST_SYNC_TIMESTAMP] ?: 0L
+  }
+
+  val isPartnerPairedFlow: Flow<Boolean> = context.dataStore.data.map { preferences ->
+    preferences[PreferencesKeys.IS_PARTNER_PAIRED] ?: false
   }
 
   val lastDriveSyncTimestampFlow: Flow<Long> = context.dataStore.data.map { preferences ->
@@ -138,6 +163,36 @@ class UserPreferencesRepository(private val context: Context) {
       preferences[PreferencesKeys.IS_DRIVE_CONNECTED] = false
       preferences.remove(PreferencesKeys.DRIVE_ACCOUNT_EMAIL)
       preferences[PreferencesKeys.LAST_DRIVE_SYNC_TIMESTAMP] = 0L
+    }
+  }
+
+  suspend fun savePartnerInfo(fileId: String, name: String, email: String?) {
+    context.dataStore.edit { preferences ->
+      preferences[PreferencesKeys.PARTNER_DRIVE_FILE_ID] = fileId
+      preferences[PreferencesKeys.PARTNER_NAME] = name
+      if (email != null) {
+        preferences[PreferencesKeys.PARTNER_EMAIL] = email
+      } else {
+        preferences.remove(PreferencesKeys.PARTNER_EMAIL)
+      }
+      preferences[PreferencesKeys.IS_PARTNER_PAIRED] = true
+      preferences[PreferencesKeys.PARTNER_LAST_SYNC_TIMESTAMP] = System.currentTimeMillis()
+    }
+  }
+
+  suspend fun setPartnerLastSyncTimestamp(timestamp: Long) {
+    context.dataStore.edit { preferences ->
+      preferences[PreferencesKeys.PARTNER_LAST_SYNC_TIMESTAMP] = timestamp
+    }
+  }
+
+  suspend fun clearPartnerInfo() {
+    context.dataStore.edit { preferences ->
+      preferences.remove(PreferencesKeys.PARTNER_DRIVE_FILE_ID)
+      preferences.remove(PreferencesKeys.PARTNER_NAME)
+      preferences.remove(PreferencesKeys.PARTNER_EMAIL)
+      preferences.remove(PreferencesKeys.PARTNER_LAST_SYNC_TIMESTAMP)
+      preferences[PreferencesKeys.IS_PARTNER_PAIRED] = false
     }
   }
 }

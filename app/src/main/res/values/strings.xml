@@ -47,30 +47,53 @@
     <string name="tool_shared_ledgers_title">Shared Ledgers</string>
     <string name="tool_shared_ledgers_desc">View partner finances via Drive JSON</string>
 
-    <!-- Shared Ledgers Screen -->
-    <string name="shared_ledgers_screen_title">Shared Ledgers</string>
-    <string name="shared_ledgers_subtitle">Read-only view of shared Google Drive finance ledgers</string>
+    <!-- Shared Ledgers Screen (Household Finances) -->
+    <string name="shared_ledgers_screen_title">Household Finances</string>
+    <string name="shared_ledgers_subtitle">Unified household budget &amp; live sync</string>
     <string name="shared_ledgers_drive_status_connected">Connected to Drive as %1$s</string>
-    <string name="shared_ledgers_drive_status_disconnected">Google Drive not connected. Connect in Settings to fetch live ledgers.</string>
-    <string name="shared_ledgers_share_guide_btn">How to Share</string>
+    <string name="shared_ledgers_drive_status_disconnected">Google Drive not connected. Connect in Settings to enable sync.</string>
+    <string name="shared_ledgers_share_guide_btn">How it Works</string>
     <string name="shared_ledgers_copy_my_id">Copy My Backup File ID</string>
     <string name="shared_ledgers_my_file_id_copied">Drive File ID copied to clipboard!</string>
     <string name="shared_ledgers_enter_id_or_url">Enter Drive File ID or Shared URL</string>
     <string name="shared_ledgers_fetch_btn">Load Ledger</string>
     <string name="shared_ledgers_load_sample_btn">Preview Sample Ledger</string>
     <string name="shared_ledgers_detected_files">Detected Shared Files on Drive:</string>
-    <string name="shared_ledgers_no_file_loaded">No shared ledger loaded yet. Enter a Google Drive File ID or click Preview Sample.</string>
+    <string name="shared_ledgers_no_file_loaded">No partner linked yet. Tap \'Pair Partner\' or Preview Sample.</string>
     <string name="shared_ledgers_owner_label">Ledger Owner</string>
     <string name="shared_ledgers_last_synced">Last updated: %1$s</string>
-    <string name="shared_ledgers_category_breakdown">Category Breakdown</string>
-    <string name="shared_ledgers_recent_txs">Recent Activity</string>
+    <string name="shared_ledgers_category_breakdown">Household Category Envelopes</string>
+    <string name="shared_ledgers_recent_txs">Household Activity Feed</string>
     <string name="shared_ledgers_pay_cycle_info">Pay Cycle Info</string>
-    <string name="shared_ledgers_guide_title">How Shared Ledgers Work</string>
-    <string name="shared_ledgers_guide_step1">1. Each user keeps and writes to their own Spent backup file (spent_backup.json) in their Google Drive.</string>
-    <string name="shared_ledgers_guide_step2">2. To share with a partner or family member, open Google Drive, find spent_backup.json, right-click and choose Share.</string>
-    <string name="shared_ledgers_guide_step3">3. Add your partner\'s Google email with \'Viewer\' (read-only) permission.</string>
-    <string name="shared_ledgers_guide_step4">4. Your partner copies the shared File ID or link into this screen to view your live financial summary safely without overwriting their own data.</string>
-    <string name="shared_ledgers_guide_understood">Understood</string>
+    <string name="shared_ledgers_guide_title">How Household Sync Works</string>
+    <string name="shared_ledgers_guide_step1">1. Both partners back up their Spent data to their personal Google Drive.</string>
+    <string name="shared_ledgers_guide_step2">2. Type your partner\'s Google email inside the app. Spent automatically grants them read-only Drive permissions.</string>
+    <string name="shared_ledgers_guide_step3">3. Share your generated Invite Link with your partner to pair instantly.</string>
+    <string name="shared_ledgers_guide_step4">4. Once paired, your Household view automatically combines income, spending, and envelope budgets!</string>
+    <string name="shared_ledgers_guide_understood">Got It</string>
+    <string name="household_tab_combined">🏠 Household</string>
+    <string name="household_tab_me">👤 You</string>
+    <string name="household_tab_partner">👥 Partner</string>
+    <string name="household_kpi_combined_income">Combined Income</string>
+    <string name="household_kpi_combined_spent">Combined Spent</string>
+    <string name="household_kpi_combined_safe_today">Household Safe Today</string>
+    <string name="household_paired_with">Paired with %1$s</string>
+    <string name="household_not_paired">No Partner Paired</string>
+    <string name="household_pair_btn">Pair Partner</string>
+    <string name="household_unlink_btn">Unlink</string>
+    <string name="household_invite_by_email">Grant Access via Email</string>
+    <string name="household_invite_by_link">Copy Invite Link</string>
+    <string name="household_paste_partner_link">Link with Partner</string>
+    <string name="household_you_spent">You: %1$s</string>
+    <string name="household_partner_spent">Partner: %1$s</string>
+    <string name="household_badge_you">You</string>
+    <string name="household_badge_partner">Partner</string>
+    <string name="household_dialog_pair_title">Pair Household Partner</string>
+    <string name="household_enter_partner_email">Partner\'s Google Email</string>
+    <string name="household_enter_partner_link">Paste Partner\'s Link or Drive File ID</string>
+    <string name="household_grant_access_btn">Grant Access</string>
+    <string name="household_connect_partner_btn">Connect Partner</string>
+    <string name="household_privacy_note">100% Private: Powered by your personal Google Drive.</string>
 
 
     <!-- Recent Activity -->

@@ -162,13 +162,36 @@ object GoogleDriveRestService {
     }
   }
 
+  suspend fun shareFileWithEmail(
+    context: Context,
+    account: GoogleSignInAccount,
+    fileId: String,
+    partnerEmail: String
+  ): Result<Boolean> = withContext(Dispatchers.IO) {
+    try {
+      val drive = getDriveService(context, account)
+      val permission = com.google.api.services.drive.model.Permission().apply {
+        type = "user"
+        role = "reader"
+        emailAddress = partnerEmail.trim()
+      }
+      drive.permissions().create(fileId, permission)
+        .setSendNotificationEmail(false)
+        .execute()
+      Result.success(true)
+    } catch (e: Exception) {
+      e.printStackTrace()
+      Result.failure(e)
+    }
+  }
+
   suspend fun searchSharedBackupFiles(
     context: Context,
     account: GoogleSignInAccount
   ): Result<List<DriveBackupFileInfo>> = withContext(Dispatchers.IO) {
     try {
       val drive = getDriveService(context, account)
-      val query = "(name contains 'spent' or name contains 'Spent' or mimeType = 'application/json') and trashed = false"
+      val query = "(sharedWithMe = true or name contains 'spent' or name contains 'Spent' or mimeType = 'application/json') and trashed = false"
       val fileList: FileList = drive.files().list()
         .setQ(query)
         .setFields("files(id, name, modifiedTime, owners)")

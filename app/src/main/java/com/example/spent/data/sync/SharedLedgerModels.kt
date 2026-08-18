@@ -2,7 +2,62 @@ package com.app.spent.data.sync
 
 import java.util.Calendar
 import java.util.concurrent.TimeUnit
+import com.app.spent.data.local.entity.CategoryEntity
+import com.app.spent.data.local.entity.PayCycleEntity
+import com.app.spent.data.local.entity.TransactionEntity
 import org.json.JSONObject
+
+enum class HouseholdSource {
+  YOU,
+  PARTNER
+}
+
+data class HouseholdTransactionItem(
+  val id: String,
+  val amount: Double,
+  val type: String, // INCOME, EXPENSE
+  val categoryName: String,
+  val categoryColorHex: String,
+  val timestamp: Long,
+  val note: String,
+  val source: HouseholdSource,
+  val authorName: String
+)
+
+data class HouseholdCategoryEnvelope(
+  val name: String,
+  val iconName: String,
+  val colorHex: String,
+  val totalBudget: Double,
+  val totalSpent: Double,
+  val mySpent: Double,
+  val partnerSpent: Double,
+  val progress: Float
+)
+
+data class HouseholdSummary(
+  val combinedIncome: Double,
+  val combinedSpent: Double,
+  val combinedNetBalance: Double,
+  val combinedSafeToSpendToday: Double,
+  val myTotalIncome: Double,
+  val myTotalSpent: Double,
+  val mySafeToSpendToday: Double,
+  val partnerTotalIncome: Double,
+  val partnerTotalSpent: Double,
+  val partnerSafeToSpendToday: Double,
+  val daysRemainingInCycle: Int,
+  val currencySymbol: String
+)
+
+data class HouseholdUnifiedData(
+  val summary: HouseholdSummary,
+  val categories: List<HouseholdCategoryEnvelope>,
+  val transactions: List<HouseholdTransactionItem>,
+  val partnerName: String,
+  val partnerLastUpdated: Long,
+  val isPartnerActive: Boolean
+)
 
 data class DriveBackupFileInfo(
   val id: String,
@@ -317,3 +372,202 @@ object SharedLedgerParser {
     """.trimIndent()
   }
 }
+
+object HouseholdAggregator {
+
+  fun combine(
+    localTransactions: List<TransactionEntity>,
+    localCategories: List<CategoryEntity>,
+    localPayCycle: PayCycleEntity?,
+    currencySymbol: String,
+    partnerLedger: SharedLedgerData?,
+    myDisplayName: String = "You"
+  ): HouseholdUnifiedData {
+    // 1. Local User Calculations
+    val categoryMap = localCategories.associateBy { it.id }
+    var myIncomeSum = 0.0
+    var mySpentSum = 0.0
+    val myCatSpentMap = mutableMapOf<String, Double>()
+
+    for (tx in localTransactions) {
+      if (tx.type.equals("INCOME", ignoreCase = true)) {
+        myIncomeSum += tx.amount
+      } else {
+        mySpentSum += tx.amount
+        myCatSpentMap[tx.categoryId] = (myCatSpentMap[tx.categoryId] ?: 0.0) + tx.amount
+      }
+    }
+
+    val myEffectiveIncome = if (localPayCycle != null && localPayCycle.income > 0) localPayCycle.income else myIncomeSum
+    val now = System.currentTimeMillis()
+    val frequency = localPayCycle?.frequency ?: "MONTHLY"
+    val startDate = localPayCycle?.startDate ?: now
+    val daysRemaining = calculateDaysRemaining(frequency, startDate, now)
+
+    val myRemaining = (myEffectiveIncome - mySpentSum).coerceAtLeast(0.0)
+    val mySafeToSpendToday = if (daysRemaining > 0) myRemaining / daysRemaining else myRemaining
+
+    // 2. Partner Data
+    val partnerIncome = partnerLedger?.totalIncome ?: 0.0
+    val partnerSpent = partnerLedger?.totalSpent ?: 0.0
+    val partnerSafeToSpend = partnerLedger?.safeToSpendToday ?: 0.0
+    val partnerName = partnerLedger?.ownerName ?: "Partner"
+
+    // 3. Combined Summary
+    val combinedIncome = myEffectiveIncome + partnerIncome
+    val combinedSpent = mySpentSum + partnerSpent
+    val combinedNetBalance = combinedIncome - combinedSpent
+    val combinedSafeToSpend = mySafeToSpendToday + partnerSafeToSpend
+
+    val summary = HouseholdSummary(
+      combinedIncome = combinedIncome,
+      combinedSpent = combinedSpent,
+      combinedNetBalance = combinedNetBalance,
+      combinedSafeToSpendToday = combinedSafeToSpend,
+      myTotalIncome = myEffectiveIncome,
+      myTotalSpent = mySpentSum,
+      mySafeToSpendToday = mySafeToSpendToday,
+      partnerTotalIncome = partnerIncome,
+      partnerTotalSpent = partnerSpent,
+      partnerSafeToSpendToday = partnerSafeToSpend,
+      daysRemainingInCycle = daysRemaining,
+      currencySymbol = currencySymbol
+    )
+
+    // 4. Combined Categories
+    val envelopeList = mutableListOf<HouseholdCategoryEnvelope>()
+    val partnerCatMap = partnerLedger?.categories?.associateBy { it.name.trim().lowercase() } ?: emptyMap()
+    val processedPartnerCats = mutableSetOf<String>()
+
+    for (cat in localCategories) {
+      val key = cat.name.trim().lowercase()
+      val partnerCat = partnerCatMap[key]
+      if (partnerCat != null) {
+        processedPartnerCats.add(key)
+      }
+
+      val myCatSpent = myCatSpentMap[cat.id] ?: 0.0
+      val partnerCatSpent = partnerCat?.spentAmount ?: 0.0
+      val combinedCatSpent = myCatSpent + partnerCatSpent
+      val totalBudget = cat.budgetAmount + (partnerCat?.budgetAmount ?: 0.0)
+      val progress = if (totalBudget > 0) (combinedCatSpent / totalBudget).toFloat().coerceIn(0f, 1.5f) else 0f
+
+      envelopeList.add(
+        HouseholdCategoryEnvelope(
+          name = cat.name,
+          iconName = cat.iconName,
+          colorHex = cat.colorHex,
+          totalBudget = totalBudget,
+          totalSpent = combinedCatSpent,
+          mySpent = myCatSpent,
+          partnerSpent = partnerCatSpent,
+          progress = progress
+        )
+      )
+    }
+
+    // Add remaining partner categories that were not in local categories
+    partnerLedger?.categories?.forEach { pCat ->
+      val key = pCat.name.trim().lowercase()
+      if (!processedPartnerCats.contains(key)) {
+        val progress = if (pCat.budgetAmount > 0) (pCat.spentAmount / pCat.budgetAmount).toFloat().coerceIn(0f, 1.5f) else 0f
+        envelopeList.add(
+          HouseholdCategoryEnvelope(
+            name = pCat.name,
+            iconName = pCat.iconName,
+            colorHex = pCat.colorHex,
+            totalBudget = pCat.budgetAmount,
+            totalSpent = pCat.spentAmount,
+            mySpent = 0.0,
+            partnerSpent = pCat.spentAmount,
+            progress = progress
+          )
+        )
+      }
+    }
+
+    // 5. Unified Transactions
+    val feedList = mutableListOf<HouseholdTransactionItem>()
+
+    // Local items
+    localTransactions.take(30).forEach { tx ->
+      val cat = categoryMap[tx.categoryId]
+      val catName = cat?.name ?: "General"
+      val catColor = cat?.colorHex ?: "#64748B"
+      feedList.add(
+        HouseholdTransactionItem(
+          id = tx.id,
+          amount = tx.amount,
+          type = tx.type,
+          categoryName = catName,
+          categoryColorHex = catColor,
+          timestamp = tx.timestamp,
+          note = tx.note.ifBlank { catName },
+          source = HouseholdSource.YOU,
+          authorName = myDisplayName
+        )
+      )
+    }
+
+    // Partner items
+    partnerLedger?.recentTransactions?.forEach { pTx ->
+      feedList.add(
+        HouseholdTransactionItem(
+          id = pTx.id,
+          amount = pTx.amount,
+          type = pTx.type,
+          categoryName = pTx.categoryName,
+          categoryColorHex = pTx.categoryColorHex,
+          timestamp = pTx.timestamp,
+          note = pTx.note.ifBlank { pTx.categoryName },
+          source = HouseholdSource.PARTNER,
+          authorName = partnerName
+        )
+      )
+    }
+
+    feedList.sortByDescending { it.timestamp }
+
+    return HouseholdUnifiedData(
+      summary = summary,
+      categories = envelopeList,
+      transactions = feedList.take(40),
+      partnerName = partnerName,
+      partnerLastUpdated = partnerLedger?.exportTimestamp ?: 0L,
+      isPartnerActive = partnerLedger != null
+    )
+  }
+
+  private fun calculateDaysRemaining(frequency: String, startDate: Long, now: Long): Int {
+    val cal = Calendar.getInstance().apply { timeInMillis = startDate }
+    val nowCal = Calendar.getInstance().apply { timeInMillis = now }
+
+    val diffDays = ((now - startDate) / (1000 * 60 * 60 * 24)).toInt()
+
+    return when (frequency.uppercase()) {
+      "WEEKLY" -> {
+        val daysPassedInWeek = (diffDays % 7).coerceAtLeast(0)
+        (7 - daysPassedInWeek).coerceAtLeast(1)
+      }
+      "BIWEEKLY" -> {
+        val daysPassedInBiweek = (diffDays % 14).coerceAtLeast(0)
+        (14 - daysPassedInBiweek).coerceAtLeast(1)
+      }
+      "SEMIMONTHLY" -> {
+        val currentDay = nowCal.get(Calendar.DAY_OF_MONTH)
+        if (currentDay <= 15) {
+          (15 - currentDay + 1).coerceAtLeast(1)
+        } else {
+          val maxDays = nowCal.getActualMaximum(Calendar.DAY_OF_MONTH)
+          (maxDays - currentDay + 1).coerceAtLeast(1)
+        }
+      }
+      else -> {
+        val currentDay = nowCal.get(Calendar.DAY_OF_MONTH)
+        val maxDays = nowCal.getActualMaximum(Calendar.DAY_OF_MONTH)
+        (maxDays - currentDay + 1).coerceAtLeast(1)
+      }
+    }
+  }
+}
+

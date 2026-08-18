@@ -1,6 +1,5 @@
 import java.io.File
 import java.io.FileInputStream
-import java.util.Base64
 import java.util.Properties
 
 plugins {
@@ -24,7 +23,7 @@ android {
         applicationId = "com.app.spent"
         minSdk = 24
         targetSdk = 35
-        versionCode = (System.getenv("GITHUB_RUN_NUMBER")?.toIntOrNull() ?: 2)
+        versionCode = (System.getenv("GITHUB_RUN_NUMBER")?.toIntOrNull() ?: 1)
         versionName = "1.0.${System.getenv("GITHUB_RUN_NUMBER") ?: "0"}"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -32,26 +31,18 @@ android {
 
     signingConfigs {
         create("release") {
-            val envBase64 = System.getenv("KEYSTORE_BASE64")
+            // Tomamos las contraseñas de las variables de entorno de GitHub o del archivo local
             val envStorePass = System.getenv("KEYSTORE_PASSWORD")
             val envKeyAlias = System.getenv("KEY_ALIAS")
             val envKeyPass = System.getenv("KEY_PASSWORD")
 
-            if (keystorePropertiesFile.exists()) {
-                val propStoreFile = keystoreProperties.getProperty("storeFile") ?: "release-keystore.jks"
-                storeFile = rootProject.file(propStoreFile.removePrefix("../"))
-                storePassword = keystoreProperties.getProperty("storePassword")
-                keyAlias = keystoreProperties.getProperty("keyAlias")
-                keyPassword = keystoreProperties.getProperty("keyPassword")
-            } else if (!envBase64.isNullOrEmpty() && !envStorePass.isNullOrEmpty()) {
-                val decodedKeyFile = rootProject.file("release-keystore.jks").apply {
-                    parentFile?.mkdirs()
-                    writeBytes(Base64.getDecoder().decode(envBase64.trim().replace("\n", "").replace("\r", "")))
-                }
-                storeFile = decodedKeyFile
-                storePassword = envStorePass
-                keyAlias = envKeyAlias ?: "spent-release-key"
-                keyPassword = envKeyPass ?: envStorePass
+            val releaseKeyFile = rootProject.file("release-keystore.jks")
+
+            if (releaseKeyFile.exists()) {
+                storeFile = releaseKeyFile
+                storePassword = envStorePass ?: keystoreProperties.getProperty("storePassword")
+                keyAlias = envKeyAlias ?: keystoreProperties.getProperty("keyAlias") ?: "spent-release-key"
+                keyPassword = envKeyPass ?: keystoreProperties.getProperty("keyPassword") ?: storePassword
             }
         }
     }
@@ -59,13 +50,22 @@ android {
     buildTypes {
         release {
             isMinifyEnabled = false
-            signingConfig = signingConfigs.getByName("release")
+            
+            val releaseSigning = signingConfigs.getByName("release")
+            // Verificación: si el archivo existe y tenemos contraseña, firmamos. Si no, fallback a debug.
+            signingConfig = if (releaseSigning.storeFile?.exists() == true && !releaseSigning.storePassword.isNullOrBlank()) {
+                releaseSigning
+            } else {
+                signingConfigs.getByName("debug")
+            }
+            
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
         }
     }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
@@ -102,21 +102,16 @@ dependencies {
     implementation(libs.androidx.compose.material.icons.extended)
     implementation(libs.androidx.navigation.compose)
 
-    // Room
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
     ksp(libs.androidx.room.compiler)
 
-    // DataStore
     implementation(libs.androidx.datastore.preferences)
-
-    // WorkManager
     implementation(libs.androidx.work.runtime.ktx)
 
-    // Google Play Services Auth & Drive REST API
     implementation(libs.play.services.auth)
-    implementation(libs.google.api.client.android)
-    implementation(libs.google.api.services.drive)
+    implementation(libs.google.api-client.android)
+    implementation(libs.google.apis.google.api.services.drive)
     implementation(libs.google.http.client.gson)
 
     testImplementation(libs.junit)
