@@ -1,5 +1,6 @@
 import java.io.File
 import java.io.FileInputStream
+import java.util.Base64
 import java.util.Properties
 
 plugins {
@@ -31,7 +32,7 @@ android {
 
     signingConfigs {
         create("release") {
-            val envKeystorePath = System.getenv("KEYSTORE_FILE_PATH")
+            val envBase64 = System.getenv("KEYSTORE_BASE64")
             val envStorePass = System.getenv("KEYSTORE_PASSWORD")
             val envKeyAlias = System.getenv("KEY_ALIAS")
             val envKeyPass = System.getenv("KEY_PASSWORD")
@@ -42,19 +43,15 @@ android {
                 storePassword = keystoreProperties.getProperty("storePassword")
                 keyAlias = keystoreProperties.getProperty("keyAlias")
                 keyPassword = keystoreProperties.getProperty("keyPassword")
-            } else {
-                val targetFile = if (!envKeystorePath.isNullOrEmpty()) {
-                    File(envKeystorePath)
-                } else {
-                    rootProject.file("release-keystore.jks")
+            } else if (!envBase64.isNullOrEmpty() && !envStorePass.isNullOrEmpty()) {
+                val decodedKeyFile = rootProject.file("release-keystore.jks").apply {
+                    parentFile?.mkdirs()
+                    writeBytes(Base64.getDecoder().decode(envBase64.trim().replace("\n", "").replace("\r", "")))
                 }
-
-                if (targetFile.exists() && !envStorePass.isNullOrEmpty()) {
-                    storeFile = targetFile
-                    storePassword = envStorePass
-                    keyAlias = envKeyAlias ?: "spent-release-key"
-                    keyPassword = envKeyPass ?: envStorePass
-                }
+                storeFile = decodedKeyFile
+                storePassword = envStorePass
+                keyAlias = envKeyAlias ?: "spent-release-key"
+                keyPassword = envKeyPass ?: envStorePass
             }
         }
     }
