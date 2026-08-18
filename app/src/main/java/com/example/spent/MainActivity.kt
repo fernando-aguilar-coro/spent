@@ -1,4 +1,4 @@
-package com.example.spent
+package com.app.spent
 
 import android.content.pm.ActivityInfo
 import android.os.Bundle
@@ -13,46 +13,45 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
-import com.example.spent.ui.navigation.SpentAppNavHost
-import com.example.spent.ui.theme.SpentTheme
-import com.example.spent.util.LocaleHelper
-
+import com.app.spent.ui.navigation.SpentAppNavHost
+import com.app.spent.ui.theme.SpentTheme
+import com.app.spent.util.LocaleHelper
 class MainActivity : ComponentActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+  override fun onCreate(savedInstanceState: Bundle?) {
+    super.onCreate(savedInstanceState)
 
-        val isTablet = resources.configuration.smallestScreenWidthDp >= 600
-        if (!isTablet) {
-            requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
-        }
-
-        enableEdgeToEdge()
-
-        val app = application as SpentApplication
-        val repository = app.repository
-
-        setContent {
-            val isDarkThemeOverride by repository.isDarkThemeFlow.collectAsState(initial = null)
-            val appLanguage by repository.appLanguageFlow.collectAsState(initial = null)
-            val useDarkTheme = isDarkThemeOverride ?: isSystemInDarkTheme()
-
-            val baseContext = LocalContext.current
-            val localizedContext = remember(appLanguage, baseContext) {
-                LocaleHelper.createLocalizedContext(baseContext, appLanguage)
-            }
-            val localizedConfiguration = remember(appLanguage, baseContext) {
-                LocaleHelper.createLocalizedConfiguration(baseContext, appLanguage)
-            }
-
-            CompositionLocalProvider(
-                LocalContext provides localizedContext,
-                LocalConfiguration provides localizedConfiguration,
-                LocalActivityResultRegistryOwner provides this@MainActivity
-            ) {
-                SpentTheme(darkTheme = useDarkTheme) {
-                    SpentAppNavHost(repository = repository)
-                }
-            }
-        }
+    val isTablet = resources.configuration.smallestScreenWidthDp >= 600
+    if (!isTablet) {
+      requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
     }
+
+    enableEdgeToEdge()
+
+    val app = application as SpentApplication
+    val repository = app.repository
+
+    setContent {
+      val isDarkThemeOverride by repository.isDarkThemeFlow.collectAsState(initial = null)
+      val appLanguage by repository.appLanguageFlow.collectAsState(initial = null)
+      val useDarkTheme = isDarkThemeOverride ?: isSystemInDarkTheme()
+
+      val baseContext = LocalContext.current
+      val localizedContext = remember(appLanguage, baseContext) {
+        LocaleHelper.createLocalizedContext(baseContext, appLanguage)
+      }
+      val localizedConfiguration = remember(appLanguage, baseContext) {
+        LocaleHelper.createLocalizedConfiguration(baseContext, appLanguage)
+      }
+
+      CompositionLocalProvider(
+      LocalContext provides localizedContext,
+      LocalConfiguration provides localizedConfiguration,
+      LocalActivityResultRegistryOwner provides this@MainActivity
+      ) {
+        SpentTheme(darkTheme = useDarkTheme) {
+          SpentAppNavHost(repository = repository)
+        }
+      }
+    }
+  }
 }

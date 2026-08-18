@@ -1,4 +1,4 @@
-package com.example.spent.ui.onboarding.components
+package com.app.spent.ui.onboarding.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -38,146 +38,145 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.spent.R
-
+import com.app.spent.R
 @Composable
 fun ProfileSelectionStep(
-    isLoading: Boolean,
-    onSelectRole: (String) -> Unit
+isLoading: Boolean,
+onSelectRole: (String) -> Unit
 ) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(horizontal = 24.dp, vertical = 24.dp)
-            .verticalScroll(rememberScrollState()),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Spacer(modifier = Modifier.height(16.dp))
+  Column(
+  modifier = Modifier
+  .fillMaxSize()
+  .padding(horizontal = 24.dp, vertical = 12.dp)
+  .verticalScroll(rememberScrollState()),
+  horizontalAlignment = Alignment.CenterHorizontally
+  ) {
+    Spacer(modifier = Modifier.height(8.dp))
 
-        Text(
-            text = stringResource(R.string.onboarding_profile_title),
-            style = MaterialTheme.typography.headlineMedium,
-            fontWeight = FontWeight.Bold,
-            textAlign = TextAlign.Center,
-            color = MaterialTheme.colorScheme.onBackground
-        )
+    Text(
+    text = stringResource(R.string.onboarding_profile_title),
+    style = MaterialTheme.typography.headlineMedium,
+    fontWeight = FontWeight.Bold,
+    textAlign = TextAlign.Center,
+    color = MaterialTheme.colorScheme.onBackground
+    )
 
-        Spacer(modifier = Modifier.height(8.dp))
+    Spacer(modifier = Modifier.height(8.dp))
 
-        Text(
-            text = stringResource(R.string.onboarding_profile_subtitle),
-            style = MaterialTheme.typography.bodyMedium,
-            textAlign = TextAlign.Center,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
+    Text(
+    text = stringResource(R.string.onboarding_profile_subtitle),
+    style = MaterialTheme.typography.bodyMedium,
+    textAlign = TextAlign.Center,
+    color = MaterialTheme.colorScheme.onSurfaceVariant
+    )
 
-        Spacer(modifier = Modifier.height(28.dp))
+    Spacer(modifier = Modifier.height(28.dp))
 
-        if (isLoading) {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(200.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                CircularProgressIndicator()
-            }
-        } else {
-            // Profile Option 1: Unemployed
-            ProfileOptionCard(
-                icon = Icons.Default.PersonOutline,
-                title = stringResource(R.string.onboarding_profile_unemployed),
-                description = stringResource(R.string.onboarding_profile_unemployed_desc),
-                onClick = { onSelectRole("UNEMPLOYED") }
-            )
+    if (isLoading) {
+      Box(
+      modifier = Modifier
+      .fillMaxWidth()
+      .height(200.dp),
+      contentAlignment = Alignment.Center
+      ) {
+        CircularProgressIndicator()
+      }
+    } else {
+      // Profile Option 1: Unemployed
+      ProfileOptionCard(
+      icon = Icons.Default.PersonOutline,
+      title = stringResource(R.string.onboarding_profile_unemployed),
+      description = stringResource(R.string.onboarding_profile_unemployed_desc),
+      onClick = { onSelectRole("UNEMPLOYED") }
+      )
 
-            Spacer(modifier = Modifier.height(14.dp))
+      Spacer(modifier = Modifier.height(14.dp))
 
-            // Profile Option 2: Freelancer
-            ProfileOptionCard(
-                icon = Icons.Default.Laptop,
-                title = stringResource(R.string.onboarding_profile_freelancer),
-                description = stringResource(R.string.onboarding_profile_freelancer_desc),
-                onClick = { onSelectRole("FREELANCER") }
-            )
+      // Profile Option 2: Freelancer
+      ProfileOptionCard(
+      icon = Icons.Default.Laptop,
+      title = stringResource(R.string.onboarding_profile_freelancer),
+      description = stringResource(R.string.onboarding_profile_freelancer_desc),
+      onClick = { onSelectRole("FREELANCER") }
+      )
 
-            Spacer(modifier = Modifier.height(14.dp))
+      Spacer(modifier = Modifier.height(14.dp))
 
-            // Profile Option 3: Employed / Salaryman
-            ProfileOptionCard(
-                icon = Icons.Default.Badge,
-                title = stringResource(R.string.onboarding_profile_employed),
-                description = stringResource(R.string.onboarding_profile_employed_desc),
-                highlighted = true,
-                onClick = { onSelectRole("EMPLOYED") }
-            )
-        }
+      // Profile Option 3: Employed / Salaryman
+      ProfileOptionCard(
+      icon = Icons.Default.Badge,
+      title = stringResource(R.string.onboarding_profile_employed),
+      description = stringResource(R.string.onboarding_profile_employed_desc),
+      highlighted = true,
+      onClick = { onSelectRole("EMPLOYED") }
+      )
     }
+  }
 }
 
 @Composable
 private fun ProfileOptionCard(
-    icon: ImageVector,
-    title: String,
-    description: String,
-    highlighted: Boolean = false,
-    onClick: () -> Unit
+icon: ImageVector,
+title: String,
+description: String,
+highlighted: Boolean = false,
+onClick: () -> Unit
 ) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable { onClick() }
-            .then(
-                if (highlighted) Modifier.border(
-                    width = 1.5.dp,
-                    color = MaterialTheme.colorScheme.primary,
-                    shape = RoundedCornerShape(18.dp)
-                ) else Modifier
-            ),
-        shape = RoundedCornerShape(18.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = if (highlighted)
-                MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.4f)
-            else
-                MaterialTheme.colorScheme.surfaceVariant
-        )
+  Card(
+  modifier = Modifier
+  .fillMaxWidth()
+  .clickable { onClick() }
+  .then(
+  if (highlighted) Modifier.border(
+  width = 1.5.dp,
+  color = MaterialTheme.colorScheme.primary,
+  shape = RoundedCornerShape(18.dp)
+  ) else Modifier
+  ),
+  shape = RoundedCornerShape(18.dp),
+  colors = CardDefaults.cardColors(
+  containerColor = if (highlighted)
+  MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.4f)
+  else
+  MaterialTheme.colorScheme.surfaceVariant
+  )
+  ) {
+    Row(
+    modifier = Modifier.padding(20.dp),
+    verticalAlignment = Alignment.CenterVertically
     ) {
-        Row(
-            modifier = Modifier.padding(20.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Box(
-                modifier = Modifier
-                    .size(48.dp)
-                    .clip(CircleShape)
-                    .background(
-                        if (highlighted) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surface
-                    ),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    imageVector = icon,
-                    contentDescription = null,
-                    tint = if (highlighted) Color.White else MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.size(24.dp)
-                )
-            }
-            Spacer(modifier = Modifier.width(16.dp))
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = title,
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(
-                    text = description,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    lineHeight = 16.sp
-                )
-            }
-        }
+      Box(
+      modifier = Modifier
+      .size(48.dp)
+      .clip(CircleShape)
+      .background(
+      if (highlighted) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surface
+      ),
+      contentAlignment = Alignment.Center
+      ) {
+        Icon(
+        imageVector = icon,
+        contentDescription = null,
+        tint = if (highlighted) Color.White else MaterialTheme.colorScheme.primary,
+        modifier = Modifier.size(24.dp)
+        )
+      }
+      Spacer(modifier = Modifier.width(16.dp))
+      Column(modifier = Modifier.weight(1f)) {
+        Text(
+        text = title,
+        style = MaterialTheme.typography.titleMedium,
+        fontWeight = FontWeight.Bold,
+        color = MaterialTheme.colorScheme.onSurface
+        )
+        Spacer(modifier = Modifier.height(4.dp))
+        Text(
+        text = description,
+        style = MaterialTheme.typography.bodySmall,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        lineHeight = 16.sp
+        )
+      }
     }
+  }
 }

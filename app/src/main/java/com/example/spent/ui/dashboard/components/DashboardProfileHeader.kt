@@ -1,4 +1,4 @@
-package com.example.spent.ui.dashboard.components
+package com.app.spent.ui.dashboard.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -13,42 +13,40 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.example.spent.R
-
+import com.app.spent.R
 @Composable
 fun DashboardProfileHeader(
-    daysRemainingInCycle: Int,
-    isPayCycleActive: Boolean = true
+daysRemainingInCycle: Int,
+isPayCycleActive: Boolean = true
 ) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 20.dp, vertical = 12.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Column {
-            Text(
-                text = stringResource(R.string.app_name),
-                style = MaterialTheme.typography.headlineMedium,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onBackground
-            )
-            val subText = if (isPayCycleActive) {
-                if (daysRemainingInCycle == 1) {
-                    stringResource(R.string.day_left, daysRemainingInCycle)
-                } else {
-                    stringResource(R.string.days_left, daysRemainingInCycle)
-                }
-            } else {
-                stringResource(R.string.no_active_pay_cycle)
-            }
-            Text(
-                text = subText,
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
+  Row(
+  modifier = Modifier
+  .fillMaxWidth()
+  .padding(horizontal = 20.dp, vertical = 12.dp),
+  horizontalArrangement = Arrangement.SpaceBetween,
+  verticalAlignment = Alignment.CenterVertically
+  ) {
+    Column {
+      Text(
+      text = stringResource(R.string.app_name),
+      style = MaterialTheme.typography.headlineMedium,
+      fontWeight = FontWeight.Bold,
+      color = MaterialTheme.colorScheme.onBackground
+      )
+      val subText = if (isPayCycleActive) {
+        if (daysRemainingInCycle == 1) {
+          stringResource(R.string.day_left, daysRemainingInCycle)
+        } else {
+          stringResource(R.string.days_left, daysRemainingInCycle)
         }
+      } else {
+        stringResource(R.string.no_active_pay_cycle)
+      }
+      Text(
+      text = subText,
+      style = MaterialTheme.typography.bodySmall,
+      color = MaterialTheme.colorScheme.onSurfaceVariant
+      )
     }
+  }
 }
-

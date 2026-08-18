@@ -1,4 +1,8 @@
-package com.example.spent.ui.dashboard.components.dialogs
+package com.app.spent.ui.dashboard.components.dialogs
+
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -27,117 +31,113 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.example.spent.R
-import com.example.spent.data.local.entity.CategoryEntity
-import com.example.spent.data.local.entity.TransactionEntity
-import com.example.spent.ui.theme.ExpenseRed
-import com.example.spent.ui.theme.IncomeGreen
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
-
+import com.app.spent.R
+import com.app.spent.data.local.entity.CategoryEntity
+import com.app.spent.data.local.entity.TransactionEntity
+import com.app.spent.ui.theme.ExpenseRed
+import com.app.spent.ui.theme.IncomeGreen
 @Composable
 fun TransactionDetailsDialog(
-    transaction: TransactionEntity,
-    categories: List<CategoryEntity>,
-    currencySymbol: String,
-    onDismiss: () -> Unit,
-    onRequestDelete: (TransactionEntity) -> Unit
+transaction: TransactionEntity,
+categories: List<CategoryEntity>,
+currencySymbol: String,
+onDismiss: () -> Unit,
+onRequestDelete: (TransactionEntity) -> Unit
 ) {
-    val category = categories.find { it.id == transaction.categoryId }
-    val isExpense = transaction.type == "EXPENSE"
-    val formattedDate = SimpleDateFormat("EEEE, MMMM dd, yyyy • HH:mm", Locale.getDefault()).format(Date(transaction.timestamp))
+  val category = categories.find { it.id == transaction.categoryId }
+  val isExpense = transaction.type == "EXPENSE"
+  val formattedDate = SimpleDateFormat("EEEE, MMMM dd, yyyy • HH:mm", Locale.getDefault()).format(Date(transaction.timestamp))
 
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Box(
-                    modifier = Modifier
-                        .size(32.dp)
-                        .clip(CircleShape)
-                        .background(if (isExpense) ExpenseRed.copy(alpha = 0.15f) else IncomeGreen.copy(alpha = 0.15f)),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = if (isExpense) "-" else "+",
-                        fontWeight = FontWeight.Bold,
-                        color = if (isExpense) ExpenseRed else IncomeGreen
-                    )
-                }
-                Spacer(modifier = Modifier.width(10.dp))
-                Text(
-                    text = if (isExpense) stringResource(R.string.expense_details) else stringResource(R.string.income_details),
-                    fontWeight = FontWeight.Bold
-                )
-            }
-        },
-        text = {
-            Column {
-                Text(
-                    text = "${if (isExpense) "-" else "+"}$currencySymbol${"%.2f".format(transaction.amount)}",
-                    style = MaterialTheme.typography.headlineSmall,
-                    fontWeight = FontWeight.Bold,
-                    color = if (isExpense) ExpenseRed else IncomeGreen
-                )
-                Spacer(modifier = Modifier.height(12.dp))
+  AlertDialog(
+  onDismissRequest = onDismiss,
+  title = {
+    Row(
+    modifier = Modifier.fillMaxWidth(),
+    verticalAlignment = Alignment.CenterVertically
+    ) {
+      Box(
+      modifier = Modifier
+      .size(32.dp)
+      .clip(CircleShape)
+      .background(if (isExpense) ExpenseRed.copy(alpha = 0.15f) else IncomeGreen.copy(alpha = 0.15f)),
+      contentAlignment = Alignment.Center
+      ) {
+        Text(
+        text = if (isExpense) "-" else "+",
+        fontWeight = FontWeight.Bold,
+        color = if (isExpense) ExpenseRed else IncomeGreen
+        )
+      }
+      Spacer(modifier = Modifier.width(10.dp))
+      Text(
+      text = if (isExpense) stringResource(R.string.expense_details) else stringResource(R.string.income_details),
+      fontWeight = FontWeight.Bold
+      )
+    }
+  },
+  text = {
+    Column {
+      Text(
+      text = "${if (isExpense) "-" else "+"}$currencySymbol${"%.2f".format(transaction.amount)}",
+      style = MaterialTheme.typography.headlineSmall,
+      fontWeight = FontWeight.Bold,
+      color = if (isExpense) ExpenseRed else IncomeGreen
+      )
+      Spacer(modifier = Modifier.height(12.dp))
 
-                Text(
-                    text = stringResource(R.string.category_label),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                Text(
-                    text = category?.name ?: stringResource(R.string.category_general),
-                    style = MaterialTheme.typography.bodyMedium,
-                    fontWeight = FontWeight.SemiBold
-                )
+      Text(
+      text = stringResource(R.string.category_label),
+      style = MaterialTheme.typography.bodySmall,
+      color = MaterialTheme.colorScheme.onSurfaceVariant
+      )
+      Text(
+      text = category?.name ?: stringResource(R.string.category_general),
+      style = MaterialTheme.typography.bodyMedium,
+      fontWeight = FontWeight.SemiBold
+      )
 
-                Spacer(modifier = Modifier.height(8.dp))
+      Spacer(modifier = Modifier.height(8.dp))
 
-                Text(
-                    text = stringResource(R.string.note_merchant_label),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                Text(
-                    text = transaction.note.ifEmpty { stringResource(R.string.no_note_provided) },
-                    style = MaterialTheme.typography.bodyMedium
-                )
+      Text(
+      text = stringResource(R.string.note_merchant_label),
+      style = MaterialTheme.typography.bodySmall,
+      color = MaterialTheme.colorScheme.onSurfaceVariant
+      )
+      Text(
+      text = transaction.note.ifEmpty { stringResource(R.string.no_note_provided) },
+      style = MaterialTheme.typography.bodyMedium
+      )
 
-                Spacer(modifier = Modifier.height(8.dp))
+      Spacer(modifier = Modifier.height(8.dp))
 
-                Text(
-                    text = stringResource(R.string.date_time_label),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                Text(
-                    text = formattedDate,
-                    style = MaterialTheme.typography.bodySmall
-                )
-            }
-        },
-        confirmButton = {
-            OutlinedButton(
-                onClick = {
-                    onDismiss()
-                    onRequestDelete(transaction)
-                },
-                colors = ButtonDefaults.outlinedButtonColors(contentColor = ExpenseRed)
-            ) {
-                Icon(Icons.Default.Delete, contentDescription = "Delete", modifier = Modifier.size(16.dp))
-                Spacer(modifier = Modifier.width(6.dp))
-                Text(stringResource(R.string.delete_record))
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text(stringResource(R.string.btn_close))
-            }
-        }
-    )
+      Text(
+      text = stringResource(R.string.date_time_label),
+      style = MaterialTheme.typography.bodySmall,
+      color = MaterialTheme.colorScheme.onSurfaceVariant
+      )
+      Text(
+      text = formattedDate,
+      style = MaterialTheme.typography.bodySmall
+      )
+    }
+  },
+  confirmButton = {
+    OutlinedButton(
+    onClick = {
+      onDismiss()
+      onRequestDelete(transaction)
+    },
+    colors = ButtonDefaults.outlinedButtonColors(contentColor = ExpenseRed)
+    ) {
+      Icon(Icons.Default.Delete, contentDescription = "Delete", modifier = Modifier.size(16.dp))
+      Spacer(modifier = Modifier.width(6.dp))
+      Text(stringResource(R.string.delete_record))
+    }
+  },
+  dismissButton = {
+    TextButton(onClick = onDismiss) {
+      Text(stringResource(R.string.btn_close))
+    }
+  }
+  )
 }

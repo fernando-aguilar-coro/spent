@@ -1,9 +1,9 @@
-package com.example.spent.ui.settings.components
+package com.app.spent.ui.settings.components
 
-import android.content.Intent
-import android.net.Uri
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
+
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -15,10 +15,12 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.CloudDone
-import androidx.compose.material.icons.filled.CloudDownload
+import androidx.compose.material.icons.filled.CloudOff
 import androidx.compose.material.icons.filled.CloudSync
-import androidx.compose.material.icons.filled.CloudUpload
+import androidx.compose.material.icons.filled.LinkOff
+import androidx.compose.material.icons.filled.Sync
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -27,233 +29,225 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.core.content.FileProvider
-import com.example.spent.R
-import com.example.spent.data.repository.SpentRepository
-import com.example.spent.data.sync.DriveBackupManager
-import kotlinx.coroutines.launch
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
-
-import com.example.spent.data.sync.GoogleDriveRestService
-import com.google.android.gms.auth.api.signin.GoogleSignIn
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount
-import com.google.android.gms.common.api.ApiException
-
+import com.app.spent.R
 @Composable
 fun GoogleDriveSyncCard(
-    repository: SpentRepository,
-    lastSyncTimestamp: Long,
-    onSyncComplete: (String) -> Unit
+isConnected: Boolean,
+accountEmail: String?,
+lastSyncTimestamp: Long,
+isSyncing: Boolean,
+onConnectClick: () -> Unit,
+onDisconnectClick: () -> Unit,
+onSyncNowClick: () -> Unit
 ) {
-    val context = LocalContext.current
-    val coroutineScope = rememberCoroutineScope()
-    var isProcessing by remember { mutableStateOf(false) }
+  val formattedSyncTime = remember(lastSyncTimestamp) {
+    if (lastSyncTimestamp > 0) {
+      SimpleDateFormat("MMM dd, yyyy HH:mm", Locale.getDefault()).format(Date(lastSyncTimestamp))
+    } else null
+  }
 
-    var signedInAccount by remember { mutableStateOf(GoogleDriveRestService.getSignedInAccount(context)) }
-
-    val formattedSyncTime = remember(lastSyncTimestamp) {
-        if (lastSyncTimestamp > 0) {
-            SimpleDateFormat("MMM dd, yyyy HH:mm", Locale.getDefault()).format(Date(lastSyncTimestamp))
-        } else null
-    }
-
-    // Google Sign In Launcher
-    val googleSignInLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.StartActivityForResult()
-    ) { result ->
-        val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
-        try {
-            val account = task.getResult(ApiException::class.java)
-            signedInAccount = account
-            onSyncComplete("Google Account connected: ${account?.email}")
-        } catch (e: ApiException) {
-            android.util.Log.e("GoogleSignIn", "Google Sign In failed in settings. Status Code: ${e.statusCode}", e)
-            val errorMsg = when (e.statusCode) {
-                10 -> "Developer Error (10): Ensure SHA-1 & Package Name match in Google Cloud Console."
-                12500 -> "Sign-in Failed (12500): Check Google Cloud Console setup or Play Services."
-                12501 -> "Sign-in cancelled"
-                else -> "Sign-in error (${e.statusCode}): ${e.localizedMessage ?: "Unknown"}"
-            }
-            if (e.statusCode != 12501) {
-                onSyncComplete(errorMsg)
-            }
-        } catch (e: Exception) {
-            android.util.Log.e("GoogleSignIn", "Unexpected sign in error in settings", e)
-            onSyncComplete("Sign in failed: ${e.localizedMessage ?: "Unknown error"}")
+  Card(
+  modifier = Modifier.fillMaxWidth(),
+  shape = RoundedCornerShape(16.dp),
+  colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+  ) {
+    Column(modifier = Modifier.padding(16.dp)) {
+      // Header
+      Row(
+      modifier = Modifier.fillMaxWidth(),
+      verticalAlignment = Alignment.CenterVertically
+      ) {
+        Icon(
+        imageVector = Icons.Default.CloudSync,
+        contentDescription = null,
+        tint = MaterialTheme.colorScheme.primary,
+        modifier = Modifier.size(28.dp)
+        )
+        Spacer(modifier = Modifier.width(12.dp))
+        Column(modifier = Modifier.weight(1f)) {
+          Text(
+          text = stringResource(R.string.drive_sync_title),
+          style = MaterialTheme.typography.titleMedium,
+          fontWeight = FontWeight.Bold
+          )
+          Text(
+          text = stringResource(R.string.drive_sync_desc),
+          style = MaterialTheme.typography.bodySmall,
+          color = MaterialTheme.colorScheme.onSurfaceVariant
+          )
         }
-    }
+      }
 
-    Card(
+      Spacer(modifier = Modifier.height(14.dp))
+
+      if (isSyncing) {
+        Row(
+        modifier = Modifier
+        .fillMaxWidth()
+        .padding(vertical = 12.dp),
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically
+        ) {
+          CircularProgressIndicator(modifier = Modifier.size(22.dp))
+          Spacer(modifier = Modifier.width(10.dp))
+          Text(
+          text = stringResource(R.string.drive_syncing),
+          style = MaterialTheme.typography.bodySmall,
+          color = MaterialTheme.colorScheme.primary,
+          fontWeight = FontWeight.Medium
+          )
+        }
+      } else if (isConnected) {
+        // Connected State Banner
+        Surface(
+        shape = RoundedCornerShape(12.dp),
+        color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.45f),
+        modifier = Modifier.fillMaxWidth()
+        ) {
+          Column(modifier = Modifier.padding(12.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+              Icon(
+              imageVector = Icons.Default.CheckCircle,
+              contentDescription = null,
+              tint = MaterialTheme.colorScheme.primary,
+              modifier = Modifier.size(18.dp)
+              )
+              Spacer(modifier = Modifier.width(8.dp))
+              Text(
+              text = stringResource(R.string.drive_status_connected),
+              style = MaterialTheme.typography.titleSmall,
+              fontWeight = FontWeight.Bold,
+              color = MaterialTheme.colorScheme.onPrimaryContainer
+              )
+            }
+
+            if (!accountEmail.isNullOrBlank()) {
+              Spacer(modifier = Modifier.height(4.dp))
+              Text(
+              text = stringResource(R.string.drive_connected_account, accountEmail),
+              style = MaterialTheme.typography.bodySmall,
+              color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.85f)
+              )
+            }
+
+            Spacer(modifier = Modifier.height(4.dp))
+            Row(verticalAlignment = Alignment.CenterVertically) {
+              Icon(
+              imageVector = Icons.Default.CloudDone,
+              contentDescription = null,
+              tint = MaterialTheme.colorScheme.primary,
+              modifier = Modifier.size(14.dp)
+              )
+              Spacer(modifier = Modifier.width(6.dp))
+              Text(
+              text = if (formattedSyncTime != null)
+              stringResource(R.string.drive_last_synced, formattedSyncTime)
+              else
+              stringResource(R.string.drive_not_synced_yet),
+              style = MaterialTheme.typography.labelSmall,
+              color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.75f)
+              )
+            }
+          }
+        }
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        // Actions: Sync Now & Disconnect
+        Row(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
-    ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Icon(
-                    imageVector = Icons.Default.CloudSync,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.size(28.dp)
-                )
-                Spacer(modifier = Modifier.width(12.dp))
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                        text = stringResource(R.string.drive_sync_title),
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Text(
-                        text = stringResource(R.string.drive_sync_desc),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-            }
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+          Button(
+          onClick = onSyncNowClick,
+          modifier = Modifier.weight(1f),
+          shape = RoundedCornerShape(12.dp),
+          colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+          ) {
+            Icon(
+            imageVector = Icons.Default.Sync,
+            contentDescription = null,
+            modifier = Modifier.size(16.dp)
+            )
+            Spacer(modifier = Modifier.width(6.dp))
+            Text(
+            text = stringResource(R.string.drive_btn_sync_now),
+            style = MaterialTheme.typography.labelLarge
+            )
+          }
 
-            Spacer(modifier = Modifier.height(12.dp))
-
-            // Last Synced Status Banner
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.padding(horizontal = 4.dp)
-            ) {
-                Icon(
-                    imageVector = Icons.Default.CloudDone,
-                    contentDescription = null,
-                    tint = if (lastSyncTimestamp > 0) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline,
-                    modifier = Modifier.size(16.dp)
-                )
-                Spacer(modifier = Modifier.width(6.dp))
-                Text(
-                    text = if (formattedSyncTime != null)
-                        stringResource(R.string.drive_last_synced, formattedSyncTime)
-                    else
-                        stringResource(R.string.drive_not_synced_yet),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    fontWeight = FontWeight.Medium
-                )
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            if (isProcessing) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(8.dp),
-                    horizontalArrangement = Arrangement.Center,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    CircularProgressIndicator(modifier = Modifier.size(24.dp))
-                    Spacer(modifier = Modifier.width(12.dp))
-                    Text(
-                        text = "Synchronizing with Google Drive...",
-                        style = MaterialTheme.typography.bodySmall
-                    )
-                }
-            } else {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    // Backup / Sync Button
-                    Button(
-                        onClick = {
-                            val account = signedInAccount
-                            if (account == null) {
-                                val signInClient = GoogleDriveRestService.getGoogleSignInClient(context)
-                                googleSignInLauncher.launch(signInClient.signInIntent)
-                            } else {
-                                coroutineScope.launch {
-                                    isProcessing = true
-                                    val json = DriveBackupManager.generateBackupJson(repository)
-                                    val result = GoogleDriveRestService.uploadBackupToDrive(context, account, json)
-                                    isProcessing = false
-                                    if (result.isSuccess) {
-                                        repository.setLastDriveSyncTimestamp(System.currentTimeMillis())
-                                        onSyncComplete(context.getString(R.string.drive_backup_success))
-                                    } else {
-                                        val err = result.exceptionOrNull()?.localizedMessage ?: "Unknown error"
-                                        onSyncComplete(context.getString(R.string.drive_sync_error, err))
-                                    }
-                                }
-                            }
-                        },
-                        modifier = Modifier.weight(1f),
-                        shape = RoundedCornerShape(12.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.CloudUpload,
-                            contentDescription = null,
-                            modifier = Modifier.size(18.dp)
-                        )
-                        Spacer(modifier = Modifier.width(6.dp))
-                        Text(if (signedInAccount != null) stringResource(R.string.drive_backup_now) else "Connect Drive")
-                    }
-
-                    // Restore Button
-                    OutlinedButton(
-                        onClick = {
-                            val account = signedInAccount
-                            if (account == null) {
-                                val signInClient = GoogleDriveRestService.getGoogleSignInClient(context)
-                                googleSignInLauncher.launch(signInClient.signInIntent)
-                            } else {
-                                coroutineScope.launch {
-                                    isProcessing = true
-                                    val result = GoogleDriveRestService.downloadBackupFromDrive(context, account)
-                                    if (result.isSuccess) {
-                                        val json = result.getOrNull().orEmpty()
-                                        val restoreRes = DriveBackupManager.restoreFromJson(json, repository)
-                                        isProcessing = false
-                                        if (restoreRes.isSuccess) {
-                                            onSyncComplete(context.getString(R.string.drive_restore_success))
-                                        } else {
-                                            val err = restoreRes.exceptionOrNull()?.localizedMessage ?: "Invalid JSON"
-                                            onSyncComplete(context.getString(R.string.drive_sync_error, err))
-                                        }
-                                    } else {
-                                        isProcessing = false
-                                        val err = result.exceptionOrNull()?.localizedMessage ?: "Backup not found"
-                                        onSyncComplete(context.getString(R.string.drive_sync_error, err))
-                                    }
-                                }
-                            }
-                        },
-                        modifier = Modifier.weight(1f),
-                        shape = RoundedCornerShape(12.dp)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.CloudDownload,
-                            contentDescription = null,
-                            modifier = Modifier.size(18.dp)
-                        )
-                        Spacer(modifier = Modifier.width(6.dp))
-                        Text(stringResource(R.string.drive_restore_now))
-                    }
-                }
-            }
+          OutlinedButton(
+          onClick = onDisconnectClick,
+          modifier = Modifier.weight(1f),
+          shape = RoundedCornerShape(12.dp),
+          colors = ButtonDefaults.outlinedButtonColors(
+          contentColor = MaterialTheme.colorScheme.error
+          )
+          ) {
+            Icon(
+            imageVector = Icons.Default.LinkOff,
+            contentDescription = null,
+            modifier = Modifier.size(16.dp)
+            )
+            Spacer(modifier = Modifier.width(6.dp))
+            Text(
+            text = stringResource(R.string.drive_btn_disconnect),
+            style = MaterialTheme.typography.labelLarge
+            )
+          }
         }
+      } else {
+        // Disconnected State
+        Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier.padding(horizontal = 4.dp)
+        ) {
+          Icon(
+          imageVector = Icons.Default.CloudOff,
+          contentDescription = null,
+          tint = MaterialTheme.colorScheme.outline,
+          modifier = Modifier.size(16.dp)
+          )
+          Spacer(modifier = Modifier.width(6.dp))
+          Text(
+          text = stringResource(R.string.drive_status_disconnected),
+          style = MaterialTheme.typography.bodySmall,
+          color = MaterialTheme.colorScheme.onSurfaceVariant
+          )
+        }
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        // Single Connect Button
+        Button(
+        onClick = onConnectClick,
+        modifier = Modifier
+        .fillMaxWidth()
+        .height(48.dp),
+        shape = RoundedCornerShape(12.dp),
+        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+        ) {
+          Icon(
+          imageVector = Icons.Default.CloudSync,
+          contentDescription = null,
+          modifier = Modifier.size(20.dp)
+          )
+          Spacer(modifier = Modifier.width(8.dp))
+          Text(
+          text = stringResource(R.string.drive_btn_connect),
+          fontWeight = FontWeight.Bold
+          )
+        }
+      }
     }
+  }
 }

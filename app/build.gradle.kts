@@ -1,3 +1,6 @@
+import java.io.FileInputStream
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -5,12 +8,18 @@ plugins {
     alias(libs.plugins.ksp)
 }
 
+val keystorePropertiesFile = rootProject.file("keystore.properties")
+val keystoreProperties = Properties()
+if (keystorePropertiesFile.exists()) {
+    keystoreProperties.load(FileInputStream(keystorePropertiesFile))
+}
+
 android {
-    namespace = "com.example.spent"
+    namespace = "com.app.spent"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.example.spent"
+        applicationId = "com.app.spent"
         minSdk = 24
         targetSdk = 35
         versionCode = 1
@@ -19,9 +28,32 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    signingConfigs {
+        create("release") {
+            val envKeystorePath = System.getenv("KEYSTORE_FILE_PATH")
+            val envStorePass = System.getenv("KEYSTORE_PASSWORD")
+            val envKeyAlias = System.getenv("KEY_ALIAS")
+            val envKeyPass = System.getenv("KEY_PASSWORD")
+
+            if (keystorePropertiesFile.exists()) {
+                val propStoreFile = keystoreProperties.getProperty("storeFile") ?: "release-keystore.jks"
+                storeFile = rootProject.file(propStoreFile.removePrefix("../"))
+                storePassword = keystoreProperties.getProperty("storePassword")
+                keyAlias = keystoreProperties.getProperty("keyAlias")
+                keyPassword = keystoreProperties.getProperty("keyPassword")
+            } else if (!envKeystorePath.isNullOrEmpty() && !envStorePass.isNullOrEmpty()) {
+                storeFile = file(envKeystorePath)
+                storePassword = envStorePass
+                keyAlias = envKeyAlias ?: "spent-release-key"
+                keyPassword = envKeyPass ?: envStorePass
+            }
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = false
+            signingConfig = signingConfigs.getByName("release")
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -32,12 +64,8 @@ android {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
-    kotlinOptions {
-        jvmTarget = "17"
-    }
-    buildFeatures {
-        compose = true
-    }
+    kotlinOptions { jvmTarget = "17" }
+    buildFeatures { compose = true }
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"

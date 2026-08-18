@@ -1,4 +1,4 @@
-package com.example.spent.ui.transaction.components
+package com.app.spent.ui.transaction.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -30,60 +30,59 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.example.spent.R
-import com.example.spent.data.local.entity.CategoryEntity
-
+import com.app.spent.R
+import com.app.spent.data.local.entity.CategoryEntity
 @Composable
 fun CategoryEnvelopeSelector(
-    categories: List<CategoryEntity>,
-    selectedCategoryId: String,
-    onCategorySelected: (String) -> Unit,
-    onAddNewCategoryClick: () -> Unit,
-    modifier: Modifier = Modifier
+categories: List<CategoryEntity>,
+selectedCategoryId: String,
+onCategorySelected: (String) -> Unit,
+onAddNewCategoryClick: () -> Unit,
+modifier: Modifier = Modifier
 ) {
-    Column(modifier = modifier.fillMaxWidth()) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = stringResource(R.string.category_envelope_optional),
-                style = MaterialTheme.typography.bodyMedium,
-                fontWeight = FontWeight.Medium
-            )
-            TextButton(onClick = onAddNewCategoryClick) {
-                Icon(
-                    imageVector = Icons.Default.Add,
-                    contentDescription = "New Category",
-                    modifier = Modifier.size(18.dp)
-                )
-                Spacer(modifier = Modifier.width(4.dp))
-                Text(stringResource(R.string.btn_new), fontWeight = FontWeight.Bold)
-            }
-        }
-        Spacer(modifier = Modifier.height(4.dp))
-
-        LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            items(categories) { cat ->
-                FilterChip(
-                    selected = selectedCategoryId == cat.id,
-                    onClick = {
-                        onCategorySelected(if (selectedCategoryId == cat.id) "" else cat.id)
-                    },
-                    label = { Text(cat.name, maxLines = 1, overflow = TextOverflow.Ellipsis) },
-                    leadingIcon = {
-                        val color = runCatching { Color(android.graphics.Color.parseColor(cat.colorHex)) }
-                            .getOrDefault(MaterialTheme.colorScheme.primary)
-                        Icon(
-                            imageVector = com.example.spent.ui.components.CategoryIconHelper.getIconByName(cat.iconName),
-                            contentDescription = cat.name,
-                            tint = color,
-                            modifier = Modifier.size(16.dp)
-                        )
-                    }
-                )
-            }
-        }
+  Column(modifier = modifier.fillMaxWidth()) {
+    Row(
+    modifier = Modifier.fillMaxWidth(),
+    horizontalArrangement = Arrangement.SpaceBetween,
+    verticalAlignment = Alignment.CenterVertically
+    ) {
+      Text(
+      text = stringResource(R.string.category_envelope_optional),
+      style = MaterialTheme.typography.bodyMedium,
+      fontWeight = FontWeight.Medium
+      )
+      TextButton(onClick = onAddNewCategoryClick) {
+        Icon(
+        imageVector = Icons.Default.Add,
+        contentDescription = "New Category",
+        modifier = Modifier.size(18.dp)
+        )
+        Spacer(modifier = Modifier.width(4.dp))
+        Text(stringResource(R.string.btn_new), fontWeight = FontWeight.Bold)
+      }
     }
+    Spacer(modifier = Modifier.height(4.dp))
+
+    LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+      items(categories) { cat ->
+        FilterChip(
+        selected = selectedCategoryId == cat.id,
+        onClick = {
+          onCategorySelected(if (selectedCategoryId == cat.id) "" else cat.id)
+        },
+        label = { Text(cat.name, maxLines = 1, overflow = TextOverflow.Ellipsis) },
+        leadingIcon = {
+          val color = runCatching { Color(android.graphics.Color.parseColor(cat.colorHex)) }
+          .getOrDefault(MaterialTheme.colorScheme.primary)
+          Icon(
+          imageVector = com.app.spent.ui.components.CategoryIconHelper.getIconByName(cat.iconName),
+          contentDescription = cat.name,
+          tint = color,
+          modifier = Modifier.size(16.dp)
+          )
+        }
+        )
+      }
+    }
+  }
 }

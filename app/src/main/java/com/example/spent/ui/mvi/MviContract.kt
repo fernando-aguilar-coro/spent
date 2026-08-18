@@ -1,4 +1,4 @@
-package com.example.spent.ui.mvi
+package com.app.spent.ui.mvi
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -12,7 +12,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-
 interface UiState
 
 interface UiIntent
@@ -20,27 +19,27 @@ interface UiIntent
 interface UiEffect
 
 abstract class BaseViewModel<State : UiState, Intent : UiIntent, Effect : UiEffect>(
-    initialState: State
+initialState: State
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(initialState)
-    val uiState: StateFlow<State> = _uiState.asStateFlow()
+  private val _uiState = MutableStateFlow(initialState)
+  val uiState: StateFlow<State> = _uiState.asStateFlow()
 
-    private val _effect = Channel<Effect>(Channel.BUFFERED)
-    val effect = _effect.receiveAsFlow()
+  private val _effect = Channel<Effect>(Channel.BUFFERED)
+  val effect = _effect.receiveAsFlow()
 
-    protected val currentState: State
-        get() = _uiState.value
+  protected val currentState: State
+  get() = _uiState.value
 
-    abstract fun onIntent(intent: Intent)
+  abstract fun onIntent(intent: Intent)
 
-    protected fun setState(reduce: State.() -> State) {
-        _uiState.update { it.reduce() }
+  protected fun setState(reduce: State.() -> State) {
+    _uiState.update { it.reduce() }
+  }
+
+  protected fun sendEffect(effect: Effect) {
+    viewModelScope.launch {
+      _effect.send(effect)
     }
-
-    protected fun sendEffect(effect: Effect) {
-        viewModelScope.launch {
-            _effect.send(effect)
-        }
-    }
+  }
 }

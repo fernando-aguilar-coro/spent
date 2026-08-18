@@ -1,4 +1,4 @@
-package com.example.spent.ui.transaction.components
+package com.app.spent.ui.transaction.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -20,60 +20,58 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.spent.R
-import com.example.spent.ui.theme.ExpenseRed
-
-
+import com.app.spent.R
+import com.app.spent.ui.theme.ExpenseRed
 @Composable
 fun TransactionTypeSelector(
-    selectedType: String,
-    onTypeSelected: (String) -> Unit,
-    modifier: Modifier = Modifier
+selectedType: String,
+onTypeSelected: (String) -> Unit,
+modifier: Modifier = Modifier
 ) {
-    Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(16.dp))
-            .background(MaterialTheme.colorScheme.surfaceVariant)
-            .padding(4.dp),
-        horizontalArrangement = Arrangement.SpaceEvenly
+  Row(
+  modifier = modifier
+  .fillMaxWidth()
+  .clip(RoundedCornerShape(16.dp))
+  .background(MaterialTheme.colorScheme.surfaceVariant)
+  .padding(4.dp),
+  horizontalArrangement = Arrangement.SpaceEvenly
+  ) {
+    Box(
+    modifier = Modifier
+    .weight(1f)
+    .clip(RoundedCornerShape(12.dp))
+    .background(if (selectedType == "EXPENSE") ExpenseRed else Color.Transparent)
+    .clickable { onTypeSelected("EXPENSE") }
+    .padding(vertical = 12.dp),
+    contentAlignment = Alignment.Center
     ) {
-        Box(
-            modifier = Modifier
-                .weight(1f)
-                .clip(RoundedCornerShape(12.dp))
-                .background(if (selectedType == "EXPENSE") ExpenseRed else Color.Transparent)
-                .clickable { onTypeSelected("EXPENSE") }
-                .padding(vertical = 12.dp),
-            contentAlignment = Alignment.Center
-        ) {
-            Text(
-                text = stringResource(R.string.type_expense),
-                color = if (selectedType == "EXPENSE") Color.White else MaterialTheme.colorScheme.onSurfaceVariant,
-                fontWeight = FontWeight.SemiBold,
-                fontSize = 14.sp,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
-        }
-
-        Box(
-            modifier = Modifier
-                .weight(1f)
-                .clip(RoundedCornerShape(12.dp))
-                .background(if (selectedType == "INCOME") MaterialTheme.colorScheme.primary else Color.Transparent)
-                .clickable { onTypeSelected("INCOME") }
-                .padding(vertical = 12.dp),
-            contentAlignment = Alignment.Center
-        ) {
-            Text(
-                text = stringResource(R.string.type_income),
-                color = if (selectedType == "INCOME") Color.White else MaterialTheme.colorScheme.onSurfaceVariant,
-                fontWeight = FontWeight.SemiBold,
-                fontSize = 14.sp,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
-        }
+      Text(
+      text = stringResource(R.string.type_expense),
+      color = if (selectedType == "EXPENSE") Color.White else MaterialTheme.colorScheme.onSurfaceVariant,
+      fontWeight = FontWeight.SemiBold,
+      fontSize = 14.sp,
+      maxLines = 1,
+      overflow = TextOverflow.Ellipsis
+      )
     }
+
+    Box(
+    modifier = Modifier
+    .weight(1f)
+    .clip(RoundedCornerShape(12.dp))
+    .background(if (selectedType == "INCOME") MaterialTheme.colorScheme.primary else Color.Transparent)
+    .clickable { onTypeSelected("INCOME") }
+    .padding(vertical = 12.dp),
+    contentAlignment = Alignment.Center
+    ) {
+      Text(
+      text = stringResource(R.string.type_income),
+      color = if (selectedType == "INCOME") Color.White else MaterialTheme.colorScheme.onSurfaceVariant,
+      fontWeight = FontWeight.SemiBold,
+      fontSize = 14.sp,
+      maxLines = 1,
+      overflow = TextOverflow.Ellipsis
+      )
+    }
+  }
 }

@@ -1,7 +1,6 @@
-package com.example.spent.ui.theme
+package com.app.spent.ui.theme
 
 import androidx.compose.ui.graphics.Color
-
 // Soothing Sage & Forest Green Palette
 val SageGreenPrimary = Color(0xFF2E7D5B)
 val SageGreenLight = Color(0xFFE8F4EE)

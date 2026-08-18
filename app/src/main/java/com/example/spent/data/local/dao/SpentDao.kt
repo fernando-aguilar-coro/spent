@@ -1,4 +1,4 @@
-package com.example.spent.data.local.dao
+package com.app.spent.data.local.dao
 
 import androidx.room.Dao
 import androidx.room.Delete
@@ -6,119 +6,118 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
-import com.example.spent.data.local.entity.CategoryEntity
-import com.example.spent.data.local.entity.FamilyMemberEntity
-import com.example.spent.data.local.entity.ParentalControlConfigEntity
-import com.example.spent.data.local.entity.PayCycleEntity
-import com.example.spent.data.local.entity.RecurringRuleEntity
-import com.example.spent.data.local.entity.TransactionEntity
-import com.example.spent.data.local.entity.UserAccountEntity
+import com.app.spent.data.local.entity.CategoryEntity
+import com.app.spent.data.local.entity.FamilyMemberEntity
+import com.app.spent.data.local.entity.ParentalControlConfigEntity
+import com.app.spent.data.local.entity.PayCycleEntity
+import com.app.spent.data.local.entity.RecurringRuleEntity
+import com.app.spent.data.local.entity.TransactionEntity
+import com.app.spent.data.local.entity.UserAccountEntity
 import kotlinx.coroutines.flow.Flow
-
 @Dao
 interface SpentDao {
 
-    // User Account
-    @Query("SELECT * FROM user_account WHERE id = 'primary_account'")
-    fun getUserAccountFlow(): Flow<UserAccountEntity?>
+  // User Account
+  @Query("SELECT * FROM user_account WHERE id = 'primary_account'")
+  fun getUserAccountFlow(): Flow<UserAccountEntity?>
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertOrUpdateUserAccount(account: UserAccountEntity)
+  @Insert(onConflict = OnConflictStrategy.REPLACE)
+  suspend fun insertOrUpdateUserAccount(account: UserAccountEntity)
 
-    // Family Members
-    @Query("SELECT * FROM family_members")
-    fun getFamilyMembersFlow(): Flow<List<FamilyMemberEntity>>
+  // Family Members
+  @Query("SELECT * FROM family_members")
+  fun getFamilyMembersFlow(): Flow<List<FamilyMemberEntity>>
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertFamilyMember(member: FamilyMemberEntity)
+  @Insert(onConflict = OnConflictStrategy.REPLACE)
+  suspend fun insertFamilyMember(member: FamilyMemberEntity)
 
-    // Parental Controls
-    @Query("SELECT * FROM parental_control_config WHERE id = 'primary_config'")
-    fun getParentalConfigFlow(): Flow<ParentalControlConfigEntity?>
+  // Parental Controls
+  @Query("SELECT * FROM parental_control_config WHERE id = 'primary_config'")
+  fun getParentalConfigFlow(): Flow<ParentalControlConfigEntity?>
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertParentalConfig(config: ParentalControlConfigEntity)
+  @Insert(onConflict = OnConflictStrategy.REPLACE)
+  suspend fun insertParentalConfig(config: ParentalControlConfigEntity)
 
-    // Categories
-    @Query("SELECT * FROM categories ORDER BY displayOrder ASC")
-    fun getCategoriesFlow(): Flow<List<CategoryEntity>>
+  // Categories
+  @Query("SELECT * FROM categories ORDER BY displayOrder ASC")
+  fun getCategoriesFlow(): Flow<List<CategoryEntity>>
 
-    @Query("SELECT * FROM categories WHERE id = :id")
-    suspend fun getCategoryById(id: String): CategoryEntity?
+  @Query("SELECT * FROM categories WHERE id = :id")
+  suspend fun getCategoryById(id: String): CategoryEntity?
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertCategory(category: CategoryEntity)
+  @Insert(onConflict = OnConflictStrategy.REPLACE)
+  suspend fun insertCategory(category: CategoryEntity)
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertCategories(categories: List<CategoryEntity>)
+  @Insert(onConflict = OnConflictStrategy.REPLACE)
+  suspend fun insertCategories(categories: List<CategoryEntity>)
 
-    @Update
-    suspend fun updateCategory(category: CategoryEntity)
+  @Update
+  suspend fun updateCategory(category: CategoryEntity)
 
-    @Query("DELETE FROM categories WHERE id = :id")
-    suspend fun deleteCategoryById(id: String)
+  @Query("DELETE FROM categories WHERE id = :id")
+  suspend fun deleteCategoryById(id: String)
 
-    // Pay Cycles
-    @Query("SELECT * FROM pay_cycles ORDER BY startDate DESC LIMIT 1")
-    fun getCurrentPayCycleFlow(): Flow<PayCycleEntity?>
+  // Pay Cycles
+  @Query("SELECT * FROM pay_cycles ORDER BY startDate DESC LIMIT 1")
+  fun getCurrentPayCycleFlow(): Flow<PayCycleEntity?>
 
-    @Query("SELECT * FROM pay_cycles ORDER BY startDate DESC LIMIT 1")
-    suspend fun getCurrentPayCycle(): PayCycleEntity?
+  @Query("SELECT * FROM pay_cycles ORDER BY startDate DESC LIMIT 1")
+  suspend fun getCurrentPayCycle(): PayCycleEntity?
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertPayCycle(payCycle: PayCycleEntity)
+  @Insert(onConflict = OnConflictStrategy.REPLACE)
+  suspend fun insertPayCycle(payCycle: PayCycleEntity)
 
-    // Transactions
-    @Query("SELECT * FROM transactions ORDER BY timestamp DESC")
-    fun getTransactionsFlow(): Flow<List<TransactionEntity>>
+  // Transactions
+  @Query("SELECT * FROM transactions ORDER BY timestamp DESC")
+  fun getTransactionsFlow(): Flow<List<TransactionEntity>>
 
-    @Query("SELECT * FROM transactions WHERE timestamp >= :startTime ORDER BY timestamp DESC")
-    fun getTransactionsSinceFlow(startTime: Long): Flow<List<TransactionEntity>>
+  @Query("SELECT * FROM transactions WHERE timestamp >= :startTime ORDER BY timestamp DESC")
+  fun getTransactionsSinceFlow(startTime: Long): Flow<List<TransactionEntity>>
 
-    @Query("SELECT * FROM transactions WHERE id = :id")
-    suspend fun getTransactionById(id: String): TransactionEntity?
+  @Query("SELECT * FROM transactions WHERE id = :id")
+  suspend fun getTransactionById(id: String): TransactionEntity?
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertTransaction(transaction: TransactionEntity)
+  @Insert(onConflict = OnConflictStrategy.REPLACE)
+  suspend fun insertTransaction(transaction: TransactionEntity)
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertTransactions(transactions: List<TransactionEntity>)
+  @Insert(onConflict = OnConflictStrategy.REPLACE)
+  suspend fun insertTransactions(transactions: List<TransactionEntity>)
 
-    @Delete
-    suspend fun deleteTransaction(transaction: TransactionEntity)
+  @Delete
+  suspend fun deleteTransaction(transaction: TransactionEntity)
 
-    @Query("DELETE FROM transactions WHERE id = :id")
-    suspend fun deleteTransactionById(id: String)
+  @Query("DELETE FROM transactions WHERE id = :id")
+  suspend fun deleteTransactionById(id: String)
 
-    // Recurring Rules
-    @Query("SELECT * FROM recurring_rules")
-    fun getRecurringRulesFlow(): Flow<List<RecurringRuleEntity>>
+  // Recurring Rules
+  @Query("SELECT * FROM recurring_rules")
+  fun getRecurringRulesFlow(): Flow<List<RecurringRuleEntity>>
 
-    @Query("SELECT * FROM recurring_rules")
-    suspend fun getAllRecurringRules(): List<RecurringRuleEntity>
+  @Query("SELECT * FROM recurring_rules")
+  suspend fun getAllRecurringRules(): List<RecurringRuleEntity>
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertRecurringRule(rule: RecurringRuleEntity)
+  @Insert(onConflict = OnConflictStrategy.REPLACE)
+  suspend fun insertRecurringRule(rule: RecurringRuleEntity)
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertRecurringRules(rules: List<RecurringRuleEntity>)
+  @Insert(onConflict = OnConflictStrategy.REPLACE)
+  suspend fun insertRecurringRules(rules: List<RecurringRuleEntity>)
 
-    @Update
-    suspend fun updateRecurringRule(rule: RecurringRuleEntity)
+  @Update
+  suspend fun updateRecurringRule(rule: RecurringRuleEntity)
 
-    @Query("DELETE FROM recurring_rules WHERE id = :id")
-    suspend fun deleteRecurringRuleById(id: String)
+  @Query("DELETE FROM recurring_rules WHERE id = :id")
+  suspend fun deleteRecurringRuleById(id: String)
 
-    // Data Reset / Restore
-    @Query("DELETE FROM transactions")
-    suspend fun deleteAllTransactions()
+  // Data Reset / Restore
+  @Query("DELETE FROM transactions")
+  suspend fun deleteAllTransactions()
 
-    @Query("DELETE FROM categories")
-    suspend fun deleteAllCategories()
+  @Query("DELETE FROM categories")
+  suspend fun deleteAllCategories()
 
-    @Query("DELETE FROM recurring_rules")
-    suspend fun deleteAllRecurringRules()
+  @Query("DELETE FROM recurring_rules")
+  suspend fun deleteAllRecurringRules()
 
-    @Query("DELETE FROM pay_cycles")
-    suspend fun deleteAllPayCycles()
+  @Query("DELETE FROM pay_cycles")
+  suspend fun deleteAllPayCycles()
 }

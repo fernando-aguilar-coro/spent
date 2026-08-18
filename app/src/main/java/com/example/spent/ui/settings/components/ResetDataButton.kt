@@ -1,4 +1,4 @@
-package com.example.spent.ui.settings.components
+package com.app.spent.ui.settings.components
 
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
@@ -24,56 +24,55 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.example.spent.R
-import com.example.spent.ui.theme.ExpenseRed
-
+import com.app.spent.R
+import com.app.spent.ui.theme.ExpenseRed
 @Composable
 fun ResetDataButton(
-    onResetClick: () -> Unit
+onResetClick: () -> Unit
 ) {
-    var showConfirmDialog by remember { mutableStateOf(false) }
+  var showConfirmDialog by remember { mutableStateOf(false) }
 
-    Button(
-        onClick = { showConfirmDialog = true },
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(52.dp),
-        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp),
-        shape = RoundedCornerShape(16.dp),
-        colors = ButtonDefaults.buttonColors(containerColor = ExpenseRed)
-    ) {
-        Icon(Icons.Default.Delete, contentDescription = "Reset Data")
-        Spacer(modifier = Modifier.width(8.dp))
-        Text(
-            text = stringResource(R.string.reset_data_btn),
-            fontWeight = FontWeight.Bold,
-            maxLines = 1,
-            softWrap = false,
-            overflow = TextOverflow.Ellipsis
-        )
-    }
+  Button(
+  onClick = { showConfirmDialog = true },
+  modifier = Modifier
+  .fillMaxWidth()
+  .height(52.dp),
+  contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp),
+  shape = RoundedCornerShape(16.dp),
+  colors = ButtonDefaults.buttonColors(containerColor = ExpenseRed)
+  ) {
+    Icon(Icons.Default.Delete, contentDescription = "Reset Data")
+    Spacer(modifier = Modifier.width(8.dp))
+    Text(
+    text = stringResource(R.string.reset_data_btn),
+    fontWeight = FontWeight.Bold,
+    maxLines = 1,
+    softWrap = false,
+    overflow = TextOverflow.Ellipsis
+    )
+  }
 
-    if (showConfirmDialog) {
-        AlertDialog(
-            onDismissRequest = { showConfirmDialog = false },
-            title = { Text(stringResource(R.string.reset_data_confirm_title), fontWeight = FontWeight.Bold) },
-            text = { Text(stringResource(R.string.reset_data_confirm_msg)) },
-            confirmButton = {
-                Button(
-                    onClick = {
-                        onResetClick()
-                        showConfirmDialog = false
-                    },
-                    colors = ButtonDefaults.buttonColors(containerColor = ExpenseRed)
-                ) {
-                    Text(stringResource(R.string.reset_data_btn), fontWeight = FontWeight.Bold)
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { showConfirmDialog = false }) {
-                    Text(stringResource(R.string.btn_cancel))
-                }
-            }
-        )
+  if (showConfirmDialog) {
+    AlertDialog(
+    onDismissRequest = { showConfirmDialog = false },
+    title = { Text(stringResource(R.string.reset_data_confirm_title), fontWeight = FontWeight.Bold) },
+    text = { Text(stringResource(R.string.reset_data_confirm_msg)) },
+    confirmButton = {
+      Button(
+      onClick = {
+        onResetClick()
+        showConfirmDialog = false
+      },
+      colors = ButtonDefaults.buttonColors(containerColor = ExpenseRed)
+      ) {
+        Text(stringResource(R.string.reset_data_btn), fontWeight = FontWeight.Bold)
+      }
+    },
+    dismissButton = {
+      TextButton(onClick = { showConfirmDialog = false }) {
+        Text(stringResource(R.string.btn_cancel))
+      }
     }
+    )
+  }
 }

@@ -1,4 +1,4 @@
-package com.example.spent.ui.analytics.components
+package com.app.spent.ui.analytics.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -25,63 +25,62 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.example.spent.ui.analytics.CategorySpendingBreakdown
-
+import com.app.spent.ui.analytics.CategorySpendingBreakdown
 @Composable
 fun CategoryDistributionItem(
-    breakdown: CategorySpendingBreakdown,
-    currencySymbol: String
+breakdown: CategorySpendingBreakdown,
+currencySymbol: String
 ) {
-    val cat = breakdown.category
-    val color = runCatching { Color(android.graphics.Color.parseColor(cat.colorHex)) }
-        .getOrDefault(MaterialTheme.colorScheme.primary)
+  val cat = breakdown.category
+  val color = runCatching { Color(android.graphics.Color.parseColor(cat.colorHex)) }
+  .getOrDefault(MaterialTheme.colorScheme.primary)
 
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 4.dp),
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
-    ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Box(
-                        modifier = Modifier
-                            .size(14.dp)
-                            .clip(CircleShape)
-                            .background(color)
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(
-                        text = cat.name,
-                        style = MaterialTheme.typography.bodyMedium,
-                        fontWeight = FontWeight.SemiBold
-                    )
-                }
-
-                Text(
-                    text = "$currencySymbol${"%.2f".format(breakdown.totalSpent)} (${"%.1f".format(breakdown.percentageOfTotal * 100)}%)",
-                    style = MaterialTheme.typography.bodyMedium,
-                    fontWeight = FontWeight.Bold
-                )
-            }
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            LinearProgressIndicator(
-                progress = { breakdown.percentageOfTotal },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(6.dp)
-                    .clip(RoundedCornerShape(3.dp)),
-                color = color,
-                trackColor = color.copy(alpha = 0.2f)
-            )
+  Card(
+  modifier = Modifier
+  .fillMaxWidth()
+  .padding(vertical = 4.dp),
+  shape = RoundedCornerShape(16.dp),
+  colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+  ) {
+    Column(modifier = Modifier.padding(16.dp)) {
+      Row(
+      modifier = Modifier.fillMaxWidth(),
+      horizontalArrangement = Arrangement.SpaceBetween,
+      verticalAlignment = Alignment.CenterVertically
+      ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+          Box(
+          modifier = Modifier
+          .size(14.dp)
+          .clip(CircleShape)
+          .background(color)
+          )
+          Spacer(modifier = Modifier.width(8.dp))
+          Text(
+          text = cat.name,
+          style = MaterialTheme.typography.bodyMedium,
+          fontWeight = FontWeight.SemiBold
+          )
         }
+
+        Text(
+        text = "$currencySymbol${"%.2f".format(breakdown.totalSpent)} (${"%.1f".format(breakdown.percentageOfTotal * 100)}%)",
+        style = MaterialTheme.typography.bodyMedium,
+        fontWeight = FontWeight.Bold
+        )
+      }
+
+      Spacer(modifier = Modifier.height(8.dp))
+
+      LinearProgressIndicator(
+      progress = { breakdown.percentageOfTotal },
+      modifier = Modifier
+      .fillMaxWidth()
+      .height(6.dp)
+      .clip(RoundedCornerShape(3.dp)),
+      color = color,
+      trackColor = color.copy(alpha = 0.2f)
+      )
     }
+  }
 }

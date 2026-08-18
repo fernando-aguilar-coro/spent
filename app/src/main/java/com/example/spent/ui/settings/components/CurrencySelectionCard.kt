@@ -1,4 +1,4 @@
-package com.example.spent.ui.settings.components
+package com.app.spent.ui.settings.components
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -30,110 +30,109 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.example.spent.R
-
+import com.app.spent.R
 data class CurrencyOption(
-    val code: String,
-    val symbol: String,
-    val name: String
+val code: String,
+val symbol: String,
+val name: String
 )
 
 @Composable
 fun CurrencySelectionCard(
-    currentCurrencySymbol: String,
-    onSelectCurrencySymbol: (symbol: String) -> Unit
+currentCurrencySymbol: String,
+onSelectCurrencySymbol: (symbol: String) -> Unit
 ) {
-    var showDialog by remember { mutableStateOf(false) }
+  var showDialog by remember { mutableStateOf(false) }
 
-    val currencyList = remember {
-        listOf(
-            CurrencyOption("USD", "$", "US Dollar ($)"),
-            CurrencyOption("BOB", "Bs.", "Bolivian Boliviano (Bs.)"),
-            CurrencyOption("VES", "Bs.", "Venezuelan Bolívar (Bs.)"),
-            CurrencyOption("EUR", "€", "Euro (€)"),
-            CurrencyOption("GBP", "£", "British Pound (£)"),
-            CurrencyOption("MXN", "MXN $", "Mexican Peso (MXN $)"),
-            CurrencyOption("COP", "COP $", "Colombian Peso (COP $)"),
-            CurrencyOption("BRL", "R$", "Brazilian Real (R$)"),
-            CurrencyOption("PEN", "S/", "Peruvian Sol (S/)"),
-            CurrencyOption("CLP", "CLP $", "Chilean Peso (CLP $)"),
-            CurrencyOption("ARS", "ARS $", "Argentine Peso (ARS $)"),
-            CurrencyOption("PYG", "₲", "Paraguayan Guaraní (₲)"),
-            CurrencyOption("JPY", "¥", "Japanese Yen (¥)")
-        )
-    }
+  val currencyList = remember {
+    listOf(
+    CurrencyOption("USD", "$", "US Dollar ($)"),
+    CurrencyOption("BOB", "Bs.", "Bolivian Boliviano (Bs.)"),
+    CurrencyOption("VES", "Bs.", "Venezuelan Bolívar (Bs.)"),
+    CurrencyOption("EUR", "€", "Euro (€)"),
+    CurrencyOption("GBP", "£", "British Pound (£)"),
+    CurrencyOption("MXN", "MXN $", "Mexican Peso (MXN $)"),
+    CurrencyOption("COP", "COP $", "Colombian Peso (COP $)"),
+    CurrencyOption("BRL", "R$", "Brazilian Real (R$)"),
+    CurrencyOption("PEN", "S/", "Peruvian Sol (S/)"),
+    CurrencyOption("CLP", "CLP $", "Chilean Peso (CLP $)"),
+    CurrencyOption("ARS", "ARS $", "Argentine Peso (ARS $)"),
+    CurrencyOption("PYG", "₲", "Paraguayan Guaraní (₲)"),
+    CurrencyOption("JPY", "¥", "Japanese Yen (¥)")
+    )
+  }
 
-    val selectedLabel = remember(currentCurrencySymbol) {
-        currencyList.find { it.symbol == currentCurrencySymbol }?.name ?: currentCurrencySymbol
-    }
+  val selectedLabel = remember(currentCurrencySymbol) {
+    currencyList.find { it.symbol == currentCurrencySymbol }?.name ?: currentCurrencySymbol
+  }
 
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable { showDialog = true },
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+  Card(
+  modifier = Modifier
+  .fillMaxWidth()
+  .clickable { showDialog = true },
+  shape = RoundedCornerShape(16.dp),
+  colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+  ) {
+    Row(
+    modifier = Modifier.padding(16.dp),
+    verticalAlignment = Alignment.CenterVertically
     ) {
-        Row(
-            modifier = Modifier.padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Icon(
-                imageVector = Icons.Default.AttachMoney,
-                contentDescription = "Currency",
-                tint = MaterialTheme.colorScheme.primary
-            )
-            Spacer(modifier = Modifier.width(12.dp))
-            Column {
-                Text(
-                    text = stringResource(R.string.currency_title),
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold
-                )
-                Text(
-                    text = selectedLabel,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-        }
-    }
-
-    if (showDialog) {
-        AlertDialog(
-            onDismissRequest = { showDialog = false },
-            title = { Text(stringResource(R.string.currency_title), fontWeight = FontWeight.Bold) },
-            text = {
-                LazyColumn {
-                    items(currencyList) { item ->
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clickable {
-                                    onSelectCurrencySymbol(item.symbol)
-                                    showDialog = false
-                                }
-                                .padding(vertical = 8.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            RadioButton(
-                                selected = currentCurrencySymbol == item.symbol,
-                                onClick = {
-                                    onSelectCurrencySymbol(item.symbol)
-                                    showDialog = false
-                                }
-                            )
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Text(item.name, style = MaterialTheme.typography.bodyMedium)
-                        }
-                    }
-                }
-            },
-            confirmButton = {
-                TextButton(onClick = { showDialog = false }) {
-                    Text(stringResource(R.string.btn_close))
-                }
-            }
+      Icon(
+      imageVector = Icons.Default.AttachMoney,
+      contentDescription = "Currency",
+      tint = MaterialTheme.colorScheme.primary
+      )
+      Spacer(modifier = Modifier.width(12.dp))
+      Column {
+        Text(
+        text = stringResource(R.string.currency_title),
+        style = MaterialTheme.typography.titleMedium,
+        fontWeight = FontWeight.Bold
         )
+        Text(
+        text = selectedLabel,
+        style = MaterialTheme.typography.bodySmall,
+        color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+      }
     }
+  }
+
+  if (showDialog) {
+    AlertDialog(
+    onDismissRequest = { showDialog = false },
+    title = { Text(stringResource(R.string.currency_title), fontWeight = FontWeight.Bold) },
+    text = {
+      LazyColumn {
+        items(currencyList) { item ->
+          Row(
+          modifier = Modifier
+          .fillMaxWidth()
+          .clickable {
+            onSelectCurrencySymbol(item.symbol)
+            showDialog = false
+          }
+          .padding(vertical = 8.dp),
+          verticalAlignment = Alignment.CenterVertically
+          ) {
+            RadioButton(
+            selected = currentCurrencySymbol == item.symbol,
+            onClick = {
+              onSelectCurrencySymbol(item.symbol)
+              showDialog = false
+            }
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(item.name, style = MaterialTheme.typography.bodyMedium)
+          }
+        }
+      }
+    },
+    confirmButton = {
+      TextButton(onClick = { showDialog = false }) {
+        Text(stringResource(R.string.btn_close))
+      }
+    }
+    )
+  }
 }

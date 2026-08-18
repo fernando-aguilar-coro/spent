@@ -1,113 +1,163 @@
-package com.example.spent.ui.settings
+package com.app.spent.ui.settings
 
 import androidx.lifecycle.viewModelScope
-import com.example.spent.data.local.entity.CategoryEntity
-import com.example.spent.data.local.entity.PayCycleEntity
-import com.example.spent.data.local.entity.TransactionEntity
-import com.example.spent.data.repository.SpentRepository
-import com.example.spent.ui.mvi.BaseViewModel
+import com.app.spent.data.local.entity.CategoryEntity
+import com.app.spent.data.local.entity.PayCycleEntity
+import com.app.spent.data.local.entity.TransactionEntity
+import com.app.spent.data.repository.SpentRepository
+import com.app.spent.ui.mvi.BaseViewModel
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
-
 class SettingsViewModel(
-    private val repository: SpentRepository
+private val repository: SpentRepository
 ) : BaseViewModel<SettingsUiState, SettingsUiIntent, SettingsUiEffect>(SettingsUiState()) {
 
-    init {
-        observeSettingsData()
+  init {
+    observeSettingsData()
+  }
+
+  private fun observeSettingsData() {
+    viewModelScope.launch {
+      val coreFlow = combine(
+      repository.getCurrentPayCycleFlow(),
+      repository.isDarkThemeFlow,
+      repository.currencySymbolFlow,
+      repository.appLanguageFlow,
+      repository.lastDriveSyncTimestampFlow
+      ) { payCycle, isDark, currency, language, lastSync ->
+        SettingsCoreData(payCycle, isDark, currency, language, lastSync)
+      }
+
+      val driveFlow = combine(
+      repository.isDriveConnectedFlow,
+      repository.driveAccountEmailFlow,
+      repository.isSyncingDriveFlow
+      ) { isConnected, email, isSyncing ->
+        Triple(isConnected, email, isSyncing)
+      }
+
+      val dataFlow = combine(
+      repository.getTransactionsFlow(),
+      repository.getCategoriesFlow()
+      ) { transactions, categories ->
+        Pair(transactions, categories)
+      }
+
+      combine(coreFlow, driveFlow, dataFlow) { core, (isConnected, email, isSyncing), (transactions, categories) ->
+        SettingsUiState(
+        currentPayCycle = core.payCycle,
+        isDarkThemeOverride = core.isDark,
+        currencySymbol = core.currency,
+        appLanguage = core.language,
+        transactions = transactions,
+        categories = categories,
+        lastDriveSyncTimestamp = core.lastSync,
+        isDriveConnected = isConnected,
+        driveAccountEmail = email,
+        isDriveSyncing = isSyncing,
+        isLoading = false
+        )
+      }.collect { newState ->
+        setState { newState }
+      }
     }
+  }
 
-    private fun observeSettingsData() {
-        viewModelScope.launch {
-            val coreFlow = combine(
-                repository.getCurrentPayCycleFlow(),
-                repository.isDarkThemeFlow,
-                repository.currencySymbolFlow,
-                repository.appLanguageFlow,
-                repository.lastDriveSyncTimestampFlow
-            ) { payCycle, isDark, currency, language, lastSync ->
-                SettingsCoreData(payCycle, isDark, currency, language, lastSync)
-            }
+  private data class SettingsCoreData(
+  val payCycle: PayCycleEntity?,
+  val isDark: Boolean?,
+  val currency: String,
+  val language: String?,
+  val lastSync: Long
+  )
 
-            val dataFlow = combine(
-                repository.getTransactionsFlow(),
-                repository.getCategoriesFlow()
-            ) { transactions, categories ->
-                Pair(transactions, categories)
-            }
+  override fun onIntent(intent: SettingsUiIntent) {
+    when (intent) {
+      is SettingsUiIntent.SavePayCycle -> savePayCycle(intent.frequency, intent.income, intent.startDate)
+      is SettingsUiIntent.SetDarkThemeMode -> setThemeMode(intent.isDark)
+      is SettingsUiIntent.SetCurrencySymbol -> setCurrencySymbol(intent.symbol)
+      is SettingsUiIntent.SetAppLanguage -> setAppLanguage(intent.languageCode)
+      is SettingsUiIntent.ConnectDriveAccount -> connectDriveAccount(intent.account)
+      is SettingsUiIntent.DisconnectDrive -> disconnectDrive()
+      is SettingsUiIntent.SyncDriveNow -> syncDriveNow()
+      is SettingsUiIntent.RequestDriveSignIn -> sendEffect(SettingsUiEffect.LaunchDriveSignIn)
+      is SettingsUiIntent.NotifySyncMessage -> sendEffect(SettingsUiEffect.ShowSnackbar(intent.message))
+      is SettingsUiIntent.ResetAllData -> resetAllData()
+    }
+  }
 
-            combine(coreFlow, dataFlow) { core, (transactions, categories) ->
-                SettingsUiState(
-                    currentPayCycle = core.payCycle,
-                    isDarkThemeOverride = core.isDark,
-                    currencySymbol = core.currency,
-                    appLanguage = core.language,
-                    transactions = transactions,
-                    categories = categories,
-                    lastDriveSyncTimestamp = core.lastSync,
-                    isLoading = false
-                )
-            }.collect { newState ->
-                setState { newState }
-            }
+  private fun connectDriveAccount(account: com.google.android.gms.auth.api.signin.GoogleSignInAccount) {
+    viewModelScope.launch {
+      val result = repository.connectGoogleDrive(account)
+      when (result) {
+        is com.app.spent.data.sync.DriveConnectResult.RestoredFromCloud -> {
+          sendEffect(SettingsUiEffect.ShowSnackbar("Data restored from Google Drive successfully"))
         }
-    }
-
-    private data class SettingsCoreData(
-        val payCycle: PayCycleEntity?,
-        val isDark: Boolean?,
-        val currency: String,
-        val language: String?,
-        val lastSync: Long
-    )
-
-    override fun onIntent(intent: SettingsUiIntent) {
-        when (intent) {
-            is SettingsUiIntent.SavePayCycle -> savePayCycle(intent.frequency, intent.income, intent.startDate)
-            is SettingsUiIntent.SetDarkThemeMode -> setThemeMode(intent.isDark)
-            is SettingsUiIntent.SetCurrencySymbol -> setCurrencySymbol(intent.symbol)
-            is SettingsUiIntent.SetAppLanguage -> setAppLanguage(intent.languageCode)
-            is SettingsUiIntent.NotifySyncMessage -> sendEffect(SettingsUiEffect.ShowSnackbar(intent.message))
-            is SettingsUiIntent.ResetAllData -> resetAllData()
+        is com.app.spent.data.sync.DriveConnectResult.ConnectedNew -> {
+          sendEffect(SettingsUiEffect.ShowSnackbar("Google Drive connected"))
         }
-    }
-
-    private fun savePayCycle(frequency: String, income: Double, startDate: Long) {
-        viewModelScope.launch {
-            val current = currentState.currentPayCycle ?: PayCycleEntity()
-            val updated = current.copy(
-                frequency = frequency,
-                income = income,
-                startDate = startDate
-            )
-            repository.setPayCycle(updated)
-            sendEffect(SettingsUiEffect.ShowSnackbar("Pay cycle updated"))
+        is com.app.spent.data.sync.DriveConnectResult.Error -> {
+          sendEffect(SettingsUiEffect.ShowSnackbar(result.message))
         }
+      }
     }
+  }
 
-    private fun setThemeMode(isDark: Boolean?) {
-        viewModelScope.launch {
-            repository.setDarkThemeMode(isDark)
-        }
+  private fun disconnectDrive() {
+    viewModelScope.launch {
+      repository.disconnectGoogleDrive()
+      sendEffect(SettingsUiEffect.ShowSnackbar("Google Drive disconnected"))
     }
+  }
 
-    private fun setCurrencySymbol(symbol: String) {
-        viewModelScope.launch {
-            repository.setCurrencySymbol(symbol)
-            sendEffect(SettingsUiEffect.ShowSnackbar("Currency updated to $symbol"))
-        }
+  private fun syncDriveNow() {
+    viewModelScope.launch {
+      val result = repository.syncToGoogleDrive()
+      if (result.isSuccess) {
+        sendEffect(SettingsUiEffect.ShowSnackbar("Google Drive synchronized successfully"))
+      } else {
+        val err = result.exceptionOrNull()?.localizedMessage ?: "Unknown error"
+        sendEffect(SettingsUiEffect.ShowSnackbar("Error syncing: $err"))
+      }
     }
+  }
 
-    private fun setAppLanguage(languageCode: String?) {
-        viewModelScope.launch {
-            repository.setAppLanguage(languageCode)
-        }
+  private fun savePayCycle(frequency: String, income: Double, startDate: Long) {
+    viewModelScope.launch {
+      val current = currentState.currentPayCycle ?: PayCycleEntity()
+      val updated = current.copy(
+      frequency = frequency,
+      income = income,
+      startDate = startDate
+      )
+      repository.setPayCycle(updated)
+      sendEffect(SettingsUiEffect.ShowSnackbar("Pay cycle updated"))
     }
+  }
 
-    private fun resetAllData() {
-        viewModelScope.launch {
-            repository.resetAllData()
-            sendEffect(SettingsUiEffect.ShowSnackbar("All data has been reset"))
-        }
+  private fun setThemeMode(isDark: Boolean?) {
+    viewModelScope.launch {
+      repository.setDarkThemeMode(isDark)
     }
+  }
+
+  private fun setCurrencySymbol(symbol: String) {
+    viewModelScope.launch {
+      repository.setCurrencySymbol(symbol)
+      sendEffect(SettingsUiEffect.ShowSnackbar("Currency updated to $symbol"))
+    }
+  }
+
+  private fun setAppLanguage(languageCode: String?) {
+    viewModelScope.launch {
+      repository.setAppLanguage(languageCode)
+    }
+  }
+
+  private fun resetAllData() {
+    viewModelScope.launch {
+      repository.resetAllData()
+      sendEffect(SettingsUiEffect.ShowSnackbar("All data has been reset"))
+    }
+  }
 }

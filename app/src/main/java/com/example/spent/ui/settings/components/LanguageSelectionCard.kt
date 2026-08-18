@@ -1,4 +1,4 @@
-package com.example.spent.ui.settings.components
+package com.app.spent.ui.settings.components
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -28,94 +28,93 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.example.spent.R
-
+import com.app.spent.R
 @Composable
 fun LanguageSelectionCard(
-    currentLanguageCode: String?,
-    onSelectLanguage: (String?) -> Unit
+currentLanguageCode: String?,
+onSelectLanguage: (String?) -> Unit
 ) {
-    var showDialog by remember { mutableStateOf(false) }
+  var showDialog by remember { mutableStateOf(false) }
 
-    val currentLabel = when (currentLanguageCode) {
-        "en" -> stringResource(R.string.language_en)
-        "es" -> stringResource(R.string.language_es)
-        else -> stringResource(R.string.language_system)
-    }
+  val currentLabel = when (currentLanguageCode) {
+    "en" -> stringResource(R.string.language_en)
+    "es" -> stringResource(R.string.language_es)
+    else -> stringResource(R.string.language_system)
+  }
 
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable { showDialog = true },
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+  Card(
+  modifier = Modifier
+  .fillMaxWidth()
+  .clickable { showDialog = true },
+  shape = RoundedCornerShape(16.dp),
+  colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+  ) {
+    Row(
+    modifier = Modifier.padding(16.dp),
+    verticalAlignment = Alignment.CenterVertically
     ) {
-        Row(
-            modifier = Modifier.padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Icon(
-                imageVector = Icons.Default.Language,
-                contentDescription = "Language",
-                tint = MaterialTheme.colorScheme.primary
-            )
-            Spacer(modifier = Modifier.width(12.dp))
-            Column {
-                Text(
-                    text = stringResource(R.string.language_title),
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold
-                )
-                Text(
-                    text = currentLabel,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-        }
-    }
-
-    if (showDialog) {
-        AlertDialog(
-            onDismissRequest = { showDialog = false },
-            title = { Text(stringResource(R.string.language_title), fontWeight = FontWeight.Bold) },
-            text = {
-                Column {
-                    val options = listOf(
-                        null to stringResource(R.string.language_system),
-                        "en" to stringResource(R.string.language_en),
-                        "es" to stringResource(R.string.language_es)
-                    )
-
-                    options.forEach { (codeValue, label) ->
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clickable {
-                                    onSelectLanguage(codeValue)
-                                    showDialog = false
-                                }
-                                .padding(vertical = 8.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            RadioButton(
-                                selected = currentLanguageCode == codeValue,
-                                onClick = {
-                                    onSelectLanguage(codeValue)
-                                    showDialog = false
-                                }
-                            )
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Text(label, style = MaterialTheme.typography.bodyMedium)
-                        }
-                    }
-                }
-            },
-            confirmButton = {
-                TextButton(onClick = { showDialog = false }) {
-                    Text(stringResource(R.string.btn_close))
-                }
-            }
+      Icon(
+      imageVector = Icons.Default.Language,
+      contentDescription = "Language",
+      tint = MaterialTheme.colorScheme.primary
+      )
+      Spacer(modifier = Modifier.width(12.dp))
+      Column {
+        Text(
+        text = stringResource(R.string.language_title),
+        style = MaterialTheme.typography.titleMedium,
+        fontWeight = FontWeight.Bold
         )
+        Text(
+        text = currentLabel,
+        style = MaterialTheme.typography.bodySmall,
+        color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+      }
     }
+  }
+
+  if (showDialog) {
+    AlertDialog(
+    onDismissRequest = { showDialog = false },
+    title = { Text(stringResource(R.string.language_title), fontWeight = FontWeight.Bold) },
+    text = {
+      Column {
+        val options = listOf(
+        null to stringResource(R.string.language_system),
+        "en" to stringResource(R.string.language_en),
+        "es" to stringResource(R.string.language_es)
+        )
+
+        options.forEach { (codeValue, label) ->
+          Row(
+          modifier = Modifier
+          .fillMaxWidth()
+          .clickable {
+            onSelectLanguage(codeValue)
+            showDialog = false
+          }
+          .padding(vertical = 8.dp),
+          verticalAlignment = Alignment.CenterVertically
+          ) {
+            RadioButton(
+            selected = currentLanguageCode == codeValue,
+            onClick = {
+              onSelectLanguage(codeValue)
+              showDialog = false
+            }
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(label, style = MaterialTheme.typography.bodyMedium)
+          }
+        }
+      }
+    },
+    confirmButton = {
+      TextButton(onClick = { showDialog = false }) {
+        Text(stringResource(R.string.btn_close))
+      }
+    }
+    )
+  }
 }

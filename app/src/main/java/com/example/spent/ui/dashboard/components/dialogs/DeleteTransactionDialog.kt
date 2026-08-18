@@ -1,4 +1,4 @@
-package com.example.spent.ui.dashboard.components.dialogs
+package com.app.spent.ui.dashboard.components.dialogs
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -27,90 +27,89 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.example.spent.R
-import com.example.spent.data.local.entity.CategoryEntity
-import com.example.spent.data.local.entity.TransactionEntity
-import com.example.spent.ui.theme.ExpenseRed
-
+import com.app.spent.R
+import com.app.spent.data.local.entity.CategoryEntity
+import com.app.spent.data.local.entity.TransactionEntity
+import com.app.spent.ui.theme.ExpenseRed
 @Composable
 fun DeleteTransactionDialog(
-    transaction: TransactionEntity,
-    categories: List<CategoryEntity>,
-    currencySymbol: String,
-    onDismiss: () -> Unit,
-    onConfirmDelete: (TransactionEntity) -> Unit
+transaction: TransactionEntity,
+categories: List<CategoryEntity>,
+currencySymbol: String,
+onDismiss: () -> Unit,
+onConfirmDelete: (TransactionEntity) -> Unit
 ) {
-    val catName = categories.find { it.id == transaction.categoryId }?.name ?: stringResource(R.string.category_general)
-    val isExpense = transaction.type == "EXPENSE"
+  val catName = categories.find { it.id == transaction.categoryId }?.name ?: stringResource(R.string.category_general)
+  val isExpense = transaction.type == "EXPENSE"
 
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        icon = {
-            Box(
-                modifier = Modifier
-                    .size(48.dp)
-                    .clip(CircleShape)
-                    .background(ExpenseRed.copy(alpha = 0.15f)),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Delete,
-                    contentDescription = "Delete",
-                    tint = ExpenseRed,
-                    modifier = Modifier.size(26.dp)
-                )
-            }
-        },
-        title = { Text(stringResource(R.string.delete_transaction_title), fontWeight = FontWeight.Bold) },
-        text = {
-            Column {
-                Text(stringResource(R.string.delete_transaction_confirmation))
-                Spacer(modifier = Modifier.height(10.dp))
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clip(RoundedCornerShape(12.dp))
-                        .background(MaterialTheme.colorScheme.surfaceVariant)
-                        .padding(12.dp)
-                ) {
-                    Column {
-                        Text(
-                            text = "${if (isExpense) "-" else "+"}$currencySymbol${"%.2f".format(transaction.amount)} • $catName",
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                        if (transaction.note.isNotEmpty()) {
-                            Text(
-                                text = transaction.note,
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
-                    }
-                }
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    text = stringResource(R.string.delete_transaction_warning),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-        },
-        confirmButton = {
-            Button(
-                onClick = {
-                    onConfirmDelete(transaction)
-                    onDismiss()
-                },
-                colors = ButtonDefaults.buttonColors(containerColor = ExpenseRed)
-            ) {
-                Text(stringResource(R.string.delete_record), color = Color.White, fontWeight = FontWeight.Bold)
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text(stringResource(R.string.btn_cancel))
-            }
+  AlertDialog(
+  onDismissRequest = onDismiss,
+  icon = {
+    Box(
+    modifier = Modifier
+    .size(48.dp)
+    .clip(CircleShape)
+    .background(ExpenseRed.copy(alpha = 0.15f)),
+    contentAlignment = Alignment.Center
+    ) {
+      Icon(
+      imageVector = Icons.Default.Delete,
+      contentDescription = "Delete",
+      tint = ExpenseRed,
+      modifier = Modifier.size(26.dp)
+      )
+    }
+  },
+  title = { Text(stringResource(R.string.delete_transaction_title), fontWeight = FontWeight.Bold) },
+  text = {
+    Column {
+      Text(stringResource(R.string.delete_transaction_confirmation))
+      Spacer(modifier = Modifier.height(10.dp))
+      Box(
+      modifier = Modifier
+      .fillMaxWidth()
+      .clip(RoundedCornerShape(12.dp))
+      .background(MaterialTheme.colorScheme.surfaceVariant)
+      .padding(12.dp)
+      ) {
+        Column {
+          Text(
+          text = "${if (isExpense) "-" else "+"}$currencySymbol${"%.2f".format(transaction.amount)} • $catName",
+          fontWeight = FontWeight.Bold,
+          color = MaterialTheme.colorScheme.onSurfaceVariant
+          )
+          if (transaction.note.isNotEmpty()) {
+            Text(
+            text = transaction.note,
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+          }
         }
-    )
+      }
+      Spacer(modifier = Modifier.height(8.dp))
+      Text(
+      text = stringResource(R.string.delete_transaction_warning),
+      style = MaterialTheme.typography.bodySmall,
+      color = MaterialTheme.colorScheme.onSurfaceVariant
+      )
+    }
+  },
+  confirmButton = {
+    Button(
+    onClick = {
+      onConfirmDelete(transaction)
+      onDismiss()
+    },
+    colors = ButtonDefaults.buttonColors(containerColor = ExpenseRed)
+    ) {
+      Text(stringResource(R.string.delete_record), color = Color.White, fontWeight = FontWeight.Bold)
+    }
+  },
+  dismissButton = {
+    TextButton(onClick = onDismiss) {
+      Text(stringResource(R.string.btn_cancel))
+    }
+  }
+  )
 }

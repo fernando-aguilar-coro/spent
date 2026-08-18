@@ -1,4 +1,4 @@
-package com.example.spent.ui.transaction.components
+package com.app.spent.ui.transaction.components
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -40,200 +40,199 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.spent.R
-import com.example.spent.ui.components.CategoryIconHelper
-
+import com.app.spent.R
+import com.app.spent.ui.components.CategoryIconHelper
 @Composable
 fun AddCategoryDialog(
-    onDismiss: () -> Unit,
-    onSaveCategory: (name: String, colorHex: String, iconName: String) -> Unit
+onDismiss: () -> Unit,
+onSaveCategory: (name: String, colorHex: String, iconName: String) -> Unit
 ) {
-    var newCategoryName by remember { mutableStateOf("") }
-    var newCategoryColorHex by remember { mutableStateOf("#3B82F6") }
-    var newCategoryIconName by remember { mutableStateOf("Category") }
+  var newCategoryName by remember { mutableStateOf("") }
+  var newCategoryColorHex by remember { mutableStateOf("#3B82F6") }
+  var newCategoryIconName by remember { mutableStateOf("Category") }
 
-    val colorPaletteRow1 = listOf(
-        "#3B82F6", "#10B981", "#EF4444", "#F59E0B", "#8B5CF6", "#EC4899", "#06B6D4"
-    )
+  val colorPaletteRow1 = listOf(
+  "#3B82F6", "#10B981", "#EF4444", "#F59E0B", "#8B5CF6", "#EC4899", "#06B6D4"
+  )
 
-    val colorPaletteRow2 = listOf(
-        "#14B8A6", "#84CC16", "#F97316", "#6366F1", "#D946EF", "#0EA5E9", "#64748B"
-    )
+  val colorPaletteRow2 = listOf(
+  "#14B8A6", "#84CC16", "#F97316", "#6366F1", "#D946EF", "#0EA5E9", "#64748B"
+  )
 
-    val availableIcons = remember { CategoryIconHelper.availableIcons }
+  val availableIcons = remember { CategoryIconHelper.availableIcons }
 
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text(stringResource(R.string.create_category_title), fontWeight = FontWeight.Bold) },
-        text = {
-            Column {
-                OutlinedTextField(
-                    value = newCategoryName,
-                    onValueChange = { newCategoryName = it },
-                    label = { Text(stringResource(R.string.category_name_label)) },
-                    placeholder = { Text(stringResource(R.string.category_name_placeholder)) },
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth()
-                )
+  AlertDialog(
+  onDismissRequest = onDismiss,
+  title = { Text(stringResource(R.string.create_category_title), fontWeight = FontWeight.Bold) },
+  text = {
+    Column {
+      OutlinedTextField(
+      value = newCategoryName,
+      onValueChange = { newCategoryName = it },
+      label = { Text(stringResource(R.string.category_name_label)) },
+      placeholder = { Text(stringResource(R.string.category_name_placeholder)) },
+      singleLine = true,
+      modifier = Modifier.fillMaxWidth()
+      )
 
-                Spacer(modifier = Modifier.height(14.dp))
+      Spacer(modifier = Modifier.height(14.dp))
 
-                // Icon Picker Section
-                Text(
-                    text = "Select Icon",
-                    style = MaterialTheme.typography.bodySmall,
-                    fontWeight = FontWeight.SemiBold
-                )
-                Spacer(modifier = Modifier.height(6.dp))
+      // Icon Picker Section
+      Text(
+      text = "Select Icon",
+      style = MaterialTheme.typography.bodySmall,
+      fontWeight = FontWeight.SemiBold
+      )
+      Spacer(modifier = Modifier.height(6.dp))
 
-                LazyRow(
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    items(availableIcons) { iconOption ->
-                        val isSelected = newCategoryIconName == iconOption.iconName
-                        val currentColor = Color(android.graphics.Color.parseColor(newCategoryColorHex))
+      LazyRow(
+      horizontalArrangement = Arrangement.spacedBy(8.dp),
+      modifier = Modifier.fillMaxWidth()
+      ) {
+        items(availableIcons) { iconOption ->
+          val isSelected = newCategoryIconName == iconOption.iconName
+          val currentColor = Color(android.graphics.Color.parseColor(newCategoryColorHex))
 
-                        Box(
-                            modifier = Modifier
-                                .size(40.dp)
-                                .clip(RoundedCornerShape(12.dp))
-                                .background(if (isSelected) currentColor.copy(alpha = 0.2f) else MaterialTheme.colorScheme.surfaceVariant)
-                                .then(
-                                    if (isSelected) Modifier.border(BorderStroke(2.dp, currentColor), RoundedCornerShape(12.dp))
-                                    else Modifier
-                                )
-                                .clickable { newCategoryIconName = iconOption.iconName },
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Icon(
-                                imageVector = iconOption.icon,
-                                contentDescription = iconOption.label,
-                                tint = if (isSelected) currentColor else MaterialTheme.colorScheme.onSurfaceVariant,
-                                modifier = Modifier.size(22.dp)
-                            )
-                        }
-                    }
-                }
-
-                Spacer(modifier = Modifier.height(14.dp))
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Text(
-                        text = stringResource(R.string.select_color),
-                        style = MaterialTheme.typography.bodySmall,
-                        fontWeight = FontWeight.SemiBold
-                    )
-
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Box(
-                            modifier = Modifier
-                                .size(14.dp)
-                                .clip(CircleShape)
-                                .background(Color(android.graphics.Color.parseColor(newCategoryColorHex)))
-                        )
-                        Spacer(modifier = Modifier.width(6.dp))
-                        Text(
-                            text = newCategoryColorHex.uppercase(),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            fontWeight = FontWeight.Medium
-                        )
-                    }
-                }
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                // Color Palette Grid (Row 1)
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    colorPaletteRow1.forEach { colorHex ->
-                        val isSelected = newCategoryColorHex.equals(colorHex, ignoreCase = true)
-                        val color = Color(android.graphics.Color.parseColor(colorHex))
-
-                        Box(
-                            modifier = Modifier
-                                .size(34.dp)
-                                .clip(CircleShape)
-                                .background(color)
-                                .then(
-                                    if (isSelected) Modifier.border(BorderStroke(2.5.dp, MaterialTheme.colorScheme.onSurface), CircleShape)
-                                    else Modifier
-                                )
-                                .clickable { newCategoryColorHex = colorHex },
-                            contentAlignment = Alignment.Center
-                        ) {
-                            if (isSelected) {
-                                Icon(
-                                    imageVector = Icons.Default.Check,
-                                    contentDescription = "Selected",
-                                    tint = Color.White,
-                                    modifier = Modifier.size(18.dp)
-                                )
-                            }
-                        }
-                    }
-                }
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                // Color Palette Grid (Row 2)
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    colorPaletteRow2.forEach { colorHex ->
-                        val isSelected = newCategoryColorHex.equals(colorHex, ignoreCase = true)
-                        val color = Color(android.graphics.Color.parseColor(colorHex))
-
-                        Box(
-                            modifier = Modifier
-                                .size(34.dp)
-                                .clip(CircleShape)
-                                .background(color)
-                                .then(
-                                    if (isSelected) Modifier.border(BorderStroke(2.5.dp, MaterialTheme.colorScheme.onSurface), CircleShape)
-                                    else Modifier
-                                )
-                                .clickable { newCategoryColorHex = colorHex },
-                            contentAlignment = Alignment.Center
-                        ) {
-                            if (isSelected) {
-                                Icon(
-                                    imageVector = Icons.Default.Check,
-                                    contentDescription = "Selected",
-                                    tint = Color.White,
-                                    modifier = Modifier.size(18.dp)
-                                )
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        confirmButton = {
-            Button(
-                onClick = {
-                    if (newCategoryName.isNotBlank()) {
-                        onSaveCategory(newCategoryName.trim(), newCategoryColorHex, newCategoryIconName)
-                        onDismiss()
-                    }
-                },
-                enabled = newCategoryName.isNotBlank()
-            ) {
-                Text(stringResource(R.string.save_category))
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text(stringResource(R.string.btn_cancel))
-            }
+          Box(
+          modifier = Modifier
+          .size(40.dp)
+          .clip(RoundedCornerShape(12.dp))
+          .background(if (isSelected) currentColor.copy(alpha = 0.2f) else MaterialTheme.colorScheme.surfaceVariant)
+          .then(
+          if (isSelected) Modifier.border(BorderStroke(2.dp, currentColor), RoundedCornerShape(12.dp))
+          else Modifier
+          )
+          .clickable { newCategoryIconName = iconOption.iconName },
+          contentAlignment = Alignment.Center
+          ) {
+            Icon(
+            imageVector = iconOption.icon,
+            contentDescription = iconOption.label,
+            tint = if (isSelected) currentColor else MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.size(22.dp)
+            )
+          }
         }
-    )
+      }
+
+      Spacer(modifier = Modifier.height(14.dp))
+
+      Row(
+      modifier = Modifier.fillMaxWidth(),
+      verticalAlignment = Alignment.CenterVertically,
+      horizontalArrangement = Arrangement.SpaceBetween
+      ) {
+        Text(
+        text = stringResource(R.string.select_color),
+        style = MaterialTheme.typography.bodySmall,
+        fontWeight = FontWeight.SemiBold
+        )
+
+        Row(verticalAlignment = Alignment.CenterVertically) {
+          Box(
+          modifier = Modifier
+          .size(14.dp)
+          .clip(CircleShape)
+          .background(Color(android.graphics.Color.parseColor(newCategoryColorHex)))
+          )
+          Spacer(modifier = Modifier.width(6.dp))
+          Text(
+          text = newCategoryColorHex.uppercase(),
+          style = MaterialTheme.typography.bodySmall,
+          color = MaterialTheme.colorScheme.onSurfaceVariant,
+          fontWeight = FontWeight.Medium
+          )
+        }
+      }
+
+      Spacer(modifier = Modifier.height(8.dp))
+
+      // Color Palette Grid (Row 1)
+      Row(
+      modifier = Modifier.fillMaxWidth(),
+      horizontalArrangement = Arrangement.SpaceBetween
+      ) {
+        colorPaletteRow1.forEach { colorHex ->
+          val isSelected = newCategoryColorHex.equals(colorHex, ignoreCase = true)
+          val color = Color(android.graphics.Color.parseColor(colorHex))
+
+          Box(
+          modifier = Modifier
+          .size(34.dp)
+          .clip(CircleShape)
+          .background(color)
+          .then(
+          if (isSelected) Modifier.border(BorderStroke(2.5.dp, MaterialTheme.colorScheme.onSurface), CircleShape)
+          else Modifier
+          )
+          .clickable { newCategoryColorHex = colorHex },
+          contentAlignment = Alignment.Center
+          ) {
+            if (isSelected) {
+              Icon(
+              imageVector = Icons.Default.Check,
+              contentDescription = "Selected",
+              tint = Color.White,
+              modifier = Modifier.size(18.dp)
+              )
+            }
+          }
+        }
+      }
+
+      Spacer(modifier = Modifier.height(8.dp))
+
+      // Color Palette Grid (Row 2)
+      Row(
+      modifier = Modifier.fillMaxWidth(),
+      horizontalArrangement = Arrangement.SpaceBetween
+      ) {
+        colorPaletteRow2.forEach { colorHex ->
+          val isSelected = newCategoryColorHex.equals(colorHex, ignoreCase = true)
+          val color = Color(android.graphics.Color.parseColor(colorHex))
+
+          Box(
+          modifier = Modifier
+          .size(34.dp)
+          .clip(CircleShape)
+          .background(color)
+          .then(
+          if (isSelected) Modifier.border(BorderStroke(2.5.dp, MaterialTheme.colorScheme.onSurface), CircleShape)
+          else Modifier
+          )
+          .clickable { newCategoryColorHex = colorHex },
+          contentAlignment = Alignment.Center
+          ) {
+            if (isSelected) {
+              Icon(
+              imageVector = Icons.Default.Check,
+              contentDescription = "Selected",
+              tint = Color.White,
+              modifier = Modifier.size(18.dp)
+              )
+            }
+          }
+        }
+      }
+    }
+  },
+  confirmButton = {
+    Button(
+    onClick = {
+      if (newCategoryName.isNotBlank()) {
+        onSaveCategory(newCategoryName.trim(), newCategoryColorHex, newCategoryIconName)
+        onDismiss()
+      }
+    },
+    enabled = newCategoryName.isNotBlank()
+    ) {
+      Text(stringResource(R.string.save_category))
+    }
+  },
+  dismissButton = {
+    TextButton(onClick = onDismiss) {
+      Text(stringResource(R.string.btn_cancel))
+    }
+  }
+  )
 }
