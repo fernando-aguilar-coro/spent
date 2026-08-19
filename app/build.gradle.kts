@@ -1,7 +1,4 @@
 import java.io.FileInputStream
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
 import java.util.Properties
 
 plugins {
@@ -27,21 +24,13 @@ android {
             ?: System.getenv("VERSION_CODE")?.toIntOrNull()
             ?: (System.currentTimeMillis() / 1000).toInt()
     }
-    val calculatedVersionName: String = run {
-        (project.findProperty("versionName") as? String)
-            ?: System.getenv("VERSION_NAME")
-            ?: run {
-                val buildDate = SimpleDateFormat("yy.MM.dd", Locale.US).format(Date())
-                "1.0.$buildDate"
-            }
-    }
 
     defaultConfig {
         applicationId = "com.app.spent"
         minSdk = 24
         targetSdk = 35
         versionCode = calculatedVersionCode
-        versionName = calculatedVersionName
+        versionName = "1.0.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }

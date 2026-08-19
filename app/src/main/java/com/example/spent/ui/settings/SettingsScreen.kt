@@ -57,8 +57,6 @@ repository: SpentRepository
     } catch (e: ApiException) {
       if (e.statusCode != 12501) {
         val errorMsg = when (e.statusCode) {
-          10 -> "Developer Error (10): Ensure SHA-1 & Package Name match in Google Cloud Console."
-          12500 -> "Sign-in Failed (12500): Check Google Cloud Console setup or Play Services."
           else -> "Sign-in error (${e.statusCode}): ${e.localizedMessage ?: "Unknown"}"
         }
         viewModel.onIntent(SettingsUiIntent.NotifySyncMessage(errorMsg))

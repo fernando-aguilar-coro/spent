@@ -82,9 +82,6 @@ onNavigateToDashboard: () -> Unit
     } catch (e: ApiException) {
       android.util.Log.e("GoogleSignIn", "Google Sign In failed. Status Code: ${e.statusCode}", e)
       val errorMsg = when (e.statusCode) {
-        10 -> "Developer Error (10): Ensure SHA-1 & Package Name match in Google Cloud Console."
-        12500 -> "Sign-in Failed (12500): Check Google Cloud Console setup or Play Services."
-        12501 -> "Sign-in cancelled"
         else -> "Sign-in error (${e.statusCode}): ${e.localizedMessage ?: "Unknown"}"
       }
       if (e.statusCode != 12501) {
