@@ -39,6 +39,7 @@ onSelectLanguage: (String?) -> Unit
   val currentLabel = when (currentLanguageCode) {
     "en" -> stringResource(R.string.language_en)
     "es" -> stringResource(R.string.language_es)
+    "pt" -> stringResource(R.string.language_pt)
     else -> stringResource(R.string.language_system)
   }
 
@@ -83,7 +84,8 @@ onSelectLanguage: (String?) -> Unit
         val options = listOf(
         null to stringResource(R.string.language_system),
         "en" to stringResource(R.string.language_en),
-        "es" to stringResource(R.string.language_es)
+        "es" to stringResource(R.string.language_es),
+        "pt" to stringResource(R.string.language_pt)
         )
 
         options.forEach { (codeValue, label) ->

@@ -296,16 +296,9 @@ class SharedLedgerViewModel(
 
   private fun fetchAndAddMember(fileId: String) {
     viewModelScope.launch {
-      val account = GoogleDriveRestService.getSignedInAccount(context)
-      if (account == null) {
-        setState { copy(errorMessage = "Google Drive is not connected. Connect in Settings first.") }
-        sendEffect(SharedLedgerUiEffect.ShowSnackbar("Google Drive not connected"))
-        return@launch
-      }
-
       setState { copy(isLoading = true, errorMessage = null) }
 
-      val downloadResult = GoogleDriveRestService.downloadFileById(context, account, fileId)
+      val downloadResult = GoogleDriveRestService.downloadFileById(fileId)
       if (downloadResult.isSuccess) {
         val json = downloadResult.getOrNull() ?: ""
         val parseResult = SharedLedgerParser.parse(json, fileId = fileId, fileName = "Shared Ledger")
@@ -352,7 +345,6 @@ class SharedLedgerViewModel(
     }
 
     viewModelScope.launch {
-      val account = GoogleDriveRestService.getSignedInAccount(context) ?: return@launch
       if (!isSilent) {
         setState { copy(isRefreshing = true) }
       }
@@ -369,7 +361,7 @@ class SharedLedgerViewModel(
           continue
         }
 
-        val downloadRes = GoogleDriveRestService.downloadFileById(context, account, m.fileId)
+        val downloadRes = GoogleDriveRestService.downloadFileById(m.fileId)
         if (downloadRes.isSuccess) {
           val json = downloadRes.getOrNull() ?: ""
           val parseRes = SharedLedgerParser.parse(json, fileId = m.fileId, fileName = m.name)

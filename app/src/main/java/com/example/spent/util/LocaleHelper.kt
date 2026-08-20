@@ -22,6 +22,7 @@ object LocaleHelper {
     return when (languageCode) {
       "en" -> Locale.ENGLISH
       "es" -> Locale("es")
+      "pt" -> Locale("pt")
       else -> getSystemPreferredLocale(context)
     }
   }

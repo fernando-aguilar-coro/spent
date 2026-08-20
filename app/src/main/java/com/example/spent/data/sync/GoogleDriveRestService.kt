@@ -146,16 +146,27 @@ object GoogleDriveRestService {
   }
 
   suspend fun downloadFileById(
-    context: Context,
-    account: GoogleSignInAccount,
     fileId: String
   ): Result<String> = withContext(Dispatchers.IO) {
     try {
-      val drive = getDriveService(context, account)
-      val outputStream = ByteArrayOutputStream()
-      drive.files().get(fileId).executeMediaAndDownloadTo(outputStream)
-      val json = outputStream.toString("UTF-8")
-      Result.success(json)
+      val downloadUrl = java.net.URL("https://drive.google.com/uc?export=download&id=$fileId")
+      val connection = (downloadUrl.openConnection() as java.net.HttpURLConnection).apply {
+        instanceFollowRedirects = true
+        requestMethod = "GET"
+        connectTimeout = 15000
+        readTimeout = 15000
+        setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64)")
+      }
+
+      val responseCode = connection.responseCode
+      if (responseCode in 200..299) {
+        val json = connection.inputStream.bufferedReader(Charsets.UTF_8).use { it.readText() }
+        if (json.isNotBlank() && json.trim().startsWith("{")) {
+          return@withContext Result.success(json)
+        }
+      }
+
+      Result.failure(Exception("HTTP Error $responseCode: Could not download JSON"))
     } catch (e: Exception) {
       e.printStackTrace()
       Result.failure(e)
