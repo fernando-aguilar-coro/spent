@@ -47,6 +47,7 @@ class SpentRepositoryImpl(
     override val partnerEmailFlow: Flow<String?> = preferencesRepository.partnerEmailFlow
     override val partnerLastSyncTimestampFlow: Flow<Long> = preferencesRepository.partnerLastSyncTimestampFlow
     override val isPartnerPairedFlow: Flow<Boolean> = preferencesRepository.isPartnerPairedFlow
+    override val sharedMembersFlow: Flow<List<com.app.spent.data.sync.SharedMemberInfo>> = preferencesRepository.sharedMembersFlow
 
     override suspend fun connectGoogleDrive(account: GoogleSignInAccount): DriveConnectResult =
         DriveSyncManager.connectAccount(context, account, this, preferencesRepository)
@@ -60,6 +61,18 @@ class SpentRepositoryImpl(
 
     override fun triggerAutoSync() {
         DriveSyncManager.triggerAutoSync(context, this, preferencesRepository)
+    }
+
+    override suspend fun addOrUpdateSharedMember(member: com.app.spent.data.sync.SharedMemberInfo) {
+        preferencesRepository.addOrUpdateSharedMember(member)
+    }
+
+    override suspend fun removeSharedMember(fileId: String) {
+        preferencesRepository.removeSharedMember(fileId)
+    }
+
+    override suspend fun clearSharedMembers() {
+        preferencesRepository.clearSharedMembers()
     }
 
     override suspend fun savePartnerInfo(fileId: String, name: String, email: String?) {

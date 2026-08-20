@@ -7,12 +7,22 @@ import com.app.spent.data.local.entity.PayCycleEntity
 import com.app.spent.data.local.entity.TransactionEntity
 import org.json.JSONObject
 
-enum class HouseholdSource {
-  YOU,
-  PARTNER
-}
+data class SharedMemberInfo(
+  val fileId: String,
+  val name: String,
+  val role: String = "Member",
+  val lastSyncTimestamp: Long = 0L,
+  val isLocal: Boolean = false
+)
 
-data class HouseholdTransactionItem(
+data class SharedMemberContribution(
+  val memberName: String,
+  val spent: Double,
+  val income: Double,
+  val safeToSpend: Double
+)
+
+data class SharedUnifiedTransactionItem(
   val id: String,
   val amount: Double,
   val type: String, // INCOME, EXPENSE
@@ -20,22 +30,22 @@ data class HouseholdTransactionItem(
   val categoryColorHex: String,
   val timestamp: Long,
   val note: String,
-  val source: HouseholdSource,
-  val authorName: String
+  val authorName: String,
+  val isLocal: Boolean
 )
 
-data class HouseholdCategoryEnvelope(
+data class SharedCategoryEnvelope(
   val name: String,
   val iconName: String,
   val colorHex: String,
   val totalBudget: Double,
   val totalSpent: Double,
   val mySpent: Double,
-  val partnerSpent: Double,
-  val progress: Float
+  val progress: Float,
+  val memberBreakdown: Map<String, Double> = emptyMap()
 )
 
-data class HouseholdSummary(
+data class SharedFinancesSummary(
   val combinedIncome: Double,
   val combinedSpent: Double,
   val combinedNetBalance: Double,
@@ -43,21 +53,23 @@ data class HouseholdSummary(
   val myTotalIncome: Double,
   val myTotalSpent: Double,
   val mySafeToSpendToday: Double,
-  val partnerTotalIncome: Double,
-  val partnerTotalSpent: Double,
-  val partnerSafeToSpendToday: Double,
   val daysRemainingInCycle: Int,
-  val currencySymbol: String
+  val currencySymbol: String,
+  val memberContributions: List<SharedMemberContribution> = emptyList()
 )
 
-data class HouseholdUnifiedData(
-  val summary: HouseholdSummary,
-  val categories: List<HouseholdCategoryEnvelope>,
-  val transactions: List<HouseholdTransactionItem>,
-  val partnerName: String,
-  val partnerLastUpdated: Long,
-  val isPartnerActive: Boolean
+data class SharedUnifiedData(
+  val summary: SharedFinancesSummary,
+  val categories: List<SharedCategoryEnvelope>,
+  val transactions: List<SharedUnifiedTransactionItem>,
+  val members: List<SharedMemberInfo>
 )
+
+// Legacy aliases for backward compatibility if referenced
+typealias HouseholdUnifiedData = SharedUnifiedData
+typealias HouseholdSummary = SharedFinancesSummary
+typealias HouseholdCategoryEnvelope = SharedCategoryEnvelope
+typealias HouseholdTransactionItem = SharedUnifiedTransactionItem
 
 data class DriveBackupFileInfo(
   val id: String,
@@ -118,8 +130,8 @@ object SharedLedgerParser {
       val root = JSONObject(jsonString)
 
       // 1. User Account / Owner
-      var ownerName = "Partner"
-      var ownerRole = "Shared User"
+      var ownerName = "Shared Member"
+      var ownerRole = "Member"
       var exportTimestamp = root.optLong("exportTimestamp", System.currentTimeMillis())
 
       if (root.has("userAccount")) {
@@ -295,7 +307,7 @@ object SharedLedgerParser {
     }
   }
 
-  private fun calculateDaysRemaining(frequency: String, startDate: Long, now: Long): Int {
+  fun calculateDaysRemaining(frequency: String, startDate: Long, now: Long): Int {
     val cal = Calendar.getInstance().apply { timeInMillis = startDate }
     val nowCal = Calendar.getInstance().apply { timeInMillis = now }
 
@@ -332,57 +344,55 @@ object SharedLedgerParser {
       "version": 1,
       "exportTimestamp": $now,
       "userAccount": {
-        "id": "partner_shared_account",
-        "displayName": "Alex (Partner)",
-        "role": "Shared Partner",
+        "id": "member_demo_account",
+        "displayName": "Demo Member",
+        "role": "Shared Member",
         "lastDriveSyncTimestamp": $now
       },
       "preferences": {
         "currencySymbol": "$",
-        "savingsGoalName": "Vacation Fund",
-        "savingsGoalTotal": 2500.0,
-        "savingsMonthlyContribution": 200.0
+        "savingsGoalName": "Group Trip",
+        "savingsGoalTotal": 2000.0,
+        "savingsMonthlyContribution": 150.0
       },
       "payCycle": {
-        "id": "partner_cycle",
+        "id": "demo_cycle",
         "frequency": "MONTHLY",
-        "startDate": ${now - (12 * dayMillis)},
-        "income": 3200.0
+        "startDate": ${now - (10 * dayMillis)},
+        "income": 2800.0
       },
       "categories": [
-        { "id": "cat_food", "name": "Food & Groceries", "iconName": "Restaurant", "colorHex": "#10B981", "budgetAmount": 600.0, "displayOrder": 0 },
-        { "id": "cat_housing", "name": "Rent & Housing", "iconName": "Home", "colorHex": "#3B82F6", "budgetAmount": 1100.0, "displayOrder": 1 },
-        { "id": "cat_utilities", "name": "Utilities & Bills", "iconName": "Bolt", "colorHex": "#F59E0B", "budgetAmount": 250.0, "displayOrder": 2 },
-        { "id": "cat_transport", "name": "Transport & Gas", "iconName": "DirectionsCar", "colorHex": "#8B5CF6", "budgetAmount": 200.0, "displayOrder": 3 },
-        { "id": "cat_savings", "name": "Savings", "iconName": "Savings", "colorHex": "#059669", "budgetAmount": 500.0, "displayOrder": 4 }
+        { "id": "cat_food", "name": "Food & Groceries", "iconName": "Restaurant", "colorHex": "#10B981", "budgetAmount": 550.0, "displayOrder": 0 },
+        { "id": "cat_housing", "name": "Rent & Housing", "iconName": "Home", "colorHex": "#3B82F6", "budgetAmount": 950.0, "displayOrder": 1 },
+        { "id": "cat_utilities", "name": "Utilities & Bills", "iconName": "Bolt", "colorHex": "#F59E0B", "budgetAmount": 200.0, "displayOrder": 2 },
+        { "id": "cat_transport", "name": "Transport", "iconName": "DirectionsCar", "colorHex": "#8B5CF6", "budgetAmount": 180.0, "displayOrder": 3 },
+        { "id": "cat_entertainment", "name": "Entertainment", "iconName": "Movie", "colorHex": "#EC4899", "budgetAmount": 150.0, "displayOrder": 4 }
       ],
       "transactions": [
-        { "id": "tx_sample_1", "amount": 3200.0, "type": "INCOME", "categoryId": "cat_income", "timestamp": ${now - (12 * dayMillis)}, "note": "Monthly Salary" },
-        { "id": "tx_sample_2", "amount": 1100.0, "type": "EXPENSE", "categoryId": "cat_housing", "timestamp": ${now - (10 * dayMillis)}, "note": "Apartment Rent" },
-        { "id": "tx_sample_3", "amount": 142.50, "type": "EXPENSE", "categoryId": "cat_food", "timestamp": ${now - (3 * dayMillis)}, "note": "Weekly Supermarket" },
-        { "id": "tx_sample_4", "amount": 65.0, "type": "EXPENSE", "categoryId": "cat_utilities", "timestamp": ${now - (2 * dayMillis)}, "note": "Internet & Electricity" },
-        { "id": "tx_sample_5", "amount": 45.0, "type": "EXPENSE", "categoryId": "cat_transport", "timestamp": ${now - (1 * dayMillis)}, "note": "Gas refill" },
-        { "id": "tx_sample_6", "amount": 200.0, "type": "EXPENSE", "categoryId": "cat_savings", "timestamp": ${now - (5 * dayMillis)}, "note": "Vacation Fund Deposit" }
+        { "id": "tx_demo_1", "amount": 2800.0, "type": "INCOME", "categoryId": "cat_income", "timestamp": ${now - (10 * dayMillis)}, "note": "Monthly Income" },
+        { "id": "tx_demo_2", "amount": 950.0, "type": "EXPENSE", "categoryId": "cat_housing", "timestamp": ${now - (8 * dayMillis)}, "note": "Shared Housing" },
+        { "id": "tx_demo_3", "amount": 125.0, "type": "EXPENSE", "categoryId": "cat_food", "timestamp": ${now - (4 * dayMillis)}, "note": "Weekly Groceries" },
+        { "id": "tx_demo_4", "amount": 60.0, "type": "EXPENSE", "categoryId": "cat_utilities", "timestamp": ${now - (2 * dayMillis)}, "note": "Electric Bill" },
+        { "id": "tx_demo_5", "amount": 40.0, "type": "EXPENSE", "categoryId": "cat_transport", "timestamp": ${now - (1 * dayMillis)}, "note": "Metro pass" }
       ],
       "recurringRules": [
-        { "id": "rr_1", "amount": 1100.0, "categoryId": "cat_housing", "frequency": "MONTHLY", "startDate": $now, "note": "Rent" },
-        { "id": "rr_2", "amount": 65.0, "categoryId": "cat_utilities", "frequency": "MONTHLY", "startDate": $now, "note": "Wifi Bill" }
+        { "id": "rr_demo_1", "amount": 950.0, "categoryId": "cat_housing", "frequency": "MONTHLY", "startDate": $now, "note": "Housing" }
       ]
     }
     """.trimIndent()
   }
 }
 
-object HouseholdAggregator {
+object SharedFinancesAggregator {
 
   fun combine(
     localTransactions: List<TransactionEntity>,
     localCategories: List<CategoryEntity>,
     localPayCycle: PayCycleEntity?,
     currencySymbol: String,
-    partnerLedger: SharedLedgerData?,
+    memberLedgers: List<SharedLedgerData> = emptyList(),
     myDisplayName: String = "You"
-  ): HouseholdUnifiedData {
+  ): SharedUnifiedData {
     // 1. Local User Calculations
     val categoryMap = localCategories.associateBy { it.id }
     var myIncomeSum = 0.0
@@ -402,24 +412,69 @@ object HouseholdAggregator {
     val now = System.currentTimeMillis()
     val frequency = localPayCycle?.frequency ?: "MONTHLY"
     val startDate = localPayCycle?.startDate ?: now
-    val daysRemaining = calculateDaysRemaining(frequency, startDate, now)
+    val daysRemaining = SharedLedgerParser.calculateDaysRemaining(frequency, startDate, now)
 
     val myRemaining = (myEffectiveIncome - mySpentSum).coerceAtLeast(0.0)
     val mySafeToSpendToday = if (daysRemaining > 0) myRemaining / daysRemaining else myRemaining
 
-    // 2. Partner Data
-    val partnerIncome = partnerLedger?.totalIncome ?: 0.0
-    val partnerSpent = partnerLedger?.totalSpent ?: 0.0
-    val partnerSafeToSpend = partnerLedger?.safeToSpendToday ?: 0.0
-    val partnerName = partnerLedger?.ownerName ?: "Partner"
+    // 2. Members Calculations
+    var membersIncomeSum = 0.0
+    var membersSpentSum = 0.0
+    var membersSafeToSpendSum = 0.0
+    val memberContributions = mutableListOf<SharedMemberContribution>()
+    val membersInfoList = mutableListOf<SharedMemberInfo>()
+
+    // Add local user as first member
+    membersInfoList.add(
+      SharedMemberInfo(
+        fileId = "local_user",
+        name = myDisplayName,
+        role = "Owner",
+        lastSyncTimestamp = now,
+        isLocal = true
+      )
+    )
+    memberContributions.add(
+      SharedMemberContribution(
+        memberName = myDisplayName,
+        spent = mySpentSum,
+        income = myEffectiveIncome,
+        safeToSpend = mySafeToSpendToday
+      )
+    )
+
+    for (ledger in memberLedgers) {
+      membersIncomeSum += ledger.totalIncome
+      membersSpentSum += ledger.totalSpent
+      membersSafeToSpendSum += ledger.safeToSpendToday
+
+      memberContributions.add(
+        SharedMemberContribution(
+          memberName = ledger.ownerName,
+          spent = ledger.totalSpent,
+          income = ledger.totalIncome,
+          safeToSpend = ledger.safeToSpendToday
+        )
+      )
+
+      membersInfoList.add(
+        SharedMemberInfo(
+          fileId = ledger.sourceFileId ?: ledger.ownerName,
+          name = ledger.ownerName,
+          role = ledger.ownerRole,
+          lastSyncTimestamp = ledger.exportTimestamp,
+          isLocal = false
+        )
+      )
+    }
 
     // 3. Combined Summary
-    val combinedIncome = myEffectiveIncome + partnerIncome
-    val combinedSpent = mySpentSum + partnerSpent
+    val combinedIncome = myEffectiveIncome + membersIncomeSum
+    val combinedSpent = mySpentSum + membersSpentSum
     val combinedNetBalance = combinedIncome - combinedSpent
-    val combinedSafeToSpend = mySafeToSpendToday + partnerSafeToSpend
+    val combinedSafeToSpend = mySafeToSpendToday + membersSafeToSpendSum
 
-    val summary = HouseholdSummary(
+    val summary = SharedFinancesSummary(
       combinedIncome = combinedIncome,
       combinedSpent = combinedSpent,
       combinedNetBalance = combinedNetBalance,
@@ -427,67 +482,78 @@ object HouseholdAggregator {
       myTotalIncome = myEffectiveIncome,
       myTotalSpent = mySpentSum,
       mySafeToSpendToday = mySafeToSpendToday,
-      partnerTotalIncome = partnerIncome,
-      partnerTotalSpent = partnerSpent,
-      partnerSafeToSpendToday = partnerSafeToSpend,
       daysRemainingInCycle = daysRemaining,
-      currencySymbol = currencySymbol
+      currencySymbol = currencySymbol,
+      memberContributions = memberContributions
     )
 
-    // 4. Combined Categories
-    val envelopeList = mutableListOf<HouseholdCategoryEnvelope>()
-    val partnerCatMap = partnerLedger?.categories?.associateBy { it.name.trim().lowercase() } ?: emptyMap()
-    val processedPartnerCats = mutableSetOf<String>()
+    // 4. Combined Category Envelopes
+    val envelopeList = mutableListOf<SharedCategoryEnvelope>()
+    val processedRemoteCats = mutableSetOf<String>()
 
     for (cat in localCategories) {
       val key = cat.name.trim().lowercase()
-      val partnerCat = partnerCatMap[key]
-      if (partnerCat != null) {
-        processedPartnerCats.add(key)
+      var totalBudget = cat.budgetAmount
+      var combinedCatSpent = myCatSpentMap[cat.id] ?: 0.0
+      val breakdown = mutableMapOf<String, Double>()
+      if ((myCatSpentMap[cat.id] ?: 0.0) > 0) {
+        breakdown[myDisplayName] = myCatSpentMap[cat.id] ?: 0.0
       }
 
-      val myCatSpent = myCatSpentMap[cat.id] ?: 0.0
-      val partnerCatSpent = partnerCat?.spentAmount ?: 0.0
-      val combinedCatSpent = myCatSpent + partnerCatSpent
-      val totalBudget = cat.budgetAmount + (partnerCat?.budgetAmount ?: 0.0)
+      for (ledger in memberLedgers) {
+        val matchCat = ledger.categories.find { it.name.trim().lowercase() == key }
+        if (matchCat != null) {
+          processedRemoteCats.add(key)
+          totalBudget += matchCat.budgetAmount
+          combinedCatSpent += matchCat.spentAmount
+          if (matchCat.spentAmount > 0) {
+            breakdown[ledger.ownerName] = matchCat.spentAmount
+          }
+        }
+      }
+
       val progress = if (totalBudget > 0) (combinedCatSpent / totalBudget).toFloat().coerceIn(0f, 1.5f) else 0f
 
       envelopeList.add(
-        HouseholdCategoryEnvelope(
+        SharedCategoryEnvelope(
           name = cat.name,
           iconName = cat.iconName,
           colorHex = cat.colorHex,
           totalBudget = totalBudget,
           totalSpent = combinedCatSpent,
-          mySpent = myCatSpent,
-          partnerSpent = partnerCatSpent,
-          progress = progress
+          mySpent = myCatSpentMap[cat.id] ?: 0.0,
+          progress = progress,
+          memberBreakdown = breakdown
         )
       )
     }
 
-    // Add remaining partner categories that were not in local categories
-    partnerLedger?.categories?.forEach { pCat ->
-      val key = pCat.name.trim().lowercase()
-      if (!processedPartnerCats.contains(key)) {
-        val progress = if (pCat.budgetAmount > 0) (pCat.spentAmount / pCat.budgetAmount).toFloat().coerceIn(0f, 1.5f) else 0f
-        envelopeList.add(
-          HouseholdCategoryEnvelope(
-            name = pCat.name,
-            iconName = pCat.iconName,
-            colorHex = pCat.colorHex,
-            totalBudget = pCat.budgetAmount,
-            totalSpent = pCat.spentAmount,
-            mySpent = 0.0,
-            partnerSpent = pCat.spentAmount,
-            progress = progress
+    // Add remaining categories present only in remote members
+    for (ledger in memberLedgers) {
+      for (rCat in ledger.categories) {
+        val key = rCat.name.trim().lowercase()
+        if (!processedRemoteCats.contains(key) && localCategories.none { it.name.trim().lowercase() == key }) {
+          processedRemoteCats.add(key)
+          val breakdown = mutableMapOf(ledger.ownerName to rCat.spentAmount)
+          val progress = if (rCat.budgetAmount > 0) (rCat.spentAmount / rCat.budgetAmount).toFloat().coerceIn(0f, 1.5f) else 0f
+          envelopeList.add(
+            SharedCategoryEnvelope(
+              name = rCat.name,
+              iconName = rCat.iconName,
+              colorHex = rCat.colorHex,
+              totalBudget = rCat.budgetAmount,
+              totalSpent = rCat.spentAmount,
+              mySpent = 0.0,
+              progress = progress,
+              memberBreakdown = breakdown
+            )
           )
-        )
+        }
       }
     }
 
     // 5. Unified Transactions
-    val feedList = mutableListOf<HouseholdTransactionItem>()
+    val feedList = mutableListOf<SharedUnifiedTransactionItem>()
 
     // Local items
     localTransactions.take(30).forEach { tx ->
@@ -495,7 +561,7 @@ object HouseholdAggregator {
       val catName = cat?.name ?: "General"
       val catColor = cat?.colorHex ?: "#64748B"
       feedList.add(
-        HouseholdTransactionItem(
+        SharedUnifiedTransactionItem(
           id = tx.id,
           amount = tx.amount,
           type = tx.type,
@@ -503,71 +569,59 @@ object HouseholdAggregator {
           categoryColorHex = catColor,
           timestamp = tx.timestamp,
           note = tx.note.ifBlank { catName },
-          source = HouseholdSource.YOU,
-          authorName = myDisplayName
+          authorName = myDisplayName,
+          isLocal = true
         )
       )
     }
 
-    // Partner items
-    partnerLedger?.recentTransactions?.forEach { pTx ->
-      feedList.add(
-        HouseholdTransactionItem(
-          id = pTx.id,
-          amount = pTx.amount,
-          type = pTx.type,
-          categoryName = pTx.categoryName,
-          categoryColorHex = pTx.categoryColorHex,
-          timestamp = pTx.timestamp,
-          note = pTx.note.ifBlank { pTx.categoryName },
-          source = HouseholdSource.PARTNER,
-          authorName = partnerName
+    // Remote member items
+    for (ledger in memberLedgers) {
+      ledger.recentTransactions.forEach { rTx ->
+        feedList.add(
+          SharedUnifiedTransactionItem(
+            id = rTx.id,
+            amount = rTx.amount,
+            type = rTx.type,
+            categoryName = rTx.categoryName,
+            categoryColorHex = rTx.categoryColorHex,
+            timestamp = rTx.timestamp,
+            note = rTx.note.ifBlank { rTx.categoryName },
+            authorName = ledger.ownerName,
+            isLocal = false
+          )
         )
-      )
+      }
     }
 
     feedList.sortByDescending { it.timestamp }
 
-    return HouseholdUnifiedData(
+    return SharedUnifiedData(
       summary = summary,
       categories = envelopeList,
-      transactions = feedList.take(40),
-      partnerName = partnerName,
-      partnerLastUpdated = partnerLedger?.exportTimestamp ?: 0L,
-      isPartnerActive = partnerLedger != null
+      transactions = feedList.take(50),
+      members = membersInfoList
     )
-  }
-
-  private fun calculateDaysRemaining(frequency: String, startDate: Long, now: Long): Int {
-    val cal = Calendar.getInstance().apply { timeInMillis = startDate }
-    val nowCal = Calendar.getInstance().apply { timeInMillis = now }
-
-    val diffDays = ((now - startDate) / (1000 * 60 * 60 * 24)).toInt()
-
-    return when (frequency.uppercase()) {
-      "WEEKLY" -> {
-        val daysPassedInWeek = (diffDays % 7).coerceAtLeast(0)
-        (7 - daysPassedInWeek).coerceAtLeast(1)
-      }
-      "BIWEEKLY" -> {
-        val daysPassedInBiweek = (diffDays % 14).coerceAtLeast(0)
-        (14 - daysPassedInBiweek).coerceAtLeast(1)
-      }
-      "SEMIMONTHLY" -> {
-        val currentDay = nowCal.get(Calendar.DAY_OF_MONTH)
-        if (currentDay <= 15) {
-          (15 - currentDay + 1).coerceAtLeast(1)
-        } else {
-          val maxDays = nowCal.getActualMaximum(Calendar.DAY_OF_MONTH)
-          (maxDays - currentDay + 1).coerceAtLeast(1)
-        }
-      }
-      else -> {
-        val currentDay = nowCal.get(Calendar.DAY_OF_MONTH)
-        val maxDays = nowCal.getActualMaximum(Calendar.DAY_OF_MONTH)
-        (maxDays - currentDay + 1).coerceAtLeast(1)
-      }
-    }
   }
 }
 
+// Backward compatible object alias
+object HouseholdAggregator {
+  fun combine(
+    localTransactions: List<TransactionEntity>,
+    localCategories: List<CategoryEntity>,
+    localPayCycle: PayCycleEntity?,
+    currencySymbol: String,
+    partnerLedger: SharedLedgerData?,
+    myDisplayName: String = "You"
+  ): SharedUnifiedData {
+    return SharedFinancesAggregator.combine(
+      localTransactions = localTransactions,
+      localCategories = localCategories,
+      localPayCycle = localPayCycle,
+      currencySymbol = currencySymbol,
+      memberLedgers = if (partnerLedger != null) listOf(partnerLedger) else emptyList(),
+      myDisplayName = myDisplayName
+    )
+  }
+}

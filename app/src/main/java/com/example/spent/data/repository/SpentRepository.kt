@@ -33,11 +33,16 @@ interface SpentRepository {
   val partnerEmailFlow: Flow<String?>
   val partnerLastSyncTimestampFlow: Flow<Long>
   val isPartnerPairedFlow: Flow<Boolean>
+  val sharedMembersFlow: Flow<List<com.app.spent.data.sync.SharedMemberInfo>>
 
   suspend fun connectGoogleDrive(account: com.google.android.gms.auth.api.signin.GoogleSignInAccount): com.app.spent.data.sync.DriveConnectResult
   suspend fun disconnectGoogleDrive()
   suspend fun syncToGoogleDrive(): Result<Boolean>
   fun triggerAutoSync()
+
+  suspend fun addOrUpdateSharedMember(member: com.app.spent.data.sync.SharedMemberInfo)
+  suspend fun removeSharedMember(fileId: String)
+  suspend fun clearSharedMembers()
 
   suspend fun savePartnerInfo(fileId: String, name: String, email: String?)
   suspend fun setPartnerLastSyncTimestamp(timestamp: Long)

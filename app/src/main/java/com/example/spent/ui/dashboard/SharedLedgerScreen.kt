@@ -5,7 +5,6 @@ import java.util.Date
 import java.util.Locale
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -21,7 +20,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -30,11 +28,12 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.HelpOutline
 import androidx.compose.material.icons.automirrored.filled.TrendingDown
 import androidx.compose.material.icons.automirrored.filled.TrendingUp
-import androidx.compose.material.icons.filled.AccountBalance
-import androidx.compose.material.icons.filled.AddLink
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.CloudDone
+import androidx.compose.material.icons.filled.CloudOff
 import androidx.compose.material.icons.filled.ContentCopy
-import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Group
 import androidx.compose.material.icons.filled.Link
 import androidx.compose.material.icons.filled.Person
@@ -83,14 +82,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.app.spent.R
-import com.app.spent.data.sync.HouseholdCategoryEnvelope
-import com.app.spent.data.sync.HouseholdSource
-import com.app.spent.data.sync.HouseholdSummary
-import com.app.spent.data.sync.HouseholdTransactionItem
-import com.app.spent.data.sync.HouseholdUnifiedData
-import com.app.spent.data.sync.SharedCategoryItem
-import com.app.spent.data.sync.SharedLedgerData
-import com.app.spent.data.sync.SharedTransactionItem
+import com.app.spent.data.sync.SharedCategoryEnvelope
+import com.app.spent.data.sync.SharedFinancesSummary
+import com.app.spent.data.sync.SharedMemberInfo
+import com.app.spent.data.sync.SharedUnifiedTransactionItem
 import com.app.spent.ui.components.CategoryIconHelper
 import com.app.spent.ui.theme.ExpenseRed
 import com.app.spent.ui.theme.IncomeGreen
@@ -123,12 +118,12 @@ fun SharedLedgerScreen(
         title = {
           Column {
             Text(
-              text = stringResource(R.string.shared_ledgers_screen_title),
+              text = stringResource(R.string.shared_finances_screen_title),
               style = MaterialTheme.typography.titleLarge,
               fontWeight = FontWeight.Bold
             )
             Text(
-              text = stringResource(R.string.shared_ledgers_subtitle),
+              text = stringResource(R.string.shared_finances_subtitle),
               style = MaterialTheme.typography.labelSmall,
               color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -143,14 +138,14 @@ fun SharedLedgerScreen(
           }
         },
         actions = {
-          IconButton(onClick = { viewModel.onIntent(SharedLedgerUiIntent.ToggleShareGuide(true)) }) {
+          IconButton(onClick = { viewModel.onIntent(SharedLedgerUiIntent.ToggleGuideDialog(true)) }) {
             Icon(
               imageVector = Icons.AutoMirrored.Filled.HelpOutline,
               contentDescription = stringResource(R.string.shared_ledgers_share_guide_btn)
             )
           }
-          if (state.isPartnerPaired || state.activeLedger != null) {
-            IconButton(onClick = { viewModel.onIntent(SharedLedgerUiIntent.RefreshCurrentLedger) }) {
+          if (state.isDriveConnected) {
+            IconButton(onClick = { viewModel.onIntent(SharedLedgerUiIntent.RefreshAll) }) {
               Icon(
                 imageVector = Icons.Default.Refresh,
                 contentDescription = "Refresh"
@@ -170,37 +165,33 @@ fun SharedLedgerScreen(
       modifier = Modifier
         .fillMaxSize()
         .padding(paddingValues),
-      contentPadding = PaddingValues(bottom = 36.dp)
+      contentPadding = PaddingValues(bottom = 40.dp)
     ) {
-      // 1. Partner Status & Action Banner
+      // 1. Google Drive Status Header
       item {
-        PartnerStatusBar(
+        DriveStatusBar(
           isDriveConnected = state.isDriveConnected,
-          isPartnerPaired = state.isPartnerPaired,
-          partnerName = state.partnerName ?: state.activeLedger?.ownerName,
-          lastSyncTimestamp = state.partnerLastSyncTimestamp,
-          onPairClick = { viewModel.onIntent(SharedLedgerUiIntent.TogglePairPartnerDialog(true)) },
-          onUnlinkClick = { viewModel.onIntent(SharedLedgerUiIntent.UnlinkPartner) },
-          onRefreshClick = { viewModel.onIntent(SharedLedgerUiIntent.RefreshCurrentLedger) },
-          onLoadDemo = { viewModel.onIntent(SharedLedgerUiIntent.LoadSampleDemo) }
+          accountEmail = state.driveAccountEmail,
+          membersCount = state.members.filter { !it.isLocal }.size,
+          onRefreshAll = { viewModel.onIntent(SharedLedgerUiIntent.RefreshAll) }
         )
       }
 
-      // 2. Tab Selector: [ 🏠 Household | 👤 You | 👥 Partner ]
+      // 2. Navigation Tab Row: [ 📊 Statistics | 👥 Members | 🔗 Invite / Join ]
       item {
-        HouseholdTabRow(
+        SharedFinancesTabRow(
           selectedTab = state.selectedTab,
           onTabSelected = { viewModel.onIntent(SharedLedgerUiIntent.SwitchTab(it)) }
         )
       }
 
       // 3. Loading Indicator
-      if (state.isLoading) {
+      if (state.isLoading || state.isRefreshing) {
         item {
           Box(
             modifier = Modifier
               .fillMaxWidth()
-              .padding(32.dp),
+              .padding(24.dp),
             contentAlignment = Alignment.Center
           ) {
             CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
@@ -208,183 +199,146 @@ fun SharedLedgerScreen(
         }
       }
 
-      // 4. Tab Content Rendering
+      // 4. Tab Contents
       when (state.selectedTab) {
-        HouseholdTab.HOUSEHOLD -> {
-          val household = state.householdData
-          if (household != null) {
-            item {
-              HouseholdHeroCard(
-                summary = household.summary,
-                partnerName = household.partnerName,
-                isPartnerActive = household.isPartnerActive
-              )
-            }
-
-            item {
-              HouseholdKpiRow(summary = household.summary)
-            }
-
-            // Category Envelopes Breakdown
-            if (household.categories.isNotEmpty()) {
+        SharedFinancesTab.STATISTICS -> {
+          val unified = state.unifiedData
+          if (unified != null && unified.summary.combinedIncome > 0 || (unified?.summary?.combinedSpent ?: 0.0) > 0 || state.members.isNotEmpty()) {
+            val summary = unified?.summary
+            if (summary != null) {
               item {
-                Text(
-                  text = stringResource(R.string.shared_ledgers_category_breakdown),
-                  style = MaterialTheme.typography.titleMedium,
-                  fontWeight = FontWeight.Bold,
-                  modifier = Modifier.padding(horizontal = 20.dp, vertical = 12.dp)
-                )
+                StatisticsHeroCard(summary = summary)
               }
-              items(household.categories, key = { "hh_cat_${it.name}" }) { envelope ->
-                HouseholdCategoryRow(envelope = envelope, currencySymbol = household.summary.currencySymbol)
-              }
-            }
 
-            // Unified Activity Feed
-            if (household.transactions.isNotEmpty()) {
               item {
-                Text(
-                  text = stringResource(R.string.shared_ledgers_recent_txs),
-                  style = MaterialTheme.typography.titleMedium,
-                  fontWeight = FontWeight.Bold,
-                  modifier = Modifier.padding(horizontal = 20.dp, vertical = 12.dp)
-                )
+                StatisticsKpiRow(summary = summary)
               }
-              items(household.transactions, key = { "hh_tx_${it.id}" }) { tx ->
-                HouseholdTransactionRow(tx = tx, currencySymbol = household.summary.currencySymbol)
+
+              // Category Envelopes Breakdown
+              if (unified.categories.isNotEmpty()) {
+                item {
+                  Text(
+                    text = stringResource(R.string.shared_ledgers_category_breakdown),
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(horizontal = 20.dp, vertical = 12.dp)
+                  )
+                }
+                items(unified.categories, key = { "shared_cat_${it.name}" }) { envelope ->
+                  SharedCategoryEnvelopeRow(envelope = envelope, currencySymbol = summary.currencySymbol)
+                }
+              }
+
+              // Activity Feed
+              if (unified.transactions.isNotEmpty()) {
+                item {
+                  Text(
+                    text = stringResource(R.string.shared_ledgers_recent_txs),
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(horizontal = 20.dp, vertical = 12.dp)
+                  )
+                }
+                items(unified.transactions, key = { "shared_tx_${it.id}" }) { tx ->
+                  SharedTransactionRow(tx = tx, currencySymbol = summary.currencySymbol)
+                }
               }
             }
           } else if (!state.isLoading) {
             item {
-              EmptyHouseholdState(
-                onPairPartner = { viewModel.onIntent(SharedLedgerUiIntent.TogglePairPartnerDialog(true)) },
+              EmptyStatisticsState(
+                onGoToInvite = { viewModel.onIntent(SharedLedgerUiIntent.SwitchTab(SharedFinancesTab.INVITE_JOIN)) },
                 onLoadDemo = { viewModel.onIntent(SharedLedgerUiIntent.LoadSampleDemo) }
               )
             }
           }
         }
 
-        HouseholdTab.ME -> {
-          val household = state.householdData
-          if (household != null) {
-            item {
-              PersonalSummarySection(summary = household.summary)
-            }
+        SharedFinancesTab.MEMBERS -> {
+          item {
+            MembersPanelHeader(
+              membersCount = state.members.size,
+              onAddMemberClick = { viewModel.onIntent(SharedLedgerUiIntent.ToggleAddMemberDialog(true)) },
+              onRefreshAll = { viewModel.onIntent(SharedLedgerUiIntent.RefreshAll) }
+            )
+          }
 
-            val myTxs = household.transactions.filter { it.source == HouseholdSource.YOU }
-            if (myTxs.isNotEmpty()) {
-              item {
-                Text(
-                  text = stringResource(R.string.recent_activity),
-                  style = MaterialTheme.typography.titleMedium,
-                  fontWeight = FontWeight.Bold,
-                  modifier = Modifier.padding(horizontal = 20.dp, vertical = 12.dp)
-                )
-              }
-              items(myTxs, key = { "me_tx_${it.id}" }) { tx ->
-                HouseholdTransactionRow(tx = tx, currencySymbol = household.summary.currencySymbol)
-              }
+          val nonLocalMembers = state.members.filter { !it.isLocal }
+          if (nonLocalMembers.isEmpty()) {
+            item {
+              EmptyMembersState(
+                onInviteClick = { viewModel.onIntent(SharedLedgerUiIntent.SwitchTab(SharedFinancesTab.INVITE_JOIN)) },
+                onLoadDemo = { viewModel.onIntent(SharedLedgerUiIntent.LoadSampleDemo) }
+              )
+            }
+          } else {
+            items(nonLocalMembers, key = { "member_${it.fileId}" }) { member ->
+              MemberCardRow(
+                member = member,
+                onRefresh = { viewModel.onIntent(SharedLedgerUiIntent.RefreshMember(member.fileId)) },
+                onRemove = { viewModel.onIntent(SharedLedgerUiIntent.RemoveMember(member.fileId)) }
+              )
             }
           }
         }
 
-        HouseholdTab.PARTNER -> {
-          val active = state.activeLedger
-          if (active != null) {
-            item {
-              PartnerDetailedHeader(ledger = active)
-            }
-
-            if (active.categories.isNotEmpty()) {
-              item {
-                Text(
-                  text = stringResource(R.string.shared_ledgers_category_breakdown),
-                  style = MaterialTheme.typography.titleMedium,
-                  fontWeight = FontWeight.Bold,
-                  modifier = Modifier.padding(horizontal = 20.dp, vertical = 12.dp)
-                )
-              }
-              items(active.categories, key = { "p_cat_${it.id}" }) { category ->
-                PartnerCategoryRow(category = category, currencySymbol = active.currencySymbol)
-              }
-            }
-
-            if (active.recentTransactions.isNotEmpty()) {
-              item {
-                Text(
-                  text = stringResource(R.string.shared_ledgers_recent_txs),
-                  style = MaterialTheme.typography.titleMedium,
-                  fontWeight = FontWeight.Bold,
-                  modifier = Modifier.padding(horizontal = 20.dp, vertical = 12.dp)
-                )
-              }
-              items(active.recentTransactions, key = { "p_tx_${it.id}" }) { tx ->
-                PartnerTransactionRow(tx = tx, currencySymbol = active.currencySymbol)
-              }
-            }
-          } else if (!state.isLoading) {
-            item {
-              EmptyPartnerState(
-                onPairPartner = { viewModel.onIntent(SharedLedgerUiIntent.TogglePairPartnerDialog(true)) },
-                onLoadDemo = { viewModel.onIntent(SharedLedgerUiIntent.LoadSampleDemo) }
-              )
-            }
+        SharedFinancesTab.INVITE_JOIN -> {
+          item {
+            InviteAndJoinSection(
+              isDriveConnected = state.isDriveConnected,
+              isGeneratingLink = state.isGeneratingShareLink,
+              shareWebLink = state.ownShareWebLink,
+              inputUrl = state.addMemberInput,
+              isLoading = state.isLoading,
+              errorMessage = state.errorMessage,
+              onShareClick = { viewModel.onIntent(SharedLedgerUiIntent.ShareMyFinances) },
+              onCopyLink = { viewModel.onIntent(SharedLedgerUiIntent.CopyShareLink) },
+              onInputChange = { viewModel.onIntent(SharedLedgerUiIntent.UpdateAddMemberInput(it)) },
+              onAddMember = { viewModel.onIntent(SharedLedgerUiIntent.AddMemberByUrlOrId(it)) },
+              onLoadDemo = { viewModel.onIntent(SharedLedgerUiIntent.LoadSampleDemo) }
+            )
           }
         }
       }
     }
   }
 
-  // Automated In-App Pair Dialog
-  if (state.showPairPartnerDialog) {
-    PairPartnerDialog(
-      emailInput = state.partnerEmailInput,
-      linkInput = state.manualFileIdInput,
-      isLoading = state.isSharingWithEmail || state.isLoading,
+  // Add Member Modal Dialog
+  if (state.showAddMemberDialog) {
+    AddMemberDialog(
+      input = state.addMemberInput,
+      isLoading = state.isLoading,
       errorMessage = state.errorMessage,
-      onEmailChange = { viewModel.onIntent(SharedLedgerUiIntent.UpdatePartnerEmailInput(it)) },
-      onLinkChange = { viewModel.onIntent(SharedLedgerUiIntent.UpdateFileIdInput(it)) },
-      onInviteByEmail = { viewModel.onIntent(SharedLedgerUiIntent.InvitePartnerByEmail(it)) },
-      onPairByLink = { viewModel.onIntent(SharedLedgerUiIntent.PairPartnerWithIdOrUrl(it)) },
-      onCopyMyLink = { viewModel.onIntent(SharedLedgerUiIntent.CopyInviteLink) },
-      onDismiss = { viewModel.onIntent(SharedLedgerUiIntent.TogglePairPartnerDialog(false)) }
+      onInputChange = { viewModel.onIntent(SharedLedgerUiIntent.UpdateAddMemberInput(it)) },
+      onAdd = { viewModel.onIntent(SharedLedgerUiIntent.AddMemberByUrlOrId(it)) },
+      onDismiss = { viewModel.onIntent(SharedLedgerUiIntent.ToggleAddMemberDialog(false)) }
     )
   }
 
-  // How it works Guide Dialog
-  if (state.showShareGuideDialog) {
-    HouseholdGuideDialog(
-      onDismiss = { viewModel.onIntent(SharedLedgerUiIntent.ToggleShareGuide(false)) },
-      onCopyMyLink = { viewModel.onIntent(SharedLedgerUiIntent.CopyInviteLink) }
+  // Guide Dialog
+  if (state.showGuideDialog) {
+    SharedFinancesGuideDialog(
+      onDismiss = { viewModel.onIntent(SharedLedgerUiIntent.ToggleGuideDialog(false)) },
+      onShareLink = { viewModel.onIntent(SharedLedgerUiIntent.ShareMyFinances) }
     )
   }
 }
 
 @Composable
-private fun PartnerStatusBar(
+private fun DriveStatusBar(
   isDriveConnected: Boolean,
-  isPartnerPaired: Boolean,
-  partnerName: String?,
-  lastSyncTimestamp: Long,
-  onPairClick: () -> Unit,
-  onUnlinkClick: () -> Unit,
-  onRefreshClick: () -> Unit,
-  onLoadDemo: () -> Unit
+  accountEmail: String?,
+  membersCount: Int,
+  onRefreshAll: () -> Unit
 ) {
-  val formattedSync = remember(lastSyncTimestamp) {
-    if (lastSyncTimestamp > 0) {
-      SimpleDateFormat("MMM dd · HH:mm", Locale.getDefault()).format(Date(lastSyncTimestamp))
-    } else "Just now"
-  }
-
   Card(
     modifier = Modifier
       .fillMaxWidth()
       .padding(horizontal = 20.dp, vertical = 6.dp),
     shape = RoundedCornerShape(18.dp),
     colors = CardDefaults.cardColors(
-      containerColor = if (isPartnerPaired || partnerName != null) {
-        MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.6f)
+      containerColor = if (isDriveConnected) {
+        MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f)
       } else {
         MaterialTheme.colorScheme.surfaceVariant
       }
@@ -400,27 +354,27 @@ private fun PartnerStatusBar(
       Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.weight(1f)) {
         Box(
           modifier = Modifier
-            .size(42.dp)
+            .size(40.dp)
             .clip(CircleShape)
             .background(
-              if (isPartnerPaired || partnerName != null) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline.copy(alpha = 0.3f)
+              if (isDriveConnected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline.copy(alpha = 0.3f)
             ),
           contentAlignment = Alignment.Center
         ) {
           Icon(
-            imageVector = if (isPartnerPaired || partnerName != null) Icons.Default.Group else Icons.Default.Person,
+            imageVector = if (isDriveConnected) Icons.Default.CloudDone else Icons.Default.CloudOff,
             contentDescription = null,
-            tint = if (isPartnerPaired || partnerName != null) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.size(22.dp)
+            tint = if (isDriveConnected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.size(20.dp)
           )
         }
         Spacer(modifier = Modifier.width(12.dp))
         Column {
           Text(
-            text = if (isPartnerPaired || partnerName != null) {
-              stringResource(R.string.household_paired_with, partnerName ?: "Partner")
+            text = if (isDriveConnected) {
+              stringResource(R.string.shared_ledgers_drive_status_connected, accountEmail ?: "Google Drive")
             } else {
-              stringResource(R.string.household_not_paired)
+              stringResource(R.string.shared_ledgers_drive_status_disconnected)
             },
             style = MaterialTheme.typography.titleSmall,
             fontWeight = FontWeight.Bold,
@@ -428,8 +382,8 @@ private fun PartnerStatusBar(
             overflow = TextOverflow.Ellipsis
           )
           Text(
-            text = if (isPartnerPaired || partnerName != null) {
-              stringResource(R.string.shared_ledgers_last_synced, formattedSync)
+            text = if (membersCount > 0) {
+              stringResource(R.string.members_connected_count, membersCount)
             } else {
               stringResource(R.string.household_privacy_note)
             },
@@ -441,33 +395,14 @@ private fun PartnerStatusBar(
         }
       }
 
-      Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-        if (isPartnerPaired || partnerName != null) {
-          IconButton(onClick = onRefreshClick, modifier = Modifier.size(34.dp)) {
-            Icon(
-              imageVector = Icons.Default.Sync,
-              contentDescription = "Sync",
-              tint = MaterialTheme.colorScheme.primary,
-              modifier = Modifier.size(18.dp)
-            )
-          }
-          OutlinedButton(
-            onClick = onUnlinkClick,
-            shape = RoundedCornerShape(10.dp),
-            contentPadding = PaddingValues(horizontal = 10.dp, vertical = 4.dp),
-            modifier = Modifier.height(34.dp)
-          ) {
-            Text(text = stringResource(R.string.household_unlink_btn), style = MaterialTheme.typography.labelSmall)
-          }
-        } else {
-          Button(
-            onClick = onPairClick,
-            shape = RoundedCornerShape(12.dp),
-            contentPadding = PaddingValues(horizontal = 14.dp, vertical = 6.dp),
-            modifier = Modifier.height(36.dp)
-          ) {
-            Text(text = stringResource(R.string.household_pair_btn), style = MaterialTheme.typography.labelMedium)
-          }
+      if (isDriveConnected && membersCount > 0) {
+        IconButton(onClick = onRefreshAll, modifier = Modifier.size(34.dp)) {
+          Icon(
+            imageVector = Icons.Default.Sync,
+            contentDescription = "Sync All",
+            tint = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.size(18.dp)
+          )
         }
       }
     }
@@ -475,15 +410,15 @@ private fun PartnerStatusBar(
 }
 
 @Composable
-private fun HouseholdTabRow(
-  selectedTab: HouseholdTab,
-  onTabSelected: (HouseholdTab) -> Unit
+private fun SharedFinancesTabRow(
+  selectedTab: SharedFinancesTab,
+  onTabSelected: (SharedFinancesTab) -> Unit
 ) {
-  val tabs = listOf(HouseholdTab.HOUSEHOLD, HouseholdTab.ME, HouseholdTab.PARTNER)
+  val tabs = listOf(SharedFinancesTab.STATISTICS, SharedFinancesTab.MEMBERS, SharedFinancesTab.INVITE_JOIN)
   val titles = listOf(
-    stringResource(R.string.household_tab_combined),
-    stringResource(R.string.household_tab_me),
-    stringResource(R.string.household_tab_partner)
+    stringResource(R.string.tab_statistics),
+    stringResource(R.string.tab_members),
+    stringResource(R.string.tab_invite_join)
   )
 
   TabRow(
@@ -512,7 +447,7 @@ private fun HouseholdTabRow(
           Text(
             text = titles[index],
             fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
-            style = MaterialTheme.typography.labelLarge,
+            style = MaterialTheme.typography.labelMedium,
             color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
           )
         }
@@ -522,11 +457,7 @@ private fun HouseholdTabRow(
 }
 
 @Composable
-private fun HouseholdHeroCard(
-  summary: HouseholdSummary,
-  partnerName: String,
-  isPartnerActive: Boolean
-) {
+private fun StatisticsHeroCard(summary: SharedFinancesSummary) {
   Card(
     modifier = Modifier
       .fillMaxWidth()
@@ -568,37 +499,29 @@ private fun HouseholdHeroCard(
         color = MaterialTheme.colorScheme.onPrimaryContainer
       )
 
-      Spacer(modifier = Modifier.height(14.dp))
-      Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween
-      ) {
-        Column {
-          Text(
-            text = "Your Safe Spend",
-            style = MaterialTheme.typography.labelSmall,
-            color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f)
-          )
-          Text(
-            text = "${summary.currencySymbol}${"%.2f".format(summary.mySafeToSpendToday)}/day",
-            style = MaterialTheme.typography.bodyMedium,
-            fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.onPrimaryContainer
-          )
-        }
-
-        Column(horizontalAlignment = Alignment.End) {
-          Text(
-            text = "$partnerName's Safe Spend",
-            style = MaterialTheme.typography.labelSmall,
-            color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f)
-          )
-          Text(
-            text = "${summary.currencySymbol}${"%.2f".format(summary.partnerSafeToSpendToday)}/day",
-            style = MaterialTheme.typography.bodyMedium,
-            fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.onPrimaryContainer
-          )
+      if (summary.memberContributions.isNotEmpty()) {
+        Spacer(modifier = Modifier.height(14.dp))
+        Row(
+          modifier = Modifier.fillMaxWidth(),
+          horizontalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+          summary.memberContributions.take(3).forEach { contrib ->
+            Column(modifier = Modifier.weight(1f)) {
+              Text(
+                text = "${contrib.memberName} Safe",
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+              )
+              Text(
+                text = "${summary.currencySymbol}${"%.2f".format(contrib.safeToSpend)}/day",
+                style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onPrimaryContainer
+              )
+            }
+          }
         }
       }
     }
@@ -606,7 +529,7 @@ private fun HouseholdHeroCard(
 }
 
 @Composable
-private fun HouseholdKpiRow(summary: HouseholdSummary) {
+private fun StatisticsKpiRow(summary: SharedFinancesSummary) {
   Row(
     modifier = Modifier
       .fillMaxWidth()
@@ -678,8 +601,8 @@ private fun HouseholdKpiRow(summary: HouseholdSummary) {
 }
 
 @Composable
-private fun HouseholdCategoryRow(
-  envelope: HouseholdCategoryEnvelope,
+private fun SharedCategoryEnvelopeRow(
+  envelope: SharedCategoryEnvelope,
   currencySymbol: String
 ) {
   val catColor = remember(envelope.colorHex) {
@@ -725,10 +648,17 @@ private fun HouseholdCategoryRow(
               style = MaterialTheme.typography.bodyMedium,
               fontWeight = FontWeight.SemiBold
             )
+            val breakdownText = if (envelope.memberBreakdown.isNotEmpty()) {
+              envelope.memberBreakdown.entries.joinToString(" · ") { "${it.key}: $currencySymbol${"%.0f".format(it.value)}" }
+            } else {
+              "You: $currencySymbol${"%.2f".format(envelope.mySpent)}"
+            }
             Text(
-              text = "${stringResource(R.string.household_you_spent, "$currencySymbol${"%.2f".format(envelope.mySpent)}")} · ${stringResource(R.string.household_partner_spent, "$currencySymbol${"%.2f".format(envelope.partnerSpent)}")}",
+              text = breakdownText,
               style = MaterialTheme.typography.labelSmall,
-              color = MaterialTheme.colorScheme.onSurfaceVariant
+              color = MaterialTheme.colorScheme.onSurfaceVariant,
+              maxLines = 1,
+              overflow = TextOverflow.Ellipsis
             )
           }
         }
@@ -762,15 +692,14 @@ private fun HouseholdCategoryRow(
 }
 
 @Composable
-private fun HouseholdTransactionRow(
-  tx: HouseholdTransactionItem,
+private fun SharedTransactionRow(
+  tx: SharedUnifiedTransactionItem,
   currencySymbol: String
 ) {
   val dateFormatted = remember(tx.timestamp) {
     SimpleDateFormat("MMM dd · HH:mm", Locale.getDefault()).format(Date(tx.timestamp))
   }
   val isIncome = tx.type.equals("INCOME", ignoreCase = true)
-  val isMe = tx.source == HouseholdSource.YOU
 
   Row(
     modifier = Modifier
@@ -811,15 +740,15 @@ private fun HouseholdTransactionRow(
             modifier = Modifier
               .clip(RoundedCornerShape(6.dp))
               .background(
-                if (isMe) MaterialTheme.colorScheme.primary.copy(alpha = 0.15f) else MaterialTheme.colorScheme.secondary.copy(alpha = 0.15f)
+                if (tx.isLocal) MaterialTheme.colorScheme.primary.copy(alpha = 0.15f) else MaterialTheme.colorScheme.secondary.copy(alpha = 0.15f)
               )
               .padding(horizontal = 6.dp, vertical = 2.dp)
           ) {
             Text(
-              text = if (isMe) stringResource(R.string.household_badge_you) else tx.authorName,
+              text = if (tx.isLocal) stringResource(R.string.household_badge_you) else tx.authorName,
               style = MaterialTheme.typography.labelSmall,
               fontWeight = FontWeight.Bold,
-              color = if (isMe) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary
+              color = if (tx.isLocal) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary
             )
           }
         }
@@ -841,191 +770,248 @@ private fun HouseholdTransactionRow(
 }
 
 @Composable
-private fun PersonalSummarySection(summary: HouseholdSummary) {
-  Card(
+private fun MembersPanelHeader(
+  membersCount: Int,
+  onAddMemberClick: () -> Unit,
+  onRefreshAll: () -> Unit
+) {
+  Row(
     modifier = Modifier
       .fillMaxWidth()
-      .padding(horizontal = 20.dp, vertical = 8.dp),
-    shape = RoundedCornerShape(18.dp),
-    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+      .padding(horizontal = 20.dp, vertical = 10.dp),
+    horizontalArrangement = Arrangement.SpaceBetween,
+    verticalAlignment = Alignment.CenterVertically
   ) {
-    Column(modifier = Modifier.padding(18.dp)) {
-      Text(
-        text = "Personal Budget Summary",
-        style = MaterialTheme.typography.titleMedium,
-        fontWeight = FontWeight.Bold
-      )
-      Spacer(modifier = Modifier.height(12.dp))
-      Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween
+    Text(
+      text = stringResource(R.string.members_panel_title),
+      style = MaterialTheme.typography.titleMedium,
+      fontWeight = FontWeight.Bold
+    )
+    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+      IconButton(onClick = onRefreshAll, modifier = Modifier.size(34.dp)) {
+        Icon(imageVector = Icons.Default.Sync, contentDescription = "Sync All", tint = MaterialTheme.colorScheme.primary)
+      }
+      FilledTonalButton(
+        onClick = onAddMemberClick,
+        shape = RoundedCornerShape(12.dp),
+        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp),
+        modifier = Modifier.height(34.dp)
       ) {
-        Column {
-          Text(text = "My Total Income", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-          Text(text = "${summary.currencySymbol}${"%.2f".format(summary.myTotalIncome)}", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = IncomeGreen)
-        }
-        Column(horizontalAlignment = Alignment.End) {
-          Text(text = "My Total Spent", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-          Text(text = "${summary.currencySymbol}${"%.2f".format(summary.myTotalSpent)}", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = ExpenseRed)
-        }
+        Icon(imageVector = Icons.Default.Add, contentDescription = null, modifier = Modifier.size(16.dp))
+        Spacer(modifier = Modifier.width(4.dp))
+        Text(text = stringResource(R.string.add_member_btn), style = MaterialTheme.typography.labelMedium)
       }
     }
   }
 }
 
 @Composable
-private fun PartnerDetailedHeader(ledger: SharedLedgerData) {
-  Card(
-    modifier = Modifier
-      .fillMaxWidth()
-      .padding(horizontal = 20.dp, vertical = 8.dp),
-    shape = RoundedCornerShape(18.dp),
-    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
-  ) {
-    Column(modifier = Modifier.padding(18.dp)) {
-      Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-      ) {
-        Column {
-          Text(
-            text = ledger.ownerName,
-            style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.Bold
-          )
-          Text(
-            text = ledger.ownerRole,
-            style = MaterialTheme.typography.labelSmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-          )
-        }
-        Box(
-          modifier = Modifier
-            .clip(RoundedCornerShape(8.dp))
-            .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.15f))
-            .padding(horizontal = 8.dp, vertical = 4.dp)
-        ) {
-          Text(
-            text = "${ledger.daysRemainingInCycle} days left",
-            style = MaterialTheme.typography.labelSmall,
-            fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.primary
-          )
-        }
-      }
-
-      Spacer(modifier = Modifier.height(14.dp))
-      Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween
-      ) {
-        Column {
-          Text(text = "Safe Today", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-          Text(text = "${ledger.currencySymbol}${"%.2f".format(ledger.safeToSpendToday)}/day", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
-        }
-        Column(horizontalAlignment = Alignment.End) {
-          Text(text = "Total Spent", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-          Text(text = "${ledger.currencySymbol}${"%.2f".format(ledger.totalSpent)}", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = ExpenseRed)
-        }
-      }
-    }
-  }
-}
-
-@Composable
-private fun PartnerCategoryRow(category: SharedCategoryItem, currencySymbol: String) {
-  val catColor = remember(category.colorHex) {
-    try {
-      Color(android.graphics.Color.parseColor(category.colorHex))
-    } catch (e: Exception) {
-      Color(0xFF64748B)
-    }
+private fun MemberCardRow(
+  member: SharedMemberInfo,
+  onRefresh: () -> Unit,
+  onRemove: () -> Unit
+) {
+  val formattedSync = remember(member.lastSyncTimestamp) {
+    if (member.lastSyncTimestamp > 0) {
+      SimpleDateFormat("MMM dd · HH:mm", Locale.getDefault()).format(Date(member.lastSyncTimestamp))
+    } else "Never"
   }
 
   Card(
     modifier = Modifier
       .fillMaxWidth()
-      .padding(horizontal = 20.dp, vertical = 4.dp),
-    shape = RoundedCornerShape(12.dp),
-    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+      .padding(horizontal = 20.dp, vertical = 5.dp),
+    shape = RoundedCornerShape(16.dp),
+    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.7f))
   ) {
     Row(
       modifier = Modifier
         .fillMaxWidth()
-        .padding(12.dp),
-      horizontalArrangement = Arrangement.SpaceBetween,
-      verticalAlignment = Alignment.CenterVertically
+        .padding(14.dp),
+      verticalAlignment = Alignment.CenterVertically,
+      horizontalArrangement = Arrangement.SpaceBetween
     ) {
-      Row(verticalAlignment = Alignment.CenterVertically) {
+      Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.weight(1f)) {
         Box(
           modifier = Modifier
-            .size(32.dp)
+            .size(42.dp)
             .clip(CircleShape)
-            .background(catColor.copy(alpha = 0.15f)),
+            .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)),
           contentAlignment = Alignment.Center
         ) {
           Icon(
-            imageVector = CategoryIconHelper.getIconByName(category.iconName),
-            contentDescription = category.name,
-            tint = catColor,
-            modifier = Modifier.size(16.dp)
+            imageVector = Icons.Default.Person,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.size(22.dp)
           )
         }
-        Spacer(modifier = Modifier.width(10.dp))
-        Text(text = category.name, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Medium)
+        Spacer(modifier = Modifier.width(12.dp))
+        Column {
+          Text(
+            text = member.name,
+            style = MaterialTheme.typography.titleSmall,
+            fontWeight = FontWeight.Bold,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
+          )
+          Text(
+            text = "Updated: $formattedSync",
+            style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+          )
+        }
       }
-      Text(
-        text = if (category.budgetAmount > 0) {
-          "$currencySymbol${"%.2f".format(category.spentAmount)} / $currencySymbol${"%.2f".format(category.budgetAmount)}"
-        } else {
-          "$currencySymbol${"%.2f".format(category.spentAmount)}"
-        },
-        style = MaterialTheme.typography.bodySmall,
-        fontWeight = FontWeight.Bold
-      )
+
+      Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+        IconButton(onClick = onRefresh, modifier = Modifier.size(32.dp)) {
+          Icon(
+            imageVector = Icons.Default.Refresh,
+            contentDescription = "Sync",
+            tint = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.size(18.dp)
+          )
+        }
+        IconButton(onClick = onRemove, modifier = Modifier.size(32.dp)) {
+          Icon(
+            imageVector = Icons.Default.Delete,
+            contentDescription = "Remove",
+            tint = ExpenseRed,
+            modifier = Modifier.size(18.dp)
+          )
+        }
+      }
     }
   }
 }
 
 @Composable
-private fun PartnerTransactionRow(tx: SharedTransactionItem, currencySymbol: String) {
-  val dateFormatted = remember(tx.timestamp) {
-    SimpleDateFormat("MMM dd · HH:mm", Locale.getDefault()).format(Date(tx.timestamp))
-  }
-  val isIncome = tx.type.equals("INCOME", ignoreCase = true)
-
-  Row(
+private fun InviteAndJoinSection(
+  isDriveConnected: Boolean,
+  isGeneratingLink: Boolean,
+  shareWebLink: String?,
+  inputUrl: String,
+  isLoading: Boolean,
+  errorMessage: String?,
+  onShareClick: () -> Unit,
+  onCopyLink: () -> Unit,
+  onInputChange: (String) -> Unit,
+  onAddMember: (String) -> Unit,
+  onLoadDemo: () -> Unit
+) {
+  Column(
     modifier = Modifier
       .fillMaxWidth()
-      .padding(horizontal = 20.dp, vertical = 6.dp),
-    verticalAlignment = Alignment.CenterVertically,
-    horizontalArrangement = Arrangement.SpaceBetween
+      .padding(horizontal = 20.dp, vertical = 8.dp),
+    verticalArrangement = Arrangement.spacedBy(16.dp)
   ) {
-    Column {
-      Text(
-        text = tx.note.ifBlank { tx.categoryName },
-        style = MaterialTheme.typography.bodyMedium,
-        fontWeight = FontWeight.Medium
-      )
-      Text(
-        text = "${tx.categoryName} · $dateFormatted",
-        style = MaterialTheme.typography.labelSmall,
-        color = MaterialTheme.colorScheme.onSurfaceVariant
-      )
+    // 1. Share My Finances Card
+    Card(
+      modifier = Modifier.fillMaxWidth(),
+      shape = RoundedCornerShape(20.dp),
+      colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.6f))
+    ) {
+      Column(modifier = Modifier.padding(18.dp)) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+          Icon(imageVector = Icons.Default.Share, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
+          Spacer(modifier = Modifier.width(10.dp))
+          Text(
+            text = stringResource(R.string.share_my_finances_title),
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.Bold
+          )
+        }
+        Spacer(modifier = Modifier.height(6.dp))
+        Text(
+          text = stringResource(R.string.share_my_finances_desc),
+          style = MaterialTheme.typography.bodySmall,
+          color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Spacer(modifier = Modifier.height(14.dp))
+        Button(
+          onClick = onShareClick,
+          modifier = Modifier.fillMaxWidth(),
+          shape = RoundedCornerShape(12.dp)
+        ) {
+          if (isGeneratingLink) {
+            CircularProgressIndicator(modifier = Modifier.size(18.dp), color = MaterialTheme.colorScheme.onPrimary)
+          } else {
+            Icon(imageVector = Icons.Default.ContentCopy, contentDescription = null, modifier = Modifier.size(18.dp))
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(stringResource(R.string.share_my_finances_btn))
+          }
+        }
+      }
     }
-    Text(
-      text = "${if (isIncome) "+" else "-"}$currencySymbol${"%.2f".format(tx.amount)}",
-      style = MaterialTheme.typography.bodyMedium,
-      fontWeight = FontWeight.Bold,
-      color = if (isIncome) IncomeGreen else ExpenseRed
-    )
+
+    // 2. Add Member Card
+    Card(
+      modifier = Modifier.fillMaxWidth(),
+      shape = RoundedCornerShape(20.dp),
+      colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+    ) {
+      Column(modifier = Modifier.padding(18.dp)) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+          Icon(imageVector = Icons.Default.Link, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
+          Spacer(modifier = Modifier.width(10.dp))
+          Text(
+            text = stringResource(R.string.add_member_title),
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.Bold
+          )
+        }
+        Spacer(modifier = Modifier.height(6.dp))
+        Text(
+          text = stringResource(R.string.add_member_desc),
+          style = MaterialTheme.typography.bodySmall,
+          color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Spacer(modifier = Modifier.height(12.dp))
+
+        OutlinedTextField(
+          value = inputUrl,
+          onValueChange = onInputChange,
+          placeholder = { Text(stringResource(R.string.add_member_input_placeholder)) },
+          singleLine = true,
+          modifier = Modifier.fillMaxWidth(),
+          shape = RoundedCornerShape(12.dp)
+        )
+
+        if (errorMessage != null) {
+          Spacer(modifier = Modifier.height(6.dp))
+          Text(text = errorMessage, style = MaterialTheme.typography.labelSmall, color = ExpenseRed)
+        }
+
+        Spacer(modifier = Modifier.height(12.dp))
+        Button(
+          onClick = { onAddMember(inputUrl) },
+          enabled = inputUrl.isNotBlank() && !isLoading,
+          modifier = Modifier.fillMaxWidth(),
+          shape = RoundedCornerShape(12.dp)
+        ) {
+          if (isLoading) {
+            CircularProgressIndicator(modifier = Modifier.size(18.dp), color = MaterialTheme.colorScheme.onPrimary)
+          } else {
+            Text(stringResource(R.string.add_member_btn))
+          }
+        }
+
+        Spacer(modifier = Modifier.height(8.dp))
+        OutlinedButton(
+          onClick = onLoadDemo,
+          modifier = Modifier.fillMaxWidth(),
+          shape = RoundedCornerShape(12.dp)
+        ) {
+          Text(stringResource(R.string.shared_ledgers_load_sample_btn))
+        }
+      }
+    }
   }
 }
 
 @Composable
-private fun EmptyHouseholdState(
-  onPairPartner: () -> Unit,
+private fun EmptyStatisticsState(
+  onGoToInvite: () -> Unit,
   onLoadDemo: () -> Unit
 ) {
   Box(
@@ -1050,8 +1036,8 @@ private fun EmptyHouseholdState(
       )
       Spacer(modifier = Modifier.height(16.dp))
       Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-        Button(onClick = onPairPartner, shape = RoundedCornerShape(12.dp)) {
-          Text(text = stringResource(R.string.household_pair_btn))
+        Button(onClick = onGoToInvite, shape = RoundedCornerShape(12.dp)) {
+          Text(text = stringResource(R.string.add_member_btn))
         }
         OutlinedButton(onClick = onLoadDemo, shape = RoundedCornerShape(12.dp)) {
           Text(text = stringResource(R.string.shared_ledgers_load_sample_btn))
@@ -1062,165 +1048,65 @@ private fun EmptyHouseholdState(
 }
 
 @Composable
-private fun EmptyPartnerState(
-  onPairPartner: () -> Unit,
+private fun EmptyMembersState(
+  onInviteClick: () -> Unit,
   onLoadDemo: () -> Unit
 ) {
-  EmptyHouseholdState(onPairPartner = onPairPartner, onLoadDemo = onLoadDemo)
+  EmptyStatisticsState(onGoToInvite = onInviteClick, onLoadDemo = onLoadDemo)
 }
 
 @Composable
-private fun PairPartnerDialog(
-  emailInput: String,
-  linkInput: String,
+private fun AddMemberDialog(
+  input: String,
   isLoading: Boolean,
   errorMessage: String?,
-  onEmailChange: (String) -> Unit,
-  onLinkChange: (String) -> Unit,
-  onInviteByEmail: (String) -> Unit,
-  onPairByLink: (String) -> Unit,
-  onCopyMyLink: () -> Unit,
+  onInputChange: (String) -> Unit,
+  onAdd: (String) -> Unit,
   onDismiss: () -> Unit
 ) {
-  var selectedTab by remember { mutableStateOf(0) } // 0 = Grant Access (Email), 1 = Paste Link/ID
-
   AlertDialog(
     onDismissRequest = onDismiss,
     title = {
       Text(
-        text = stringResource(R.string.household_dialog_pair_title),
+        text = stringResource(R.string.add_member_title),
         style = MaterialTheme.typography.titleMedium,
         fontWeight = FontWeight.Bold
       )
     },
     text = {
-      Column(
-        modifier = Modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
-      ) {
-        // Tab switcher
-        Row(
-          modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(10.dp))
-            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
-            .padding(4.dp),
-          horizontalArrangement = Arrangement.spacedBy(4.dp)
-        ) {
-          Box(
-            modifier = Modifier
-              .weight(1f)
-              .clip(RoundedCornerShape(8.dp))
-              .background(if (selectedTab == 0) MaterialTheme.colorScheme.primary else Color.Transparent)
-              .clickable { selectedTab = 0 }
-              .padding(vertical = 8.dp),
-            contentAlignment = Alignment.Center
-          ) {
-            Text(
-              text = "1. Grant Access",
-              style = MaterialTheme.typography.labelMedium,
-              fontWeight = FontWeight.Bold,
-              color = if (selectedTab == 0) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant
-            )
-          }
-          Box(
-            modifier = Modifier
-              .weight(1f)
-              .clip(RoundedCornerShape(8.dp))
-              .background(if (selectedTab == 1) MaterialTheme.colorScheme.primary else Color.Transparent)
-              .clickable { selectedTab = 1 }
-              .padding(vertical = 8.dp),
-            contentAlignment = Alignment.Center
-          ) {
-            Text(
-              text = "2. Link Partner",
-              style = MaterialTheme.typography.labelMedium,
-              fontWeight = FontWeight.Bold,
-              color = if (selectedTab == 1) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant
-            )
-          }
-        }
-
-        if (selectedTab == 0) {
-          Text(
-            text = "Enter your partner's Google email. Spent will automatically grant them Drive permissions so they can view your ledger safely.",
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-          )
-
-          OutlinedTextField(
-            value = emailInput,
-            onValueChange = onEmailChange,
-            label = { Text(stringResource(R.string.household_enter_partner_email)) },
-            leadingIcon = { Icon(imageVector = Icons.Default.Email, contentDescription = null) },
-            singleLine = true,
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(12.dp)
-          )
-
-          Button(
-            onClick = { onInviteByEmail(emailInput) },
-            enabled = emailInput.isNotBlank() && !isLoading,
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(12.dp)
-          ) {
-            if (isLoading) {
-              CircularProgressIndicator(modifier = Modifier.size(18.dp), color = MaterialTheme.colorScheme.onPrimary)
-            } else {
-              Text(stringResource(R.string.household_grant_access_btn))
-            }
-          }
-
-          OutlinedButton(
-            onClick = onCopyMyLink,
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(12.dp)
-          ) {
-            Icon(imageVector = Icons.Default.ContentCopy, contentDescription = null, modifier = Modifier.size(16.dp))
-            Spacer(modifier = Modifier.width(6.dp))
-            Text(stringResource(R.string.household_invite_by_link))
-          }
-        } else {
-          Text(
-            text = "Paste the invite link or Google Drive File ID sent to you by your partner.",
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-          )
-
-          OutlinedTextField(
-            value = linkInput,
-            onValueChange = onLinkChange,
-            label = { Text(stringResource(R.string.household_enter_partner_link)) },
-            leadingIcon = { Icon(imageVector = Icons.Default.Link, contentDescription = null) },
-            singleLine = true,
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(12.dp)
-          )
-
-          Button(
-            onClick = { onPairByLink(linkInput) },
-            enabled = linkInput.isNotBlank() && !isLoading,
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(12.dp)
-          ) {
-            if (isLoading) {
-              CircularProgressIndicator(modifier = Modifier.size(18.dp), color = MaterialTheme.colorScheme.onPrimary)
-            } else {
-              Text(stringResource(R.string.household_connect_partner_btn))
-            }
-          }
-        }
-
+      Column(modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+        Text(
+          text = stringResource(R.string.add_member_desc),
+          style = MaterialTheme.typography.bodySmall,
+          color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        OutlinedTextField(
+          value = input,
+          onValueChange = onInputChange,
+          placeholder = { Text(stringResource(R.string.add_member_input_placeholder)) },
+          singleLine = true,
+          modifier = Modifier.fillMaxWidth(),
+          shape = RoundedCornerShape(12.dp)
+        )
         if (errorMessage != null) {
-          Text(
-            text = errorMessage,
-            style = MaterialTheme.typography.labelSmall,
-            color = ExpenseRed
-          )
+          Text(text = errorMessage, style = MaterialTheme.typography.labelSmall, color = ExpenseRed)
         }
       }
     },
     confirmButton = {
+      Button(
+        onClick = { onAdd(input) },
+        enabled = input.isNotBlank() && !isLoading,
+        shape = RoundedCornerShape(10.dp)
+      ) {
+        if (isLoading) {
+          CircularProgressIndicator(modifier = Modifier.size(16.dp), color = MaterialTheme.colorScheme.onPrimary)
+        } else {
+          Text(stringResource(R.string.add_member_btn))
+        }
+      }
+    },
+    dismissButton = {
       TextButton(onClick = onDismiss) {
         Text(stringResource(R.string.btn_cancel))
       }
@@ -1229,9 +1115,9 @@ private fun PairPartnerDialog(
 }
 
 @Composable
-private fun HouseholdGuideDialog(
+private fun SharedFinancesGuideDialog(
   onDismiss: () -> Unit,
-  onCopyMyLink: () -> Unit
+  onShareLink: () -> Unit
 ) {
   AlertDialog(
     onDismissRequest = onDismiss,
@@ -1252,15 +1138,15 @@ private fun HouseholdGuideDialog(
         Text(text = stringResource(R.string.shared_ledgers_guide_step3), style = MaterialTheme.typography.bodySmall)
         Text(text = stringResource(R.string.shared_ledgers_guide_step4), style = MaterialTheme.typography.bodySmall)
 
-        Spacer(modifier = Modifier.height(4.dp))
+        Spacer(modifier = Modifier.height(6.dp))
         OutlinedButton(
-          onClick = onCopyMyLink,
+          onClick = onShareLink,
           modifier = Modifier.fillMaxWidth(),
           shape = RoundedCornerShape(10.dp)
         ) {
           Icon(imageVector = Icons.Default.Share, contentDescription = null, modifier = Modifier.size(16.dp))
           Spacer(modifier = Modifier.width(6.dp))
-          Text(text = stringResource(R.string.household_invite_by_link), style = MaterialTheme.typography.labelSmall)
+          Text(text = stringResource(R.string.share_my_finances_btn), style = MaterialTheme.typography.labelSmall)
         }
       }
     },

@@ -162,6 +162,59 @@ object GoogleDriveRestService {
     }
   }
 
+  suspend fun enablePublicLinkSharing(
+    context: Context,
+    account: GoogleSignInAccount,
+    fileId: String
+  ): Result<String> = withContext(Dispatchers.IO) {
+    try {
+      val drive = getDriveService(context, account)
+      val permission = com.google.api.services.drive.model.Permission().apply {
+        type = "anyone"
+        role = "reader"
+      }
+      drive.permissions().create(fileId, permission).execute()
+      val webLink = "https://drive.google.com/file/d/$fileId/view?usp=sharing"
+      Result.success(webLink)
+    } catch (e: Exception) {
+      e.printStackTrace()
+      Result.failure(e)
+    }
+  }
+
+  fun extractDriveFileId(input: String): String {
+    val trimmed = input.trim()
+    if (trimmed.isBlank()) return ""
+
+    // 1. https://drive.google.com/file/d/{id}/...
+    val pathRegex = Regex("""/file/d/([a-zA-Z0-9_-]+)""")
+    val pathMatch = pathRegex.find(trimmed)
+    if (pathMatch != null && pathMatch.groupValues.size > 1) {
+      return pathMatch.groupValues[1]
+    }
+
+    // 2. https://drive.google.com/open?id={id} or /uc?id={id}
+    val idQueryRegex = Regex("""[?&]id=([a-zA-Z0-9_-]+)""")
+    val queryMatch = idQueryRegex.find(trimmed)
+    if (queryMatch != null && queryMatch.groupValues.size > 1) {
+      return queryMatch.groupValues[1]
+    }
+
+    // 3. /d/{id} pattern
+    val shortPathRegex = Regex("""/d/([a-zA-Z0-9_-]+)""")
+    val shortMatch = shortPathRegex.find(trimmed)
+    if (shortMatch != null && shortMatch.groupValues.size > 1) {
+      return shortMatch.groupValues[1]
+    }
+
+    // 4. Raw file ID (alphanumeric with underscores or dashes, no slashes or spaces)
+    if (!trimmed.contains("/") && !trimmed.contains(" ") && !trimmed.contains("?")) {
+      return trimmed
+    }
+
+    return trimmed
+  }
+
   suspend fun shareFileWithEmail(
     context: Context,
     account: GoogleSignInAccount,

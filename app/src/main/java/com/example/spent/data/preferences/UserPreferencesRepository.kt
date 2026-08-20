@@ -30,6 +30,41 @@ class UserPreferencesRepository(private val context: Context) {
     val PARTNER_EMAIL = stringPreferencesKey("partner_email")
     val PARTNER_LAST_SYNC_TIMESTAMP = androidx.datastore.preferences.core.longPreferencesKey("partner_last_sync_timestamp")
     val IS_PARTNER_PAIRED = booleanPreferencesKey("is_partner_paired")
+    val SHARED_MEMBERS_JSON = stringPreferencesKey("shared_members_json")
+  }
+
+  val sharedMembersFlow: Flow<List<com.app.spent.data.sync.SharedMemberInfo>> = context.dataStore.data.map { preferences ->
+    val json = preferences[PreferencesKeys.SHARED_MEMBERS_JSON]
+    if (!json.isNullOrBlank()) {
+      try {
+        val array = org.json.JSONArray(json)
+        val list = mutableListOf<com.app.spent.data.sync.SharedMemberInfo>()
+        for (i in 0 until array.length()) {
+          val obj = array.getJSONObject(i)
+          list.add(
+            com.app.spent.data.sync.SharedMemberInfo(
+              fileId = obj.optString("fileId", ""),
+              name = obj.optString("name", "Member"),
+              role = obj.optString("role", "Member"),
+              lastSyncTimestamp = obj.optLong("lastSyncTimestamp", 0L),
+              isLocal = obj.optBoolean("isLocal", false)
+            )
+          )
+        }
+        list
+      } catch (e: Exception) {
+        emptyList()
+      }
+    } else {
+      val partnerId = preferences[PreferencesKeys.PARTNER_DRIVE_FILE_ID]
+      val partnerName = preferences[PreferencesKeys.PARTNER_NAME] ?: "Member"
+      val partnerSync = preferences[PreferencesKeys.PARTNER_LAST_SYNC_TIMESTAMP] ?: 0L
+      if (!partnerId.isNullOrBlank()) {
+        listOf(com.app.spent.data.sync.SharedMemberInfo(fileId = partnerId, name = partnerName, role = "Member", lastSyncTimestamp = partnerSync))
+      } else {
+        emptyList()
+      }
+    }
   }
 
   val partnerDriveFileIdFlow: Flow<String?> = context.dataStore.data.map { preferences ->
@@ -186,13 +221,84 @@ class UserPreferencesRepository(private val context: Context) {
     }
   }
 
-  suspend fun clearPartnerInfo() {
+  suspend fun addOrUpdateSharedMember(member: com.app.spent.data.sync.SharedMemberInfo) {
     context.dataStore.edit { preferences ->
+      val currentJson = preferences[PreferencesKeys.SHARED_MEMBERS_JSON]
+      val list = mutableListOf<com.app.spent.data.sync.SharedMemberInfo>()
+      if (!currentJson.isNullOrBlank()) {
+        try {
+          val array = org.json.JSONArray(currentJson)
+          for (i in 0 until array.length()) {
+            val obj = array.getJSONObject(i)
+            list.add(
+              com.app.spent.data.sync.SharedMemberInfo(
+                fileId = obj.optString("fileId", ""),
+                name = obj.optString("name", "Member"),
+                role = obj.optString("role", "Member"),
+                lastSyncTimestamp = obj.optLong("lastSyncTimestamp", 0L),
+                isLocal = obj.optBoolean("isLocal", false)
+              )
+            )
+          }
+        } catch (e: Exception) {}
+      }
+
+      val index = list.indexOfFirst { it.fileId == member.fileId }
+      if (index >= 0) {
+        list[index] = member
+      } else {
+        list.add(member)
+      }
+
+      val newArray = org.json.JSONArray()
+      for (m in list) {
+        val obj = org.json.JSONObject().apply {
+          put("fileId", m.fileId)
+          put("name", m.name)
+          put("role", m.role)
+          put("lastSyncTimestamp", m.lastSyncTimestamp)
+          put("isLocal", m.isLocal)
+        }
+        newArray.put(obj)
+      }
+      preferences[PreferencesKeys.SHARED_MEMBERS_JSON] = newArray.toString()
+    }
+  }
+
+  suspend fun removeSharedMember(fileId: String) {
+    context.dataStore.edit { preferences ->
+      val currentJson = preferences[PreferencesKeys.SHARED_MEMBERS_JSON]
+      if (!currentJson.isNullOrBlank()) {
+        try {
+          val array = org.json.JSONArray(currentJson)
+          val newArray = org.json.JSONArray()
+          for (i in 0 until array.length()) {
+            val obj = array.getJSONObject(i)
+            if (obj.optString("fileId") != fileId) {
+              newArray.put(obj)
+            }
+          }
+          preferences[PreferencesKeys.SHARED_MEMBERS_JSON] = newArray.toString()
+        } catch (e: Exception) {}
+      }
+      if (preferences[PreferencesKeys.PARTNER_DRIVE_FILE_ID] == fileId) {
+        preferences.remove(PreferencesKeys.PARTNER_DRIVE_FILE_ID)
+        preferences.remove(PreferencesKeys.PARTNER_NAME)
+        preferences[PreferencesKeys.IS_PARTNER_PAIRED] = false
+      }
+    }
+  }
+
+  suspend fun clearSharedMembers() {
+    context.dataStore.edit { preferences ->
+      preferences.remove(PreferencesKeys.SHARED_MEMBERS_JSON)
       preferences.remove(PreferencesKeys.PARTNER_DRIVE_FILE_ID)
       preferences.remove(PreferencesKeys.PARTNER_NAME)
-      preferences.remove(PreferencesKeys.PARTNER_EMAIL)
-      preferences.remove(PreferencesKeys.PARTNER_LAST_SYNC_TIMESTAMP)
       preferences[PreferencesKeys.IS_PARTNER_PAIRED] = false
     }
+  }
+
+  suspend fun clearPartnerInfo() {
+    clearSharedMembers()
   }
 }

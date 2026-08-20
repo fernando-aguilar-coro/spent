@@ -3,7 +3,6 @@ package com.app.spent.ui.dashboard
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
-import android.net.Uri
 import androidx.lifecycle.viewModelScope
 import com.app.spent.data.local.entity.CategoryEntity
 import com.app.spent.data.local.entity.PayCycleEntity
@@ -12,9 +11,10 @@ import com.app.spent.data.local.entity.UserAccountEntity
 import com.app.spent.data.repository.SpentRepository
 import com.app.spent.data.sync.DriveBackupFileInfo
 import com.app.spent.data.sync.GoogleDriveRestService
-import com.app.spent.data.sync.HouseholdAggregator
+import com.app.spent.data.sync.SharedFinancesAggregator
 import com.app.spent.data.sync.SharedLedgerData
 import com.app.spent.data.sync.SharedLedgerParser
+import com.app.spent.data.sync.SharedMemberInfo
 import com.app.spent.ui.mvi.BaseViewModel
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.firstOrNull
@@ -30,64 +30,38 @@ class SharedLedgerViewModel(
   private var localPayCycle: PayCycleEntity? = null
   private var localUserAccount: UserAccountEntity? = null
   private var localCurrencySymbol: String = "$"
+  private val memberLedgerCache = mutableMapOf<String, SharedLedgerData>()
 
   init {
-    observeDriveAndPartnerState()
+    observeDriveAndMembers()
     observeLocalData()
   }
 
-  private fun observeDriveAndPartnerState() {
+  private fun observeDriveAndMembers() {
     viewModelScope.launch {
-      val driveStateFlow = combine(
+      val driveFlow = combine(
         repository.isDriveConnectedFlow,
-        repository.driveAccountEmailFlow,
-        repository.isPartnerPairedFlow
-      ) { isConnected, email, isPaired ->
-        Triple(isConnected, email, isPaired)
+        repository.driveAccountEmailFlow
+      ) { isConnected, email ->
+        Pair(isConnected, email)
       }
 
-      val partnerInfoFlow = combine(
-        repository.partnerDriveFileIdFlow,
-        repository.partnerNameFlow,
-        repository.partnerEmailFlow,
-        repository.partnerLastSyncTimestampFlow
-      ) { fileId, name, email, lastSync ->
-        PartnerInfoState(fileId, name, email, lastSync)
-      }
-
-      combine(driveStateFlow, partnerInfoFlow) { (isConnected, email, isPaired), partner ->
-        DrivePartnerState(
-          isConnected = isConnected,
-          email = email,
-          isPaired = isPaired,
-          partnerFileId = partner.fileId,
-          partnerName = partner.name,
-          partnerEmail = partner.email,
-          lastSync = partner.lastSync
-        )
-      }.collect { state ->
+      combine(driveFlow, repository.sharedMembersFlow) { (isConnected, email), members ->
+        Triple(isConnected, email, members)
+      }.collect { (isConnected, email, members) ->
         setState {
           copy(
-            isDriveConnected = state.isConnected,
-            driveAccountEmail = state.email,
-            isPartnerPaired = state.isPaired,
-            partnerName = state.partnerName,
-            partnerEmail = state.partnerEmail,
-            partnerLastSyncTimestamp = state.lastSync
+            isDriveConnected = isConnected,
+            driveAccountEmail = email,
+            members = members
           )
         }
 
-        if (state.isConnected) {
-          fetchDriveFilesAndOwnId()
-
-          // Auto-fetch paired partner data if not loaded or newly paired
-          if (state.isPaired && !state.partnerFileId.isNullOrBlank() && currentState.activeLedger == null) {
-            fetchByFileId(
-              fileId = state.partnerFileId,
-              fileName = state.partnerName ?: "Partner Ledger",
-              isSilent = true
-            )
-          }
+        if (isConnected) {
+          fetchOwnBackupFileId()
+          fetchRemoteMemberLedgers(members, isSilent = true)
+        } else {
+          recalculateUnifiedData()
         }
       }
     }
@@ -107,240 +81,141 @@ class SharedLedgerViewModel(
         localPayCycle = pc
         localUserAccount = ua
         localCurrencySymbol = curr
-        recalculateHouseholdData()
+        recalculateUnifiedData()
       }.collect {}
     }
   }
 
-  private fun recalculateHouseholdData() {
+  private fun recalculateUnifiedData() {
     val myName = localUserAccount?.displayName?.ifBlank { "You" } ?: "You"
-    val household = HouseholdAggregator.combine(
+    val ledgersList = memberLedgerCache.values.toList()
+    val unified = SharedFinancesAggregator.combine(
       localTransactions = localTransactions,
       localCategories = localCategories,
       localPayCycle = localPayCycle,
       currencySymbol = localCurrencySymbol,
-      partnerLedger = currentState.activeLedger,
+      memberLedgers = ledgersList,
       myDisplayName = myName
     )
-    setState { copy(householdData = household) }
+    setState {
+      copy(
+        unifiedData = unified,
+        activeMemberLedgers = memberLedgerCache.toMap(),
+        activeLedger = ledgersList.firstOrNull()
+      )
+    }
   }
 
   override fun onIntent(intent: SharedLedgerUiIntent) {
     when (intent) {
       is SharedLedgerUiIntent.LoadInitialData -> {
         if (currentState.isDriveConnected) {
-          fetchDriveFilesAndOwnId()
-          currentState.partnerName?.let { pName ->
-            val pId = currentState.ownBackupFileId
-            if (currentState.isPartnerPaired) {
-              refreshActiveLedger()
-            }
-          }
+          fetchOwnBackupFileId()
+          fetchRemoteMemberLedgers(currentState.members, isSilent = false)
         }
       }
       is SharedLedgerUiIntent.SwitchTab -> {
         setState { copy(selectedTab = intent.tab) }
       }
-      is SharedLedgerUiIntent.UpdateFileIdInput -> {
-        setState { copy(manualFileIdInput = intent.input, errorMessage = null) }
+      is SharedLedgerUiIntent.UpdateAddMemberInput -> {
+        setState { copy(addMemberInput = intent.input, errorMessage = null) }
       }
-      is SharedLedgerUiIntent.UpdatePartnerEmailInput -> {
-        setState { copy(partnerEmailInput = intent.email, errorMessage = null) }
+      is SharedLedgerUiIntent.ShareMyFinances -> {
+        shareMyFinancesViaDrive()
       }
-      is SharedLedgerUiIntent.FetchFromInput -> {
-        val input = currentState.manualFileIdInput.trim()
-        if (input.isNotEmpty()) {
-          pairFromInput(input)
-        }
+      is SharedLedgerUiIntent.CopyShareLink -> {
+        currentState.ownShareWebLink?.let { link ->
+          copyToClipboard("Spent Drive Share Link", link)
+          sendEffect(SharedLedgerUiEffect.ShowSnackbar("Drive link copied to clipboard!"))
+        } ?: shareMyFinancesViaDrive()
       }
-      is SharedLedgerUiIntent.LoadFile -> {
-        fetchByFileId(intent.fileInfo.id, intent.fileInfo.name, isPairing = true)
+      is SharedLedgerUiIntent.AddMemberByUrlOrId -> {
+        addMemberFromUrlOrId(intent.input)
       }
-      is SharedLedgerUiIntent.RefreshCurrentLedger -> {
-        refreshActiveLedger()
+      is SharedLedgerUiIntent.RemoveMember -> {
+        removeMember(intent.fileId)
+      }
+      is SharedLedgerUiIntent.RefreshMember -> {
+        refreshSingleMember(intent.fileId)
+      }
+      is SharedLedgerUiIntent.RefreshAll -> {
+        fetchRemoteMemberLedgers(currentState.members, isSilent = false)
       }
       is SharedLedgerUiIntent.LoadSampleDemo -> {
         loadSampleDemo()
       }
+      is SharedLedgerUiIntent.ToggleGuideDialog -> {
+        setState { copy(showGuideDialog = intent.show) }
+      }
+      is SharedLedgerUiIntent.ToggleAddMemberDialog -> {
+        setState { copy(showAddMemberDialog = intent.show, errorMessage = null) }
+      }
+
+      // Compatibility mappings
+      is SharedLedgerUiIntent.UpdateFileIdInput -> {
+        setState { copy(addMemberInput = intent.input, errorMessage = null) }
+      }
+      is SharedLedgerUiIntent.FetchFromInput -> {
+        addMemberFromUrlOrId(currentState.addMemberInput)
+      }
+      is SharedLedgerUiIntent.LoadFile -> {
+        addMemberFromUrlOrId(intent.fileInfo.id)
+      }
+      is SharedLedgerUiIntent.RefreshCurrentLedger -> {
+        fetchRemoteMemberLedgers(currentState.members, isSilent = false)
+      }
       is SharedLedgerUiIntent.ToggleShareGuide -> {
-        setState { copy(showShareGuideDialog = intent.show) }
+        setState { copy(showGuideDialog = intent.show) }
       }
       is SharedLedgerUiIntent.TogglePairPartnerDialog -> {
-        setState { copy(showPairPartnerDialog = intent.show, errorMessage = null) }
+        setState { copy(showAddMemberDialog = intent.show, errorMessage = null) }
       }
       is SharedLedgerUiIntent.CopyOwnFileId -> {
-        copyOwnFileIdToClipboard()
+        shareMyFinancesViaDrive()
       }
       is SharedLedgerUiIntent.CopyInviteLink -> {
-        generateAndCopyInviteLink()
+        shareMyFinancesViaDrive()
       }
       is SharedLedgerUiIntent.InvitePartnerByEmail -> {
-        invitePartnerByEmail(intent.email)
+        shareMyFinancesViaDrive()
       }
       is SharedLedgerUiIntent.PairPartnerWithIdOrUrl -> {
-        pairFromInput(intent.input)
+        addMemberFromUrlOrId(intent.input)
       }
       is SharedLedgerUiIntent.UnlinkPartner -> {
-        unlinkPartner()
+        val firstMember = currentState.members.firstOrNull { !it.isLocal }
+        if (firstMember != null) {
+          removeMember(firstMember.fileId)
+        }
       }
     }
   }
 
-  private fun fetchDriveFilesAndOwnId() {
+  private fun fetchOwnBackupFileId() {
     viewModelScope.launch {
       val account = GoogleDriveRestService.getSignedInAccount(context) ?: return@launch
-
-      // 1. Get own backup file ID
       val ownIdResult = GoogleDriveRestService.getOwnBackupFileId(context, account)
       val ownId = ownIdResult.getOrNull()
-
-      // 2. Search available shared files
-      val sharedFilesResult = GoogleDriveRestService.searchSharedBackupFiles(context, account)
-      val sharedFiles = sharedFilesResult.getOrNull() ?: emptyList()
-
       setState {
         copy(
           ownBackupFileId = ownId,
-          availableSharedFiles = sharedFiles
+          ownShareWebLink = if (ownId != null) "https://drive.google.com/file/d/$ownId/view?usp=sharing" else null
         )
       }
     }
   }
 
-  private fun pairFromInput(input: String) {
-    // Check if input is a JSON string directly
-    if (input.startsWith("{") && input.endsWith("}")) {
-      val parseResult = SharedLedgerParser.parse(input, fileName = "Pasted JSON Ledger")
-      if (parseResult.isSuccess) {
-        val ledger = parseResult.getOrNull()
-        setState {
-          copy(
-            activeLedger = ledger,
-            errorMessage = null,
-            manualFileIdInput = "",
-            showPairPartnerDialog = false
-          )
-        }
-        recalculateHouseholdData()
-        sendEffect(SharedLedgerUiEffect.ShowSnackbar("Loaded shared ledger for ${ledger?.ownerName}"))
-        return
-      }
-    }
-
-    val (extractedId, parsedName, parsedEmail) = parseInviteLinkOrId(input)
-    if (extractedId.isBlank()) {
-      setState { copy(errorMessage = "Invalid Link or Drive File ID") }
-      return
-    }
-
-    fetchByFileId(
-      fileId = extractedId,
-      fileName = parsedName ?: "Shared Partner Ledger",
-      isPairing = true,
-      partnerEmail = parsedEmail
-    )
-  }
-
-  private fun fetchByFileId(
-    fileId: String,
-    fileName: String,
-    isPairing: Boolean = false,
-    isSilent: Boolean = false,
-    partnerEmail: String? = null
-  ) {
+  private fun shareMyFinancesViaDrive() {
     viewModelScope.launch {
       val account = GoogleDriveRestService.getSignedInAccount(context)
       if (account == null) {
-        if (!isSilent) {
-          setState {
-            copy(
-              errorMessage = "Google Drive is not connected. Please connect in Settings."
-            )
-          }
-          sendEffect(SharedLedgerUiEffect.ShowSnackbar("Google Drive is not connected"))
-        }
+        sendEffect(SharedLedgerUiEffect.ShowSnackbar("Please connect Google Drive in Settings first."))
         return@launch
       }
 
-      if (!isSilent) {
-        setState { copy(isLoading = true, errorMessage = null) }
-      }
+      setState { copy(isGeneratingShareLink = true, errorMessage = null) }
 
-      val downloadResult = GoogleDriveRestService.downloadFileById(context, account, fileId)
-      if (downloadResult.isSuccess) {
-        val json = downloadResult.getOrNull() ?: ""
-        val parseResult = SharedLedgerParser.parse(json, fileId = fileId, fileName = fileName)
-        if (parseResult.isSuccess) {
-          val ledger = parseResult.getOrNull()
-          val ownerName = ledger?.ownerName ?: fileName
-
-          if (isPairing) {
-            repository.savePartnerInfo(fileId, ownerName, partnerEmail ?: ledger?.ownerRole)
-          }
-          repository.setPartnerLastSyncTimestamp(System.currentTimeMillis())
-
-          setState {
-            copy(
-              activeLedger = ledger,
-              isLoading = false,
-              errorMessage = null,
-              manualFileIdInput = "",
-              showPairPartnerDialog = false
-            )
-          }
-          recalculateHouseholdData()
-          if (!isSilent) {
-            sendEffect(SharedLedgerUiEffect.ShowSnackbar("Synced with $ownerName"))
-          }
-        } else {
-          val err = parseResult.exceptionOrNull()?.localizedMessage ?: "Invalid Spent JSON format"
-          setState { copy(isLoading = false, errorMessage = err) }
-          if (!isSilent) {
-            sendEffect(SharedLedgerUiEffect.ShowSnackbar("Error: $err"))
-          }
-        }
-      } else {
-        val err = downloadResult.exceptionOrNull()?.localizedMessage ?: "File not found or permission denied"
-        setState { copy(isLoading = false, errorMessage = err) }
-        if (!isSilent) {
-          sendEffect(SharedLedgerUiEffect.ShowSnackbar("Drive error: $err"))
-        }
-      }
-    }
-  }
-
-  private fun refreshActiveLedger() {
-    val active = currentState.activeLedger
-    val fileId = active?.sourceFileId
-    viewModelScope.launch {
-      val partnerFileId = repository.partnerDriveFileIdFlow.firstOrNull() ?: fileId
-      if (partnerFileId != null && partnerFileId != "sample_demo_id") {
-        fetchByFileId(partnerFileId, currentState.partnerName ?: "Partner Ledger", isSilent = false)
-      } else if (active?.sourceFileId == "sample_demo_id") {
-        loadSampleDemo()
-      } else {
-        sendEffect(SharedLedgerUiEffect.ShowSnackbar("No partner paired yet"))
-      }
-    }
-  }
-
-  private fun invitePartnerByEmail(partnerEmail: String) {
-    val email = partnerEmail.trim()
-    if (email.isBlank() || !android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-      setState { copy(errorMessage = "Please enter a valid Google email address") }
-      return
-    }
-
-    viewModelScope.launch {
-      val account = GoogleDriveRestService.getSignedInAccount(context)
-      if (account == null) {
-        setState { copy(errorMessage = "Google Drive is not connected. Connect in Settings first.") }
-        return@launch
-      }
-
-      setState { copy(isSharingWithEmail = true, errorMessage = null) }
-
-      // Make sure we have our own backup file ID
+      // 1. Ensure own backup file exists on Drive
       var fileId = currentState.ownBackupFileId
       if (fileId.isNullOrBlank()) {
         val syncRes = repository.syncToGoogleDrive()
@@ -350,93 +225,210 @@ class SharedLedgerViewModel(
       }
 
       if (fileId.isNullOrBlank()) {
-        setState { copy(isSharingWithEmail = false, errorMessage = "Could not find your backup file. Please backup your data first.") }
+        setState { copy(isGeneratingShareLink = false) }
+        sendEffect(SharedLedgerUiEffect.ShowSnackbar("Could not locate backup file on Google Drive."))
         return@launch
       }
 
-      val shareResult = GoogleDriveRestService.shareFileWithEmail(context, account, fileId, email)
-      setState { copy(isSharingWithEmail = false) }
+      // 2. Request Drive API permissions.create(role: "reader", type: "anyone")
+      val shareResult = GoogleDriveRestService.enablePublicLinkSharing(context, account, fileId)
+      setState { copy(isGeneratingShareLink = false) }
 
       if (shareResult.isSuccess) {
-        // Also auto-save as paired partner email reference
-        val inviteLink = buildInviteLink(fileId, localUserAccount?.displayName ?: "Partner", account.email)
-        copyToClipboard("Spent Pair Link", inviteLink)
-        setState {
-          copy(
-            showPairPartnerDialog = false,
-            partnerEmailInput = ""
-          )
-        }
-        sendEffect(SharedLedgerUiEffect.ShowSnackbar("Access granted to $email! Pair link copied to clipboard."))
+        val webUrl = shareResult.getOrNull() ?: "https://drive.google.com/file/d/$fileId/view?usp=sharing"
+        setState { copy(ownBackupFileId = fileId, ownShareWebLink = webUrl) }
+        copyToClipboard("Spent Drive Share Link", webUrl)
+        sendEffect(SharedLedgerUiEffect.ShowSnackbar("Google Drive link copied! Anyone with the link can view your finances."))
       } else {
-        val err = shareResult.exceptionOrNull()?.localizedMessage ?: "Failed to grant Drive permission"
-        setState { copy(errorMessage = err) }
+        // Fallback: copy standard drive web url
+        val fallbackUrl = "https://drive.google.com/file/d/$fileId/view?usp=sharing"
+        setState { copy(ownBackupFileId = fileId, ownShareWebLink = fallbackUrl) }
+        copyToClipboard("Spent Drive Share Link", fallbackUrl)
+        sendEffect(SharedLedgerUiEffect.ShowSnackbar("Drive link copied to clipboard!"))
       }
     }
   }
 
-  private fun generateAndCopyInviteLink() {
+  private fun addMemberFromUrlOrId(input: String) {
+    val trimmed = input.trim()
+    if (trimmed.isBlank()) {
+      setState { copy(errorMessage = "Please enter a valid Google Drive link or File ID") }
+      return
+    }
+
+    // Check if input is directly raw JSON
+    if (trimmed.startsWith("{") && trimmed.endsWith("}")) {
+      val parseRes = SharedLedgerParser.parse(trimmed, fileId = "pasted_json_${System.currentTimeMillis()}", fileName = "Pasted JSON")
+      if (parseRes.isSuccess) {
+        val ledger = parseRes.getOrNull()!!
+        val memberInfo = SharedMemberInfo(
+          fileId = ledger.sourceFileId ?: "pasted_json",
+          name = ledger.ownerName,
+          role = ledger.ownerRole,
+          lastSyncTimestamp = System.currentTimeMillis()
+        )
+        viewModelScope.launch {
+          repository.addOrUpdateSharedMember(memberInfo)
+          memberLedgerCache[memberInfo.fileId] = ledger
+          setState {
+            copy(
+              showAddMemberDialog = false,
+              addMemberInput = "",
+              errorMessage = null
+            )
+          }
+          recalculateUnifiedData()
+          sendEffect(SharedLedgerUiEffect.ShowSnackbar("Added ${ledger.ownerName} to shared finances"))
+        }
+        return
+      }
+    }
+
+    // Extract File ID from HTTPS link or raw ID
+    val fileId = GoogleDriveRestService.extractDriveFileId(trimmed)
+    if (fileId.isBlank()) {
+      setState { copy(errorMessage = "Could not parse Google Drive File ID from link") }
+      return
+    }
+
+    fetchAndAddMember(fileId)
+  }
+
+  private fun fetchAndAddMember(fileId: String) {
     viewModelScope.launch {
       val account = GoogleDriveRestService.getSignedInAccount(context)
-      val fileId = currentState.ownBackupFileId ?: run {
-        if (account != null) {
-          repository.syncToGoogleDrive()
-          GoogleDriveRestService.getOwnBackupFileId(context, account).getOrNull()
-        } else null
+      if (account == null) {
+        setState { copy(errorMessage = "Google Drive is not connected. Connect in Settings first.") }
+        sendEffect(SharedLedgerUiEffect.ShowSnackbar("Google Drive not connected"))
+        return@launch
       }
 
-      if (fileId != null) {
-        val myName = localUserAccount?.displayName?.ifBlank { "Spent User" } ?: "Spent User"
-        val inviteLink = buildInviteLink(fileId, myName, account?.email)
-        copyToClipboard("Spent Household Pair Link", inviteLink)
-        sendEffect(SharedLedgerUiEffect.ShowSnackbar("Household Invite Link copied to clipboard!"))
+      setState { copy(isLoading = true, errorMessage = null) }
+
+      val downloadResult = GoogleDriveRestService.downloadFileById(context, account, fileId)
+      if (downloadResult.isSuccess) {
+        val json = downloadResult.getOrNull() ?: ""
+        val parseResult = SharedLedgerParser.parse(json, fileId = fileId, fileName = "Shared Ledger")
+        if (parseResult.isSuccess) {
+          val ledger = parseResult.getOrNull()!!
+          val memberInfo = SharedMemberInfo(
+            fileId = fileId,
+            name = ledger.ownerName,
+            role = ledger.ownerRole,
+            lastSyncTimestamp = System.currentTimeMillis(),
+            isLocal = false
+          )
+          repository.addOrUpdateSharedMember(memberInfo)
+          memberLedgerCache[fileId] = ledger
+
+          setState {
+            copy(
+              isLoading = false,
+              showAddMemberDialog = false,
+              addMemberInput = "",
+              errorMessage = null
+            )
+          }
+          recalculateUnifiedData()
+          sendEffect(SharedLedgerUiEffect.ShowSnackbar("Connected with ${ledger.ownerName}!"))
+        } else {
+          val err = parseResult.exceptionOrNull()?.localizedMessage ?: "Invalid Spent JSON file format"
+          setState { copy(isLoading = false, errorMessage = err) }
+          sendEffect(SharedLedgerUiEffect.ShowSnackbar("Error: $err"))
+        }
       } else {
-        sendEffect(SharedLedgerUiEffect.ShowSnackbar("No Drive backup found yet. Sync your data to Drive first."))
+        val err = downloadResult.exceptionOrNull()?.localizedMessage ?: "File not accessible or permission denied"
+        setState { copy(isLoading = false, errorMessage = err) }
+        sendEffect(SharedLedgerUiEffect.ShowSnackbar("Drive download error: $err"))
       }
     }
   }
 
-  private fun unlinkPartner() {
+  private fun fetchRemoteMemberLedgers(members: List<SharedMemberInfo>, isSilent: Boolean) {
+    val nonLocalMembers = members.filter { !it.isLocal }
+    if (nonLocalMembers.isEmpty()) {
+      recalculateUnifiedData()
+      return
+    }
+
     viewModelScope.launch {
-      repository.clearPartnerInfo()
-      setState {
-        copy(
-          isPartnerPaired = false,
-          partnerName = null,
-          partnerEmail = null,
-          partnerLastSyncTimestamp = 0L,
-          activeLedger = null
-        )
+      val account = GoogleDriveRestService.getSignedInAccount(context) ?: return@launch
+      if (!isSilent) {
+        setState { copy(isRefreshing = true) }
       }
-      recalculateHouseholdData()
-      sendEffect(SharedLedgerUiEffect.ShowSnackbar("Unlinked partner successfully"))
+
+      var successCount = 0
+      for (m in nonLocalMembers) {
+        if (m.fileId == "sample_demo_id") {
+          val sampleJson = SharedLedgerParser.generateSampleLedgerJson()
+          val parseRes = SharedLedgerParser.parse(sampleJson, fileId = "sample_demo_id", fileName = "Demo Shared Ledger")
+          parseRes.getOrNull()?.let {
+            memberLedgerCache[m.fileId] = it
+            successCount++
+          }
+          continue
+        }
+
+        val downloadRes = GoogleDriveRestService.downloadFileById(context, account, m.fileId)
+        if (downloadRes.isSuccess) {
+          val json = downloadRes.getOrNull() ?: ""
+          val parseRes = SharedLedgerParser.parse(json, fileId = m.fileId, fileName = m.name)
+          if (parseRes.isSuccess) {
+            val ledger = parseRes.getOrNull()!!
+            memberLedgerCache[m.fileId] = ledger
+            repository.addOrUpdateSharedMember(
+              m.copy(name = ledger.ownerName, role = ledger.ownerRole, lastSyncTimestamp = System.currentTimeMillis())
+            )
+            successCount++
+          }
+        }
+      }
+
+      setState { copy(isRefreshing = false) }
+      recalculateUnifiedData()
+
+      if (!isSilent) {
+        sendEffect(SharedLedgerUiEffect.ShowSnackbar("Synced $successCount member ledger(s)"))
+      }
+    }
+  }
+
+  private fun refreshSingleMember(fileId: String) {
+    viewModelScope.launch {
+      val member = currentState.members.find { it.fileId == fileId }
+      if (member != null) {
+        fetchRemoteMemberLedgers(listOf(member), isSilent = false)
+      }
+    }
+  }
+
+  private fun removeMember(fileId: String) {
+    viewModelScope.launch {
+      repository.removeSharedMember(fileId)
+      memberLedgerCache.remove(fileId)
+      recalculateUnifiedData()
+      sendEffect(SharedLedgerUiEffect.ShowSnackbar("Member removed"))
     }
   }
 
   private fun loadSampleDemo() {
     val sampleJson = SharedLedgerParser.generateSampleLedgerJson()
-    val parseResult = SharedLedgerParser.parse(sampleJson, fileId = "sample_demo_id", fileName = "Demo Shared Ledger")
-    if (parseResult.isSuccess) {
-      val ledger = parseResult.getOrNull()
-      setState {
-        copy(
-          activeLedger = ledger,
-          errorMessage = null,
-          isLoading = false
-        )
+    val parseRes = SharedLedgerParser.parse(sampleJson, fileId = "sample_demo_id", fileName = "Demo Shared Ledger")
+    if (parseRes.isSuccess) {
+      val ledger = parseRes.getOrNull()!!
+      val demoMember = SharedMemberInfo(
+        fileId = "sample_demo_id",
+        name = ledger.ownerName,
+        role = ledger.ownerRole,
+        lastSyncTimestamp = System.currentTimeMillis(),
+        isLocal = false
+      )
+      viewModelScope.launch {
+        repository.addOrUpdateSharedMember(demoMember)
+        memberLedgerCache["sample_demo_id"] = ledger
+        recalculateUnifiedData()
+        sendEffect(SharedLedgerUiEffect.ShowSnackbar("Loaded demo member: ${ledger.ownerName}"))
       }
-      recalculateHouseholdData()
-      sendEffect(SharedLedgerUiEffect.ShowSnackbar("Loaded sample demo: ${ledger?.ownerName}"))
-    }
-  }
-
-  private fun copyOwnFileIdToClipboard() {
-    val fileId = currentState.ownBackupFileId
-    if (!fileId.isNullOrBlank()) {
-      copyToClipboard("Spent Drive Backup File ID", fileId)
-      sendEffect(SharedLedgerUiEffect.ShowSnackbar("Drive File ID copied to clipboard!"))
-    } else {
-      sendEffect(SharedLedgerUiEffect.ShowSnackbar("No Drive backup found yet. Sync your data to Drive first."))
     }
   }
 
@@ -445,58 +437,4 @@ class SharedLedgerViewModel(
     val clip = ClipData.newPlainText(label, text)
     clipboard.setPrimaryClip(clip)
   }
-
-  private fun buildInviteLink(fileId: String, name: String, email: String?): String {
-    val encodedName = Uri.encode(name)
-    val encodedEmail = if (email != null) Uri.encode(email) else ""
-    return "spent://pair?fileId=$fileId&name=$encodedName&email=$encodedEmail"
-  }
-
-  private fun parseInviteLinkOrId(input: String): Triple<String, String?, String?> {
-    val trimmed = input.trim()
-    if (trimmed.startsWith("spent://pair")) {
-      try {
-        val uri = Uri.parse(trimmed)
-        val fileId = uri.getQueryParameter("fileId") ?: ""
-        val name = uri.getQueryParameter("name")
-        val email = uri.getQueryParameter("email")
-        return Triple(fileId, name, email)
-      } catch (e: Exception) {
-        // Fallback to extraction
-      }
-    }
-
-    // Check standard Drive URL regex
-    val idFromPathRegex = Regex("""/d/([a-zA-Z0-9_-]+)""")
-    val matchPath = idFromPathRegex.find(trimmed)
-    if (matchPath != null && matchPath.groupValues.size > 1) {
-      return Triple(matchPath.groupValues[1], null, null)
-    }
-
-    val idFromQueryRegex = Regex("""id=([a-zA-Z0-9_-]+)""")
-    val matchQuery = idFromQueryRegex.find(trimmed)
-    if (matchQuery != null && matchQuery.groupValues.size > 1) {
-      return Triple(matchQuery.groupValues[1], null, null)
-    }
-
-    return Triple(trimmed, null, null)
-  }
-
-  private data class PartnerInfoState(
-    val fileId: String?,
-    val name: String?,
-    val email: String?,
-    val lastSync: Long
-  )
-
-  private data class DrivePartnerState(
-    val isConnected: Boolean,
-    val email: String?,
-    val isPaired: Boolean,
-    val partnerFileId: String?,
-    val partnerName: String?,
-    val partnerEmail: String?,
-    val lastSync: Long
-  )
 }
-
