@@ -68,6 +68,15 @@ class SpentRepositoryImpl(
         preferencesRepository.addOrUpdateSharedMember(member)
     }
 
+    override suspend fun updateSharedMemberName(fileId: String, newName: String) {
+        preferencesRepository.updateSharedMemberName(fileId, newName)
+    }
+
+    override suspend fun updateUserProfileName(newName: String) {
+        val currentAccount = dao.getUserAccountFlow().firstOrNull() ?: UserAccountEntity()
+        dao.insertOrUpdateUserAccount(currentAccount.copy(displayName = newName))
+    }
+
     override suspend fun removeSharedMember(fileId: String) {
         preferencesRepository.removeSharedMember(fileId)
     }
@@ -233,11 +242,18 @@ class SpentRepositoryImpl(
         if (userAccount != null) dao.insertOrUpdateUserAccount(userAccount)
     }
 
-    override suspend fun resetAllData() {
+    override suspend fun resetAllData(deleteDriveImages: Boolean) {
         dao.deleteAllTransactions()
         dao.deleteAllCategories()
         dao.deleteAllRecurringRules()
         dao.deleteAllPayCycles()
         preferencesRepository.clearSavingsGoal()
+        com.app.spent.util.ImageStorageHelper.deleteAllStoredImages(context)
+        if (deleteDriveImages) {
+            val account = com.app.spent.data.sync.GoogleDriveRestService.getSignedInAccount(context)
+            if (account != null) {
+                com.app.spent.data.sync.GoogleDriveRestService.deleteAllDriveReceiptImages(context, account)
+            }
+        }
     }
 }

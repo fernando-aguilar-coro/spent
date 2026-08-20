@@ -78,6 +78,9 @@ fun TransactionImageAttachmentSection(
 ) {
     val context = LocalContext.current
     var showFullPreview by remember { mutableStateOf(false) }
+    val resolvedModel = remember(selectedImageUri) {
+        ImageStorageHelper.resolveImageUri(context, selectedImageUri)
+    }
 
     // 1. Photo Picker Launcher (Modern Android Photo Picker)
     val photoPickerLauncher = rememberLauncherForActivityResult(
@@ -239,7 +242,7 @@ fun TransactionImageAttachmentSection(
                             .clickable { showFullPreview = true }
                     ) {
                         AsyncImage(
-                            model = selectedImageUri,
+                            model = resolvedModel ?: selectedImageUri,
                             contentDescription = stringResource(R.string.receipt_image_preview),
                             contentScale = ContentScale.Crop,
                             modifier = Modifier.fillMaxSize()
@@ -316,7 +319,7 @@ fun TransactionImageAttachmentSection(
 
                 // Full-size image in center
                 AsyncImage(
-                    model = selectedImageUri,
+                    model = resolvedModel ?: selectedImageUri,
                     contentDescription = stringResource(R.string.receipt_viewer_title),
                     contentScale = ContentScale.Fit,
                     modifier = Modifier

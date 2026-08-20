@@ -12,8 +12,12 @@ data class SharedMemberInfo(
   val name: String,
   val role: String = "Member",
   val lastSyncTimestamp: Long = 0L,
-  val isLocal: Boolean = false
-)
+  val isLocal: Boolean = false,
+  val customNickname: String? = null
+) {
+  val effectiveName: String
+    get() = customNickname?.takeIf { it.isNotBlank() } ?: name
+}
 
 data class SharedMemberContribution(
   val memberName: String,
@@ -391,7 +395,8 @@ object SharedFinancesAggregator {
     localPayCycle: PayCycleEntity?,
     currencySymbol: String,
     memberLedgers: List<SharedLedgerData> = emptyList(),
-    myDisplayName: String = "You"
+    myDisplayName: String = "You",
+    knownMembers: List<SharedMemberInfo> = emptyList()
   ): SharedUnifiedData {
     // 1. Local User Calculations
     val categoryMap = localCategories.associateBy { it.id }
@@ -444,13 +449,16 @@ object SharedFinancesAggregator {
     )
 
     for (ledger in memberLedgers) {
+      val matchingKnown = knownMembers.find { it.fileId == ledger.sourceFileId }
+      val memberDisplayName = matchingKnown?.effectiveName ?: ledger.ownerName
+
       membersIncomeSum += ledger.totalIncome
       membersSpentSum += ledger.totalSpent
       membersSafeToSpendSum += ledger.safeToSpendToday
 
       memberContributions.add(
         SharedMemberContribution(
-          memberName = ledger.ownerName,
+          memberName = memberDisplayName,
           spent = ledger.totalSpent,
           income = ledger.totalIncome,
           safeToSpend = ledger.safeToSpendToday
@@ -458,7 +466,9 @@ object SharedFinancesAggregator {
       )
 
       membersInfoList.add(
-        SharedMemberInfo(
+        matchingKnown?.copy(
+          lastSyncTimestamp = ledger.exportTimestamp
+        ) ?: SharedMemberInfo(
           fileId = ledger.sourceFileId ?: ledger.ownerName,
           name = ledger.ownerName,
           role = ledger.ownerRole,
@@ -501,13 +511,15 @@ object SharedFinancesAggregator {
       }
 
       for (ledger in memberLedgers) {
+        val matchingKnown = knownMembers.find { it.fileId == ledger.sourceFileId }
+        val memberDisplayName = matchingKnown?.effectiveName ?: ledger.ownerName
         val matchCat = ledger.categories.find { it.name.trim().lowercase() == key }
         if (matchCat != null) {
           processedRemoteCats.add(key)
           totalBudget += matchCat.budgetAmount
           combinedCatSpent += matchCat.spentAmount
           if (matchCat.spentAmount > 0) {
-            breakdown[ledger.ownerName] = matchCat.spentAmount
+            breakdown[memberDisplayName] = matchCat.spentAmount
           }
         }
       }
@@ -530,11 +542,13 @@ object SharedFinancesAggregator {
 
     // Add remaining categories present only in remote members
     for (ledger in memberLedgers) {
+      val matchingKnown = knownMembers.find { it.fileId == ledger.sourceFileId }
+      val memberDisplayName = matchingKnown?.effectiveName ?: ledger.ownerName
       for (rCat in ledger.categories) {
         val key = rCat.name.trim().lowercase()
         if (!processedRemoteCats.contains(key) && localCategories.none { it.name.trim().lowercase() == key }) {
           processedRemoteCats.add(key)
-          val breakdown = mutableMapOf(ledger.ownerName to rCat.spentAmount)
+          val breakdown = mutableMapOf(memberDisplayName to rCat.spentAmount)
           val progress = if (rCat.budgetAmount > 0) (rCat.spentAmount / rCat.budgetAmount).toFloat().coerceIn(0f, 1.5f) else 0f
           envelopeList.add(
             SharedCategoryEnvelope(
@@ -577,6 +591,8 @@ object SharedFinancesAggregator {
 
     // Remote member items
     for (ledger in memberLedgers) {
+      val matchingKnown = knownMembers.find { it.fileId == ledger.sourceFileId }
+      val memberDisplayName = matchingKnown?.effectiveName ?: ledger.ownerName
       ledger.recentTransactions.forEach { rTx ->
         feedList.add(
           SharedUnifiedTransactionItem(
@@ -587,7 +603,7 @@ object SharedFinancesAggregator {
             categoryColorHex = rTx.categoryColorHex,
             timestamp = rTx.timestamp,
             note = rTx.note.ifBlank { rTx.categoryName },
-            authorName = ledger.ownerName,
+            authorName = memberDisplayName,
             isLocal = false
           )
         )

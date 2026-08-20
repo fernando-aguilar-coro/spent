@@ -383,4 +383,19 @@
     <string name="drive_upload_success">Image compressed and uploaded to Drive</string>
     <string name="drive_not_connected_warning">Google Drive is not connected. Connect in Settings or select another storage option.</string>
     <string name="receipt_viewer_title">Receipt / Attached Image</string>
+
+    <!-- Member Customization & Data Reset Warning -->
+    <string name="edit_member_name_title">Edit Member Name</string>
+    <string name="edit_member_name_desc">Customize how this member appears on your dashboard and statistics.</string>
+    <string name="member_name_label">Member Name / Nickname</string>
+    <string name="member_name_placeholder">e.g. Alex, Mom, Partner</string>
+    <string name="save_member_name_btn">Save Name</string>
+    <string name="edit_member_btn">Edit Name</string>
+    <string name="reset_data_warning_badge">Permanent Data Loss Warning</string>
+    <string name="reset_data_warning_bullet1">• All transactions, category envelopes, and pay cycles will be deleted.</string>
+    <string name="reset_data_warning_bullet2">• All receipt images stored on this device (internal and gallery) will be deleted.</string>
+    <string name="reset_data_warning_bullet3">• All recurring rules and savings goals will be reset.</string>
+    <string name="reset_data_delete_drive_images_title">Also delete images on Google Drive</string>
+    <string name="reset_data_delete_drive_images_desc">Permanently deletes all receipt photos uploaded to your connected Drive account.</string>
+    <string name="reset_data_confirm_action">Delete Everything</string>
 </resources>

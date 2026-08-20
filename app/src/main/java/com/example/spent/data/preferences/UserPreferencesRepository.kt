@@ -46,13 +46,15 @@ class UserPreferencesRepository(private val context: Context) {
         val list = mutableListOf<com.app.spent.data.sync.SharedMemberInfo>()
         for (i in 0 until array.length()) {
           val obj = array.getJSONObject(i)
+          val nickname = obj.optString("customNickname", "").ifBlank { null }
           list.add(
             com.app.spent.data.sync.SharedMemberInfo(
               fileId = obj.optString("fileId", ""),
               name = obj.optString("name", "Member"),
               role = obj.optString("role", "Member"),
               lastSyncTimestamp = obj.optLong("lastSyncTimestamp", 0L),
-              isLocal = obj.optBoolean("isLocal", false)
+              isLocal = obj.optBoolean("isLocal", false),
+              customNickname = nickname
             )
           )
         }
@@ -235,13 +237,15 @@ class UserPreferencesRepository(private val context: Context) {
           val array = org.json.JSONArray(currentJson)
           for (i in 0 until array.length()) {
             val obj = array.getJSONObject(i)
+            val nickname = obj.optString("customNickname", "").ifBlank { null }
             list.add(
               com.app.spent.data.sync.SharedMemberInfo(
                 fileId = obj.optString("fileId", ""),
                 name = obj.optString("name", "Member"),
                 role = obj.optString("role", "Member"),
                 lastSyncTimestamp = obj.optLong("lastSyncTimestamp", 0L),
-                isLocal = obj.optBoolean("isLocal", false)
+                isLocal = obj.optBoolean("isLocal", false),
+                customNickname = nickname
               )
             )
           }
@@ -250,7 +254,9 @@ class UserPreferencesRepository(private val context: Context) {
 
       val index = list.indexOfFirst { it.fileId == member.fileId }
       if (index >= 0) {
-        list[index] = member
+        val existing = list[index]
+        val preservedNickname = member.customNickname ?: existing.customNickname
+        list[index] = member.copy(customNickname = preservedNickname)
       } else {
         list.add(member)
       }
@@ -263,6 +269,57 @@ class UserPreferencesRepository(private val context: Context) {
           put("role", m.role)
           put("lastSyncTimestamp", m.lastSyncTimestamp)
           put("isLocal", m.isLocal)
+          if (!m.customNickname.isNullOrBlank()) {
+            put("customNickname", m.customNickname)
+          }
+        }
+        newArray.put(obj)
+      }
+      preferences[PreferencesKeys.SHARED_MEMBERS_JSON] = newArray.toString()
+    }
+  }
+
+  suspend fun updateSharedMemberName(fileId: String, newName: String) {
+    context.dataStore.edit { preferences ->
+      val currentJson = preferences[PreferencesKeys.SHARED_MEMBERS_JSON]
+      val list = mutableListOf<com.app.spent.data.sync.SharedMemberInfo>()
+      if (!currentJson.isNullOrBlank()) {
+        try {
+          val array = org.json.JSONArray(currentJson)
+          for (i in 0 until array.length()) {
+            val obj = array.getJSONObject(i)
+            val nickname = obj.optString("customNickname", "").ifBlank { null }
+            list.add(
+              com.app.spent.data.sync.SharedMemberInfo(
+                fileId = obj.optString("fileId", ""),
+                name = obj.optString("name", "Member"),
+                role = obj.optString("role", "Member"),
+                lastSyncTimestamp = obj.optLong("lastSyncTimestamp", 0L),
+                isLocal = obj.optBoolean("isLocal", false),
+                customNickname = nickname
+              )
+            )
+          }
+        } catch (e: Exception) {}
+      }
+
+      val index = list.indexOfFirst { it.fileId == fileId }
+      if (index >= 0) {
+        val existing = list[index]
+        list[index] = existing.copy(name = newName, customNickname = newName)
+      }
+
+      val newArray = org.json.JSONArray()
+      for (m in list) {
+        val obj = org.json.JSONObject().apply {
+          put("fileId", m.fileId)
+          put("name", m.name)
+          put("role", m.role)
+          put("lastSyncTimestamp", m.lastSyncTimestamp)
+          put("isLocal", m.isLocal)
+          if (!m.customNickname.isNullOrBlank()) {
+            put("customNickname", m.customNickname)
+          }
         }
         newArray.put(obj)
       }

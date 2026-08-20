@@ -1,18 +1,11 @@
 package com.app.spent.util
 
-import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
-import java.io.InputStream
 import java.util.UUID
-import kotlin.math.max
 
 import android.content.ContentValues
 import android.content.Context
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
-import android.graphics.Matrix
-import android.media.ExifInterface
 import android.net.Uri
 import android.os.Build
 import android.os.Environment
@@ -128,7 +121,7 @@ object ImageStorageHelper {
         }
 
     /**
-     * Compresses the image and uploads it to Google Drive.
+     * Compresses the image using ImageCompressor and uploads it to Google Drive.
      */
     suspend fun saveToGoogleDrive(context: Context, sourceUri: Uri): Result<String> =
         withContext(Dispatchers.IO) {
@@ -138,8 +131,13 @@ object ImageStorageHelper {
                         Exception(context.getString(R.string.drive_not_connected_warning))
                     )
 
-                // Compress image before uploading to Drive
-                val compressedBytes = compressImageBitmap(context, sourceUri, maxDimension = 1280, quality = 75)
+                // Compress image before uploading to Drive using extracted ImageCompressor
+                val compressedBytes = ImageCompressor.compressImageBitmap(
+                    context = context,
+                    sourceUri = sourceUri,
+                    maxDimension = 1280,
+                    quality = 75
+                )
                 val fileName = "spent_receipt_${UUID.randomUUID()}.jpg"
 
                 GoogleDriveRestService.uploadReceiptImage(context, account, compressedBytes, fileName)
@@ -150,7 +148,100 @@ object ImageStorageHelper {
         }
 
     /**
+     * Resolves an image URI or filename to an accessible Uri/File/URL.
+     * Delegates to [ImageUriResolver.resolve].
+     */
+    fun resolveImageUri(context: Context, rawUriOrFileName: String?): Any? {
+        return ImageUriResolver.resolve(context, rawUriOrFileName)
+    }
+
+    /**
+     * Extracts the spent receipt filename.
+     * Delegates to [ImageUriResolver.extractReceiptFileName].
+     */
+    fun extractReceiptFileName(rawUri: String): String {
+        return ImageUriResolver.extractReceiptFileName(rawUri)
+    }
+
+    /**
+     * Deletes all local and device stored images created by Spent (for Settings data reset).
+     */
+    fun deleteAllStoredImages(context: Context) {
+        try {
+            // 1. Delete in-app private receipt images
+            val inAppDir = File(context.filesDir, "receipt_images")
+            if (inAppDir.exists()) {
+                inAppDir.deleteRecursively()
+            }
+
+            // 2. Delete external app files receipt images
+            context.getExternalFilesDir(Environment.DIRECTORY_PICTURES)?.let { extDir ->
+                if (extDir.exists()) {
+                    extDir.listFiles()?.filter { it.name.startsWith("spent_receipt_") }?.forEach { it.delete() }
+                }
+            }
+
+            // 3. Delete files in public Pictures/Spent
+            val publicDir = File(
+                Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),
+                "Spent"
+            )
+            if (publicDir.exists()) {
+                publicDir.listFiles()?.filter { it.name.startsWith("spent_receipt_") }?.forEach { it.delete() }
+            }
+
+            // 4. Delete MediaStore entries created by Spent
+            try {
+                val selection = "${MediaStore.Images.Media.DISPLAY_NAME} LIKE ?"
+                val selectionArgs = arrayOf("spent_receipt_%")
+                context.contentResolver.delete(
+                    MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                    selection,
+                    selectionArgs
+                )
+            } catch (me: Exception) {
+                me.printStackTrace()
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
+    /**
+     * Deletes a single image given its URI or filename.
+     */
+    fun deleteImage(context: Context, rawUriOrFileName: String?) {
+        if (rawUriOrFileName.isNullOrBlank()) return
+        try {
+            val fileName = extractReceiptFileName(rawUriOrFileName)
+            if (fileName.isNotBlank()) {
+                File(File(context.filesDir, "receipt_images"), fileName).delete()
+                context.getExternalFilesDir(Environment.DIRECTORY_PICTURES)?.let {
+                    File(it, fileName).delete()
+                }
+                File(
+                    Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),
+                    "Spent/$fileName"
+                ).delete()
+
+                try {
+                    val selection = "${MediaStore.Images.Media.DISPLAY_NAME} = ?"
+                    val selectionArgs = arrayOf(fileName)
+                    context.contentResolver.delete(
+                        MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                        selection,
+                        selectionArgs
+                    )
+                } catch (_: Exception) {}
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
+    /**
      * Downscales and compresses a bitmap from Uri into a memory-efficient JPEG byte array.
+     * Backwards-compatible delegate to [ImageCompressor.compressImageBitmap].
      */
     fun compressImageBitmap(
         context: Context,
@@ -158,76 +249,6 @@ object ImageStorageHelper {
         maxDimension: Int = 1280,
         quality: Int = 75
     ): ByteArray {
-        // 1. Decode bounds
-        val options = BitmapFactory.Options().apply {
-            inJustDecodeBounds = true
-        }
-        context.contentResolver.openInputStream(sourceUri)?.use { inputStream ->
-            BitmapFactory.decodeStream(inputStream, null, options)
-        }
-
-        val originalWidth = options.outWidth
-        val originalHeight = options.outHeight
-
-        // 2. Calculate inSampleSize
-        var inSampleSize = 1
-        val maxSide = max(originalWidth, originalHeight)
-        if (maxSide > maxDimension) {
-            inSampleSize = maxSide / maxDimension
-        }
-
-        // 3. Decode scaled bitmap
-        val decodeOptions = BitmapFactory.Options().apply {
-            this.inSampleSize = max(1, inSampleSize)
-        }
-        val decodedBitmap = context.contentResolver.openInputStream(sourceUri)?.use { inputStream ->
-            BitmapFactory.decodeStream(inputStream, null, decodeOptions)
-        } ?: throw IllegalStateException("Could not decode image from URI")
-
-        // 4. Handle EXIF rotation
-        val rotatedBitmap = fixOrientation(context, sourceUri, decodedBitmap)
-
-        // 5. Final resize if still slightly above maxDimension
-        val currentMax = max(rotatedBitmap.width, rotatedBitmap.height)
-        val finalBitmap = if (currentMax > maxDimension) {
-            val scale = maxDimension.toFloat() / currentMax.toFloat()
-            val newW = (rotatedBitmap.width * scale).toInt()
-            val newH = (rotatedBitmap.height * scale).toInt()
-            Bitmap.createScaledBitmap(rotatedBitmap, newW, newH, true)
-        } else {
-            rotatedBitmap
-        }
-
-        // 6. Compress to JPEG bytes
-        val byteStream = ByteArrayOutputStream()
-        finalBitmap.compress(Bitmap.CompressFormat.JPEG, quality, byteStream)
-        return byteStream.toByteArray()
-    }
-
-    private fun fixOrientation(context: Context, sourceUri: Uri, bitmap: Bitmap): Bitmap {
-        return try {
-            val inputStream: InputStream? = context.contentResolver.openInputStream(sourceUri)
-            val exif = inputStream?.use { ExifInterface(it) } ?: return bitmap
-            val orientation = exif.getAttributeInt(
-                ExifInterface.TAG_ORIENTATION,
-                ExifInterface.ORIENTATION_NORMAL
-            )
-
-            val rotationDegrees = when (orientation) {
-                ExifInterface.ORIENTATION_ROTATE_90 -> 90f
-                ExifInterface.ORIENTATION_ROTATE_180 -> 180f
-                ExifInterface.ORIENTATION_ROTATE_270 -> 270f
-                else -> 0f
-            }
-
-            if (rotationDegrees != 0f) {
-                val matrix = Matrix().apply { postRotate(rotationDegrees) }
-                Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true)
-            } else {
-                bitmap
-            }
-        } catch (e: Exception) {
-            bitmap
-        }
+        return ImageCompressor.compressImageBitmap(context, sourceUri, maxDimension, quality)
     }
 }

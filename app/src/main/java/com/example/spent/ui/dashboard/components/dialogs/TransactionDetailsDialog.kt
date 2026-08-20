@@ -46,10 +46,12 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import coil.compose.AsyncImage
 import com.app.spent.R
+import androidx.compose.ui.platform.LocalContext
 import com.app.spent.data.local.entity.CategoryEntity
 import com.app.spent.data.local.entity.TransactionEntity
 import com.app.spent.ui.theme.ExpenseRed
 import com.app.spent.ui.theme.IncomeGreen
+import com.app.spent.util.ImageStorageHelper
 
 @Composable
 fun TransactionDetailsDialog(
@@ -59,10 +61,14 @@ fun TransactionDetailsDialog(
   onDismiss: () -> Unit,
   onRequestDelete: (TransactionEntity) -> Unit
 ) {
+  val context = LocalContext.current
   val category = categories.find { it.id == transaction.categoryId }
   val isExpense = transaction.type == "EXPENSE"
   val formattedDate = SimpleDateFormat("EEEE, MMMM dd, yyyy • HH:mm", Locale.getDefault()).format(Date(transaction.timestamp))
   var showFullImage by remember { mutableStateOf(false) }
+  val resolvedImageModel = remember(transaction.imageUri) {
+    ImageStorageHelper.resolveImageUri(context, transaction.imageUri)
+  }
 
   AlertDialog(
   onDismissRequest = onDismiss,
@@ -141,7 +147,7 @@ fun TransactionDetailsDialog(
         .clickable { showFullImage = true }
         ) {
           AsyncImage(
-          model = transaction.imageUri,
+          model = resolvedImageModel ?: transaction.imageUri,
           contentDescription = stringResource(R.string.receipt_image_preview),
           contentScale = ContentScale.Crop,
           modifier = Modifier.fillMaxSize()
@@ -209,7 +215,7 @@ fun TransactionDetailsDialog(
         }
 
         AsyncImage(
-        model = transaction.imageUri,
+        model = resolvedImageModel ?: transaction.imageUri,
         contentDescription = stringResource(R.string.receipt_viewer_title),
         contentScale = ContentScale.Fit,
         modifier = Modifier

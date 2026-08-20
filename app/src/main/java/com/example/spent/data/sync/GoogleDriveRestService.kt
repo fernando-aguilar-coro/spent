@@ -314,4 +314,34 @@ object GoogleDriveRestService {
       Result.failure(e)
     }
   }
+
+  suspend fun deleteAllDriveReceiptImages(
+    context: Context,
+    account: GoogleSignInAccount
+  ): Result<Int> = withContext(Dispatchers.IO) {
+    try {
+      val drive = getDriveService(context, account)
+      val query = "name contains 'spent_receipt_' and trashed = false"
+      val fileList: FileList = drive.files().list()
+        .setQ(query)
+        .setSpaces("drive")
+        .setFields("files(id, name)")
+        .setPageSize(100)
+        .execute()
+
+      var count = 0
+      for (file in fileList.files) {
+        try {
+          drive.files().delete(file.id).execute()
+          count++
+        } catch (de: Exception) {
+          de.printStackTrace()
+        }
+      }
+      Result.success(count)
+    } catch (e: Exception) {
+      e.printStackTrace()
+      Result.failure(e)
+    }
+  }
 }

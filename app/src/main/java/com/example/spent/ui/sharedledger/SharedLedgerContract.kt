@@ -1,4 +1,4 @@
-package com.app.spent.ui.dashboard
+package com.app.spent.ui.sharedledger
 
 import com.app.spent.data.sync.DriveBackupFileInfo
 import com.app.spent.data.sync.SharedMemberInfo
@@ -32,6 +32,7 @@ data class SharedLedgerUiState(
   val errorMessage: String? = null,
   val showGuideDialog: Boolean = false,
   val showAddMemberDialog: Boolean = false,
+  val editingMember: SharedMemberInfo? = null,
   val activeLedger: SharedLedgerData? = null // Legacy compatibility
 ) : UiState
 
@@ -44,6 +45,8 @@ sealed class SharedLedgerUiIntent : UiIntent {
   data class AddMemberByUrlOrId(val input: String) : SharedLedgerUiIntent()
   data class RemoveMember(val fileId: String) : SharedLedgerUiIntent()
   data class RefreshMember(val fileId: String) : SharedLedgerUiIntent()
+  data class UpdateMemberName(val fileId: String, val newName: String) : SharedLedgerUiIntent()
+  data class ToggleEditMemberDialog(val member: SharedMemberInfo?) : SharedLedgerUiIntent()
   object RefreshAll : SharedLedgerUiIntent()
   object LoadSampleDemo : SharedLedgerUiIntent()
   data class ToggleGuideDialog(val show: Boolean) : SharedLedgerUiIntent()

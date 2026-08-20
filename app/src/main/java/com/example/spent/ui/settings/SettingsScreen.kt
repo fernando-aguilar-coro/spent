@@ -199,9 +199,10 @@ repository: SpentRepository
       // Data Reset Section Component
       item {
         ResetDataButton(
-        onResetClick = {
-          viewModel.onIntent(SettingsUiIntent.ResetAllData)
-        }
+          isDriveConnected = state.isDriveConnected,
+          onResetClick = { deleteDriveImages ->
+            viewModel.onIntent(SettingsUiIntent.ResetAllData(deleteDriveImages))
+          }
         )
       }
     }

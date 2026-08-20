@@ -95,7 +95,7 @@ private val repository: SpentRepository
       is SettingsUiIntent.SyncDriveNow -> syncDriveNow()
       is SettingsUiIntent.RequestDriveSignIn -> sendEffect(SettingsUiEffect.LaunchDriveSignIn)
       is SettingsUiIntent.NotifySyncMessage -> sendEffect(SettingsUiEffect.ShowSnackbar(intent.message))
-      is SettingsUiIntent.ResetAllData -> resetAllData()
+      is SettingsUiIntent.ResetAllData -> resetAllData(intent.deleteDriveImages)
     }
   }
 
@@ -174,9 +174,9 @@ private val repository: SpentRepository
     }
   }
 
-  private fun resetAllData() {
+  private fun resetAllData(deleteDriveImages: Boolean) {
     viewModelScope.launch {
-      repository.resetAllData()
+      repository.resetAllData(deleteDriveImages)
       sendEffect(SettingsUiEffect.ShowSnackbar("All data has been reset"))
     }
   }

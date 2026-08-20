@@ -34,7 +34,9 @@ Spent/
 |   |   |   |   |       |-- DriveBackupManager.kt
 |   |   |   |   |       |-- DriveSyncManager.kt
 |   |   |   |   |       |-- GoogleDriveRestService.kt
-|   |   |   |   |       +-- SharedLedgerModels.kt
+|   |   |   |   |       |-- SharedFinancesAggregator.kt
+|   |   |   |   |       |-- SharedLedgerModels.kt
+|   |   |   |   |       +-- SharedLedgerParser.kt
 |   |   |   |   |-- ui/
 |   |   |   |   |   |-- analytics/
 |   |   |   |   |   |   |-- components/
@@ -52,33 +54,33 @@ Spent/
 |   |   |   |   |   |   |-- components/
 |   |   |   |   |   |   |   |-- dialogs/
 |   |   |   |   |   |   |   |   |-- DeleteTransactionDialog.kt
-|   |   |   |   |   |   |   |   |-- FixedBillsDialog.kt
-|   |   |   |   |   |   |   |   |-- LentDebtDialog.kt
-|   |   |   |   |   |   |   |   |-- LoansTrackerDialog.kt
-|   |   |   |   |   |   |   |   |-- SavingsTrackerDialog.kt
 |   |   |   |   |   |   |   |   +-- TransactionDetailsDialog.kt
 |   |   |   |   |   |   |   |-- CategoryEnvelopeRow.kt
 |   |   |   |   |   |   |   |-- DashboardHeaderCard.kt
 |   |   |   |   |   |   |   |-- DashboardProfileHeader.kt
 |   |   |   |   |   |   |   |-- DashboardQuickActions.kt
 |   |   |   |   |   |   |   |-- DashboardQuickTools.kt
-|   |   |   |   |   |   |   |-- TransactionBottomSheet.kt
 |   |   |   |   |   |   |   +-- TransactionItemRow.kt
 |   |   |   |   |   |   |-- DashboardContract.kt
 |   |   |   |   |   |   |-- DashboardScreen.kt
-|   |   |   |   |   |   |-- DashboardViewModel.kt
+|   |   |   |   |   |   +-- DashboardViewModel.kt
+|   |   |   |   |   |-- fixedbills/
+|   |   |   |   |   |   |-- components/
+|   |   |   |   |   |   |   |-- AddFixedBillFormCard.kt
+|   |   |   |   |   |   |   |-- FixedBillItemCard.kt
+|   |   |   |   |   |   |   +-- FixedBillsEmptyState.kt
 |   |   |   |   |   |   |-- FixedBillsContract.kt
 |   |   |   |   |   |   |-- FixedBillsScreen.kt
-|   |   |   |   |   |   |-- FixedBillsViewModel.kt
+|   |   |   |   |   |   +-- FixedBillsViewModel.kt
+|   |   |   |   |   |-- loanstracker/
+|   |   |   |   |   |   |-- components/
+|   |   |   |   |   |   |   |-- AddLoanOrPaymentFormCard.kt
+|   |   |   |   |   |   |   |-- LoanTransactionItemRow.kt
+|   |   |   |   |   |   |   |-- LoansEmptyState.kt
+|   |   |   |   |   |   |   +-- LoansSummaryHeroCard.kt
 |   |   |   |   |   |   |-- LoansTrackerContract.kt
 |   |   |   |   |   |   |-- LoansTrackerScreen.kt
-|   |   |   |   |   |   |-- LoansTrackerViewModel.kt
-|   |   |   |   |   |   |-- SavingsContract.kt
-|   |   |   |   |   |   |-- SavingsScreen.kt
-|   |   |   |   |   |   |-- SavingsViewModel.kt
-|   |   |   |   |   |   |-- SharedLedgerContract.kt
-|   |   |   |   |   |   |-- SharedLedgerScreen.kt
-|   |   |   |   |   |   +-- SharedLedgerViewModel.kt
+|   |   |   |   |   |   +-- LoansTrackerViewModel.kt
 |   |   |   |   |   |-- mvi/
 |   |   |   |   |   |   +-- MviContract.kt
 |   |   |   |   |   |-- navigation/
@@ -93,6 +95,16 @@ Spent/
 |   |   |   |   |   |   |-- OnboardingContract.kt
 |   |   |   |   |   |   |-- OnboardingScreen.kt
 |   |   |   |   |   |   +-- OnboardingViewModel.kt
+|   |   |   |   |   |-- savings/
+|   |   |   |   |   |   |-- components/
+|   |   |   |   |   |   |   |-- SavingsActiveGoalHeroCard.kt
+|   |   |   |   |   |   |   |-- SavingsDepositHistoryItem.kt
+|   |   |   |   |   |   |   |-- SavingsDepositSection.kt
+|   |   |   |   |   |   |   |-- SavingsEmptyHistoryPlaceholder.kt
+|   |   |   |   |   |   |   +-- SavingsGoalFormCard.kt
+|   |   |   |   |   |   |-- SavingsContract.kt
+|   |   |   |   |   |   |-- SavingsScreen.kt
+|   |   |   |   |   |   +-- SavingsViewModel.kt
 |   |   |   |   |   |-- settings/
 |   |   |   |   |   |   |-- components/
 |   |   |   |   |   |   |   |-- AppInfoCard.kt
@@ -107,6 +119,23 @@ Spent/
 |   |   |   |   |   |   |-- SettingsContract.kt
 |   |   |   |   |   |   |-- SettingsScreen.kt
 |   |   |   |   |   |   +-- SettingsViewModel.kt
+|   |   |   |   |   |-- sharedledger/
+|   |   |   |   |   |   |-- components/
+|   |   |   |   |   |   |   |-- dialogs/
+|   |   |   |   |   |   |   |   |-- AddMemberDialog.kt
+|   |   |   |   |   |   |   |   |-- EditMemberNameDialog.kt
+|   |   |   |   |   |   |   |   +-- SharedFinancesGuideDialog.kt
+|   |   |   |   |   |   |   |-- DriveStatusBar.kt
+|   |   |   |   |   |   |   |-- InviteAndJoinSection.kt
+|   |   |   |   |   |   |   |-- MembersPanelSection.kt
+|   |   |   |   |   |   |   |-- SharedCategoryEnvelopeRow.kt
+|   |   |   |   |   |   |   |-- SharedFinancesTabRow.kt
+|   |   |   |   |   |   |   |-- SharedTransactionRow.kt
+|   |   |   |   |   |   |   |-- StatisticsHeroCard.kt
+|   |   |   |   |   |   |   +-- StatisticsKpiRow.kt
+|   |   |   |   |   |   |-- SharedLedgerContract.kt
+|   |   |   |   |   |   |-- SharedLedgerScreen.kt
+|   |   |   |   |   |   +-- SharedLedgerViewModel.kt
 |   |   |   |   |   |-- theme/
 |   |   |   |   |   |   |-- Color.kt
 |   |   |   |   |   |   |-- Theme.kt
@@ -124,7 +153,9 @@ Spent/
 |   |   |   |   |       +-- AddTransactionViewModel.kt
 |   |   |   |   |-- util/
 |   |   |   |   |   |-- DataExportHelper.kt
+|   |   |   |   |   |-- ImageCompressor.kt
 |   |   |   |   |   |-- ImageStorageHelper.kt
+|   |   |   |   |   |-- ImageUriResolver.kt
 |   |   |   |   |   +-- LocaleHelper.kt
 |   |   |   |   |-- worker/
 |   |   |   |   |   +-- RecurringTransactionWorker.kt

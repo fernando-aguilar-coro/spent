@@ -32,7 +32,7 @@ sealed class SettingsUiIntent : UiIntent {
   object SyncDriveNow : SettingsUiIntent()
   object RequestDriveSignIn : SettingsUiIntent()
   data class NotifySyncMessage(val message: String) : SettingsUiIntent()
-  object ResetAllData : SettingsUiIntent()
+  data class ResetAllData(val deleteDriveImages: Boolean = false) : SettingsUiIntent()
 }
 
 sealed class SettingsUiEffect : UiEffect {

@@ -383,4 +383,19 @@
     <string name="drive_upload_success">Imagem comprimida e enviada para o Drive</string>
     <string name="drive_not_connected_warning">O Google Drive não está conectado. Conecte nas Configurações ou selecione outra opção de armazenamento.</string>
     <string name="receipt_viewer_title">Comprovante / Imagem Anexada</string>
+
+    <!-- Member Customization & Data Reset Warning -->
+    <string name="edit_member_name_title">Editar Nome do Membro</string>
+    <string name="edit_member_name_desc">Personalize como este membro aparece no seu painel e estatísticas.</string>
+    <string name="member_name_label">Nome / Apelido do Membro</string>
+    <string name="member_name_placeholder">ex. Alex, Mãe, Parceiro</string>
+    <string name="save_member_name_btn">Salvar Nome</string>
+    <string name="edit_member_btn">Editar Nome</string>
+    <string name="reset_data_warning_badge">Aviso de Perda Permanente de Dados</string>
+    <string name="reset_data_warning_bullet1">• Todas as transações, envelopes de categorias e ciclos de pagamento serão excluídos.</string>
+    <string name="reset_data_warning_bullet2">• Todas as imagens de comprovantes salvas neste dispositivo (armazenamento interno e galeria) serão excluídas.</string>
+    <string name="reset_data_warning_bullet3">• Todas as regras recorrentes e metas de poupança serão redefinidas.</string>
+    <string name="reset_data_delete_drive_images_title">Excluir também imagens no Google Drive</string>
+    <string name="reset_data_delete_drive_images_desc">Exclui permanentemente todas as fotos de comprovantes enviadas para o seu Google Drive conectado.</string>
+    <string name="reset_data_confirm_action">Excluir Tudo</string>
 </resources>

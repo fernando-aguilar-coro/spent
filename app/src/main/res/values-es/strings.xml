@@ -383,4 +383,19 @@
     <string name="drive_upload_success">Imagen comprimida y subida a Drive</string>
     <string name="drive_not_connected_warning">Google Drive no está conectado. Conéctate en Ajustes o selecciona otra opción de almacenamiento.</string>
     <string name="receipt_viewer_title">Comprobante / Imagen Adjunta</string>
+
+    <!-- Member Customization & Data Reset Warning -->
+    <string name="edit_member_name_title">Editar Nombre del Miembro</string>
+    <string name="edit_member_name_desc">Personaliza cómo aparece este miembro en tu panel y estadísticas.</string>
+    <string name="member_name_label">Nombre / Apodo del Miembro</string>
+    <string name="member_name_placeholder">ej. Alex, Mamá, Pareja</string>
+    <string name="save_member_name_btn">Guardar Nombre</string>
+    <string name="edit_member_btn">Editar Nombre</string>
+    <string name="reset_data_warning_badge">Advertencia de Pérdida Permanente de Datos</string>
+    <string name="reset_data_warning_bullet1">• Se eliminarán todas las transacciones, sobres de categorías y ciclos de pago.</string>
+    <string name="reset_data_warning_bullet2">• Se eliminarán todas las imágenes de comprobantes guardadas en este dispositivo (almacenamiento interno y galería).</string>
+    <string name="reset_data_warning_bullet3">• Se restablecerán todas las reglas recurrentes y metas de ahorro.</string>
+    <string name="reset_data_delete_drive_images_title">Eliminar también imágenes en Google Drive</string>
+    <string name="reset_data_delete_drive_images_desc">Elimina permanentemente todas las fotos de comprobantes subidas a tu cuenta de Google Drive.</string>
+    <string name="reset_data_confirm_action">Eliminar Todo</string>
 </resources>

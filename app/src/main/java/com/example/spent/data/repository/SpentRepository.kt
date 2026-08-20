@@ -42,6 +42,8 @@ interface SpentRepository {
   fun triggerAutoSync()
 
   suspend fun addOrUpdateSharedMember(member: com.app.spent.data.sync.SharedMemberInfo)
+  suspend fun updateSharedMemberName(fileId: String, newName: String)
+  suspend fun updateUserProfileName(newName: String)
   suspend fun removeSharedMember(fileId: String)
   suspend fun clearSharedMembers()
 
@@ -78,5 +80,5 @@ interface SpentRepository {
   recurringRules: List<RecurringRuleEntity>,
   userAccount: UserAccountEntity?
   )
-  suspend fun resetAllData()
+  suspend fun resetAllData(deleteDriveImages: Boolean = false)
 }
