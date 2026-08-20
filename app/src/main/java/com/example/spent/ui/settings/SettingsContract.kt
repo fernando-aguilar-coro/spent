@@ -17,6 +17,7 @@ val lastDriveSyncTimestamp: Long = 0L,
 val isDriveConnected: Boolean = false,
 val driveAccountEmail: String? = null,
 val isDriveSyncing: Boolean = false,
+val imageStorageLocation: String = "DEVICE",
 val isLoading: Boolean = false
 ) : UiState
 
@@ -25,6 +26,7 @@ sealed class SettingsUiIntent : UiIntent {
   data class SetDarkThemeMode(val isDark: Boolean?) : SettingsUiIntent()
   data class SetCurrencySymbol(val symbol: String) : SettingsUiIntent()
   data class SetAppLanguage(val languageCode: String?) : SettingsUiIntent()
+  data class SetImageStorageLocation(val location: String) : SettingsUiIntent()
   data class ConnectDriveAccount(val account: com.google.android.gms.auth.api.signin.GoogleSignInAccount) : SettingsUiIntent()
   object DisconnectDrive : SettingsUiIntent()
   object SyncDriveNow : SettingsUiIntent()

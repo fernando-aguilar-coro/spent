@@ -48,6 +48,7 @@ class SpentRepositoryImpl(
     override val partnerLastSyncTimestampFlow: Flow<Long> = preferencesRepository.partnerLastSyncTimestampFlow
     override val isPartnerPairedFlow: Flow<Boolean> = preferencesRepository.isPartnerPairedFlow
     override val sharedMembersFlow: Flow<List<com.app.spent.data.sync.SharedMemberInfo>> = preferencesRepository.sharedMembersFlow
+    override val imageStorageLocationFlow: Flow<String> = preferencesRepository.imageStorageLocationFlow
 
     override suspend fun connectGoogleDrive(account: GoogleSignInAccount): DriveConnectResult =
         DriveSyncManager.connectAccount(context, account, this, preferencesRepository)
@@ -200,6 +201,9 @@ class SpentRepositoryImpl(
 
     override suspend fun setAppLanguage(languageCode: String?) =
         preferencesRepository.setAppLanguage(languageCode)
+
+    override suspend fun setImageStorageLocation(location: String) =
+        preferencesRepository.setImageStorageLocation(location)
 
     override suspend fun setSavingsGoal(name: String, totalGoal: Double, monthlyContribution: Double) =
         preferencesRepository.setSavingsGoal(name, totalGoal, monthlyContribution)

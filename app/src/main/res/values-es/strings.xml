@@ -359,7 +359,28 @@
     <string name="onboarding_schedule_payday">Primer Día de Pago / Fecha Ancla</string>
     <string name="onboarding_schedule_salary_optional">Sueldo Base Estimado (%1$s, Opcional)</string>
     <string name="onboarding_btn_finish_setup">Finalizar Configuración</string>
-    <string name="onboarding_btn_next">Continuar</string>
     <string name="frequency_biweekly">Quincenal (14 días)</string>
     <string name="frequency_semimonthly">Medio mes (15 días)</string>
+
+    <!-- Image Attachment & Multi-Destination Storage -->
+    <string name="attach_image_label">Foto / Comprobante de Nota</string>
+    <string name="attach_image_btn">Adjuntar Imagen</string>
+    <string name="change_image_btn">Cambiar</string>
+    <string name="remove_image_btn">Quitar</string>
+    <string name="view_image_btn">Ver</string>
+    <string name="receipt_image_preview">Vista Previa del Comprobante</string>
+    <string name="image_storage_title">Almacenamiento de Fotos y Comprobantes</string>
+    <string name="image_storage_desc">Elige dónde se guardan las imágenes adjuntas a las notas</string>
+    <string name="storage_option_device">Almacenamiento del Dispositivo (Por defecto)</string>
+    <string name="storage_option_device_desc">Guardado en la carpeta Imágenes del dispositivo (accesible en galería)</string>
+    <string name="storage_option_in_app">Almacenamiento Interno de la App</string>
+    <string name="storage_option_in_app_desc">Guardado de forma privada dentro de la carpeta de la app</string>
+    <string name="storage_option_google_drive">Google Drive (Nube comprimida)</string>
+    <string name="storage_option_google_drive_desc">Se comprimen automáticamente y se suben a tu Google Drive</string>
+    <string name="permission_media_required">Se requiere permiso de almacenamiento para seleccionar imágenes</string>
+    <string name="permission_denied_msg">Permiso denegado. Habilita el acceso al almacenamiento en los ajustes del dispositivo para adjuntar imágenes.</string>
+    <string name="uploading_image_drive">Comprimiendo y subiendo imagen a Google Drive…</string>
+    <string name="drive_upload_success">Imagen comprimida y subida a Drive</string>
+    <string name="drive_not_connected_warning">Google Drive no está conectado. Conéctate en Ajustes o selecciona otra opción de almacenamiento.</string>
+    <string name="receipt_viewer_title">Comprobante / Imagen Adjunta</string>
 </resources>

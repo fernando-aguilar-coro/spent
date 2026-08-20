@@ -278,4 +278,40 @@ object GoogleDriveRestService {
       Result.failure(e)
     }
   }
+
+  suspend fun uploadReceiptImage(
+    context: Context,
+    account: GoogleSignInAccount,
+    imageBytes: ByteArray,
+    fileName: String
+  ): Result<String> = withContext(Dispatchers.IO) {
+    try {
+      val drive = getDriveService(context, account)
+      val metadata = File().apply {
+        name = fileName
+        mimeType = "image/jpeg"
+      }
+      val mediaContent = ByteArrayContent("image/jpeg", imageBytes)
+      val createdFile = drive.files().create(metadata, mediaContent)
+        .setFields("id, webViewLink, webContentLink")
+        .execute()
+
+      // Enable anyone with link view permission so Coil can load it via direct URL
+      try {
+        val permission = com.google.api.services.drive.model.Permission().apply {
+          type = "anyone"
+          role = "reader"
+        }
+        drive.permissions().create(createdFile.id, permission).execute()
+      } catch (pe: Exception) {
+        pe.printStackTrace()
+      }
+
+      val directUrl = "https://drive.google.com/uc?export=view&id=${createdFile.id}"
+      Result.success(directUrl)
+    } catch (e: Exception) {
+      e.printStackTrace()
+      Result.failure(e)
+    }
+  }
 }

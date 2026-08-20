@@ -16,6 +16,9 @@ val currencySymbol: String = "$",
 val categories: List<CategoryEntity> = emptyList(),
 val showAddCategoryDialog: Boolean = false,
 val showKeypad: Boolean = false,
+val selectedImageUri: String? = null,
+val imageStorageLocation: String = "DEVICE",
+val isProcessingImage: Boolean = false,
 val isSaving: Boolean = false
 ) : UiState {
   val parsedAmount: Double
@@ -37,6 +40,8 @@ sealed class AddTransactionUiIntent : UiIntent {
   data class ToggleKeypad(val show: Boolean) : AddTransactionUiIntent()
   data class ShowAddCategoryDialog(val show: Boolean) : AddTransactionUiIntent()
   data class CreateCategory(val name: String, val colorHex: String, val iconName: String) : AddTransactionUiIntent()
+  data class AttachImage(val uri: android.net.Uri, val context: android.content.Context) : AddTransactionUiIntent()
+  object RemoveImage : AddTransactionUiIntent()
   object SaveTransaction : AddTransactionUiIntent()
 }
 

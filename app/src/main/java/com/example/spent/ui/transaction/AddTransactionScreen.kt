@@ -68,6 +68,7 @@ import com.app.spent.ui.transaction.components.AddCategoryDialog
 import com.app.spent.ui.transaction.components.CategoryEnvelopeSelector
 import com.app.spent.ui.transaction.components.DateTimePickerField
 import com.app.spent.ui.transaction.components.RecurringOptionsSection
+import com.app.spent.ui.transaction.components.TransactionImageAttachmentSection
 import com.app.spent.ui.transaction.components.TransactionTypeSelector
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -235,6 +236,21 @@ onNavigateBack: () -> Unit
         unfocusedBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f)
         ),
         modifier = Modifier.fillMaxWidth()
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Image Attachment Section
+        TransactionImageAttachmentSection(
+        selectedImageUri = state.selectedImageUri,
+        storageLocation = state.imageStorageLocation,
+        isProcessing = state.isProcessingImage,
+        onImageSelected = { uri, ctx ->
+          viewModel.onIntent(AddTransactionUiIntent.AttachImage(uri, ctx))
+        },
+        onRemoveImage = {
+          viewModel.onIntent(AddTransactionUiIntent.RemoveImage)
+        }
         )
 
         Spacer(modifier = Modifier.height(16.dp))

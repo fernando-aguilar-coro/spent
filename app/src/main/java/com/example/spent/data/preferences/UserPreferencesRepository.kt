@@ -31,6 +31,11 @@ class UserPreferencesRepository(private val context: Context) {
     val PARTNER_LAST_SYNC_TIMESTAMP = androidx.datastore.preferences.core.longPreferencesKey("partner_last_sync_timestamp")
     val IS_PARTNER_PAIRED = booleanPreferencesKey("is_partner_paired")
     val SHARED_MEMBERS_JSON = stringPreferencesKey("shared_members_json")
+    val IMAGE_STORAGE_LOCATION = stringPreferencesKey("image_storage_location")
+  }
+
+  val imageStorageLocationFlow: Flow<String> = context.dataStore.data.map { preferences ->
+    preferences[PreferencesKeys.IMAGE_STORAGE_LOCATION] ?: "DEVICE"
   }
 
   val sharedMembersFlow: Flow<List<com.app.spent.data.sync.SharedMemberInfo>> = context.dataStore.data.map { preferences ->
@@ -300,5 +305,11 @@ class UserPreferencesRepository(private val context: Context) {
 
   suspend fun clearPartnerInfo() {
     clearSharedMembers()
+  }
+
+  suspend fun setImageStorageLocation(location: String) {
+    context.dataStore.edit { preferences ->
+      preferences[PreferencesKeys.IMAGE_STORAGE_LOCATION] = location
+    }
   }
 }

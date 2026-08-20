@@ -1,7 +1,4 @@
 # Estructura del Proyecto Spent (Optimizada para Desarrollo / IA)
-
-Esta versión omite archivos que una IA prácticamente nunca necesita o lee (tales como configuraciones internas del IDE `.idea/`, binarios compilados `.aab`, claves `.jks`, binarios `.jar` de wrapper, logs temporales de compilador y recursos gráficos rasterizados de iconos `.webp`).
-
 ```text
 Spent/
 |-- .github/
@@ -102,6 +99,7 @@ Spent/
 |   |   |   |   |   |   |   |-- CurrencySelectionCard.kt
 |   |   |   |   |   |   |   |-- ExportCsvCard.kt
 |   |   |   |   |   |   |   |-- GoogleDriveSyncCard.kt
+|   |   |   |   |   |   |   |-- ImageStorageLocationCard.kt
 |   |   |   |   |   |   |   |-- LanguageSelectionCard.kt
 |   |   |   |   |   |   |   |-- PayCycleCard.kt
 |   |   |   |   |   |   |   |-- ResetDataButton.kt
@@ -119,12 +117,14 @@ Spent/
 |   |   |   |   |       |   |-- CategoryEnvelopeSelector.kt
 |   |   |   |   |       |   |-- DateTimePickerField.kt
 |   |   |   |   |       |   |-- RecurringOptionsSection.kt
+|   |   |   |   |       |   |-- TransactionImageAttachmentSection.kt
 |   |   |   |   |       |   +-- TransactionTypeSelector.kt
 |   |   |   |   |       |-- AddTransactionContract.kt
 |   |   |   |   |       |-- AddTransactionScreen.kt
 |   |   |   |   |       +-- AddTransactionViewModel.kt
 |   |   |   |   |-- util/
 |   |   |   |   |   |-- DataExportHelper.kt
+|   |   |   |   |   |-- ImageStorageHelper.kt
 |   |   |   |   |   +-- LocaleHelper.kt
 |   |   |   |   |-- worker/
 |   |   |   |   |   +-- RecurringTransactionWorker.kt

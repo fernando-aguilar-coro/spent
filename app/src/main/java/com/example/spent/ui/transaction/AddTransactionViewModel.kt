@@ -25,14 +25,16 @@ AddTransactionUiState(selectedType = initialType)
     viewModelScope.launch {
       combine(
       repository.getCategoriesFlow(),
-      repository.currencySymbolFlow
-      ) { categories, currency ->
-        Pair(categories, currency)
-      }.collect { (categories, currency) ->
+      repository.currencySymbolFlow,
+      repository.imageStorageLocationFlow
+      ) { categories, currency, imageStorage ->
+        Triple(categories, currency, imageStorage)
+      }.collect { (categories, currency, imageStorage) ->
         setState {
           copy(
           categories = categories,
-          currencySymbol = currency
+          currencySymbol = currency,
+          imageStorageLocation = imageStorage
           )
         }
       }
@@ -74,8 +76,39 @@ AddTransactionUiState(selectedType = initialType)
       is AddTransactionUiIntent.CreateCategory -> {
         createCategory(intent.name, intent.colorHex, intent.iconName)
       }
+      is AddTransactionUiIntent.AttachImage -> {
+        processAttachedImage(intent.uri, intent.context)
+      }
+      is AddTransactionUiIntent.RemoveImage -> {
+        setState { copy(selectedImageUri = null) }
+      }
       is AddTransactionUiIntent.SaveTransaction -> {
         saveTransaction()
+      }
+    }
+  }
+
+  private fun processAttachedImage(uri: android.net.Uri, context: android.content.Context) {
+    viewModelScope.launch {
+      setState { copy(isProcessingImage = true) }
+      val result = com.app.spent.util.ImageStorageHelper.processAndSaveImage(
+        context = context,
+        sourceUri = uri,
+        destinationType = currentState.imageStorageLocation
+      )
+      if (result.isSuccess) {
+        val savedUri = result.getOrNull()
+        setState { copy(selectedImageUri = savedUri, isProcessingImage = false) }
+        val msg = if (currentState.imageStorageLocation == com.app.spent.util.ImageStorageHelper.DESTINATION_GOOGLE_DRIVE) {
+          "Image compressed and uploaded to Google Drive"
+        } else {
+          "Image attached successfully"
+        }
+        sendEffect(AddTransactionUiEffect.ShowSnackbar(msg))
+      } else {
+        setState { copy(isProcessingImage = false) }
+        val errorMsg = result.exceptionOrNull()?.localizedMessage ?: "Failed to process image"
+        sendEffect(AddTransactionUiEffect.ShowSnackbar(errorMsg))
       }
     }
   }
@@ -135,6 +168,7 @@ AddTransactionUiState(selectedType = initialType)
         categoryId = targetCatId,
         note = state.noteText,
         timestamp = state.selectedTimestamp,
+        imageUri = state.selectedImageUri,
         recurringRuleId = ruleId
         )
         repository.addTransaction(newTx)

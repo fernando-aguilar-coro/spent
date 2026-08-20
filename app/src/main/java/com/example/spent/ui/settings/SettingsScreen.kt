@@ -30,6 +30,7 @@ import com.app.spent.ui.settings.components.AppInfoCard
 import com.app.spent.ui.settings.components.CurrencySelectionCard
 import com.app.spent.ui.settings.components.ExportCsvCard
 import com.app.spent.ui.settings.components.GoogleDriveSyncCard
+import com.app.spent.ui.settings.components.ImageStorageLocationCard
 import com.app.spent.ui.settings.components.LanguageSelectionCard
 import com.app.spent.ui.settings.components.PayCycleCard
 import com.app.spent.ui.settings.components.ResetDataButton
@@ -142,6 +143,17 @@ repository: SpentRepository
         isDarkThemeOverride = state.isDarkThemeOverride,
         onSelectThemeMode = { mode ->
           viewModel.onIntent(SettingsUiIntent.SetDarkThemeMode(mode))
+        }
+        )
+        Spacer(modifier = Modifier.height(12.dp))
+      }
+
+      // Image & Receipt Storage Location Option
+      item {
+        ImageStorageLocationCard(
+        currentLocation = state.imageStorageLocation,
+        onSelectLocation = { location ->
+          viewModel.onIntent(SettingsUiIntent.SetImageStorageLocation(location))
         }
         )
         Spacer(modifier = Modifier.height(12.dp))

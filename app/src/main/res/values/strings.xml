@@ -359,7 +359,28 @@
     <string name="onboarding_schedule_payday">First Payday / Anchor Date</string>
     <string name="onboarding_schedule_salary_optional">Estimated Base Salary (%1$s, Optional)</string>
     <string name="onboarding_btn_finish_setup">Finish Setup</string>
-    <string name="onboarding_btn_next">Continue</string>
     <string name="frequency_biweekly">Bi-weekly (14 days)</string>
     <string name="frequency_semimonthly">Semi-monthly (15 days)</string>
+
+    <!-- Image Attachment & Multi-Destination Storage -->
+    <string name="attach_image_label">Receipt / Note Image</string>
+    <string name="attach_image_btn">Attach Image</string>
+    <string name="change_image_btn">Change</string>
+    <string name="remove_image_btn">Remove</string>
+    <string name="view_image_btn">View</string>
+    <string name="receipt_image_preview">Receipt Preview</string>
+    <string name="image_storage_title">Image &amp; Receipt Storage</string>
+    <string name="image_storage_desc">Choose where note attachment images are saved</string>
+    <string name="storage_option_device">Device Storage (Default)</string>
+    <string name="storage_option_device_desc">Saved to device Pictures folder (accessible in gallery)</string>
+    <string name="storage_option_in_app">In-App Private Storage</string>
+    <string name="storage_option_in_app_desc">Stored privately inside the app directory</string>
+    <string name="storage_option_google_drive">Google Drive (Compressed Cloud)</string>
+    <string name="storage_option_google_drive_desc">Automatically compressed and uploaded to your Google Drive</string>
+    <string name="permission_media_required">Storage permission is required to select images</string>
+    <string name="permission_denied_msg">Permission denied. Enable storage access in device settings to attach images.</string>
+    <string name="uploading_image_drive">Compressing and uploading image to Google Drive…</string>
+    <string name="drive_upload_success">Image compressed and uploaded to Drive</string>
+    <string name="drive_not_connected_warning">Google Drive is not connected. Connect in Settings or select another storage option.</string>
+    <string name="receipt_viewer_title">Receipt / Attached Image</string>
 </resources>

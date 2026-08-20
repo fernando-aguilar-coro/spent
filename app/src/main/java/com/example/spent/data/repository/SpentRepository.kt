@@ -34,6 +34,7 @@ interface SpentRepository {
   val partnerLastSyncTimestampFlow: Flow<Long>
   val isPartnerPairedFlow: Flow<Boolean>
   val sharedMembersFlow: Flow<List<com.app.spent.data.sync.SharedMemberInfo>>
+  val imageStorageLocationFlow: Flow<String>
 
   suspend fun connectGoogleDrive(account: com.google.android.gms.auth.api.signin.GoogleSignInAccount): com.app.spent.data.sync.DriveConnectResult
   suspend fun disconnectGoogleDrive()
@@ -66,6 +67,7 @@ interface SpentRepository {
   suspend fun setDarkThemeMode(enabled: Boolean?)
   suspend fun setCurrencySymbol(symbol: String)
   suspend fun setAppLanguage(languageCode: String?)
+  suspend fun setImageStorageLocation(location: String)
   suspend fun setSavingsGoal(name: String, totalGoal: Double, monthlyContribution: Double)
   suspend fun clearSavingsGoal()
   suspend fun setLastDriveSyncTimestamp(timestamp: Long)

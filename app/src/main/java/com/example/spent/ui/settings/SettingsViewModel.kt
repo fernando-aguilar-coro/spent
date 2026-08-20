@@ -23,9 +23,10 @@ private val repository: SpentRepository
       repository.isDarkThemeFlow,
       repository.currencySymbolFlow,
       repository.appLanguageFlow,
+      repository.imageStorageLocationFlow,
       repository.lastDriveSyncTimestampFlow
-      ) { payCycle, isDark, currency, language, lastSync ->
-        SettingsCoreData(payCycle, isDark, currency, language, lastSync)
+      ) { payCycle, isDark, currency, language, imageStorage, lastSync ->
+        SettingsCoreData(payCycle, isDark, currency, language, imageStorage, lastSync)
       }
 
       val driveFlow = combine(
@@ -49,6 +50,7 @@ private val repository: SpentRepository
         isDarkThemeOverride = core.isDark,
         currencySymbol = core.currency,
         appLanguage = core.language,
+        imageStorageLocation = core.imageStorageLocation,
         transactions = transactions,
         categories = categories,
         lastDriveSyncTimestamp = core.lastSync,
@@ -68,6 +70,7 @@ private val repository: SpentRepository
   val isDark: Boolean?,
   val currency: String,
   val language: String?,
+  val imageStorageLocation: String,
   val lastSync: Long
   )
 
@@ -77,6 +80,7 @@ private val repository: SpentRepository
       is SettingsUiIntent.SetDarkThemeMode -> setThemeMode(intent.isDark)
       is SettingsUiIntent.SetCurrencySymbol -> setCurrencySymbol(intent.symbol)
       is SettingsUiIntent.SetAppLanguage -> setAppLanguage(intent.languageCode)
+      is SettingsUiIntent.SetImageStorageLocation -> setImageStorageLocation(intent.location)
       is SettingsUiIntent.ConnectDriveAccount -> connectDriveAccount(intent.account)
       is SettingsUiIntent.DisconnectDrive -> disconnectDrive()
       is SettingsUiIntent.SyncDriveNow -> syncDriveNow()
@@ -151,6 +155,13 @@ private val repository: SpentRepository
   private fun setAppLanguage(languageCode: String?) {
     viewModelScope.launch {
       repository.setAppLanguage(languageCode)
+    }
+  }
+
+  private fun setImageStorageLocation(location: String) {
+    viewModelScope.launch {
+      repository.setImageStorageLocation(location)
+      sendEffect(SettingsUiEffect.ShowSnackbar("Image storage location updated"))
     }
   }
 

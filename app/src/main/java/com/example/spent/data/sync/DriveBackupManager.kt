@@ -60,6 +60,7 @@ object DriveBackupManager {
         put("categoryId", tx.categoryId)
         put("timestamp", tx.timestamp)
         put("note", tx.note)
+        put("imageUri", tx.imageUri ?: "")
         put("recurringRuleId", tx.recurringRuleId ?: "")
       }
       txArray.put(obj)
@@ -113,6 +114,7 @@ object DriveBackupManager {
     val currency = repository.currencySymbolFlow.firstOrNull() ?: "$"
     val darkTheme = repository.isDarkThemeFlow.firstOrNull()
     val language = repository.appLanguageFlow.firstOrNull()
+    val imageStorage = repository.imageStorageLocationFlow.firstOrNull() ?: "DEVICE"
     val savingsGoalName = repository.savingsGoalNameFlow.firstOrNull() ?: ""
     val savingsGoalTotal = repository.savingsGoalTotalFlow.firstOrNull() ?: 0.0
     val savingsMonthly = repository.savingsMonthlyContributionFlow.firstOrNull() ?: 0.0
@@ -121,6 +123,7 @@ object DriveBackupManager {
       put("currencySymbol", currency)
       if (darkTheme != null) put("darkTheme", darkTheme)
       if (language != null) put("appLanguage", language)
+      put("imageStorageLocation", imageStorage)
       put("savingsGoalName", savingsGoalName)
       put("savingsGoalTotal", savingsGoalTotal)
       put("savingsMonthlyContribution", savingsMonthly)
@@ -160,6 +163,7 @@ object DriveBackupManager {
         for (i in 0 until txArray.length()) {
           val obj = txArray.getJSONObject(i)
           val recRuleId = obj.optString("recurringRuleId", "").ifEmpty { null }
+          val imgUri = obj.optString("imageUri", "").ifEmpty { null }
           transactionsList.add(
           TransactionEntity(
           id = obj.optString("id", java.util.UUID.randomUUID().toString()),
@@ -169,6 +173,7 @@ object DriveBackupManager {
           categoryId = obj.optString("categoryId", "cat_general"),
           timestamp = obj.optLong("timestamp", System.currentTimeMillis()),
           note = obj.optString("note", ""),
+          imageUri = imgUri,
           recurringRuleId = recRuleId
           )
           )
@@ -242,6 +247,9 @@ object DriveBackupManager {
         }
         if (prefObj.has("appLanguage")) {
           repository.setAppLanguage(prefObj.getString("appLanguage"))
+        }
+        if (prefObj.has("imageStorageLocation")) {
+          repository.setImageStorageLocation(prefObj.getString("imageStorageLocation"))
         }
         if (prefObj.has("savingsGoalName") || prefObj.has("savingsGoalTotal")) {
           val name = prefObj.optString("savingsGoalName", "")
