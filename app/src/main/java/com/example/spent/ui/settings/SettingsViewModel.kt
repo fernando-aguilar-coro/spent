@@ -18,14 +18,23 @@ private val repository: SpentRepository
 
   private fun observeSettingsData() {
     viewModelScope.launch {
-      val coreFlow = combine(
+      val prefs1Flow = combine(
       repository.getCurrentPayCycleFlow(),
       repository.isDarkThemeFlow,
-      repository.currencySymbolFlow,
+      repository.currencySymbolFlow
+      ) { payCycle, isDark, currency ->
+        Triple(payCycle, isDark, currency)
+      }
+
+      val prefs2Flow = combine(
       repository.appLanguageFlow,
       repository.imageStorageLocationFlow,
       repository.lastDriveSyncTimestampFlow
-      ) { payCycle, isDark, currency, language, imageStorage, lastSync ->
+      ) { language, imageStorage, lastSync ->
+        Triple(language, imageStorage, lastSync)
+      }
+
+      val coreFlow = combine(prefs1Flow, prefs2Flow) { (payCycle, isDark, currency), (language, imageStorage, lastSync) ->
         SettingsCoreData(payCycle, isDark, currency, language, imageStorage, lastSync)
       }
 
