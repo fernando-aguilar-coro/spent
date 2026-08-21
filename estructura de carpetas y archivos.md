@@ -7,10 +7,10 @@ Spent/
 |-- app/
 |   |-- src/
 |   |   |-- androidTest/
-|   |   |   +-- java/com/example/spent/
+|   |   |   +-- java/com/app/spent/
 |   |   |       +-- ExampleInstrumentedTest.kt
 |   |   |-- main/
-|   |   |   |-- java/com/example/spent/
+|   |   |   |-- java/com/app/spent/
 |   |   |   |   |-- data/
 |   |   |   |   |   |-- local/
 |   |   |   |   |   |   |-- dao/
@@ -182,7 +182,7 @@ Spent/
 |   |   |   |       +-- file_paths.xml
 |   |   |   +-- AndroidManifest.xml
 |   |   +-- test/
-|   |       +-- java/com/example/spent/
+|   |       +-- java/com/app/spent/
 |   |           +-- ExampleUnitTest.kt
 |   |-- build.gradle.kts
 |   +-- proguard-rules.pro

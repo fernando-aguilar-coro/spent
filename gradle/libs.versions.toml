@@ -18,8 +18,11 @@ googleApiClient = "2.6.0"
 googleDriveApi = "v3-rev20230822-2.0.0"
 googleHttpClientGson = "1.43.3"
 coil = "2.7.0"
+koin = "3.5.6"
 
 [libraries]
+koin-android = { group = "io.insert-koin", name = "koin-android", version.ref = "koin" }
+koin-androidx-compose = { group = "io.insert-koin", name = "koin-androidx-compose", version.ref = "koin" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }

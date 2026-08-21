@@ -97,9 +97,19 @@
     <string name="sync_all_members_btn">Sincronizar Tudo</string>
 
 
-    <!-- Recent Activity -->
+    <!-- Recent Activity & History -->
     <string name="recent_activity">Atividade Recente</string>
+    <string name="see_all_transactions">Ver tudo</string>
     <string name="no_transactions_yet">Nenhuma transação ainda. Toque em + Adicionar Despesa para começar!</string>
+    <string name="history_title">Histórico de Transações</string>
+    <string name="history_subtitle">Pesquise, filtre e gerencie todos os registros</string>
+    <string name="search_transactions_placeholder">Pesquisar por nota ou comerciante…</string>
+    <string name="filter_all">Todos</string>
+    <string name="filter_expenses">Despesas</string>
+    <string name="filter_income">Receitas</string>
+    <string name="filter_active">Filtrado</string>
+    <string name="history_results_count">registros</string>
+    <string name="no_matching_transactions">Nenhuma transação correspondente encontrada.</string>
 
     <!-- Savings Tracker Dialog & Screen -->
     <string name="savings_tracker_title">Controle de Poupança</string>

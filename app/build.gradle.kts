@@ -67,7 +67,8 @@ android {
 
     buildTypes {
         release {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
+            isShrinkResources = true
 
             signingConfig = signingConfigs.getByName("release")
 
@@ -152,6 +153,9 @@ dependencies {
     implementation(libs.google.api.services.drive)
     implementation(libs.google.http.client.gson)
     implementation(libs.coil.compose)
+
+    implementation(libs.koin.android)
+    implementation(libs.koin.androidx.compose)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

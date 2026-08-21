@@ -97,9 +97,19 @@
     <string name="sync_all_members_btn">Sync All</string>
 
 
-    <!-- Recent Activity -->
+    <!-- Recent Activity & History -->
     <string name="recent_activity">Recent Activity</string>
+    <string name="see_all_transactions">See All</string>
     <string name="no_transactions_yet">No transactions yet. Tap + Add Expense to start tracking!</string>
+    <string name="history_title">Transaction History</string>
+    <string name="history_subtitle">Search, filter and manage all records</string>
+    <string name="search_transactions_placeholder">Search by note or merchant…</string>
+    <string name="filter_all">All</string>
+    <string name="filter_expenses">Expenses</string>
+    <string name="filter_income">Income</string>
+    <string name="filter_active">Filtered</string>
+    <string name="history_results_count">records</string>
+    <string name="no_matching_transactions">No matching transactions found.</string>
 
     <!-- Savings Tracker Dialog & Screen -->
     <string name="savings_tracker_title">Savings Tracker</string>
