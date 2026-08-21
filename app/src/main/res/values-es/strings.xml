@@ -398,4 +398,12 @@
     <string name="reset_data_delete_drive_images_title">Eliminar también imágenes en Google Drive</string>
     <string name="reset_data_delete_drive_images_desc">Elimina permanentemente todas las fotos de comprobantes subidas a tu cuenta de Google Drive.</string>
     <string name="reset_data_confirm_action">Eliminar Todo</string>
+
+    <!-- Image Source Chooser -->
+    <string name="image_source_chooser_title">Adjuntar Imagen de Comprobante</string>
+    <string name="image_source_camera">Tomar Foto (Cámara)</string>
+    <string name="image_source_camera_desc">Usa la cámara para capturar el comprobante</string>
+    <string name="image_source_gallery">Elegir de Galería</string>
+    <string name="image_source_gallery_desc">Selecciona una foto existente del dispositivo</string>
+    <string name="camera_permission_required">Se requiere permiso de cámara para tomar fotos</string>
 </resources>

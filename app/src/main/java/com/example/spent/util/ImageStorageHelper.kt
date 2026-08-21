@@ -38,11 +38,14 @@ object ImageStorageHelper {
 
     /**
      * Saves image to Device public/shared storage (Pictures/Spent).
+     * Returns the standardized relative path (Pictures/Spent/spent_receipt_UUID.jpg)
+     * so it can be reconnected across app reinstalls and JSON backup restores.
      */
     suspend fun saveToDeviceStorage(context: Context, sourceUri: Uri): Result<String> =
         withContext(Dispatchers.IO) {
             try {
                 val fileName = "spent_receipt_${UUID.randomUUID()}.jpg"
+                val standardizedPath = "Pictures/Spent/$fileName"
 
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                     val contentValues = ContentValues().apply {
@@ -65,7 +68,7 @@ object ImageStorageHelper {
                         }
                     }
 
-                    Result.success(uri.toString())
+                    Result.success(standardizedPath)
                 } else {
                     val picturesDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES)
                     val spentDir = File(picturesDir, "Spent").apply { mkdirs() }
@@ -77,20 +80,28 @@ object ImageStorageHelper {
                         }
                     }
 
-                    Result.success(Uri.fromFile(targetFile).toString())
+                    android.media.MediaScannerConnection.scanFile(
+                        context,
+                        arrayOf(targetFile.absolutePath),
+                        arrayOf("image/jpeg"),
+                        null
+                    )
+
+                    Result.success(standardizedPath)
                 }
             } catch (e: Exception) {
                 // Fallback to app external files dir if MediaStore fails
                 try {
                     val extDir = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
                         ?: context.filesDir
-                    val targetFile = File(extDir, "spent_receipt_${UUID.randomUUID()}.jpg")
+                    val fileName = "spent_receipt_${UUID.randomUUID()}.jpg"
+                    val targetFile = File(extDir, fileName)
                     FileOutputStream(targetFile).use { outputStream ->
                         context.contentResolver.openInputStream(sourceUri)?.use { inputStream ->
                             inputStream.copyTo(outputStream)
                         }
                     }
-                    Result.success(Uri.fromFile(targetFile).toString())
+                    Result.success("Pictures/Spent/$fileName")
                 } catch (fallbackEx: Exception) {
                     fallbackEx.printStackTrace()
                     Result.failure(e)

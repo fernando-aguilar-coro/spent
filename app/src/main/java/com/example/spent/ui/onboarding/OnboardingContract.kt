@@ -16,6 +16,7 @@ val selectedFrequency: String = "MONTHLY", // WEEKLY, BIWEEKLY, SEMIMONTHLY, MON
 val selectedStartDate: Long = System.currentTimeMillis(),
 val salaryText: String = "",
 val currencySymbol: String = "$",
+val imageStorageLocation: String = "DEVICE",
 val isLoading: Boolean = false,
 val isRestoring: Boolean = false,
 val isDriveConnected: Boolean = false,
@@ -26,6 +27,7 @@ sealed class OnboardingUiIntent : UiIntent {
   // Navigation
   object NavigateBack : OnboardingUiIntent()
   object ProceedFromWelcome : OnboardingUiIntent()
+  data class SelectImageStorageLocation(val location: String) : OnboardingUiIntent()
   data class SelectProfileRole(val role: String) : OnboardingUiIntent()
   data class SelectFrequency(val frequency: String) : OnboardingUiIntent()
   data class SelectStartDate(val timestamp: Long) : OnboardingUiIntent()

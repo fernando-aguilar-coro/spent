@@ -22,6 +22,12 @@ private val repository: SpentRepository
       val currency = repository.currencySymbolFlow.firstOrNull() ?: "$"
       setState { copy(currencySymbol = currency) }
 
+      launch {
+        repository.imageStorageLocationFlow.collect { location ->
+          setState { copy(imageStorageLocation = location) }
+        }
+      }
+
       combine(
       repository.isDriveConnectedFlow,
       repository.driveAccountEmailFlow
@@ -56,6 +62,9 @@ private val repository: SpentRepository
       is OnboardingUiIntent.ProceedFromWelcome -> {
         setState { copy(currentStep = OnboardingStep.PROFILE_SELECTION) }
       }
+      is OnboardingUiIntent.SelectImageStorageLocation -> {
+        handleSelectImageStorageLocation(intent.location)
+      }
       is OnboardingUiIntent.SelectProfileRole -> {
         handleProfileSelection(intent.role)
       }
@@ -79,6 +88,12 @@ private val repository: SpentRepository
       is OnboardingUiIntent.OnDriveAccountConnected -> {
         handleDriveAccountConnected(intent.account)
       }
+    }
+  }
+
+  private fun handleSelectImageStorageLocation(location: String) {
+    viewModelScope.launch {
+      repository.setImageStorageLocation(location)
     }
   }
 

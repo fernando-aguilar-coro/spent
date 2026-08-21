@@ -166,6 +166,10 @@ onNavigateToDashboard: () -> Unit
           isRestoring = state.isRestoring,
           isConnected = state.isDriveConnected,
           accountEmail = state.driveAccountEmail,
+          imageStorageLocation = state.imageStorageLocation,
+          onSelectImageStorageLocation = { location ->
+            viewModel.onIntent(OnboardingUiIntent.SelectImageStorageLocation(location))
+          },
           onConnectDrive = {
             viewModel.onIntent(OnboardingUiIntent.RequestDriveConnect)
           },

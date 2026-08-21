@@ -68,6 +68,11 @@ import com.app.spent.R
 import com.app.spent.ui.theme.ExpenseRed
 import com.app.spent.util.ImageStorageHelper
 
+import java.io.File
+import androidx.compose.material.icons.filled.CameraAlt
+import androidx.compose.material.icons.filled.PhotoLibrary
+import androidx.core.content.FileProvider
+
 @Composable
 fun TransactionImageAttachmentSection(
     selectedImageUri: String?,
@@ -78,11 +83,14 @@ fun TransactionImageAttachmentSection(
 ) {
     val context = LocalContext.current
     var showFullPreview by remember { mutableStateOf(false) }
+    var showSourceChooser by remember { mutableStateOf(false) }
+    var tempCameraUri by remember { mutableStateOf<Uri?>(null) }
+
     val resolvedModel = remember(selectedImageUri) {
         ImageStorageHelper.resolveImageUri(context, selectedImageUri)
     }
 
-    // 1. Photo Picker Launcher (Modern Android Photo Picker)
+    // 1. Photo Picker Launcher (Gallery)
     val photoPickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia()
     ) { uri: Uri? ->
@@ -91,44 +99,65 @@ fun TransactionImageAttachmentSection(
         }
     }
 
-    // 2. Legacy / Direct Permission Launcher
-    val permissionToRequest = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-        Manifest.permission.READ_MEDIA_IMAGES
-    } else {
-        Manifest.permission.READ_EXTERNAL_STORAGE
+    // 2. Camera TakePicture Launcher
+    val cameraLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.TakePicture()
+    ) { success: Boolean ->
+        if (success && tempCameraUri != null) {
+            onImageSelected(tempCameraUri!!, context)
+        }
     }
 
-    val permissionLauncher = rememberLauncherForActivityResult(
+    val launchCameraDirectly = {
+        try {
+            val tempFile = File(context.cacheDir, "camera_capture_${System.currentTimeMillis()}.jpg")
+            val uri = FileProvider.getUriForFile(
+                context,
+                "${context.packageName}.fileprovider",
+                tempFile
+            )
+            tempCameraUri = uri
+            cameraLauncher.launch(uri)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            Toast.makeText(context, "Error opening camera: ${e.localizedMessage}", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    // 3. Camera Permission Launcher
+    val cameraPermissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
     ) { isGranted ->
         if (isGranted) {
-            photoPickerLauncher.launch(
-                PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
-            )
+            launchCameraDirectly()
         } else {
             Toast.makeText(
                 context,
-                context.getString(R.string.permission_denied_msg),
+                context.getString(R.string.camera_permission_required),
                 Toast.LENGTH_LONG
             ).show()
         }
     }
 
-    val launchPickerWithPermissionCheck = {
-        val hasPermission = ContextCompat.checkSelfPermission(
+    val onSelectCameraOption = {
+        showSourceChooser = false
+        val hasCameraPermission = ContextCompat.checkSelfPermission(
             context,
-            permissionToRequest
+            Manifest.permission.CAMERA
         ) == PackageManager.PERMISSION_GRANTED
 
-        // Photo Picker on API 33+ or Play Services does not require runtime permissions,
-        // but if permission is requested or legacy device, we check/request.
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU || hasPermission) {
-            photoPickerLauncher.launch(
-                PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
-            )
+        if (hasCameraPermission) {
+            launchCameraDirectly()
         } else {
-            permissionLauncher.launch(permissionToRequest)
+            cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
         }
+    }
+
+    val onSelectGalleryOption = {
+        showSourceChooser = false
+        photoPickerLauncher.launch(
+            PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+        )
     }
 
     Column(modifier = Modifier.fillMaxWidth()) {
@@ -193,7 +222,7 @@ fun TransactionImageAttachmentSection(
                         shape = RoundedCornerShape(16.dp)
                     )
                     .background(MaterialTheme.colorScheme.surface)
-                    .clickable { launchPickerWithPermissionCheck() }
+                    .clickable { showSourceChooser = true }
                     .padding(vertical = 16.dp, horizontal = 16.dp),
                 contentAlignment = Alignment.Center
             ) {
@@ -266,7 +295,7 @@ fun TransactionImageAttachmentSection(
                     }
 
                     // Change Image Button
-                    IconButton(onClick = { launchPickerWithPermissionCheck() }) {
+                    IconButton(onClick = { showSourceChooser = true }) {
                         Icon(
                             imageVector = Icons.Default.Edit,
                             contentDescription = stringResource(R.string.change_image_btn),
@@ -287,6 +316,122 @@ fun TransactionImageAttachmentSection(
                 }
             }
         }
+    }
+
+    // Image Source Chooser Dialog (Camera vs Gallery)
+    if (showSourceChooser) {
+        androidx.compose.material3.AlertDialog(
+            onDismissRequest = { showSourceChooser = false },
+            title = {
+                Text(
+                    text = stringResource(R.string.image_source_chooser_title),
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold
+                )
+            },
+            text = {
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    // Option 1: Camera
+                    Surface(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(12.dp))
+                            .clickable { onSelectCameraOption() },
+                        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f),
+                        shape = RoundedCornerShape(12.dp)
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(14.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .size(40.dp)
+                                    .clip(CircleShape)
+                                    .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.CameraAlt,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.primary,
+                                    modifier = Modifier.size(22.dp)
+                                )
+                            }
+                            Spacer(modifier = Modifier.width(12.dp))
+                            Column {
+                                Text(
+                                    text = stringResource(R.string.image_source_camera),
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    fontWeight = FontWeight.SemiBold
+                                )
+                                Text(
+                                    text = stringResource(R.string.image_source_camera_desc),
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                        }
+                    }
+
+                    // Option 2: Gallery
+                    Surface(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(12.dp))
+                            .clickable { onSelectGalleryOption() },
+                        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f),
+                        shape = RoundedCornerShape(12.dp)
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(14.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .size(40.dp)
+                                    .clip(CircleShape)
+                                    .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.PhotoLibrary,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.primary,
+                                    modifier = Modifier.size(22.dp)
+                                )
+                            }
+                            Spacer(modifier = Modifier.width(12.dp))
+                            Column {
+                                Text(
+                                    text = stringResource(R.string.image_source_gallery),
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    fontWeight = FontWeight.SemiBold
+                                )
+                                Text(
+                                    text = stringResource(R.string.image_source_gallery_desc),
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                        }
+                    }
+                }
+            },
+            confirmButton = {},
+            dismissButton = {
+                TextButton(onClick = { showSourceChooser = false }) {
+                    Text(stringResource(R.string.btn_cancel))
+                }
+            }
+        )
     }
 
     // Full-Screen Image Preview Modal Dialog

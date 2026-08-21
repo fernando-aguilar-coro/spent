@@ -398,4 +398,12 @@
     <string name="reset_data_delete_drive_images_title">Also delete images on Google Drive</string>
     <string name="reset_data_delete_drive_images_desc">Permanently deletes all receipt photos uploaded to your connected Drive account.</string>
     <string name="reset_data_confirm_action">Delete Everything</string>
+
+    <!-- Image Source Chooser -->
+    <string name="image_source_chooser_title">Attach Receipt Image</string>
+    <string name="image_source_camera">Take Photo (Camera)</string>
+    <string name="image_source_camera_desc">Use camera to capture receipt</string>
+    <string name="image_source_gallery">Choose from Gallery</string>
+    <string name="image_source_gallery_desc">Select existing photo from device</string>
+    <string name="camera_permission_required">Camera permission is required to take photos</string>
 </resources>

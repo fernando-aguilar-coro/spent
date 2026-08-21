@@ -13,6 +13,7 @@ jobs:
     environment: KEYSTORE_BASE64
     env:
       GITHUB_RUN_NUMBER: ${{ github.run_number }}
+      KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
       KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
       KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
       KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
@@ -31,17 +32,42 @@ jobs:
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
 
-    - name: Build Android Release APK
-      run: ./gradlew :app:assembleRelease
+    - name: Clean & Build Release APK and App Bundle
+      run: ./gradlew :app:clean :app:assembleRelease :app:bundleRelease --stacktrace
+
+    - name: Verify APK and AAB Signatures Match
+      run: |
+        APK_FILE=$(ls app/build/outputs/apk/release/*.apk | head -n 1)
+        AAB_FILE=$(ls app/build/outputs/bundle/release/*.aab | head -n 1)
+
+        echo "Found APK: $APK_FILE"
+        echo "Found AAB: $AAB_FILE"
+
+        APK_CERT=$(keytool -printcert -jarfile "$APK_FILE" | grep "SHA256:" | head -n 1 | tr -d ' \t\r\n')
+        AAB_CERT=$(keytool -printcert -jarfile "$AAB_FILE" | grep "SHA256:" | head -n 1 | tr -d ' \t\r\n')
+
+        echo "APK SHA256: $APK_CERT"
+        echo "AAB SHA256: $AAB_CERT"
+
+        if [ -z "$APK_CERT" ] || [ -z "$AAB_CERT" ]; then
+          echo "::error::Could not extract SHA256 certificate fingerprint from APK or AAB!"
+          exit 1
+        fi
+
+        if [ "$APK_CERT" != "$AAB_CERT" ]; then
+          echo "::error::CRITICAL MISMATCH: Release APK and AAB were signed with DIFFERENT keys!"
+          echo "APK Certificate Fingerprint: $APK_CERT"
+          echo "AAB Certificate Fingerprint: $AAB_CERT"
+          exit 1
+        fi
+
+        echo "SUCCESS: Both APK and AAB are signed with the exact same certificate ($APK_CERT)."
 
     - name: Upload Android Release APK
       uses: actions/upload-artifact@v4
       with:
         name: spent-android-release-apk
         path: app/build/outputs/apk/release/*.apk
-
-    - name: Build Release App Bundle (.aab)
-      run: ./gradlew :app:bundleRelease --stacktrace
 
     - name: Upload Release App Bundle (.aab)
       uses: actions/upload-artifact@v4

@@ -398,4 +398,12 @@
     <string name="reset_data_delete_drive_images_title">Excluir também imagens no Google Drive</string>
     <string name="reset_data_delete_drive_images_desc">Exclui permanentemente todas as fotos de comprovantes enviadas para o seu Google Drive conectado.</string>
     <string name="reset_data_confirm_action">Excluir Tudo</string>
+
+    <!-- Image Source Chooser -->
+    <string name="image_source_chooser_title">Anexar Imagem de Comprovante</string>
+    <string name="image_source_camera">Tirar Foto (Câmera)</string>
+    <string name="image_source_camera_desc">Use a câmera para capturar o comprovante</string>
+    <string name="image_source_gallery">Escolher da Galeria</string>
+    <string name="image_source_gallery_desc">Selecione uma foto existente do dispositivo</string>
+    <string name="camera_permission_required">A permissão da câmera é necessária para tirar fotos</string>
 </resources>

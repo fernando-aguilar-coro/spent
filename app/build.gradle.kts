@@ -1,4 +1,5 @@
 import java.io.FileInputStream
+import java.util.Base64
 import java.util.Properties
 
 plugins {
@@ -38,19 +39,28 @@ android {
     signingConfigs {
         create("release") {
             // Tomamos las contraseñas de las variables de entorno de GitHub o del archivo local
+            val envBase64 = System.getenv("KEYSTORE_BASE64")
             val envStorePass = System.getenv("KEYSTORE_PASSWORD")
             val envKeyAlias = System.getenv("KEY_ALIAS")
             val envKeyPass = System.getenv("KEY_PASSWORD")
 
             val releaseKeyFile = rootProject.file("release-keystore.jks")
 
+            if (!envBase64.isNullOrBlank()) {
+                releaseKeyFile.parentFile?.mkdirs()
+                releaseKeyFile.writeBytes(Base64.getDecoder().decode(envBase64.trim()))
+            }
+
             if (releaseKeyFile.exists()) {
                 storeFile = releaseKeyFile
-                storePassword = envStorePass ?: keystoreProperties.getProperty("storePassword")
+                storePassword = (envStorePass ?: keystoreProperties.getProperty("storePassword"))?.trim()
                 keyAlias =
-                    envKeyAlias ?: keystoreProperties.getProperty("keyAlias") ?: "spent-release-key"
+                    (envKeyAlias ?: keystoreProperties.getProperty("keyAlias") ?: "spent-release-key").trim()
                 keyPassword =
-                    envKeyPass ?: keystoreProperties.getProperty("keyPassword") ?: storePassword
+                    (envKeyPass ?: keystoreProperties.getProperty("keyPassword") ?: storePassword)?.trim()
+
+                enableV1Signing = true
+                enableV2Signing = true
             }
         }
     }
@@ -65,6 +75,32 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro",
             )
+        }
+    }
+
+    gradle.taskGraph.whenReady {
+        val hasReleaseTask = hasTask(":app:assembleRelease") ||
+                hasTask(":app:bundleRelease") ||
+                hasTask(":app:packageReleaseApk") ||
+                hasTask(":app:packageReleaseBundle")
+
+        if (hasReleaseTask) {
+            val releaseConfig = signingConfigs.getByName("release")
+            val keyFileExists = releaseConfig.storeFile?.exists() == true
+            val hasStorePass = !releaseConfig.storePassword.isNullOrBlank()
+            val hasKeyAlias = !releaseConfig.keyAlias.isNullOrBlank()
+            val hasKeyPass = !releaseConfig.keyPassword.isNullOrBlank()
+
+            if (!keyFileExists || !hasStorePass || !hasKeyAlias || !hasKeyPass) {
+                throw GradleException(
+                    "CRITICAL SIGNING ERROR: Release build requested, but release signing configuration is incomplete or missing.\n" +
+                            "Keystore file exists: $keyFileExists (Path: ${releaseConfig.storeFile?.absolutePath})\n" +
+                            "Store password provided: $hasStorePass\n" +
+                            "Key alias provided: $hasKeyAlias\n" +
+                            "Key password provided: $hasKeyPass\n" +
+                            "Refusing to build release APK/AAB with missing or fallback signing keys."
+                )
+            }
         }
     }
 
