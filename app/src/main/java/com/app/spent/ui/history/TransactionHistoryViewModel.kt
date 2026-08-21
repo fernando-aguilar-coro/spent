@@ -40,14 +40,15 @@ class TransactionHistoryViewModel(
                 repository.searchTransactionsFlow(query.trim(), type, categoryId)
             }
 
-            combine(
+            val coreDataFlow = combine(
                 searchResultFlow,
                 repository.getCategoriesFlow(),
-                repository.currencySymbolFlow,
-                searchQueryFlow,
-                typeFilterFlow,
-                categoryFilterFlow
-            ) { transactions, categories, currency, query, type, categoryId ->
+                repository.currencySymbolFlow
+            ) { transactions, categories, currency ->
+                Triple(transactions, categories, currency)
+            }
+
+            combine(coreDataFlow, filterParamsFlow) { (transactions, categories, currency), (query, type, categoryId) ->
                 val totalAmount = transactions.sumOf { if (it.type == "INCOME") it.amount else -it.amount }
                 TransactionHistoryUiState(
                     isLoading = false,
