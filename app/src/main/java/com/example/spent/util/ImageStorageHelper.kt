@@ -38,7 +38,7 @@ object ImageStorageHelper {
 
     /**
      * Saves image to Device public/shared storage (Pictures/Spent).
-     * Returns the standardized relative path (Pictures/Spent/spent_receipt_UUID.jpg)
+     * Compresses the image and returns the standardized relative path (Pictures/Spent/spent_receipt_UUID.jpg)
      * so it can be reconnected across app reinstalls and JSON backup restores.
      */
     suspend fun saveToDeviceStorage(context: Context, sourceUri: Uri): Result<String> =
@@ -46,6 +46,14 @@ object ImageStorageHelper {
             try {
                 val fileName = "spent_receipt_${UUID.randomUUID()}.jpg"
                 val standardizedPath = "Pictures/Spent/$fileName"
+
+                // Compress image to optimize storage and correct EXIF orientation
+                val compressedBytes = ImageCompressor.compressImageBitmap(
+                    context = context,
+                    sourceUri = sourceUri,
+                    maxDimension = 1280,
+                    quality = 85
+                )
 
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                     val contentValues = ContentValues().apply {
@@ -63,10 +71,17 @@ object ImageStorageHelper {
                     ) ?: return@withContext Result.failure(Exception("Failed to create MediaStore entry"))
 
                     context.contentResolver.openOutputStream(uri)?.use { outputStream ->
-                        context.contentResolver.openInputStream(sourceUri)?.use { inputStream ->
-                            inputStream.copyTo(outputStream)
-                        }
+                        outputStream.write(compressedBytes)
                     }
+
+                    // Also save a fallback copy in external pictures dir
+                    try {
+                        val extDir = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
+                        if (extDir != null) {
+                            val extFile = File(extDir, fileName)
+                            FileOutputStream(extFile).use { it.write(compressedBytes) }
+                        }
+                    } catch (_: Exception) {}
 
                     Result.success(standardizedPath)
                 } else {
@@ -75,9 +90,7 @@ object ImageStorageHelper {
                     val targetFile = File(spentDir, fileName)
 
                     FileOutputStream(targetFile).use { outputStream ->
-                        context.contentResolver.openInputStream(sourceUri)?.use { inputStream ->
-                            inputStream.copyTo(outputStream)
-                        }
+                        outputStream.write(compressedBytes)
                     }
 
                     android.media.MediaScannerConnection.scanFile(

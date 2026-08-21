@@ -58,7 +58,7 @@ state: OnboardingUiState,
 onSelectFrequency: (String) -> Unit,
 onSelectStartDate: (Long) -> Unit,
 onUpdateSalary: (String) -> Unit,
-onFinish: () -> Unit
+onContinue: () -> Unit
 ) {
   var showDatePicker by remember { mutableStateOf(false) }
 
@@ -205,9 +205,9 @@ onFinish: () -> Unit
 
     Spacer(modifier = Modifier.height(24.dp))
 
-    // Finish Button
+    // Continue Button
     Button(
-    onClick = onFinish,
+    onClick = onContinue,
     modifier = Modifier
     .fillMaxWidth()
     .height(54.dp),
@@ -215,7 +215,7 @@ onFinish: () -> Unit
     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
     ) {
       Text(
-      text = stringResource(R.string.onboarding_btn_finish_setup),
+      text = stringResource(R.string.onboarding_btn_continue),
       fontWeight = FontWeight.Bold,
       fontSize = 16.sp
       )

@@ -261,13 +261,16 @@
     <string name="savings_rate">Tasa de Ahorro</string>
     <string name="category_distribution">Distribución por Categoría</string>
     <string name="no_spending_recorded">No hay gastos registrados en este ciclo.</string>
-    <string name="chart_income_vs_expenses">Ingresos vs. Gastos en el Tiempo</string>
-    <string name="chart_income_vs_expenses_desc">Evolución de flujo de caja y desglose diario</string>
+    <string name="chart_net_savings">Balance Neto en el Tiempo</string>
+    <string name="chart_net_savings_desc">Evolución del balance neto en el período seleccionado</string>
     <string name="timeframe_7d">7 Días</string>
     <string name="timeframe_30d">30 Días</string>
     <string name="timeframe_6m">6 Meses</string>
     <string name="chart_legend_income">Ingresos</string>
     <string name="chart_legend_expense">Gastos</string>
+    <string name="chart_legend_net">Balance Neto</string>
+    <string name="chart_surplus">Superávit</string>
+    <string name="chart_deficit">Déficit</string>
     <string name="chart_no_data">No hay transacciones registradas en este período.</string>
     <string name="chart_net">Neto</string>
 
@@ -361,6 +364,13 @@
     <string name="onboarding_btn_finish_setup">Finalizar Configuración</string>
     <string name="frequency_biweekly">Quincenal (14 días)</string>
     <string name="frequency_semimonthly">Medio mes (15 días)</string>
+    <string name="onboarding_initial_balance_title">Capital Inicial y Ahorros</string>
+    <string name="onboarding_initial_balance_subtitle">Ingresa tu dinero ahorrado o capital inicial para comenzar a administrar tus finanzas con precisión</string>
+    <string name="onboarding_initial_balance_label">Saldo Inicial / Ahorros (%1$s, Opcional)</string>
+    <string name="onboarding_initial_balance_hint">Puedes dejarlo en 0.00 y registrar ingresos más adelante.</string>
+    <string name="initial_balance_transaction_note">Capital Inicial / Saldo de Inicio</string>
+    <string name="onboarding_image_storage_title">Almacenamiento de Fotos y Comprobantes</string>
+    <string name="onboarding_image_storage_subtitle">Elige dónde se guardarán las fotos y comprobantes adjuntos a tus notas</string>
 
     <!-- Image Attachment & Multi-Destination Storage -->
     <string name="attach_image_label">Foto / Comprobante de Nota</string>

@@ -45,6 +45,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import com.app.spent.R
 import androidx.compose.ui.platform.LocalContext
 import com.app.spent.data.local.entity.CategoryEntity
@@ -68,6 +69,12 @@ fun TransactionDetailsDialog(
   var showFullImage by remember { mutableStateOf(false) }
   val resolvedImageModel = remember(transaction.imageUri) {
     ImageStorageHelper.resolveImageUri(context, transaction.imageUri)
+  }
+  val imageModelToLoad = remember(resolvedImageModel, transaction.imageUri) {
+    ImageRequest.Builder(context)
+      .data(resolvedImageModel ?: transaction.imageUri)
+      .crossfade(true)
+      .build()
   }
 
   AlertDialog(
@@ -147,7 +154,7 @@ fun TransactionDetailsDialog(
         .clickable { showFullImage = true }
         ) {
           AsyncImage(
-          model = resolvedImageModel ?: transaction.imageUri,
+          model = imageModelToLoad,
           contentDescription = stringResource(R.string.receipt_image_preview),
           contentScale = ContentScale.Crop,
           modifier = Modifier.fillMaxSize()
@@ -215,7 +222,7 @@ fun TransactionDetailsDialog(
         }
 
         AsyncImage(
-        model = resolvedImageModel ?: transaction.imageUri,
+        model = imageModelToLoad,
         contentDescription = stringResource(R.string.receipt_viewer_title),
         contentScale = ContentScale.Fit,
         modifier = Modifier

@@ -43,15 +43,12 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.app.spent.R
-import com.app.spent.ui.settings.components.ImageStorageLocationCard
 
 @Composable
 fun WelcomeStep(
 isRestoring: Boolean,
 isConnected: Boolean,
 accountEmail: String?,
-imageStorageLocation: String,
-onSelectImageStorageLocation: (String) -> Unit,
 onConnectDrive: () -> Unit,
 onContinue: () -> Unit
 ) {
@@ -109,7 +106,7 @@ onContinue: () -> Unit
       lineHeight = 24.sp
       )
 
-      Spacer(modifier = Modifier.height(24.dp))
+      Spacer(modifier = Modifier.height(32.dp))
 
       // Value Props Badges
       Row(
@@ -132,14 +129,6 @@ onContinue: () -> Unit
         modifier = Modifier.weight(1f)
         )
       }
-
-      Spacer(modifier = Modifier.height(20.dp))
-
-      // Image & Receipt Storage Destination Selector
-      ImageStorageLocationCard(
-          currentLocation = imageStorageLocation,
-          onSelectLocation = onSelectImageStorageLocation
-      )
     }
 
     Spacer(modifier = Modifier.height(40.dp))

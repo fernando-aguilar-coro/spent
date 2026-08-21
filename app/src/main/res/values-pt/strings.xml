@@ -261,13 +261,16 @@
     <string name="savings_rate">Taxa de Poupança</string>
     <string name="category_distribution">Distribuição por Categoria</string>
     <string name="no_spending_recorded">Nenhum gasto registrado para este ciclo.</string>
-    <string name="chart_income_vs_expenses">Renda vs. Despesas ao Longo do Tempo</string>
-    <string name="chart_income_vs_expenses_desc">Trajetória do fluxo de caixa e detalhamento diário</string>
+    <string name="chart_net_savings">Saldo Líquido ao Longo do Tempo</string>
+    <string name="chart_net_savings_desc">Trajetória do saldo líquido no período selecionado</string>
     <string name="timeframe_7d">7 Dias</string>
     <string name="timeframe_30d">30 Dias</string>
     <string name="timeframe_6m">6 Meses</string>
     <string name="chart_legend_income">Renda</string>
     <string name="chart_legend_expense">Despesas</string>
+    <string name="chart_legend_net">Saldo Líquido</string>
+    <string name="chart_surplus">Superávit</string>
+    <string name="chart_deficit">Déficit</string>
     <string name="chart_no_data">Nenhuma transação registrada neste período.</string>
     <string name="chart_net">Líquido</string>
 
@@ -361,6 +364,13 @@
     <string name="onboarding_btn_finish_setup">Concluir Configuração</string>
     <string name="frequency_biweekly">Quinzenal (14 dias)</string>
     <string name="frequency_semimonthly">Quinzenal (15 dias)</string>
+    <string name="onboarding_initial_balance_title">Capital Inicial e Poupança</string>
+    <string name="onboarding_initial_balance_subtitle">Defina seu dinheiro guardado ou saldo inicial para começar a gerenciar suas finanças com precisão</string>
+    <string name="onboarding_initial_balance_label">Saldo Inicial / Poupança (%1$s, Opcional)</string>
+    <string name="onboarding_initial_balance_hint">Você pode deixar em 0,00 e registrar receitas mais tarde.</string>
+    <string name="initial_balance_transaction_note">Capital Inicial / Saldo de Início</string>
+    <string name="onboarding_image_storage_title">Armazenamento de Fotos e Comprovantes</string>
+    <string name="onboarding_image_storage_subtitle">Escolha onde fotos e comprovantes anexados às notas serão salvos</string>
 
     <!-- Image Attachment & Multi-Destination Storage -->
     <string name="attach_image_label">Foto / Comprovante da Nota</string>

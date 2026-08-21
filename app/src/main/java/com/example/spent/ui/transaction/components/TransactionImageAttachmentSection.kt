@@ -89,6 +89,12 @@ fun TransactionImageAttachmentSection(
     val resolvedModel = remember(selectedImageUri) {
         ImageStorageHelper.resolveImageUri(context, selectedImageUri)
     }
+    val imageModelToLoad = remember(resolvedModel, selectedImageUri) {
+        coil.request.ImageRequest.Builder(context)
+            .data(resolvedModel ?: selectedImageUri)
+            .crossfade(true)
+            .build()
+    }
 
     // 1. Photo Picker Launcher (Gallery)
     val photoPickerLauncher = rememberLauncherForActivityResult(
@@ -271,7 +277,7 @@ fun TransactionImageAttachmentSection(
                             .clickable { showFullPreview = true }
                     ) {
                         AsyncImage(
-                            model = resolvedModel ?: selectedImageUri,
+                            model = imageModelToLoad,
                             contentDescription = stringResource(R.string.receipt_image_preview),
                             contentScale = ContentScale.Crop,
                             modifier = Modifier.fillMaxSize()
@@ -464,7 +470,7 @@ fun TransactionImageAttachmentSection(
 
                 // Full-size image in center
                 AsyncImage(
-                    model = resolvedModel ?: selectedImageUri,
+                    model = imageModelToLoad,
                     contentDescription = stringResource(R.string.receipt_viewer_title),
                     contentScale = ContentScale.Fit,
                     modifier = Modifier

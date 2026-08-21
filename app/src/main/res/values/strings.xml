@@ -261,13 +261,16 @@
     <string name="savings_rate">Savings Rate</string>
     <string name="category_distribution">Category Distribution</string>
     <string name="no_spending_recorded">No spending recorded for this cycle.</string>
-    <string name="chart_income_vs_expenses">Income vs. Expenses Over Time</string>
-    <string name="chart_income_vs_expenses_desc">Cash flow trajectory and daily breakdown</string>
+    <string name="chart_net_savings">Net Savings Over Time</string>
+    <string name="chart_net_savings_desc">Net balance trajectory across the selected period</string>
     <string name="timeframe_7d">7 Days</string>
     <string name="timeframe_30d">30 Days</string>
     <string name="timeframe_6m">6 Months</string>
     <string name="chart_legend_income">Income</string>
     <string name="chart_legend_expense">Expenses</string>
+    <string name="chart_legend_net">Net Balance</string>
+    <string name="chart_surplus">Surplus</string>
+    <string name="chart_deficit">Deficit</string>
     <string name="chart_no_data">No transactions recorded in this period.</string>
     <string name="chart_net">Net</string>
 
@@ -361,6 +364,13 @@
     <string name="onboarding_btn_finish_setup">Finish Setup</string>
     <string name="frequency_biweekly">Bi-weekly (14 days)</string>
     <string name="frequency_semimonthly">Semi-monthly (15 days)</string>
+    <string name="onboarding_initial_balance_title">Starting Capital &amp; Savings</string>
+    <string name="onboarding_initial_balance_subtitle">Set your current savings or starting money to begin tracking your finances with precision</string>
+    <string name="onboarding_initial_balance_label">Starting Balance / Savings (%1$s, Optional)</string>
+    <string name="onboarding_initial_balance_hint">You can leave this at 0.00 and add income transactions later.</string>
+    <string name="initial_balance_transaction_note">Initial Balance / Starting Capital</string>
+    <string name="onboarding_image_storage_title">Receipt &amp; Photo Storage</string>
+    <string name="onboarding_image_storage_subtitle">Choose where photos and receipts attached to your notes will be stored</string>
 
     <!-- Image Attachment & Multi-Destination Storage -->
     <string name="attach_image_label">Receipt / Note Image</string>

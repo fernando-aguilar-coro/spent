@@ -41,7 +41,7 @@ Spent/
 |   |   |   |   |   |-- analytics/
 |   |   |   |   |   |   |-- components/
 |   |   |   |   |   |   |   |-- CategoryDistributionItem.kt
-|   |   |   |   |   |   |   |-- IncomeExpenseChart.kt
+|   |   |   |   |   |   |   |-- NetSavingsChart.kt
 |   |   |   |   |   |   |   +-- SavingsSummaryCard.kt
 |   |   |   |   |   |   |-- AnalyticsContract.kt
 |   |   |   |   |   |   |-- AnalyticsScreen.kt
