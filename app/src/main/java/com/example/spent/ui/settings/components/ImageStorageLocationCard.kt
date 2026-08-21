@@ -109,9 +109,9 @@ fun ImageStorageLocationCard(
 
                     val options = listOf(
                         Triple(
-                            ImageStorageHelper.DESTINATION_DEVICE,
-                            stringResource(R.string.storage_option_device),
-                            stringResource(R.string.storage_option_device_desc)
+                            ImageStorageHelper.DESTINATION_GOOGLE_DRIVE,
+                            stringResource(R.string.storage_option_google_drive),
+                            stringResource(R.string.storage_option_google_drive_desc)
                         ),
                         Triple(
                             ImageStorageHelper.DESTINATION_IN_APP,
@@ -119,9 +119,9 @@ fun ImageStorageLocationCard(
                             stringResource(R.string.storage_option_in_app_desc)
                         ),
                         Triple(
-                            ImageStorageHelper.DESTINATION_GOOGLE_DRIVE,
-                            stringResource(R.string.storage_option_google_drive),
-                            stringResource(R.string.storage_option_google_drive_desc)
+                            ImageStorageHelper.DESTINATION_DEVICE,
+                            stringResource(R.string.storage_option_device),
+                            stringResource(R.string.storage_option_device_desc)
                         )
                     )
 

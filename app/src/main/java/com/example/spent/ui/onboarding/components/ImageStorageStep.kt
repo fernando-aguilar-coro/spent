@@ -66,10 +66,10 @@ fun ImageStorageStep(
 ) {
     val options = listOf(
         StorageOptionItem(
-            id = ImageStorageHelper.DESTINATION_DEVICE,
-            titleRes = R.string.storage_option_device,
-            descRes = R.string.storage_option_device_desc,
-            icon = Icons.Default.PhoneAndroid
+            id = ImageStorageHelper.DESTINATION_GOOGLE_DRIVE,
+            titleRes = R.string.storage_option_google_drive,
+            descRes = R.string.storage_option_google_drive_desc,
+            icon = Icons.Default.CloudUpload
         ),
         StorageOptionItem(
             id = ImageStorageHelper.DESTINATION_IN_APP,
@@ -78,10 +78,10 @@ fun ImageStorageStep(
             icon = Icons.Default.Security
         ),
         StorageOptionItem(
-            id = ImageStorageHelper.DESTINATION_GOOGLE_DRIVE,
-            titleRes = R.string.storage_option_google_drive,
-            descRes = R.string.storage_option_google_drive_desc,
-            icon = Icons.Default.CloudUpload
+            id = ImageStorageHelper.DESTINATION_DEVICE,
+            titleRes = R.string.storage_option_device,
+            descRes = R.string.storage_option_device_desc,
+            icon = Icons.Default.PhoneAndroid
         )
     )
 

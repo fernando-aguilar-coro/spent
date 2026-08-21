@@ -17,7 +17,7 @@ val categories: List<CategoryEntity> = emptyList(),
 val showAddCategoryDialog: Boolean = false,
 val showKeypad: Boolean = false,
 val selectedImageUri: String? = null,
-val imageStorageLocation: String = "DEVICE",
+val imageStorageLocation: String = "GOOGLE_DRIVE",
 val isProcessingImage: Boolean = false,
 val isSaving: Boolean = false
 ) : UiState {
