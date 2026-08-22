@@ -224,14 +224,34 @@ class SpentRepositoryImpl(
     }
 
     override suspend fun seedStarterDataIfEmpty() {
-        val cats = dao.getCategoriesFlow().firstOrNull()
-        if (cats.isNullOrEmpty()) {
-            dao.insertCategories(
-                listOf(
-                    CategoryEntity(id = "cat_general", name = "General", iconName = "Category", colorHex = "#64748B", budgetAmount = 0.0),
-                    CategoryEntity(id = "cat_salary", name = "Salary", iconName = "Payments", colorHex = "#10B981", budgetAmount = 0.0)
-                )
-            )
+        val existingCats = dao.getCategoriesFlow().firstOrNull() ?: emptyList()
+        val defaultCategories = listOf(
+            CategoryEntity(id = "cat_general", name = "General", iconName = "Category", colorHex = "#64748B", budgetAmount = 0.0, displayOrder = 0),
+            CategoryEntity(id = "cat_salary", name = "Salary", iconName = "Payments", colorHex = "#10B981", budgetAmount = 0.0, displayOrder = 1),
+            CategoryEntity(id = "cat_groceries", name = "Groceries", iconName = "ShoppingCart", colorHex = "#059669", budgetAmount = 0.0, displayOrder = 2),
+            CategoryEntity(id = "cat_food", name = "Food & Dining", iconName = "Restaurant", colorHex = "#F59E0B", budgetAmount = 0.0, displayOrder = 3),
+            CategoryEntity(id = "cat_housing", name = "Housing & Rent", iconName = "Home", colorHex = "#6366F1", budgetAmount = 0.0, displayOrder = 4),
+            CategoryEntity(id = "cat_transport", name = "Transportation", iconName = "DirectionsCar", colorHex = "#3B82F6", budgetAmount = 0.0, displayOrder = 5),
+            CategoryEntity(id = "cat_utilities", name = "Utilities & Bills", iconName = "Bolt", colorHex = "#EC4899", budgetAmount = 0.0, displayOrder = 6),
+            CategoryEntity(id = "cat_entertainment", name = "Entertainment", iconName = "Movie", colorHex = "#8B5CF6", budgetAmount = 0.0, displayOrder = 7),
+            CategoryEntity(id = "cat_shopping", name = "Shopping", iconName = "ShoppingBag", colorHex = "#F97316", budgetAmount = 0.0, displayOrder = 8),
+            CategoryEntity(id = "cat_health", name = "Health & Medical", iconName = "MedicalServices", colorHex = "#EF4444", budgetAmount = 0.0, displayOrder = 9),
+            CategoryEntity(id = "cat_savings", name = "Savings", iconName = "Savings", colorHex = "#06B6D4", budgetAmount = 0.0, displayOrder = 10),
+            CategoryEntity(id = "cat_education", name = "Education", iconName = "School", colorHex = "#14B8A6", budgetAmount = 0.0, displayOrder = 11),
+            CategoryEntity(id = "cat_travel", name = "Travel", iconName = "Flight", colorHex = "#0284C7", budgetAmount = 0.0, displayOrder = 12),
+            CategoryEntity(id = "cat_fitness", name = "Fitness & Gym", iconName = "FitnessCenter", colorHex = "#A855F7", budgetAmount = 0.0, displayOrder = 13),
+            CategoryEntity(id = "cat_pets", name = "Pets", iconName = "Pets", colorHex = "#D97706", budgetAmount = 0.0, displayOrder = 14)
+        )
+
+        if (existingCats.isEmpty()) {
+            dao.insertCategories(defaultCategories)
+        } else {
+            val existingIds = existingCats.map { it.id }.toSet()
+            val existingNames = existingCats.map { it.name.lowercase().trim() }.toSet()
+            val missing = defaultCategories.filter { it.id !in existingIds && it.name.lowercase().trim() !in existingNames }
+            if (missing.isNotEmpty()) {
+                dao.insertCategories(missing)
+            }
         }
     }
 

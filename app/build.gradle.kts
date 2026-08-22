@@ -18,7 +18,7 @@ if (keystorePropertiesFile.exists()) {
 
 android {
     namespace = "com.app.spent"
-    compileSdk = 35
+    compileSdk = 36
 
     val calculatedVersionCode: Int = run {
         (project.findProperty("versionCode") as? String)?.toIntOrNull()
@@ -29,7 +29,7 @@ android {
     defaultConfig {
         applicationId = "com.app.spent"
         minSdk = 24
-        targetSdk = 35
+        targetSdk = 36
         versionCode = calculatedVersionCode
         versionName = "1.0.0"
 

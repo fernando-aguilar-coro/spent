@@ -21,8 +21,9 @@ object LocaleHelper {
   fun resolveLocale(context: Context, languageCode: String?): Locale {
     return when (languageCode) {
       "en" -> Locale.ENGLISH
-      "es" -> Locale("es")
-      "pt" -> Locale("pt")
+      "es" -> Locale.forLanguageTag("es")
+      "pt" -> Locale.forLanguageTag("pt")
+      "fr" -> Locale.FRENCH
       else -> getSystemPreferredLocale(context)
     }
   }
