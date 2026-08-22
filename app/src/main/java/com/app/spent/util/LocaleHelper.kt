@@ -24,6 +24,7 @@ object LocaleHelper {
       "es" -> Locale.forLanguageTag("es")
       "pt" -> Locale.forLanguageTag("pt")
       "fr" -> Locale.FRENCH
+      "de" -> Locale.GERMAN
       else -> getSystemPreferredLocale(context)
     }
   }

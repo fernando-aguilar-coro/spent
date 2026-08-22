@@ -314,6 +314,7 @@
     <string name="language_es">Español</string>
     <string name="language_pt">Português</string>
     <string name="language_fr">Français</string>
+    <string name="language_de">Allemand</string>
     <string name="export_data_title">Exporter les données (CSV)</string>
     <string name="export_data_desc">Télécharger les transactions au format CSV</string>
     <string name="export_csv_btn">Exporter CSV</string>

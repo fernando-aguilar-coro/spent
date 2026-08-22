@@ -21,7 +21,7 @@ import javax.xml.parsers.DocumentBuilderFactory
 class StringResourcesLocalizationTest {
 
     companion object {
-        private val EXPECTED_LOCALES = listOf("values", "values-es", "values-pt", "values-fr")
+        private val EXPECTED_LOCALES = listOf("values", "values-es", "values-pt", "values-fr", "values-de")
         private val FORMAT_SPECIFIER_REGEX = Pattern.compile("%(\\d+\\$)?[-#+ 0,(]*\\d*(\\.\\d+)?[a-zA-Z%]")
 
         private lateinit var resDir: File
@@ -203,7 +203,7 @@ class StringResourcesLocalizationTest {
     @Test
     fun testLanguageSelectionKeysConfigured() {
         val baseStrings = stringMapByLocale["values"] ?: emptyMap()
-        val languageKeys = listOf("language_title", "language_desc", "language_system", "language_en", "language_es", "language_pt", "language_fr")
+        val languageKeys = listOf("language_title", "language_desc", "language_system", "language_en", "language_es", "language_pt", "language_fr", "language_de")
 
         for (key in languageKeys) {
             assertTrue("Base strings must define '$key'", baseStrings.containsKey(key))

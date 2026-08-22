@@ -1,0 +1,431 @@
+<resources>
+    <string name="app_name">Spent</string>
+
+    <!-- Navigation -->
+    <string name="nav_dashboard">Übersicht</string>
+    <string name="nav_analytics">Analysen</string>
+    <string name="nav_settings">Einstellungen</string>
+
+    <!-- Dashboard Header & Profile -->
+    <string name="user_greeting">Hallo, Fernando</string>
+    <string name="safe_to_spend_today">Heute verfügbar</string>
+    <string name="total_spent">Gesamtausgaben</string>
+    <string name="total_income">Gesamteinnahmen</string>
+    <string name="net_savings">Netto-Ersparnis</string>
+    <string name="remaining_in_cycle">Verbleibende Tage</string>
+    <string name="no_active_pay_cycle">Kein aktiver Zahlungszyklus</string>
+    <string name="days_left">Noch %1$d Tage im Zyklus</string>
+    <string name="day_left">Noch %1$d Tag im Zyklus</string>
+    <string name="manage_cycle">Zahlungszyklus verwalten</string>
+
+    <!-- Quick Actions -->
+    <string name="action_add_expense">Ausgabe hinzufügen</string>
+    <string name="action_add_income">Einnahme hinzufügen</string>
+
+    <!-- Category Envelopes -->
+    <string name="category_envelopes">Kategorie-Umschläge</string>
+    <string name="envelopes_count">%1$d Umschläge</string>
+    <string name="envelope_of">von</string>
+    <string name="no_budget_set">Kein Budget festgelegt</string>
+    <string name="over_budget">Budget überschritten</string>
+
+    <!-- Extra Tools & Shortcuts -->
+    <string name="extra_tools_title">Zusatz-Tools &amp; Verknüpfungen</string>
+    <string name="tool_savings_title">Ersparnisse</string>
+    <string name="tool_savings_goal">Ziel: %1$s%2$.0f</string>
+    <string name="tool_savings_desc">Ziele &amp; Fonds verfolgen</string>
+    <string name="tool_loans_title">Kredite</string>
+    <string name="tool_loans_debt">Schulden: %1$s%2$.0f</string>
+    <string name="tool_loans_desc">Bank- &amp; Privatkredite</string>
+    <string name="tool_lent_debt_title">Verliehen / Schulden</string>
+    <string name="tool_lent_debt_desc">Schulden &amp; Forderungen verwalten</string>
+    <string name="tool_recurring_title">Wiederkehrende Regeln</string>
+    <string name="tool_recurring_desc">Automatisch geplante Buchungen</string>
+    <string name="tool_recurring_toast">Aktive Regeln: %1$d Buchungen automatisch erfasst</string>
+    <string name="tool_export_excel_title">Nach Excel exportieren (.xlsx)</string>
+    <string name="tool_export_excel_desc">Tabelle mit separaten Datums- &amp; Uhrzeitspalten herunterladen</string>
+    <string name="tool_shared_ledgers_title">Gemeinsame Finanzen</string>
+    <string name="tool_shared_ledgers_desc">Gemeinsame Budgets &amp; Mitgliedersynchronisation</string>
+
+    <!-- Shared Finances Screen -->
+    <string name="shared_finances_screen_title">Gemeinsame Finanzen</string>
+    <string name="shared_finances_subtitle">Gemeinsames Budget &amp; Live-Synchronisation</string>
+    <string name="shared_ledgers_screen_title">Gemeinsame Finanzen</string>
+    <string name="shared_ledgers_subtitle">Gemeinsames Budget &amp; Live-Synchronisation</string>
+    <string name="shared_ledgers_drive_status_connected">Mit Drive verbunden als %1$s</string>
+    <string name="shared_ledgers_drive_status_disconnected">Google Drive nicht verbunden. In Einstellungen verbinden, um zu synchronisieren.</string>
+    <string name="shared_ledgers_share_guide_btn">So funktioniert\'s</string>
+    <string name="shared_ledgers_copy_my_id">Drive-Datei-ID kopieren</string>
+    <string name="shared_ledgers_my_file_id_copied">Drive-Link in die Zwischenablage kopiert!</string>
+    <string name="shared_ledgers_enter_id_or_url">Drive-Link oder Datei-ID eingeben</string>
+    <string name="shared_ledgers_fetch_btn">Mitglied hinzufügen</string>
+    <string name="shared_ledgers_load_sample_btn">Beispieldemo ansehen</string>
+    <string name="shared_ledgers_no_file_loaded">Noch keine Mitglieder verknüpft. Tippe auf \'Mitglied hinzufügen\' oder teile deinen Link.</string>
+    <string name="shared_ledgers_owner_label">Kontoinhaber</string>
+    <string name="shared_ledgers_last_synced">Zuletzt aktualisiert: %1$s</string>
+    <string name="shared_ledgers_category_breakdown">Kategorie-Umschläge</string>
+    <string name="shared_ledgers_recent_txs">Gemeinsamer Aktivitäten-Feed</string>
+    <string name="shared_ledgers_pay_cycle_info">Zahlungszyklus-Info</string>
+    <string name="shared_ledgers_guide_title">So funktionieren gemeinsame Finanzen</string>
+    <string name="shared_ledgers_guide_step1">1. Synchronisiere deine Spent-Daten mit deinem persönlichen Google Drive.</string>
+    <string name="shared_ledgers_guide_step2">2. Tippe auf \'Meine Finanzen teilen\', um einen schreibgeschützten Google Drive-Link zu erstellen.</string>
+    <string name="shared_ledgers_guide_step3">3. Teile deinen HTTPS-Drive-Link mit Gruppenmitgliedern.</string>
+    <string name="shared_ledgers_guide_step4">4. Mitglieder fügen deinen Link unter \'Mitglied hinzufügen\' ein, um Budgets und Statistiken live zu kombinieren!</string>
+    <string name="shared_ledgers_guide_understood">Verstanden</string>
+    <string name="tab_statistics">📊 Statistiken</string>
+    <string name="tab_members">👥 Mitglieder</string>
+    <string name="tab_invite_join">🔗 Einladen / Beitreten</string>
+    <string name="household_tab_combined">📊 Statistiken</string>
+    <string name="household_tab_me">👥 Mitglieder</string>
+    <string name="household_tab_partner">🔗 Einladen / Beitreten</string>
+    <string name="household_kpi_combined_income">Gesamteinnahmen</string>
+    <string name="household_kpi_combined_spent">Gesamtausgaben</string>
+    <string name="household_kpi_combined_safe_today">Heute verfügbar</string>
+    <string name="household_you_spent">Du: %1$s</string>
+    <string name="household_badge_you">Du</string>
+    <string name="household_privacy_note">100% Privat: Basiert auf Google Drive Link-Freigabe. Keine Drittanbieter-Server.</string>
+    <string name="members_panel_title">Mitglieder-Panel</string>
+    <string name="members_connected_count">%1$d Mitglieder verbunden</string>
+    <string name="share_my_finances_title">Meine Finanzen teilen</string>
+    <string name="share_my_finances_desc">Schreibgeschützte Google Drive Link-Freigabe aktivieren, damit andere deine Finanzen sehen können.</string>
+    <string name="share_my_finances_btn">Meine Finanzen teilen (Link kopieren)</string>
+    <string name="add_member_title">Mitglied hinzufügen</string>
+    <string name="add_member_desc">Google Drive-Link oder Datei-ID eines Mitglieds einfügen, um das Budget zu synchronisieren.</string>
+    <string name="add_member_btn">Mitglied hinzufügen</string>
+    <string name="add_member_input_placeholder">https://drive.google.com/file/d/...</string>
+    <string name="unlink_member_btn">Entfernen</string>
+    <string name="sync_all_members_btn">Alle synchronisieren</string>
+
+
+    <!-- Recent Activity & History -->
+    <string name="recent_activity">Letzte Aktivitäten</string>
+    <string name="see_all_transactions">Alle anzeigen</string>
+    <string name="no_transactions_yet">Noch keine Buchungen. Tippe auf + Ausgabe hinzufügen, um zu starten!</string>
+    <string name="history_title">Buchungshistorie</string>
+    <string name="history_subtitle">Alle Einträge suchen, filtern und verwalten</string>
+    <string name="search_transactions_placeholder">Nach Notiz oder Händler suchen…</string>
+    <string name="filter_all">Alle</string>
+    <string name="filter_expenses">Ausgaben</string>
+    <string name="filter_income">Einnahmen</string>
+    <string name="filter_active">Gefiltert</string>
+    <string name="history_results_count">Einträge</string>
+    <string name="no_matching_transactions">Keine passenden Buchungen gefunden.</string>
+
+    <!-- Savings Tracker Dialog & Screen -->
+    <string name="savings_tracker_title">Spar-Tracker</string>
+    <string name="total_saved">Gesamt gespart</string>
+    <string name="savings_goal">Sparziel</string>
+    <string name="savings_progress_text">%1$d%% des Ziels erreicht</string>
+    <string name="add_funds_to_savings">Ersparnis einzahlen</string>
+    <string name="deposit_amount_label">Einzahlungsbetrag (%1$s)</string>
+    <string name="note_goal_name_label">Notiz / Zielname</string>
+    <string name="deposit_into_savings">Auf Sparkonto einzahlen</string>
+    <string name="edit_target_goal">Ziel bearbeiten</string>
+    <string name="update_target_savings_goal">Sparziel aktualisieren</string>
+    <string name="goal_target_label">Zielbetrag (%1$s)</string>
+    <string name="back_to_deposit">Zurück zur Einzahlung</string>
+    <string name="deposit_funds">Betrag einzahlen</string>
+    <string name="save_goal">Ziel speichern</string>
+    <string name="savings_history_title">Sparhistorie</string>
+    <string name="savings_no_history">Noch keine Spareinzahlungen erfasst. Tippe auf +, um Beträge einzuzahlen!</string>
+    <string name="savings_monthly_reservation">Monatliche Rücklage</string>
+    <string name="savings_months_left">~ %1$d Monate verbleibend</string>
+    <string name="savings_to_go">Noch %1$s%2$.2f</string>
+    <string name="savings_info_note">Dein monatlicher Sparbeitrag wird von deinem täglichen verfügbaren Budget abgezogen, um dein Alltagsbudget zu schützen, während du dein langfristiges Ziel aufbaust.</string>
+    <string name="savings_default_deposit_note">Spareinzahlung</string>
+
+    <!-- Loans Tracker Dialog -->
+    <string name="loans_tracker_title">Kredit-Tracker</string>
+    <string name="outstanding_loan_debt">Offene Kreditschuld</string>
+    <string name="borrowed_amount">Geliehen: %1$s%2$.2f</string>
+    <string name="repaid_amount">Zurückgezahlt: %1$s%2$.2f</string>
+    <string name="pay_installment">Rate zahlen</string>
+    <string name="register_loan">+ Kredit erfassen</string>
+    <string name="loan_name_label">Kreditname / Beschreibung</string>
+    <string name="loan_name_placeholder">z.B. Autokredit, Bankkredit, Hypothek</string>
+    <string name="lender_bank_label">Kreditgeber / Bankinstitut</string>
+    <string name="lender_bank_placeholder">z.B. Bank, Kreditinstitut, Freund</string>
+    <string name="payment_amount_label">Zahlungsbetrag (%1$s)</string>
+    <string name="loan_capital_label">Kreditkapital (%1$s)</string>
+    <string name="record_payment">Zahlung erfassen</string>
+
+    <!-- Lent / Debt Dialog -->
+    <string name="lent_debt_title">Verliehen / Schulden erfassen</string>
+    <string name="i_lent_money">Ich habe Geld verliehen</string>
+    <string name="i_owe_money">Ich schulde Geld</string>
+    <string name="person_name_label">Name der Person</string>
+    <string name="person_name_placeholder">z.B. Jan, Maria</string>
+    <string name="amount_label">Betrag (%1$s)</string>
+    <string name="lent_to_prefix">Verliehen an %1$s</string>
+    <string name="owed_to_prefix">Geschuldet an %1$s</string>
+    <string name="save_record">Eintrag speichern</string>
+
+    <!-- Transaction Details Dialog -->
+    <string name="expense_details">Ausgabendetails</string>
+    <string name="income_details">Einnahmendetails</string>
+    <string name="category_label">Kategorie</string>
+    <string name="note_merchant_label">Notiz / Händler</string>
+    <string name="no_note_provided">Keine Notiz angegeben</string>
+    <string name="date_time_label">Datum &amp; Uhrzeit</string>
+    <string name="delete_record">Eintrag löschen</string>
+    <string name="category_general">Allgemein</string>
+
+    <!-- Delete Transaction Confirmation Dialog -->
+    <string name="delete_transaction_title">Buchung löschen?</string>
+    <string name="delete_transaction_confirmation">Möchtest du diese Buchung wirklich dauerhaft löschen?</string>
+    <string name="delete_transaction_warning">Dies aktualisiert deinen Nettosaldo und dein Zahlungszyklus-Budget.</string>
+
+    <!-- Common Dialog Actions -->
+    <string name="btn_close">Schließen</string>
+    <string name="btn_cancel">Abbrechen</string>
+    <string name="btn_change">Ändern</string>
+    <string name="btn_new">Neu</string>
+    <string name="btn_ok">OK</string>
+    <string name="btn_next">Weiter</string>
+    <string name="btn_select">Auswählen</string>
+    <string name="select_date">Datum wählen</string>
+    <string name="select_time">Uhrzeit wählen</string>
+
+    <!-- Enhanced Debt & Loans -->
+    <string name="debt_type_direct">Direkt / Privat</string>
+    <string name="debt_type_card">Kreditkarte</string>
+    <string name="debt_type_bank">Bankkredit</string>
+    <string name="debt_type_interest">Zinsen / Finanzierung</string>
+    <string name="installment_plan_toggle">Ratenplan (In monatlichen Raten zahlen)</string>
+    <string name="installment_monthly_amount">Monatliche Rate (%1$s)</string>
+    <string name="installment_duration_months">Laufzeit (Monate)</string>
+    <string name="installment_months_label">%1$d Monate</string>
+    <string name="debt_total_capital">Gesamte Kreditsumme (%1$s)</string>
+    <string name="interest_rate_optional">Zinsen / Gebühren (%1$s, Optional)</string>
+    <string name="lender_entity_label">Kreditgeber / Institut / Person</string>
+    <string name="lender_entity_placeholder">z.B. Sparkasse, Visa, Jan, Autokredit</string>
+    <string name="save_debt">Schuldeintrag speichern</string>
+    <string name="debt_registered_toast">Schuldeintrag gespeichert und Rate als Fixkosten geplant!</string>
+
+    <!-- Fixed Bills & Utilities -->
+    <string name="tool_fixed_bills_title">Fixkosten &amp; Nebenkosten</string>
+    <string name="tool_fixed_bills_desc">Strom, Wasser, Internet, Gas &amp; Miete</string>
+    <string name="fixed_bills_dialog_title">Fixkosten &amp; Nebenkosten</string>
+    <string name="fixed_bills_screen_title">Fixkosten &amp; Rechnungen</string>
+    <string name="loans_tracker_screen_title">Kredite &amp; Schulden</string>
+    <string name="add_fixed_bill_title">Neue Rechnung hinzufügen</string>
+    <string name="quick_presets_title">Schnellvorlagen</string>
+    <string name="bill_name_label">Rechnungsname / Anbieter</string>
+    <string name="bill_name_placeholder">z.B. Strom, Wasser, Internet, Gas</string>
+    <string name="custom_bill_notes_label">Zusatzdetails / Anbieter (Optional)</string>
+    <string name="custom_bill_notes_placeholder">z.B. Whg 4B, Vertrags-Nr. 1234</string>
+    <string name="bill_amount_label">Geschätzter / Basisbetrag (%1$s)</string>
+    <string name="bill_due_day_label">Fälligkeitstag im Monat</string>
+    <string name="bill_due_day_format">Fällig am %1$d.</string>
+    <string name="arrival_date_label">Rechnungsdatum / Zugang</string>
+    <string name="arrival_date_format">Geht ein am: %1$s</string>
+    <string name="cycle_period_label">Abrechnungsintervall</string>
+    <string name="period_30_days">Alle 30 Tage (Monatlich)</string>
+    <string name="bill_status_paid">In diesem Zyklus bezahlt</string>
+    <string name="bill_status_pending">Ausstehend (Geschätzt)</string>
+    <string name="unpaid_cycles_warning">%1$d unbezahlte Zyklen aufgelaufen (%2$s%3$.2f)</string>
+    <string name="service_cutoff_alert">⚠️ Sperrwarnung! %1$d unbezahlte Zyklen</string>
+    <string name="service_cutoff_desc">Dieser Dienst wurde seit 3 oder mehr Zyklen nicht bezahlt. Jetzt bezahlen, um eine Sperre zu verhindern.</string>
+    <string name="accumulated_total_label">Aufgelaufener Gesamtbetrag</string>
+    <string name="pay_bill_btn">Rechnungszahlung erfassen</string>
+    <string name="delete_bill_btn">Rechnung löschen</string>
+    <string name="save_bill_btn">Rechnung speichern</string>
+    <string name="preset_electricity">Strom</string>
+    <string name="preset_water">Wasser</string>
+    <string name="preset_internet">Internet / WLAN</string>
+    <string name="preset_gas">Gas</string>
+    <string name="preset_rent">Miete</string>
+    <string name="preset_phone">Telefon</string>
+    <string name="preset_streaming">Streaming</string>
+
+    <!-- Walkthrough Banner -->
+    <string name="walkthrough_title">Willkommen bei Spent!</string>
+    <string name="walkthrough_desc">Verfolge deine Ausgaben nach Zahlungszyklus, verwalte Kategorie-Umschläge und erreiche deine Sparziele.</string>
+    <string name="walkthrough_dismiss">Verstanden</string>
+
+    <!-- Add Transaction Screen -->
+    <string name="add_expense_title">Ausgabe hinzufügen</string>
+    <string name="add_income_title">Einnahme hinzufügen</string>
+    <string name="type_expense">Ausgabe</string>
+    <string name="type_income">Einnahme</string>
+    <string name="category_envelope_optional">Kategorie-Umschlag (Optional)</string>
+    <string name="note_merchant_optional">Notiz / Händler (Optional)</string>
+    <string name="make_recurring_payment">Wiederkehrende Zahlung einrichten</string>
+    <string name="recurring_schedule_desc">Automatische Buchung nach Zeitplan</string>
+    <string name="repeat_frequency">Wiederholungsintervall</string>
+    <string name="frequency_daily">Täglich</string>
+    <string name="frequency_weekly">Wöchentlich</string>
+    <string name="frequency_monthly">Monatlich</string>
+    <string name="save_transaction">Buchung speichern</string>
+
+    <!-- Create Category Dialog -->
+    <string name="create_category_title">Neuen Kategorie-Umschlag erstellen</string>
+    <string name="category_name_label">Kategoriename</string>
+    <string name="category_name_placeholder">z.B. Abos, Haustiere</string>
+    <string name="select_color">Farbe auswählen</string>
+    <string name="save_category">Kategorie speichern</string>
+
+    <!-- Analytics Screen -->
+    <string name="analytics_title">Analysen &amp; Berichte</string>
+    <string name="analytics_subtitle">Ausgabenaufschlüsselung und Zyklus-Einblicke</string>
+    <string name="savings_rate">Sparquote</string>
+    <string name="category_distribution">Kategorieverteilung</string>
+    <string name="no_spending_recorded">Keine Ausgaben in diesem Zyklus erfasst.</string>
+    <string name="chart_net_savings">Netto-Ersparnis im Zeitverlauf</string>
+    <string name="chart_net_savings_desc">Entwicklung des Nettosaldos im gewählten Zeitraum</string>
+    <string name="timeframe_7d">7 Tage</string>
+    <string name="timeframe_30d">30 Tage</string>
+    <string name="timeframe_6m">6 Monate</string>
+    <string name="chart_legend_income">Einnahmen</string>
+    <string name="chart_legend_expense">Ausgaben</string>
+    <string name="chart_legend_net">Nettosaldo</string>
+    <string name="chart_surplus">Überschuss</string>
+    <string name="chart_deficit">Defizit</string>
+    <string name="chart_no_data">Keine Buchungen in diesem Zeitraum erfasst.</string>
+    <string name="chart_net">Netto</string>
+
+    <!-- Settings Screen -->
+    <string name="settings_title">Einstellungen</string>
+    <string name="settings_subtitle">App-Einstellungen und Datenverwaltung</string>
+    <string name="profile_title">Benutzerprofil</string>
+    <string name="profile_name">Fernando Aguilar</string>
+    <string name="profile_email">fernando@example.com</string>
+    <string name="pay_cycle_title">Zahlungszyklus</string>
+    <string name="pay_cycle_desc">Intervall und Grundeinkommen festlegen</string>
+    <string name="cycle_frequency">Intervall</string>
+    <string name="cycle_income_label">Grundeinkommen (%1$s)</string>
+    <string name="payday_label">Zahltag / Startdatum</string>
+    <string name="payday_monthly_day">Zahltag: Tag %1$d des Monats</string>
+    <string name="payday_anchor_date">Zyklus-Startdatum: %1$s</string>
+    <string name="select_payday_title">Zahltag / Startdatum wählen</string>
+    <string name="freelance_flexible_title">Freiberufler / Flexibles Einkommen</string>
+    <string name="freelance_flexible_desc">Variables Einkommen nach tatsächlichen Monatseinnahmen</string>
+    <string name="salary_income_note">Basis-Gehalt am Zahltag (%1$s)</string>
+    <string name="save_pay_cycle">Zahlungszyklus speichern</string>
+    <string name="theme_title">Design</string>
+    <string name="theme_system">Systemstandard</string>
+    <string name="theme_light">Hell</string>
+    <string name="theme_dark">Dunkel</string>
+    <string name="currency_title">Währung</string>
+    <string name="currency_desc">Bevorzugtes Währungssymbol wählen</string>
+    <string name="language_title">Sprache / Language</string>
+    <string name="language_desc">Anzeigesprache der App wählen</string>
+    <string name="language_system">Systemstandard</string>
+    <string name="language_en">English</string>
+    <string name="language_es">Español</string>
+    <string name="language_pt">Português</string>
+    <string name="language_fr">Français</string>
+    <string name="language_de">Deutsch</string>
+    <string name="export_data_title">Daten exportieren (CSV)</string>
+    <string name="export_data_desc">Buchungen als CSV-Datei herunterladen</string>
+    <string name="export_csv_btn">CSV exportieren</string>
+    <string name="app_info_title">Über Spent</string>
+    <string name="app_version">Version 1.0.0</string>
+    <string name="app_description">Spent hilft dir, Ausgaben zu verfolgen, Zahlungszyklen zu planen und finanzielle Klarheit zu gewinnen.</string>
+    <string name="reset_data_title">Alle Daten zurücksetzen</string>
+    <string name="reset_data_desc">Alle Buchungen, Kategorien und Einstellungen unwiderruflich löschen</string>
+    <string name="reset_data_btn">Daten zurücksetzen</string>
+    <string name="reset_data_confirm_title">Alle Daten zurücksetzen?</string>
+    <string name="reset_data_confirm_msg">Dadurch werden alle Einträge dauerhaft gelöscht. Diese Aktion kann nicht rückgängig gemacht werden.</string>
+    <string name="monthly_savings_contribution_label">Monatlicher Beitrag (%1$s)</string>
+    <string name="no_savings_goal_yet">Kein aktives Sparziel</string>
+    <string name="add_savings_goal_btn">Sparziel hinzufügen</string>
+    <string name="salary_funding_note">Einnahmen als \'Gehalt\' finanzieren dein tägliches verfügbares Budget.</string>
+
+    <!-- Google Drive & Cloud Backup Sync -->
+    <string name="drive_sync_title">Google Drive Synchronisation</string>
+    <string name="drive_sync_desc">Automatische Cloud-Sicherung und Synchronisation deiner Buchungen</string>
+    <string name="drive_status_connected">Verbunden &amp; Auto-Sync aktiv</string>
+    <string name="drive_status_disconnected">Nicht verbunden</string>
+    <string name="drive_connected_account">Konto: %1$s</string>
+    <string name="drive_btn_connect">Mit Google Drive verbinden</string>
+    <string name="drive_btn_disconnect">Trennen</string>
+    <string name="drive_btn_sync_now">Jetzt synchronisieren</string>
+    <string name="drive_last_synced">Zuletzt synchronisiert: %1$s</string>
+    <string name="drive_not_synced_yet">Noch nicht synchronisiert</string>
+    <string name="drive_syncing">Synchronisierung mit Google Drive…</string>
+    <string name="drive_backup_success">Sicherung erfolgreich gespeichert</string>
+    <string name="drive_restore_success">Daten erfolgreich wiederhergestellt</string>
+    <string name="drive_sync_success">Google Drive erfolgreich synchronisiert</string>
+    <string name="drive_disconnected_msg">Google Drive getrennt</string>
+    <string name="drive_sync_error">Fehler bei der Synchronisierung mit Drive: %1$s</string>
+    <string name="drive_export_chooser">Spent-Sicherung in Drive speichern</string>
+    <string name="drive_import_chooser">Spent-Sicherungsdatei auswählen</string>
+
+    <!-- Onboarding Walkthrough -->
+    <string name="onboarding_welcome_title">Willkommen bei Spent</string>
+    <string name="onboarding_welcome_desc">Verwalte deine Finanzen schnell und vollkommen privat.</string>
+    <string name="onboarding_btn_connect_drive">Mit Google Drive verbinden</string>
+    <string name="onboarding_btn_continue_no_account">Ohne Konto fortfahren</string>
+    <string name="onboarding_btn_continue">Weiter</string>
+    <string name="onboarding_connected_as">Verbunden als %1$s</string>
+    <string name="onboarding_restoring_drive">Google Drive-Sicherung wird geprüft und wiederhergestellt…</string>
+    <string name="onboarding_profile_title">Welches Profil passt am besten zu dir?</string>
+    <string name="onboarding_profile_subtitle">Dies hilft, deinen Budgetierungszyklus und Cashflow anzupassen</string>
+    <string name="onboarding_profile_unemployed">Arbeitssuchend</string>
+    <string name="onboarding_profile_unemployed_desc">Flexibles Budgetieren ohne feste Zahlungsperioden</string>
+    <string name="onboarding_profile_freelancer">Freiberufler</string>
+    <string name="onboarding_profile_freelancer_desc">Variables projektbasiertes Einkommen und flexible Nachverfolgung</string>
+    <string name="onboarding_profile_employed">Angestellter</string>
+    <string name="onboarding_profile_employed_desc">Regelmäßiger wiederkehrender Zahlungszyklus (Wöchentlich, 14 Tage, 15 Tage, Monatlich)</string>
+    <string name="onboarding_schedule_title">Wann und wie oft wirst du bezahlt?</string>
+    <string name="onboarding_schedule_subtitle">Konfiguriere deinen Zahlungszyklus und das Startdatum</string>
+    <string name="onboarding_schedule_frequency">Zahlungsintervall</string>
+    <string name="onboarding_schedule_payday">Erster Zahltag / Startdatum</string>
+    <string name="onboarding_schedule_salary_optional">Geschätztes Grundgehalt (%1$s, Optional)</string>
+    <string name="onboarding_btn_finish_setup">Einrichtung abschließen</string>
+    <string name="frequency_biweekly">Alle 2 Wochen (14 Tage)</string>
+    <string name="frequency_semimonthly">Halbmonatlich (15 Tage)</string>
+    <string name="onboarding_initial_balance_title">Startkapital &amp; Ersparnisse</string>
+    <string name="onboarding_initial_balance_subtitle">Erfasse dein aktuelles Erspartes oder Startgeld für präzise Finanzverwaltung</string>
+    <string name="onboarding_initial_balance_label">Startguthaben / Ersparnis (%1$s, Optional)</string>
+    <string name="onboarding_initial_balance_hint">Du kannst dies bei 0,00 belassen und Einnahmen später erfassen.</string>
+    <string name="initial_balance_transaction_note">Startguthaben / Anfangskapital</string>
+    <string name="onboarding_image_storage_title">Beleg- &amp; Fotospeicherung</string>
+    <string name="onboarding_image_storage_subtitle">Wähle, wo angehängte Belegfotos deiner Notizen gespeichert werden</string>
+
+    <!-- Image Attachment & Multi-Destination Storage -->
+    <string name="attach_image_label">Beleg- / Notizfoto</string>
+    <string name="attach_image_btn">Bild anhängen</string>
+    <string name="change_image_btn">Ändern</string>
+    <string name="remove_image_btn">Entfernen</string>
+    <string name="view_image_btn">Ansehen</string>
+    <string name="receipt_image_preview">Belegvorschau</string>
+    <string name="image_storage_title">Foto- &amp; Belegspeicher</string>
+    <string name="image_storage_desc">Wähle, wo Notiz-Anhänge gespeichert werden</string>
+    <string name="storage_option_device">Gerätespeicher (Standard)</string>
+    <string name="storage_option_device_desc">Im Bilder-Ordner des Geräts gespeichert (in Galerie sichtbar)</string>
+    <string name="storage_option_in_app">App-interner privater Speicher</string>
+    <string name="storage_option_in_app_desc">Privat im App-Verzeichnis gespeichert</string>
+    <string name="storage_option_google_drive">Google Drive (Komprimierte Cloud)</string>
+    <string name="storage_option_google_drive_desc">Automatisch komprimiert und in dein Google Drive hochgeladen</string>
+    <string name="permission_media_required">Speicherberechtigung ist erforderlich, um Bilder auszuwählen</string>
+    <string name="permission_denied_msg">Berechtigung verweigert. Aktiviere Speicherzugriff in den Geräteeinstellungen, um Bilder anzuhängen.</string>
+    <string name="uploading_image_drive">Bild wird komprimiert und zu Google Drive hochgeladen…</string>
+    <string name="drive_upload_success">Bild komprimiert und auf Drive hochgeladen</string>
+    <string name="drive_not_connected_warning">Google Drive ist nicht verbunden. Verbinde es in Einstellungen oder wähle einen anderen Speicherort.</string>
+    <string name="receipt_viewer_title">Beleg / Angehängtes Bild</string>
+
+    <!-- Member Customization & Data Reset Warning -->
+    <string name="edit_member_name_title">Mitgliedsnamen bearbeiten</string>
+    <string name="edit_member_name_desc">Passe an, wie dieses Mitglied in deiner Übersicht und in Statistiken angezeigt wird.</string>
+    <string name="member_name_label">Mitgliedsname / Spitzname</string>
+    <string name="member_name_placeholder">z.B. Alex, Mama, Partner</string>
+    <string name="save_member_name_btn">Name speichern</string>
+    <string name="edit_member_btn">Name bearbeiten</string>
+    <string name="reset_data_warning_badge">Warnung vor dauerhaftem Datenverlust</string>
+    <string name="reset_data_warning_bullet1">• Alle Buchungen, Kategorie-Umschläge und Zahlungszyklen werden gelöscht.</string>
+    <string name="reset_data_warning_bullet2">• Alle auf diesem Gerät gespeicherten Belegfotos (intern und Galerie) werden gelöscht.</string>
+    <string name="reset_data_warning_bullet3">• Alle wiederkehrenden Regeln und Sparziele werden zurückgesetzt.</string>
+    <string name="reset_data_delete_drive_images_title">Auch Bilder auf Google Drive löschen</string>
+    <string name="reset_data_delete_drive_images_desc">Löscht dauerhaft alle Belegfotos aus deinem verbundenen Google Drive-Konto.</string>
+    <string name="reset_data_confirm_action">Alles löschen</string>
+
+    <!-- Image Source Chooser -->
+    <string name="image_source_chooser_title">Belegfoto anhängen</string>
+    <string name="image_source_camera">Foto aufnehmen (Kamera)</string>
+    <string name="image_source_camera_desc">Kamera nutzen, um Beleg aufzunehmen</string>
+    <string name="image_source_gallery">Aus Galerie wählen</string>
+    <string name="image_source_gallery_desc">Vorhandenes Foto vom Gerät auswählen</string>
+    <string name="camera_permission_required">Kameraberechtigung ist erforderlich, um Fotos aufzunehmen</string>
+</resources>

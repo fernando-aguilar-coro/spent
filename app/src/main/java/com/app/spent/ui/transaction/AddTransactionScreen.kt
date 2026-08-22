@@ -8,6 +8,8 @@ import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -104,6 +106,20 @@ fun AddTransactionScreen(
                 selection = TextRange(state.amountExpression.length)
             )
         )
+    }
+
+    // Interaction source to detect taps on the Amount field while custom keypad is active
+    val amountInteractionSource = remember { MutableInteractionSource() }
+
+    LaunchedEffect(amountInteractionSource) {
+        amountInteractionSource.interactions.collect { interaction ->
+            if (interaction is PressInteraction.Release) {
+                if (state.inputMode == InputMode.CUSTOM_KEYPAD) {
+                    viewModel.onIntent(AddTransactionUiIntent.SetInputMode(InputMode.SYSTEM_KEYBOARD))
+                    keyboardController?.show()
+                }
+            }
+        }
     }
 
     // Intercept Back Gesture when Custom Keypad is showing
@@ -203,7 +219,7 @@ fun AddTransactionScreen(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Amount Input Field with Native Soft Keyboard & Calculator Icon
+                // Amount Input Field with Native Numeric Soft Keyboard & Calculator Icon
                 Column(modifier = Modifier.fillMaxWidth()) {
                     OutlinedTextField(
                         value = amountTextFieldValue,
@@ -221,6 +237,7 @@ fun AddTransactionScreen(
                                 viewModel.onIntent(AddTransactionUiIntent.UpdateAmount(normalizedText))
                             }
                         },
+                        interactionSource = amountInteractionSource,
                         label = { Text(stringResource(R.string.amount_label, state.currencySymbol)) },
                         placeholder = { Text("0.00") },
                         prefix = {
@@ -233,7 +250,7 @@ fun AddTransactionScreen(
                         },
                         singleLine = true,
                         keyboardOptions = KeyboardOptions(
-                            keyboardType = KeyboardType.Text,
+                            keyboardType = KeyboardType.Decimal,
                             imeAction = ImeAction.Done
                         ),
                         keyboardActions = KeyboardActions(
@@ -284,8 +301,13 @@ fun AddTransactionScreen(
                             .fillMaxWidth()
                             .focusRequester(focusRequester)
                             .onFocusChanged { focusState ->
-                                if (focusState.isFocused && state.inputMode != InputMode.CUSTOM_KEYPAD) {
-                                    viewModel.onIntent(AddTransactionUiIntent.SetInputMode(InputMode.SYSTEM_KEYBOARD))
+                                if (focusState.isFocused) {
+                                    if (state.inputMode == InputMode.CUSTOM_KEYPAD) {
+                                        viewModel.onIntent(AddTransactionUiIntent.SetInputMode(InputMode.SYSTEM_KEYBOARD))
+                                        keyboardController?.show()
+                                    } else if (state.inputMode != InputMode.CUSTOM_KEYPAD) {
+                                        viewModel.onIntent(AddTransactionUiIntent.SetInputMode(InputMode.SYSTEM_KEYBOARD))
+                                    }
                                 }
                             }
                     )
