@@ -21,7 +21,9 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -60,7 +62,8 @@ fun TransactionDetailsDialog(
   categories: List<CategoryEntity>,
   currencySymbol: String,
   onDismiss: () -> Unit,
-  onRequestDelete: (TransactionEntity) -> Unit
+  onRequestDelete: (TransactionEntity) -> Unit,
+  onEdit: (TransactionEntity) -> Unit = {}
 ) {
   val context = LocalContext.current
   val category = categories.find { it.id == transaction.categoryId }
@@ -176,16 +179,32 @@ fun TransactionDetailsDialog(
     }
   },
   confirmButton = {
-    OutlinedButton(
-    onClick = {
-      onDismiss()
-      onRequestDelete(transaction)
-    },
-    colors = ButtonDefaults.outlinedButtonColors(contentColor = ExpenseRed)
+    Row(
+      horizontalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(8.dp),
+      verticalAlignment = Alignment.CenterVertically
     ) {
-      Icon(Icons.Default.Delete, contentDescription = "Delete", modifier = Modifier.size(16.dp))
-      Spacer(modifier = Modifier.width(6.dp))
-      Text(stringResource(R.string.delete_record))
+      OutlinedButton(
+        onClick = {
+          onDismiss()
+          onRequestDelete(transaction)
+        },
+        colors = ButtonDefaults.outlinedButtonColors(contentColor = ExpenseRed)
+      ) {
+        Icon(Icons.Default.Delete, contentDescription = "Delete", modifier = Modifier.size(16.dp))
+        Spacer(modifier = Modifier.width(4.dp))
+        Text(stringResource(R.string.delete_record))
+      }
+
+      Button(
+        onClick = {
+          onDismiss()
+          onEdit(transaction)
+        }
+      ) {
+        Icon(Icons.Default.Edit, contentDescription = "Edit", modifier = Modifier.size(16.dp))
+        Spacer(modifier = Modifier.width(4.dp))
+        Text(stringResource(R.string.edit_transaction_btn))
+      }
     }
   },
   dismissButton = {

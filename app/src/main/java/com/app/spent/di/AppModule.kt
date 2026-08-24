@@ -39,7 +39,9 @@ val appModule = module {
     viewModel { DashboardViewModel(repository = get()) }
     viewModel { AnalyticsViewModel(repository = get()) }
     viewModel { SettingsViewModel(repository = get()) }
-    viewModel { (initialType: String) -> AddTransactionViewModel(repository = get(), initialType = initialType) }
+    viewModel { (initialType: String, transactionId: String?) ->
+        AddTransactionViewModel(repository = get(), initialType = initialType, transactionId = transactionId)
+    }
     viewModel { FixedBillsViewModel(repository = get()) }
     viewModel { LoansTrackerViewModel(repository = get()) }
     viewModel { SavingsViewModel(repository = get()) }

@@ -168,6 +168,11 @@
     <string name="no_note_provided">Sin nota especificada</string>
     <string name="date_time_label">Fecha y Hora</string>
     <string name="delete_record">Eliminar Registro</string>
+    <string name="edit_transaction_btn">Editar Registro</string>
+    <string name="edit_expense_title">Editar Gasto</string>
+    <string name="edit_income_title">Editar Ingreso</string>
+    <string name="update_transaction">Actualizar Transacción</string>
+    <string name="transaction_updated">Transacción actualizada correctamente</string>
     <string name="category_general">General</string>
 
     <!-- Delete Transaction Confirmation Dialog -->
@@ -314,8 +319,9 @@
     <string name="language_en">English</string>
     <string name="language_es">Español</string>
     <string name="language_pt">Português</string>
-    <string name="language_fr">Francés</string>
+    <string name="language_fr">Français</string>
     <string name="language_de">Alemán</string>
+    <string name="language_it">Italiano</string>
     <string name="export_data_title">Exportar Datos (CSV)</string>
     <string name="export_data_desc">Descarga las transacciones en archivo CSV</string>
     <string name="export_csv_btn">Exportar CSV</string>

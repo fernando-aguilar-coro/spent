@@ -60,7 +60,8 @@ import com.app.spent.ui.dashboard.components.dialogs.TransactionDetailsDialog
 @Composable
 fun TransactionHistoryScreen(
     viewModel: TransactionHistoryViewModel,
-    onNavigateBack: () -> Unit
+    onNavigateBack: () -> Unit,
+    onNavigateToEditTransaction: (type: String, transactionId: String) -> Unit = { _, _ -> }
 ) {
     val state by viewModel.uiState.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
@@ -289,7 +290,11 @@ fun TransactionHistoryScreen(
             categories = state.allCategories,
             currencySymbol = state.currencySymbol,
             onDismiss = { selectedTransactionForDetails = null },
-            onRequestDelete = { transactionToDelete = tx }
+            onRequestDelete = { transactionToDelete = tx },
+            onEdit = { transactionToEdit ->
+                selectedTransactionForDetails = null
+                onNavigateToEditTransaction(transactionToEdit.type, transactionToEdit.id)
+            }
         )
     }
 

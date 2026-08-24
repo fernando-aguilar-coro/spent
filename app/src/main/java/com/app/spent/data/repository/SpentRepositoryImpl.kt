@@ -128,6 +128,15 @@ class SpentRepositoryImpl(
         triggerAutoSync()
     }
 
+    override suspend fun updateTransaction(transaction: TransactionEntity) {
+        dao.insertTransaction(transaction)
+        triggerAutoSync()
+    }
+
+    override suspend fun getTransactionById(id: String): TransactionEntity? {
+        return dao.getTransactionById(id)
+    }
+
     override suspend fun deleteTransaction(transaction: TransactionEntity) {
         dao.deleteTransaction(transaction)
         triggerAutoSync()
@@ -304,6 +313,7 @@ class SpentRepositoryImpl(
         dao.deleteAllRecurringRules()
         dao.deleteAllPayCycles()
         preferencesRepository.clearSavingsGoal()
+        seedStarterDataIfEmpty()
         com.app.spent.util.ImageStorageHelper.deleteAllStoredImages(context)
         if (deleteDriveImages) {
             val account = com.app.spent.data.sync.GoogleDriveRestService.getSignedInAccount(context)

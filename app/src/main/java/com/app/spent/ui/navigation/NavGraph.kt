@@ -99,6 +99,9 @@ fun SpentAppNavHost(
                     onNavigateToAddTransaction = { type ->
                         navController.navigate(Screen.AddTransaction.createRoute(type))
                     },
+                    onNavigateToEditTransaction = { type, id ->
+                        navController.navigate(Screen.AddTransaction.createRoute(type, id))
+                    },
                     onNavigateToSavingsTracker = {
                         navController.navigate(Screen.SavingsTracker.route)
                     },
@@ -121,7 +124,10 @@ fun SpentAppNavHost(
                 val historyViewModel: TransactionHistoryViewModel = koinViewModel()
                 TransactionHistoryScreen(
                     viewModel = historyViewModel,
-                    onNavigateBack = { navController.popBackStack() }
+                    onNavigateBack = { navController.popBackStack() },
+                    onNavigateToEditTransaction = { type, id ->
+                        navController.navigate(Screen.AddTransaction.createRoute(type, id))
+                    }
                 )
             }
 
@@ -144,12 +150,18 @@ fun SpentAppNavHost(
                     navArgument("initialType") {
                         type = NavType.StringType
                         defaultValue = "EXPENSE"
+                    },
+                    navArgument("transactionId") {
+                        type = NavType.StringType
+                        nullable = true
+                        defaultValue = null
                     }
                 )
             ) { backStackEntry ->
                 val initialType = backStackEntry.arguments?.getString("initialType") ?: "EXPENSE"
+                val transactionId = backStackEntry.arguments?.getString("transactionId")
                 val addTransactionViewModel: AddTransactionViewModel = koinViewModel(
-                    parameters = { parametersOf(initialType) }
+                    parameters = { parametersOf(initialType, transactionId) }
                 )
                 AddTransactionScreen(
                     viewModel = addTransactionViewModel,

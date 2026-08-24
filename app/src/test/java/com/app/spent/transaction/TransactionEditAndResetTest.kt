@@ -1,0 +1,251 @@
+package com.app.spent.transaction
+
+import com.app.spent.data.local.entity.CategoryEntity
+import com.app.spent.data.local.entity.FamilyMemberEntity
+import com.app.spent.data.local.entity.ParentalControlConfigEntity
+import com.app.spent.data.local.entity.PayCycleEntity
+import com.app.spent.data.local.entity.RecurringRuleEntity
+import com.app.spent.data.local.entity.TransactionEntity
+import com.app.spent.data.local.entity.UserAccountEntity
+import com.app.spent.data.repository.SpentRepository
+import com.app.spent.data.sync.DriveConnectResult
+import com.app.spent.data.sync.SharedMemberInfo
+import com.app.spent.ui.transaction.AddTransactionUiIntent
+import com.app.spent.ui.transaction.AddTransactionViewModel
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.advanceUntilIdle
+import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.test.setMain
+import org.junit.After
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertTrue
+import org.junit.Before
+import org.junit.Test
+
+@OptIn(ExperimentalCoroutinesApi::class)
+class TransactionEditAndResetTest {
+
+    private val testDispatcher = StandardTestDispatcher()
+    private lateinit var fakeRepository: FakeSpentRepository
+
+    @Before
+    fun setUp() {
+        Dispatchers.setMain(testDispatcher)
+        fakeRepository = FakeSpentRepository()
+    }
+
+    @After
+    fun tearDown() {
+        Dispatchers.resetMain()
+    }
+
+    @Test
+    fun testAddTransactionModeByDefault() = runTest {
+        val viewModel = AddTransactionViewModel(repository = fakeRepository, initialType = "EXPENSE")
+        advanceUntilIdle()
+
+        assertFalse(viewModel.uiState.value.isEditing)
+        assertEquals(null, viewModel.uiState.value.editingTransactionId)
+        assertEquals("EXPENSE", viewModel.uiState.value.selectedType)
+
+        viewModel.onIntent(AddTransactionUiIntent.UpdateAmount("150.00"))
+        viewModel.onIntent(AddTransactionUiIntent.UpdateNote("Lunch with team"))
+        viewModel.onIntent(AddTransactionUiIntent.SaveTransaction)
+        advanceUntilIdle()
+
+        assertEquals(1, fakeRepository.addedTransactions.size)
+        assertEquals(150.0, fakeRepository.addedTransactions[0].amount, 0.001)
+        assertEquals("Lunch with team", fakeRepository.addedTransactions[0].note)
+        assertEquals(0, fakeRepository.updatedTransactions.size)
+    }
+
+    @Test
+    fun testEditTransactionLoadsExistingDataAndUpdatesOnSave() = runTest {
+        val existingTx = TransactionEntity(
+            id = "tx-123",
+            amount = 85.50,
+            type = "EXPENSE",
+            categoryId = "cat_food",
+            note = "Grocery store",
+            timestamp = 1700000000000L,
+            imageUri = "content://media/receipt.jpg"
+        )
+        fakeRepository.storedTransactions["tx-123"] = existingTx
+
+        val viewModel = AddTransactionViewModel(
+            repository = fakeRepository,
+            initialType = "EXPENSE",
+            transactionId = "tx-123"
+        )
+        advanceUntilIdle()
+
+        val state = viewModel.uiState.value
+        assertTrue(state.isEditing)
+        assertEquals("tx-123", state.editingTransactionId)
+        assertEquals("85.50", state.amountExpression)
+        assertEquals("cat_food", state.selectedCategoryId)
+        assertEquals("Grocery store", state.noteText)
+        assertEquals("content://media/receipt.jpg", state.selectedImageUri)
+
+        // Modify the note and amount
+        viewModel.onIntent(AddTransactionUiIntent.UpdateAmount("95.00"))
+        viewModel.onIntent(AddTransactionUiIntent.UpdateNote("Supermarket run"))
+        viewModel.onIntent(AddTransactionUiIntent.SaveTransaction)
+        advanceUntilIdle()
+
+        assertEquals(0, fakeRepository.addedTransactions.size)
+        assertEquals(1, fakeRepository.updatedTransactions.size)
+        val updated = fakeRepository.updatedTransactions[0]
+        assertEquals("tx-123", updated.id)
+        assertEquals(95.0, updated.amount, 0.001)
+        assertEquals("Supermarket run", updated.note)
+        assertEquals("cat_food", updated.categoryId)
+    }
+
+    @Test
+    fun testResetAllDataReseedsStarterCategories() = runTest {
+        // Initially populate some data
+        fakeRepository.storedTransactions["tx-1"] = TransactionEntity(amount = 50.0, categoryId = "cat_general")
+        fakeRepository.categoriesFlow.value = listOf(CategoryEntity(id = "cat_general", name = "General", iconName = "Category", colorHex = "#000"))
+
+        fakeRepository.resetAllData(deleteDriveImages = false)
+
+        // Verify categories are re-seeded and not empty
+        assertTrue(fakeRepository.seedStarterDataCalled)
+        assertTrue(fakeRepository.categoriesFlow.value.isNotEmpty())
+        assertNotNull(fakeRepository.categoriesFlow.value.find { it.id == "cat_general" })
+        assertEquals(0, fakeRepository.storedTransactions.size)
+    }
+}
+
+private class FakeSpentRepository : SpentRepository {
+    val storedTransactions = mutableMapOf<String, TransactionEntity>()
+    val addedTransactions = mutableListOf<TransactionEntity>()
+    val updatedTransactions = mutableListOf<TransactionEntity>()
+    var seedStarterDataCalled = false
+
+    val categoriesFlow = MutableStateFlow<List<CategoryEntity>>(
+        listOf(
+            CategoryEntity(id = "cat_general", name = "General", iconName = "Category", colorHex = "#64748B"),
+            CategoryEntity(id = "cat_salary", name = "Salary", iconName = "Payments", colorHex = "#10B981"),
+            CategoryEntity(id = "cat_groceries", name = "Groceries", iconName = "ShoppingCart", colorHex = "#059669"),
+            CategoryEntity(id = "cat_food", name = "Food & Dining", iconName = "Restaurant", colorHex = "#F59E0B")
+        )
+    )
+
+    override fun getTransactionsFlow(): Flow<List<TransactionEntity>> = MutableStateFlow(storedTransactions.values.toList())
+    override fun getRecentTransactionsFlow(limit: Int): Flow<List<TransactionEntity>> = MutableStateFlow(storedTransactions.values.take(limit))
+    override fun searchTransactionsFlow(query: String, type: String?, categoryId: String?): Flow<List<TransactionEntity>> = MutableStateFlow(emptyList())
+    override fun getCategoriesFlow(): Flow<List<CategoryEntity>> = categoriesFlow.asStateFlow()
+    override fun getCurrentPayCycleFlow(): Flow<PayCycleEntity?> = MutableStateFlow(null)
+    override fun getUserAccountFlow(): Flow<UserAccountEntity?> = MutableStateFlow(null)
+    override fun getFamilyMembersFlow(): Flow<List<FamilyMemberEntity>> = MutableStateFlow(emptyList())
+    override fun getParentalConfigFlow(): Flow<ParentalControlConfigEntity?> = MutableStateFlow(null)
+    override fun getRecurringRulesFlow(): Flow<List<RecurringRuleEntity>> = MutableStateFlow(emptyList())
+
+    override val isWalkthroughCompletedFlow: Flow<Boolean> = MutableStateFlow(true)
+    override val isDarkThemeFlow: Flow<Boolean?> = MutableStateFlow(null)
+    override val currencySymbolFlow: Flow<String> = MutableStateFlow("$")
+    override val appLanguageFlow: Flow<String?> = MutableStateFlow(null)
+    override val savingsGoalNameFlow: Flow<String> = MutableStateFlow("")
+    override val savingsGoalTotalFlow: Flow<Double> = MutableStateFlow(0.0)
+    override val savingsMonthlyContributionFlow: Flow<Double> = MutableStateFlow(0.0)
+    override val lastDriveSyncTimestampFlow: Flow<Long> = MutableStateFlow(0L)
+    override val isDriveConnectedFlow: Flow<Boolean> = MutableStateFlow(false)
+    override val driveAccountEmailFlow: Flow<String?> = MutableStateFlow(null)
+    override val isSyncingDriveFlow: Flow<Boolean> = MutableStateFlow(false)
+    override val partnerDriveFileIdFlow: Flow<String?> = MutableStateFlow(null)
+    override val partnerNameFlow: Flow<String?> = MutableStateFlow(null)
+    override val partnerEmailFlow: Flow<String?> = MutableStateFlow(null)
+    override val partnerLastSyncTimestampFlow: Flow<Long> = MutableStateFlow(0L)
+    override val isPartnerPairedFlow: Flow<Boolean> = MutableStateFlow(false)
+    override val sharedMembersFlow: Flow<List<SharedMemberInfo>> = MutableStateFlow(emptyList())
+    override val imageStorageLocationFlow: Flow<String> = MutableStateFlow("GOOGLE_DRIVE")
+
+    override suspend fun connectGoogleDrive(account: GoogleSignInAccount): DriveConnectResult = DriveConnectResult.ConnectedNew
+    override suspend fun disconnectGoogleDrive() {}
+    override suspend fun syncToGoogleDrive(): Result<Boolean> = Result.success(true)
+    override fun triggerAutoSync() {}
+    override suspend fun getOwnBackupFileId(): Result<String?> = Result.success(null)
+    override suspend fun enablePublicLinkSharing(fileId: String): Result<String> = Result.success("")
+    override suspend fun processAndSaveImage(sourceUri: android.net.Uri, destinationType: String): Result<String> = Result.success(sourceUri.toString())
+    override suspend fun addOrUpdateSharedMember(member: SharedMemberInfo) {}
+    override suspend fun updateSharedMemberName(fileId: String, newName: String) {}
+    override suspend fun updateUserProfileName(newName: String) {}
+    override suspend fun removeSharedMember(fileId: String) {}
+    override suspend fun clearSharedMembers() {}
+    override suspend fun savePartnerInfo(fileId: String, name: String, email: String?) {}
+    override suspend fun setPartnerLastSyncTimestamp(timestamp: Long) {}
+    override suspend fun clearPartnerInfo() {}
+
+    override suspend fun addTransaction(transaction: TransactionEntity) {
+        addedTransactions.add(transaction)
+        storedTransactions[transaction.id] = transaction
+    }
+
+    override suspend fun updateTransaction(transaction: TransactionEntity) {
+        updatedTransactions.add(transaction)
+        storedTransactions[transaction.id] = transaction
+    }
+
+    override suspend fun getTransactionById(id: String): TransactionEntity? {
+        return storedTransactions[id]
+    }
+
+    override suspend fun deleteTransaction(transaction: TransactionEntity) {
+        storedTransactions.remove(transaction.id)
+    }
+
+    override suspend fun deleteTransactionById(id: String) {
+        storedTransactions.remove(id)
+    }
+
+    override suspend fun addCategory(category: CategoryEntity) {}
+    override suspend fun updateCategory(category: CategoryEntity) {}
+    override suspend fun deleteCategoryById(id: String) {}
+    override suspend fun setPayCycle(payCycle: PayCycleEntity) {}
+    override suspend fun addRecurringRule(rule: RecurringRuleEntity) {}
+    override suspend fun deleteRecurringRuleById(id: String) {}
+    override suspend fun executePendingRecurringRules() {}
+
+    override suspend fun seedStarterDataIfEmpty() {
+        seedStarterDataCalled = true
+        categoriesFlow.value = listOf(
+            CategoryEntity(id = "cat_general", name = "General", iconName = "Category", colorHex = "#64748B"),
+            CategoryEntity(id = "cat_salary", name = "Salary", iconName = "Payments", colorHex = "#10B981"),
+            CategoryEntity(id = "cat_groceries", name = "Groceries", iconName = "ShoppingCart", colorHex = "#059669"),
+            CategoryEntity(id = "cat_food", name = "Food & Dining", iconName = "Restaurant", colorHex = "#F59E0B")
+        )
+    }
+
+    override suspend fun setWalkthroughCompleted(completed: Boolean) {}
+    override suspend fun setDarkThemeMode(enabled: Boolean?) {}
+    override suspend fun setCurrencySymbol(symbol: String) {}
+    override suspend fun setAppLanguage(languageCode: String?) {}
+    override suspend fun setImageStorageLocation(location: String) {}
+    override suspend fun setSavingsGoal(name: String, totalGoal: Double, monthlyContribution: Double) {}
+    override suspend fun clearSavingsGoal() {}
+    override suspend fun setLastDriveSyncTimestamp(timestamp: Long) {}
+    override suspend fun restoreAllData(
+        categories: List<CategoryEntity>,
+        transactions: List<TransactionEntity>,
+        payCycle: PayCycleEntity?,
+        recurringRules: List<RecurringRuleEntity>,
+        userAccount: UserAccountEntity?
+    ) {}
+
+    override suspend fun resetAllData(deleteDriveImages: Boolean) {
+        storedTransactions.clear()
+        categoriesFlow.value = emptyList()
+        seedStarterDataIfEmpty()
+    }
+}

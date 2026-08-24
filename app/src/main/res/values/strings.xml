@@ -168,6 +168,11 @@
     <string name="no_note_provided">No note provided</string>
     <string name="date_time_label">Date &amp; Time</string>
     <string name="delete_record">Delete Record</string>
+    <string name="edit_transaction_btn">Edit Record</string>
+    <string name="edit_expense_title">Edit Expense</string>
+    <string name="edit_income_title">Edit Income</string>
+    <string name="update_transaction">Update Transaction</string>
+    <string name="transaction_updated">Transaction updated successfully</string>
     <string name="category_general">General</string>
 
     <!-- Delete Transaction Confirmation Dialog -->
@@ -316,6 +321,7 @@
     <string name="language_pt">Português</string>
     <string name="language_fr">Français</string>
     <string name="language_de">Deutsch</string>
+    <string name="language_it">Italiano</string>
     <string name="export_data_title">Export Data (CSV)</string>
     <string name="export_data_desc">Download transactions as CSV file</string>
     <string name="export_csv_btn">Export CSV</string>

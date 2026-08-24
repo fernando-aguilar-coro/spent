@@ -43,6 +43,7 @@ import com.app.spent.ui.dashboard.components.dialogs.TransactionDetailsDialog
 fun DashboardScreen(
     viewModel: DashboardViewModel,
     onNavigateToAddTransaction: (type: String) -> Unit = {},
+    onNavigateToEditTransaction: (type: String, transactionId: String) -> Unit = { _, _ -> },
     onNavigateToSavingsTracker: () -> Unit = {},
     onNavigateToFixedBills: () -> Unit = {},
     onNavigateToLoansTracker: () -> Unit = {},
@@ -206,7 +207,11 @@ fun DashboardScreen(
             categories = state.allCategories,
             currencySymbol = state.currencySymbol,
             onDismiss = { selectedTransactionForDetails = null },
-            onRequestDelete = { transactionToDelete = tx }
+            onRequestDelete = { transactionToDelete = tx },
+            onEdit = { transactionToEdit ->
+                selectedTransactionForDetails = null
+                onNavigateToEditTransaction(transactionToEdit.type, transactionToEdit.id)
+            }
         )
     }
 

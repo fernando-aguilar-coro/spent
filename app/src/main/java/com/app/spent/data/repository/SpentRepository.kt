@@ -57,6 +57,8 @@ interface SpentRepository {
   suspend fun clearPartnerInfo()
 
   suspend fun addTransaction(transaction: TransactionEntity)
+  suspend fun updateTransaction(transaction: TransactionEntity)
+  suspend fun getTransactionById(id: String): TransactionEntity?
   suspend fun deleteTransaction(transaction: TransactionEntity)
   suspend fun deleteTransactionById(id: String)
 

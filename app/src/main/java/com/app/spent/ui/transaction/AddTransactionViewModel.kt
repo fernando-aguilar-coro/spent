@@ -10,17 +10,64 @@ import com.app.spent.ui.mvi.BaseViewModel
 import com.app.spent.util.calculator.EvaluationResult
 import com.app.spent.util.calculator.MathExpressionEvaluator
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 
 class AddTransactionViewModel(
     private val repository: SpentRepository,
-    initialType: String = "EXPENSE"
+    initialType: String = "EXPENSE",
+    private val transactionId: String? = null
 ) : BaseViewModel<AddTransactionUiState, AddTransactionUiIntent, AddTransactionUiEffect>(
-    AddTransactionUiState(selectedType = initialType)
+    AddTransactionUiState(
+        selectedType = initialType,
+        isEditing = transactionId != null,
+        editingTransactionId = transactionId
+    )
 ) {
 
     init {
         observeData()
+        if (transactionId != null) {
+            loadTransaction(transactionId)
+        }
+    }
+
+    private fun loadTransaction(id: String) {
+        viewModelScope.launch {
+            val tx = repository.getTransactionById(id)
+            if (tx != null) {
+                val formattedAmount = if (tx.amount % 1.0 == 0.0) {
+                    "%.0f".format(tx.amount)
+                } else {
+                    "%.2f".format(tx.amount)
+                }
+                var isRecurring = false
+                var frequency = "MONTHLY"
+                if (tx.recurringRuleId != null) {
+                    val rules = repository.getRecurringRulesFlow().firstOrNull() ?: emptyList()
+                    val rule = rules.find { it.id == tx.recurringRuleId }
+                    if (rule != null) {
+                        isRecurring = true
+                        frequency = rule.frequency
+                    }
+                }
+                setState {
+                    copy(
+                        selectedType = tx.type,
+                        amountExpression = formattedAmount,
+                        selectedCategoryId = tx.categoryId,
+                        noteText = tx.note,
+                        selectedTimestamp = tx.timestamp,
+                        selectedImageUri = tx.imageUri,
+                        isRecurring = isRecurring,
+                        selectedFrequency = frequency,
+                        isEditing = true,
+                        editingTransactionId = tx.id
+                    )
+                }
+                sendEffect(AddTransactionUiEffect.SyncCursor(formattedAmount, formattedAmount.length))
+            }
+        }
     }
 
     private fun observeData() {
@@ -211,6 +258,11 @@ class AddTransactionViewModel(
         viewModelScope.launch {
             setState { copy(isSaving = true) }
             try {
+                // Ensure default categories exist if categories table was empty
+                if (state.categories.isEmpty()) {
+                    repository.seedStarterDataIfEmpty()
+                }
+
                 val targetCatId = state.selectedCategoryId.ifEmpty {
                     state.categories.find { it.id == "cat_general" }?.id
                         ?: state.categories.firstOrNull()?.id
@@ -231,8 +283,14 @@ class AddTransactionViewModel(
                     repository.addRecurringRule(rule)
                 }
 
-                val newTx = TransactionEntity(
-                    id = UUID.randomUUID().toString(),
+                val txId = if (state.isEditing && !state.editingTransactionId.isNullOrEmpty()) {
+                    state.editingTransactionId
+                } else {
+                    UUID.randomUUID().toString()
+                }
+
+                val tx = TransactionEntity(
+                    id = txId,
                     amount = finalAmount,
                     type = state.selectedType,
                     categoryId = targetCatId,
@@ -241,7 +299,12 @@ class AddTransactionViewModel(
                     imageUri = state.selectedImageUri,
                     recurringRuleId = ruleId
                 )
-                repository.addTransaction(newTx)
+
+                if (state.isEditing) {
+                    repository.updateTransaction(tx)
+                } else {
+                    repository.addTransaction(tx)
+                }
 
                 sendEffect(AddTransactionUiEffect.NavigateBack)
             } catch (e: Exception) {

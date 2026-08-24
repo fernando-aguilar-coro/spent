@@ -22,7 +22,9 @@ data class AddTransactionUiState(
     val selectedImageUri: String? = null,
     val imageStorageLocation: String = "GOOGLE_DRIVE",
     val isProcessingImage: Boolean = false,
-    val isSaving: Boolean = false
+    val isSaving: Boolean = false,
+    val isEditing: Boolean = false,
+    val editingTransactionId: String? = null
 ) : UiState {
     val showKeypad: Boolean
         get() = inputMode == InputMode.CUSTOM_KEYPAD

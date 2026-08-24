@@ -164,8 +164,13 @@ fun AddTransactionScreen(
             TopAppBar(
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background),
                 title = {
+                    val titleText = if (state.isEditing) {
+                        if (state.selectedType == "EXPENSE") stringResource(R.string.edit_expense_title) else stringResource(R.string.edit_income_title)
+                    } else {
+                        if (state.selectedType == "EXPENSE") stringResource(R.string.add_expense_title) else stringResource(R.string.add_income_title)
+                    }
                     Text(
-                        text = if (state.selectedType == "EXPENSE") stringResource(R.string.add_expense_title) else stringResource(R.string.add_income_title),
+                        text = titleText,
                         fontWeight = FontWeight.Bold,
                         fontSize = 18.sp
                     )
@@ -460,7 +465,7 @@ fun AddTransactionScreen(
                                 )
                                 Spacer(modifier = Modifier.width(8.dp))
                                 Text(
-                                    text = stringResource(R.string.save_transaction),
+                                    text = if (state.isEditing) stringResource(R.string.update_transaction) else stringResource(R.string.save_transaction),
                                     fontWeight = FontWeight.Bold,
                                     fontSize = 16.sp,
                                     maxLines = 1,

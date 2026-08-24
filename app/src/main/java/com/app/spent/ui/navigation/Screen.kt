@@ -21,7 +21,9 @@ sealed class Screen(val route: String, @StringRes val titleResId: Int, val icon:
   object SharedLedgers : Screen("shared_ledgers", R.string.shared_ledgers_screen_title, Icons.Default.AccountBalance)
   object TransactionHistory : Screen("transaction_history", R.string.history_title, Icons.Default.AccountBalance)
   object Onboarding : Screen("onboarding", R.string.onboarding_welcome_title, Icons.Default.AccountBalance)
-  object AddTransaction : Screen("add_transaction/{initialType}", R.string.action_add_expense, Icons.Default.Add) {
-    fun createRoute(initialType: String) = "add_transaction/$initialType"
+  object AddTransaction : Screen("add_transaction/{initialType}?transactionId={transactionId}", R.string.action_add_expense, Icons.Default.Add) {
+    fun createRoute(initialType: String, transactionId: String? = null) =
+        if (transactionId != null) "add_transaction/$initialType?transactionId=$transactionId"
+        else "add_transaction/$initialType"
   }
 }
