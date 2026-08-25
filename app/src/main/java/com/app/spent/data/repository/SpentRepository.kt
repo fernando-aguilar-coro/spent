@@ -2,12 +2,14 @@ package com.app.spent.data.repository
 
 import com.app.spent.data.local.entity.CategoryEntity
 import com.app.spent.data.local.entity.FamilyMemberEntity
+import com.app.spent.data.local.entity.LoanEntity
 import com.app.spent.data.local.entity.ParentalControlConfigEntity
 import com.app.spent.data.local.entity.PayCycleEntity
 import com.app.spent.data.local.entity.RecurringRuleEntity
 import com.app.spent.data.local.entity.TransactionEntity
 import com.app.spent.data.local.entity.UserAccountEntity
 import kotlinx.coroutines.flow.Flow
+
 interface SpentRepository {
   fun getTransactionsFlow(): Flow<List<TransactionEntity>>
   fun getRecentTransactionsFlow(limit: Int = 20): Flow<List<TransactionEntity>>
@@ -18,6 +20,7 @@ interface SpentRepository {
   fun getFamilyMembersFlow(): Flow<List<FamilyMemberEntity>>
   fun getParentalConfigFlow(): Flow<ParentalControlConfigEntity?>
   fun getRecurringRulesFlow(): Flow<List<RecurringRuleEntity>>
+  fun getLoansFlow(): Flow<List<LoanEntity>>
 
   val isWalkthroughCompletedFlow: Flow<Boolean>
   val isDarkThemeFlow: Flow<Boolean?>
@@ -71,6 +74,12 @@ interface SpentRepository {
   suspend fun deleteRecurringRuleById(id: String)
   suspend fun executePendingRecurringRules()
   suspend fun seedStarterDataIfEmpty()
+
+  suspend fun addLoan(loan: LoanEntity)
+  suspend fun updateLoan(loan: LoanEntity)
+  suspend fun deleteLoanById(id: String)
+  suspend fun recordLoanPayment(loanId: String, amount: Double)
+  suspend fun getLoanById(id: String): LoanEntity?
 
   suspend fun setWalkthroughCompleted(completed: Boolean)
   suspend fun setDarkThemeMode(enabled: Boolean?)

@@ -36,6 +36,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.app.spent.R
 import com.app.spent.data.local.entity.CategoryEntity
+import com.app.spent.data.local.entity.LoanEntity
 import com.app.spent.data.local.entity.RecurringRuleEntity
 import com.app.spent.data.local.entity.TransactionEntity
 import com.app.spent.ui.theme.IncomeGreen
@@ -46,6 +47,7 @@ fun DashboardQuickTools(
     transactions: List<TransactionEntity>,
     categories: List<CategoryEntity>,
     recurringRules: List<RecurringRuleEntity> = emptyList(),
+    loans: List<LoanEntity> = emptyList(),
     currencySymbol: String = "$",
     onNavigateToSavingsTracker: () -> Unit = {},
     onNavigateToFixedBills: () -> Unit = {},
@@ -59,13 +61,9 @@ fun DashboardQuickTools(
     val savingsGoal = savingsCat?.budgetAmount ?: 0.0
 
     // Loans & Debts computations
-    val totalLoansReceived = transactions
-        .filter { it.type == "INCOME" && (it.note.contains("Loan", ignoreCase = true) || it.note.contains("Préstamo", ignoreCase = true) || it.note.contains("Debt (", ignoreCase = true)) }
-        .sumOf { it.amount }
-    val totalLoansPaid = transactions
-        .filter { it.type == "EXPENSE" && (it.note.contains("Loan Payment", ignoreCase = true) || it.note.contains("Pago Préstamo", ignoreCase = true) || it.note.contains("Debt Repayment", ignoreCase = true) || it.note.contains("Debt Installment", ignoreCase = true)) }
-        .sumOf { it.amount }
-    val netLoanRemaining = (totalLoansReceived - totalLoansPaid).coerceAtLeast(0.0)
+    val activeLoans = loans.filter { !it.isSettled }
+    val totalIOwe = activeLoans.filter { it.type == "I_OWE" }.sumOf { it.remainingAmount }
+    val totalOwedToMe = activeLoans.filter { it.type == "OWED_TO_ME" }.sumOf { it.remainingAmount }
 
     // Active bills count
     val activeBillsCount = recurringRules.count { it.endDate == null || it.endDate >= System.currentTimeMillis() }
@@ -167,8 +165,14 @@ fun DashboardQuickTools(
                         overflow = TextOverflow.Ellipsis
                     )
                     Spacer(modifier = Modifier.height(2.dp))
+                    val loansSubtitle = when {
+                        totalIOwe > 0 && totalOwedToMe > 0 -> "Owe: $currencySymbol${"%.0f".format(totalIOwe)} • Owed: $currencySymbol${"%.0f".format(totalOwedToMe)}"
+                        totalIOwe > 0 -> stringResource(R.string.tool_loans_debt, currencySymbol, totalIOwe)
+                        totalOwedToMe > 0 -> "Owed: $currencySymbol${"%.0f".format(totalOwedToMe)}"
+                        else -> stringResource(R.string.tool_loans_desc)
+                    }
                     Text(
-                        text = if (netLoanRemaining > 0) stringResource(R.string.tool_loans_debt, currencySymbol, netLoanRemaining) else stringResource(R.string.tool_loans_desc),
+                        text = loansSubtitle,
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         maxLines = 1

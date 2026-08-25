@@ -41,6 +41,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -48,6 +49,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
@@ -58,6 +61,7 @@ import androidx.compose.ui.unit.sp
 import com.app.spent.R
 import com.app.spent.data.local.entity.CategoryEntity
 import com.app.spent.ui.theme.ExpenseRed
+import com.app.spent.ui.transaction.components.CategoryEnvelopeSelector
 
 data class QuickPreset(
     @StringRes val titleResId: Int,
@@ -73,15 +77,30 @@ fun AddFixedBillFormCard(
     billDueDay: Int,
     onOpenDatePicker: () -> Unit,
     onCloseForm: () -> Unit,
+    onAddNewCategoryClick: () -> Unit,
     onSaveBill: (name: String, amount: Double, dueDay: Int, categoryId: String, arrivalTimestamp: Long) -> Unit
 ) {
     var selectedPresetName by remember { mutableStateOf<String?>(null) }
     var customBillNotesText by remember { mutableStateOf("") }
     var billAmountText by remember { mutableStateOf("") }
+    val focusRequester = remember { FocusRequester() }
 
-    val selectedCategoryId = remember(categories) {
-        val utilCat = categories.find { it.id == "cat_utilities" || it.name.contains("Utility", ignoreCase = true) || it.name.contains("Servicio", ignoreCase = true) }
+    val defaultCategoryId = remember(categories) {
+        val utilCat = categories.find {
+            it.id == "cat_utilities" ||
+            it.name.contains("Utility", ignoreCase = true) ||
+            it.name.contains("Servicio", ignoreCase = true)
+        }
         utilCat?.id ?: categories.firstOrNull()?.id ?: "cat_general"
+    }
+
+    var selectedCategoryId by remember(defaultCategoryId) {
+        mutableStateOf(defaultCategoryId)
+    }
+
+    // Auto-focus amount field when entering screen/form
+    LaunchedEffect(Unit) {
+        focusRequester.requestFocus()
     }
 
     val quickPresets = remember {
@@ -169,29 +188,15 @@ fun AddFixedBillFormCard(
                 }
             }
 
-            // 2. Custom Bill Name or Description
-            OutlinedTextField(
-                value = customBillNotesText,
-                onValueChange = { customBillNotesText = it },
-                label = {
-                    Text(
-                        if (selectedPresetName != null) stringResource(R.string.custom_bill_notes_label)
-                        else stringResource(R.string.bill_name_label)
-                    )
-                },
-                placeholder = {
-                    Text(if (selectedPresetName != null) "e.g. Account #1234 or Main House" else "e.g. Electricity, Water, Rent")
-                },
-                singleLine = true,
-                shape = RoundedCornerShape(14.dp),
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedContainerColor = MaterialTheme.colorScheme.surface,
-                    unfocusedContainerColor = MaterialTheme.colorScheme.surface
-                ),
-                modifier = Modifier.fillMaxWidth()
+            // 2. Category Envelope Selector (Vertical Dropdown Menu)
+            CategoryEnvelopeSelector(
+                categories = categories,
+                selectedCategoryId = selectedCategoryId,
+                onCategorySelected = { selectedCategoryId = it },
+                onAddNewCategoryClick = onAddNewCategoryClick
             )
 
-            // 3. Amount Input Field
+            // 3. Estimated / Baseline Amount Input Field (Auto-focused on entry)
             OutlinedTextField(
                 value = billAmountText,
                 onValueChange = { input ->
@@ -215,10 +220,12 @@ fun AddFixedBillFormCard(
                     focusedContainerColor = MaterialTheme.colorScheme.surface,
                     unfocusedContainerColor = MaterialTheme.colorScheme.surface
                 ),
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .focusRequester(focusRequester)
             )
 
-            // 4. Arrival Date
+            // 4. Arrival / Issue Date
             val formattedArrivalDate = remember(arrivalTimestamp) {
                 SimpleDateFormat("MMM dd, yyyy", Locale.getDefault()).format(Date(arrivalTimestamp))
             }
@@ -261,7 +268,7 @@ fun AddFixedBillFormCard(
                 )
             }
 
-            // 5. Billing Cadence
+            // 5. Billing Cadence / Frequency
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -291,20 +298,47 @@ fun AddFixedBillFormCard(
                 )
             }
 
+            // 6. Provider / Merchant Name (Optional) - Positioned below Frequency
+            OutlinedTextField(
+                value = customBillNotesText,
+                onValueChange = { customBillNotesText = it },
+                label = {
+                    Text(stringResource(R.string.custom_bill_notes_label))
+                },
+                placeholder = {
+                    Text(stringResource(R.string.custom_bill_notes_placeholder))
+                },
+                singleLine = true,
+                shape = RoundedCornerShape(14.dp),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedContainerColor = MaterialTheme.colorScheme.surface,
+                    unfocusedContainerColor = MaterialTheme.colorScheme.surface
+                ),
+                modifier = Modifier.fillMaxWidth()
+            )
+
             // Save Bill Button
             val parsedAmount = billAmountText.toDoubleOrNull() ?: 0.0
-            val finalBillName = selectedPresetName ?: customBillNotesText.trim()
-            val isValid = finalBillName.isNotBlank() && parsedAmount > 0
+            val chosenCat = categories.find { it.id == selectedCategoryId }
+            val fallbackName = selectedPresetName
+                ?: chosenCat?.name
+                ?: stringResource(R.string.add_fixed_bill_title)
+
+            val finalBillName = if (selectedPresetName != null && customBillNotesText.isNotBlank()) {
+                "$selectedPresetName (${customBillNotesText.trim()})"
+            } else if (customBillNotesText.isNotBlank()) {
+                customBillNotesText.trim()
+            } else {
+                fallbackName
+            }
+
+            val isValid = parsedAmount > 0
 
             Button(
                 onClick = {
                     if (isValid) {
-                        val fullName = if (selectedPresetName != null && customBillNotesText.isNotBlank()) {
-                            "$selectedPresetName (${customBillNotesText.trim()})"
-                        } else {
-                            finalBillName
-                        }
-                        onSaveBill(fullName, parsedAmount, billDueDay, selectedCategoryId, arrivalTimestamp)
+                        val chosenCatId = selectedCategoryId.ifEmpty { defaultCategoryId }
+                        onSaveBill(finalBillName, parsedAmount, billDueDay, chosenCatId, arrivalTimestamp)
                         selectedPresetName = null
                         customBillNotesText = ""
                         billAmountText = ""

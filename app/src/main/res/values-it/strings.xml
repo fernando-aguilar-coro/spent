@@ -205,7 +205,46 @@
     <string name="lender_entity_label">Prestatore / Ente / Persona</string>
     <string name="lender_entity_placeholder">es. Intesa, Visa, Marco, Prestito Auto</string>
     <string name="save_debt">Salva record debito</string>
-    <string name="debt_registered_toast">Record debito salvato e rata pianificata come spesa fissa!</string>
+    <!-- Loans & Debts Redesign -->
+    <string name="tab_loans_all">Tutti</string>
+    <string name="tab_i_owe">Devo a</string>
+    <string name="tab_owed_to_me">Mi devono</string>
+    <string name="i_owe_title">Devo soldi a qualcuno</string>
+    <string name="owed_to_me_title">Qualcuno mi deve soldi</string>
+    <string name="i_owe_badge">Devo a</string>
+    <string name="owed_to_me_badge">Mi devono</string>
+    <string name="empty_loans_title">Gestisci prestiti e debiti</string>
+    <string name="empty_loans_desc">Tieni traccia precisa di debiti e crediti personali.</string>
+    <string name="add_i_owe_btn">+ Devo a qualcuno</string>
+    <string name="add_owed_to_me_btn">+ Qualcuno mi deve</string>
+    <string name="add_loan_screen_title_owe">Soldi che devo</string>
+    <string name="add_loan_screen_title_lend">Soldi che mi devono</string>
+    <string name="loan_amount_label">Importo principale totale</string>
+    <string name="lender_creditor_label">Creditore / Ente (Opzionale)</string>
+    <string name="debtor_borrower_label">Debitore / Persona (Opzionale)</string>
+    <string name="lender_creditor_placeholder">es. Banca, Carta, Proprietario, Giovanni</string>
+    <string name="debtor_borrower_placeholder">es. Maria, Amico, Coinquilino</string>
+    <string name="loan_due_date_label">Data di scadenza (Opzionale)</string>
+    <string name="no_due_date">Nessuna data di scadenza</string>
+    <string name="repayment_plan_title">Paga / Riscuoti a rate</string>
+    <string name="repayment_plan_desc">Configura rata mensile e durata</string>
+    <string name="monthly_installment_label">Importo rata mensile</string>
+    <string name="interest_rate_optional_label">Tasso di interesse (% annuo, Opzionale)</string>
+    <string name="calculated_total_financing">Totale con interessi: %1$s • %2$s/mese per %3$d mesi</string>
+    <string name="loan_notes_label">Note / Descrizione (Opzionale)</string>
+    <string name="loan_notes_placeholder">es. Spese viaggio, prestito emergenza</string>
+    <string name="save_loan_btn">Salva record</string>
+    <string name="edit_loan_title">Modifica prestito / debito</string>
+    <string name="update_loan_btn">Aggiorna record</string>
+    <string name="btn_add_payment">Aggiungi pagamento / acconto</string>
+    <string name="payment_amount_input_label">Importo pagamento</string>
+    <string name="record_payment_title">Registra pagamento</string>
+    <string name="remaining_balance_label">Rimanente: %1$s</string>
+    <string name="total_paid_so_far">Pagato: %1$s / %2$s (%3$d%%)</string>
+    <string name="mark_as_settled_btn">Segna come saldato</string>
+    <string name="loan_settled_badge">Saldato</string>
+    <string name="delete_loan_confirm_title">Eliminare record di prestito?</string>
+    <string name="delete_loan_confirm_msg">Sei sicuro di voler eliminare definitivamente questo record?</string>
 
     <!-- Fixed Bills & Utilities -->
     <string name="tool_fixed_bills_title">Bollette fisse e utenze</string>
@@ -217,9 +256,9 @@
     <string name="quick_presets_title">Modelli rapidi</string>
     <string name="bill_name_label">Nome bolletta / Fornitore</string>
     <string name="bill_name_placeholder">es. Elettricità (Luce), Acqua, Internet</string>
-    <string name="custom_bill_notes_label">Dettagli / Fornitore personalizzato (Opzionale)</string>
+    <string name="custom_bill_notes_label">Nome fornitore (Opzionale)</string>
     <string name="custom_bill_notes_placeholder">es. Interno 4B, Conto #1234</string>
-    <string name="bill_amount_label">Importo stimato / base (%1$s)</string>
+    <string name="bill_amount_label">Importo stimato / base</string>
     <string name="bill_due_day_label">Giorno di scadenza del mese</string>
     <string name="bill_due_day_format">Scade il giorno %1$d</string>
     <string name="arrival_date_label">Data di arrivo / emissione</string>
@@ -254,6 +293,9 @@
     <string name="type_expense">Spesa</string>
     <string name="type_income">Entrata</string>
     <string name="category_envelope_optional">Busta di categoria (Opzionale)</string>
+    <string name="select_category_envelope">Seleziona busta di categoria</string>
+    <string name="no_category_envelope">Nessuna busta (Generale)</string>
+    <string name="add_new_category">Aggiungi nuova categoria</string>
     <string name="note_merchant_optional">Nota / Esercente (Opzionale)</string>
     <string name="make_recurring_payment">Rendi pagamento ricorrente</string>
     <string name="recurring_schedule_desc">Registra automaticamente secondo la pianificazione</string>
@@ -322,6 +364,7 @@
     <string name="language_fr">Français</string>
     <string name="language_de">Deutsch</string>
     <string name="language_it">Italiano</string>
+    <string name="language_ja">日本語 (Giapponese)</string>
     <string name="export_data_title">Esporta dati (CSV)</string>
     <string name="export_data_desc">Scarica le transazioni come file CSV</string>
     <string name="export_csv_btn">Esporta CSV</string>

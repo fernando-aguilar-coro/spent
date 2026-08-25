@@ -48,6 +48,7 @@ import com.app.spent.R
 import com.app.spent.ui.fixedbills.components.AddFixedBillFormCard
 import com.app.spent.ui.fixedbills.components.FixedBillItemCard
 import com.app.spent.ui.fixedbills.components.FixedBillsEmptyState
+import com.app.spent.ui.transaction.components.AddCategoryDialog
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -144,6 +145,7 @@ fun FixedBillsScreen(
                         billDueDay = billDueDay,
                         onOpenDatePicker = { showDatePicker = true },
                         onCloseForm = { isAddingNewBill = false },
+                        onAddNewCategoryClick = { viewModel.onIntent(FixedBillsUiIntent.ShowAddCategoryDialog(true)) },
                         onSaveBill = { name, amount, dueDay, categoryId, timestamp ->
                             viewModel.onIntent(
                                 FixedBillsUiIntent.AddBill(
@@ -251,5 +253,14 @@ fun FixedBillsScreen(
         ) {
             DatePicker(state = datePickerState)
         }
+    }
+
+    if (state.showAddCategoryDialog) {
+        AddCategoryDialog(
+            onDismiss = { viewModel.onIntent(FixedBillsUiIntent.ShowAddCategoryDialog(false)) },
+            onSaveCategory = { name, colorHex, iconName ->
+                viewModel.onIntent(FixedBillsUiIntent.CreateCategory(name, colorHex, iconName))
+            }
+        )
     }
 }

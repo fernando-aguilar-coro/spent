@@ -151,6 +151,7 @@ private class FakeSpentRepository : SpentRepository {
     override fun getFamilyMembersFlow(): Flow<List<FamilyMemberEntity>> = MutableStateFlow(emptyList())
     override fun getParentalConfigFlow(): Flow<ParentalControlConfigEntity?> = MutableStateFlow(null)
     override fun getRecurringRulesFlow(): Flow<List<RecurringRuleEntity>> = MutableStateFlow(emptyList())
+    override fun getLoansFlow(): Flow<List<com.app.spent.data.local.entity.LoanEntity>> = MutableStateFlow(emptyList())
 
     override val isWalkthroughCompletedFlow: Flow<Boolean> = MutableStateFlow(true)
     override val isDarkThemeFlow: Flow<Boolean?> = MutableStateFlow(null)
@@ -216,6 +217,12 @@ private class FakeSpentRepository : SpentRepository {
     override suspend fun addRecurringRule(rule: RecurringRuleEntity) {}
     override suspend fun deleteRecurringRuleById(id: String) {}
     override suspend fun executePendingRecurringRules() {}
+
+    override suspend fun addLoan(loan: com.app.spent.data.local.entity.LoanEntity) {}
+    override suspend fun updateLoan(loan: com.app.spent.data.local.entity.LoanEntity) {}
+    override suspend fun deleteLoanById(id: String) {}
+    override suspend fun recordLoanPayment(loanId: String, amount: Double) {}
+    override suspend fun getLoanById(id: String): com.app.spent.data.local.entity.LoanEntity? = null
 
     override suspend fun seedStarterDataIfEmpty() {
         seedStarterDataCalled = true

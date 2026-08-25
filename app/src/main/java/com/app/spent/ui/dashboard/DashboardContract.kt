@@ -1,6 +1,7 @@
 package com.app.spent.ui.dashboard
 
 import com.app.spent.data.local.entity.CategoryEntity
+import com.app.spent.data.local.entity.LoanEntity
 import com.app.spent.data.local.entity.PayCycleEntity
 import com.app.spent.data.local.entity.RecurringRuleEntity
 import com.app.spent.data.local.entity.TransactionEntity
@@ -26,6 +27,7 @@ data class DashboardUiState(
     val recentTransactions: List<TransactionEntity> = emptyList(),
     val allCategories: List<CategoryEntity> = emptyList(),
     val recurringRules: List<RecurringRuleEntity> = emptyList(),
+    val loans: List<LoanEntity> = emptyList(),
     val currentPayCycle: PayCycleEntity? = null,
     val isWalkthroughCompleted: Boolean = true,
     val isPayCycleActive: Boolean = true,

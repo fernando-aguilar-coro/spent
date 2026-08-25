@@ -205,7 +205,46 @@
     <string name="lender_entity_label">Lender / Entity / Person</string>
     <string name="lender_entity_placeholder">e.g. Chase, Visa, John, Auto Loan</string>
     <string name="save_debt">Save Debt Record</string>
-    <string name="debt_registered_toast">Debt record saved and installment scheduled as Fixed Bill!</string>
+    <!-- Loans & Debts Redesign -->
+    <string name="tab_loans_all">All</string>
+    <string name="tab_i_owe">I Owe</string>
+    <string name="tab_owed_to_me">Owed to Me</string>
+    <string name="i_owe_title">I Owe Someone</string>
+    <string name="owed_to_me_title">Someone Owes Me</string>
+    <string name="i_owe_badge">I Owe</string>
+    <string name="owed_to_me_badge">Owed to Me</string>
+    <string name="empty_loans_title">Track Money You Owe &amp; Lent</string>
+    <string name="empty_loans_desc">Keep clear records of personal loans, borrowed funds, and money to collect.</string>
+    <string name="add_i_owe_btn">+ I Owe Someone</string>
+    <string name="add_owed_to_me_btn">+ Someone Owes Me</string>
+    <string name="add_loan_screen_title_owe">Money I Owe</string>
+    <string name="add_loan_screen_title_lend">Money Owed to Me</string>
+    <string name="loan_amount_label">Total Principal Amount</string>
+    <string name="lender_creditor_label">Creditor / Lender Name (Optional)</string>
+    <string name="debtor_borrower_label">Debtor / Person Name (Optional)</string>
+    <string name="lender_creditor_placeholder">e.g. Bank, Credit Card, Landlord, John</string>
+    <string name="debtor_borrower_placeholder">e.g. Maria, Friend, Roommate</string>
+    <string name="loan_due_date_label">Due Date (Optional)</string>
+    <string name="no_due_date">No due date</string>
+    <string name="repayment_plan_title">Pay / Collect in Installments</string>
+    <string name="repayment_plan_desc">Configure monthly quota and duration</string>
+    <string name="monthly_installment_label">Monthly Installment Amount</string>
+    <string name="interest_rate_optional_label">Interest Rate (% APR, Optional)</string>
+    <string name="calculated_total_financing">Total with Interest: %1$s • %2$s/mo for %3$d mos</string>
+    <string name="loan_notes_label">Notes / Description (Optional)</string>
+    <string name="loan_notes_placeholder">e.g. Vacation split, emergency loan, car down payment</string>
+    <string name="save_loan_btn">Save Record</string>
+    <string name="edit_loan_title">Edit Loan / Debt</string>
+    <string name="update_loan_btn">Update Record</string>
+    <string name="btn_add_payment">Add Payment / Abono</string>
+    <string name="payment_amount_input_label">Payment / Abono Amount</string>
+    <string name="record_payment_title">Record Payment / Abono</string>
+    <string name="remaining_balance_label">Remaining: %1$s</string>
+    <string name="total_paid_so_far">Paid: %1$s / %2$s (%3$d%%)</string>
+    <string name="mark_as_settled_btn">Mark as Settled</string>
+    <string name="loan_settled_badge">Settled</string>
+    <string name="delete_loan_confirm_title">Delete Loan Record?</string>
+    <string name="delete_loan_confirm_msg">Are you sure you want to permanently delete this loan record?</string>
 
     <!-- Fixed Bills & Utilities -->
     <string name="tool_fixed_bills_title">Fixed Bills &amp; Utilities</string>
@@ -217,9 +256,9 @@
     <string name="quick_presets_title">Quick Presets</string>
     <string name="bill_name_label">Bill Name / Provider</string>
     <string name="bill_name_placeholder">e.g. Electricity (Luz), Water, Internet</string>
-    <string name="custom_bill_notes_label">Custom Details / Provider (Optional)</string>
+    <string name="custom_bill_notes_label">Provider / Bill Name (Optional)</string>
     <string name="custom_bill_notes_placeholder">e.g. Apartment 4B, Account #1234</string>
-    <string name="bill_amount_label">Estimated / Baseline Amount (%1$s)</string>
+    <string name="bill_amount_label">Estimated / Baseline Amount</string>
     <string name="bill_due_day_label">Due Day of Month</string>
     <string name="bill_due_day_format">Due on day %1$d</string>
     <string name="arrival_date_label">Arrival / Issue Date</string>
@@ -254,6 +293,9 @@
     <string name="type_expense">Expense</string>
     <string name="type_income">Income</string>
     <string name="category_envelope_optional">Category Envelope (Optional)</string>
+    <string name="select_category_envelope">Select Category Envelope</string>
+    <string name="no_category_envelope">No category (General)</string>
+    <string name="add_new_category">Add New Category</string>
     <string name="note_merchant_optional">Note / Merchant (Optional)</string>
     <string name="make_recurring_payment">Make Recurring Payment</string>
     <string name="recurring_schedule_desc">Auto-log on specified schedule</string>
@@ -322,6 +364,7 @@
     <string name="language_fr">Français</string>
     <string name="language_de">Deutsch</string>
     <string name="language_it">Italiano</string>
+    <string name="language_ja">日本語 (Japanese)</string>
     <string name="export_data_title">Export Data (CSV)</string>
     <string name="export_data_desc">Download transactions as CSV file</string>
     <string name="export_csv_btn">Export CSV</string>

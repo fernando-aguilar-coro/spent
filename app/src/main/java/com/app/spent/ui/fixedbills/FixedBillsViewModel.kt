@@ -2,6 +2,7 @@ package com.app.spent.ui.fixedbills
 
 import java.util.UUID
 import androidx.lifecycle.viewModelScope
+import com.app.spent.data.local.entity.CategoryEntity
 import com.app.spent.data.local.entity.RecurringRuleEntity
 import com.app.spent.data.local.entity.TransactionEntity
 import com.app.spent.data.repository.SpentRepository
@@ -42,7 +43,9 @@ class FixedBillsViewModel(
                     isLoading = false
                 )
             }.collect { newState ->
-                setState { newState }
+                setState {
+                    newState.copy(showAddCategoryDialog = currentState.showAddCategoryDialog)
+                }
             }
         }
     }
@@ -58,6 +61,28 @@ class FixedBillsViewModel(
             is FixedBillsUiIntent.PayBill -> {
                 payBill(intent.amount, intent.name, intent.categoryId, intent.ruleId)
             }
+            is FixedBillsUiIntent.ShowAddCategoryDialog -> {
+                setState { copy(showAddCategoryDialog = intent.show) }
+            }
+            is FixedBillsUiIntent.CreateCategory -> {
+                createCategory(intent.name, intent.colorHex, intent.iconName)
+            }
+        }
+    }
+
+    private fun createCategory(name: String, colorHex: String, iconName: String) {
+        viewModelScope.launch {
+            val newCat = CategoryEntity(
+                id = UUID.randomUUID().toString(),
+                name = name,
+                iconName = iconName,
+                colorHex = colorHex,
+                budgetAmount = 0.0,
+                displayOrder = currentState.categories.size + 1
+            )
+            repository.addCategory(newCat)
+            setState { copy(showAddCategoryDialog = false) }
+            sendEffect(FixedBillsUiEffect.ShowSnackbar("Category created: $name"))
         }
     }
 

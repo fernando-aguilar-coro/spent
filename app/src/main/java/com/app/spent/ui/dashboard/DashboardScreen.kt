@@ -126,6 +126,7 @@ fun DashboardScreen(
                     transactions = state.recentTransactions,
                     categories = state.allCategories,
                     recurringRules = state.recurringRules,
+                    loans = state.loans,
                     currencySymbol = state.currencySymbol,
                     onNavigateToSavingsTracker = onNavigateToSavingsTracker,
                     onNavigateToFixedBills = onNavigateToFixedBills,

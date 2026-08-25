@@ -43,6 +43,7 @@ onSelectLanguage: (String?) -> Unit
     "fr" -> stringResource(R.string.language_fr)
     "de" -> stringResource(R.string.language_de)
     "it" -> stringResource(R.string.language_it)
+    "ja" -> stringResource(R.string.language_ja)
     else -> stringResource(R.string.language_system)
   }
 
@@ -91,7 +92,8 @@ onSelectLanguage: (String?) -> Unit
         "pt" to stringResource(R.string.language_pt),
         "fr" to stringResource(R.string.language_fr),
         "de" to stringResource(R.string.language_de),
-        "it" to stringResource(R.string.language_it)
+        "it" to stringResource(R.string.language_it),
+        "ja" to stringResource(R.string.language_ja)
         )
 
         options.forEach { (codeValue, label) ->

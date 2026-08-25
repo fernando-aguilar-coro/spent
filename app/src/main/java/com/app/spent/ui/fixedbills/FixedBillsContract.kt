@@ -12,7 +12,8 @@ data class FixedBillsUiState(
     val transactions: List<TransactionEntity> = emptyList(),
     val categories: List<CategoryEntity> = emptyList(),
     val currencySymbol: String = "$",
-    val isLoading: Boolean = false
+    val isLoading: Boolean = false,
+    val showAddCategoryDialog: Boolean = false
 ) : UiState
 
 sealed class FixedBillsUiIntent : UiIntent {
@@ -32,6 +33,9 @@ sealed class FixedBillsUiIntent : UiIntent {
         val categoryId: String,
         val ruleId: String
     ) : FixedBillsUiIntent()
+
+    data class ShowAddCategoryDialog(val show: Boolean) : FixedBillsUiIntent()
+    data class CreateCategory(val name: String, val colorHex: String, val iconName: String) : FixedBillsUiIntent()
 }
 
 sealed class FixedBillsUiEffect : UiEffect {

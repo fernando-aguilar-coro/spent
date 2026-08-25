@@ -34,15 +34,16 @@ class DashboardViewModel(
 
             val metaDataFlow = combine(
                 repository.getRecurringRulesFlow(),
+                repository.getLoansFlow(),
                 repository.isWalkthroughCompletedFlow,
                 repository.currencySymbolFlow,
                 repository.savingsMonthlyContributionFlow
-            ) { recurringRules: List<RecurringRuleEntity>, walkthroughDone: Boolean, currency: String, monthlySavings: Double ->
-                DashboardMetaData(recurringRules, walkthroughDone, currency, monthlySavings)
+            ) { recurringRules, loans, walkthroughDone, currency, monthlySavings ->
+                DashboardMetaData(recurringRules, loans, walkthroughDone, currency, monthlySavings)
             }
 
             combine(coreDataFlow, metaDataFlow) { (transactions, categories, payCycle), meta ->
-                val (recurringRules, walkthroughDone, currency, monthlySavings) = meta
+                val (recurringRules, loans, walkthroughDone, currency, monthlySavings) = meta
                 val isPayCycleActive = payCycle != null && payCycle.frequency != "NONE"
 
                 val cyclePeriod = if (isPayCycleActive) {
@@ -163,6 +164,7 @@ class DashboardViewModel(
                     recentTransactions = transactions.take(20),
                     allCategories = categories,
                     recurringRules = recurringRules,
+                    loans = loans,
                     currentPayCycle = payCycle,
                     isWalkthroughCompleted = walkthroughDone
                 )
@@ -174,6 +176,7 @@ class DashboardViewModel(
 
     private data class DashboardMetaData(
         val recurringRules: List<RecurringRuleEntity>,
+        val loans: List<com.app.spent.data.local.entity.LoanEntity>,
         val walkthroughDone: Boolean,
         val currency: String,
         val monthlySavings: Double

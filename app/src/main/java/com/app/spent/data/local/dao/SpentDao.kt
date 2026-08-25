@@ -123,6 +123,28 @@ interface SpentDao {
   @Query("DELETE FROM recurring_rules WHERE id = :id")
   suspend fun deleteRecurringRuleById(id: String)
 
+  // Loans & Debts
+  @Query("SELECT * FROM loans ORDER BY createdAt DESC")
+  fun getLoansFlow(): Flow<List<com.app.spent.data.local.entity.LoanEntity>>
+
+  @Query("SELECT * FROM loans WHERE id = :id")
+  suspend fun getLoanById(id: String): com.app.spent.data.local.entity.LoanEntity?
+
+  @Insert(onConflict = OnConflictStrategy.REPLACE)
+  suspend fun insertLoan(loan: com.app.spent.data.local.entity.LoanEntity)
+
+  @Insert(onConflict = OnConflictStrategy.REPLACE)
+  suspend fun insertLoans(loans: List<com.app.spent.data.local.entity.LoanEntity>)
+
+  @Update
+  suspend fun updateLoan(loan: com.app.spent.data.local.entity.LoanEntity)
+
+  @Query("DELETE FROM loans WHERE id = :id")
+  suspend fun deleteLoanById(id: String)
+
+  @Query("DELETE FROM loans")
+  suspend fun deleteAllLoans()
+
   // Data Reset / Restore
   @Query("DELETE FROM transactions")
   suspend fun deleteAllTransactions()

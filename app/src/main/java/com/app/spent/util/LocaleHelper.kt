@@ -26,6 +26,7 @@ object LocaleHelper {
       "fr" -> Locale.FRENCH
       "de" -> Locale.GERMAN
       "it" -> Locale.ITALIAN
+      "ja" -> Locale.JAPANESE
       else -> getSystemPreferredLocale(context)
     }
   }

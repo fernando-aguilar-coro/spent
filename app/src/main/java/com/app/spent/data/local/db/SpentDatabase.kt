@@ -7,23 +7,26 @@ import androidx.room.RoomDatabase
 import com.app.spent.data.local.dao.SpentDao
 import com.app.spent.data.local.entity.CategoryEntity
 import com.app.spent.data.local.entity.FamilyMemberEntity
+import com.app.spent.data.local.entity.LoanEntity
 import com.app.spent.data.local.entity.ParentalControlConfigEntity
 import com.app.spent.data.local.entity.PayCycleEntity
 import com.app.spent.data.local.entity.RecurringRuleEntity
 import com.app.spent.data.local.entity.TransactionEntity
 import com.app.spent.data.local.entity.UserAccountEntity
+
 @Database(
-entities = [
-UserAccountEntity::class,
-FamilyMemberEntity::class,
-ParentalControlConfigEntity::class,
-CategoryEntity::class,
-PayCycleEntity::class,
-TransactionEntity::class,
-RecurringRuleEntity::class
-],
-version = 1,
-exportSchema = false
+    entities = [
+        UserAccountEntity::class,
+        FamilyMemberEntity::class,
+        ParentalControlConfigEntity::class,
+        CategoryEntity::class,
+        PayCycleEntity::class,
+        TransactionEntity::class,
+        RecurringRuleEntity::class,
+        LoanEntity::class
+    ],
+    version = 2,
+    exportSchema = false
 )
 abstract class SpentDatabase : RoomDatabase() {
 

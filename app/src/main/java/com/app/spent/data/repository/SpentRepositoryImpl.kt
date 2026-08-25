@@ -4,6 +4,7 @@ import android.content.Context
 import com.app.spent.data.local.dao.SpentDao
 import com.app.spent.data.local.entity.CategoryEntity
 import com.app.spent.data.local.entity.FamilyMemberEntity
+import com.app.spent.data.local.entity.LoanEntity
 import com.app.spent.data.local.entity.ParentalControlConfigEntity
 import com.app.spent.data.local.entity.PayCycleEntity
 import com.app.spent.data.local.entity.RecurringRuleEntity
@@ -32,6 +33,7 @@ class SpentRepositoryImpl(
     override fun getFamilyMembersFlow(): Flow<List<FamilyMemberEntity>> = dao.getFamilyMembersFlow()
     override fun getParentalConfigFlow(): Flow<ParentalControlConfigEntity?> = dao.getParentalConfigFlow()
     override fun getRecurringRulesFlow(): Flow<List<RecurringRuleEntity>> = dao.getRecurringRulesFlow()
+    override fun getLoansFlow(): Flow<List<LoanEntity>> = dao.getLoansFlow()
 
     override val isWalkthroughCompletedFlow: Flow<Boolean> = preferencesRepository.isWalkthroughCompletedFlow
     override val isDarkThemeFlow: Flow<Boolean?> = preferencesRepository.isDarkThemeFlow
@@ -192,6 +194,33 @@ class SpentRepositoryImpl(
         triggerAutoSync()
     }
 
+    override suspend fun addLoan(loan: LoanEntity) {
+        dao.insertLoan(loan)
+        triggerAutoSync()
+    }
+
+    override suspend fun updateLoan(loan: LoanEntity) {
+        dao.updateLoan(loan)
+        triggerAutoSync()
+    }
+
+    override suspend fun deleteLoanById(id: String) {
+        dao.deleteLoanById(id)
+        triggerAutoSync()
+    }
+
+    override suspend fun getLoanById(id: String): LoanEntity? {
+        return dao.getLoanById(id)
+    }
+
+    override suspend fun recordLoanPayment(loanId: String, amount: Double) {
+        val loan = dao.getLoanById(loanId) ?: return
+        val newPaid = (loan.paidAmount + amount).coerceAtLeast(0.0)
+        val isSettled = newPaid >= loan.principalAmount
+        dao.updateLoan(loan.copy(paidAmount = newPaid, isSettled = isSettled))
+        triggerAutoSync()
+    }
+
     override suspend fun executePendingRecurringRules() {
         val rules = dao.getAllRecurringRules()
         val now = System.currentTimeMillis()
@@ -299,6 +328,7 @@ class SpentRepositoryImpl(
         dao.deleteAllCategories()
         dao.deleteAllRecurringRules()
         dao.deleteAllPayCycles()
+        dao.deleteAllLoans()
 
         if (categories.isNotEmpty()) dao.insertCategories(categories)
         if (transactions.isNotEmpty()) dao.insertTransactions(transactions)
@@ -312,6 +342,7 @@ class SpentRepositoryImpl(
         dao.deleteAllCategories()
         dao.deleteAllRecurringRules()
         dao.deleteAllPayCycles()
+        dao.deleteAllLoans()
         preferencesRepository.clearSavingsGoal()
         seedStarterDataIfEmpty()
         com.app.spent.util.ImageStorageHelper.deleteAllStoredImages(context)
