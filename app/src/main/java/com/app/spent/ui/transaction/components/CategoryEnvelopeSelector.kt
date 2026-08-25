@@ -48,6 +48,7 @@ import androidx.compose.ui.unit.dp
 import com.app.spent.R
 import com.app.spent.data.local.entity.CategoryEntity
 import com.app.spent.ui.components.CategoryIconHelper
+import com.app.spent.util.CategoryLocalizationHelper
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -96,8 +97,10 @@ fun CategoryEnvelopeSelector(
                     .getOrDefault(MaterialTheme.colorScheme.primary)
             }
 
+            val localizedSelectedName = selectedCategory?.let { CategoryLocalizationHelper.getLocalizedCategoryName(it) } ?: ""
+
             OutlinedTextField(
-                value = selectedCategory?.name ?: "",
+                value = localizedSelectedName,
                 onValueChange = {},
                 readOnly = true,
                 placeholder = {
@@ -222,6 +225,8 @@ fun CategoryEnvelopeSelector(
                         .getOrDefault(MaterialTheme.colorScheme.primary)
                     val isSelected = cat.id == selectedCategoryId
 
+                    val localizedItemName = CategoryLocalizationHelper.getLocalizedCategoryName(cat)
+
                     DropdownMenuItem(
                         text = {
                             Row(
@@ -230,7 +235,7 @@ fun CategoryEnvelopeSelector(
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Text(
-                                    text = cat.name,
+                                    text = localizedItemName,
                                     style = MaterialTheme.typography.bodyMedium,
                                     fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
                                     color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,

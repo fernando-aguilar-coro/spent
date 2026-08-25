@@ -117,9 +117,10 @@ currencySymbol: String
               }
             }
 
+            val localizedCatName = com.app.spent.util.CategoryLocalizationHelper.getLocalizedCategoryName(cat)
             Column {
               Text(
-              text = cat.name,
+              text = localizedCatName,
               style = MaterialTheme.typography.bodyMedium,
               fontWeight = FontWeight.SemiBold,
               maxLines = 1,

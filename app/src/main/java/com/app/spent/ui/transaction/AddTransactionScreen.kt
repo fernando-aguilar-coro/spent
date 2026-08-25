@@ -186,17 +186,16 @@ fun AddTransactionScreen(
             )
         }
     ) { paddingValues ->
-        Box(
+        Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
             Column(
                 modifier = Modifier
-                    .fillMaxSize()
+                    .weight(1f)
                     .verticalScroll(rememberScrollState())
                     .padding(horizontal = 20.dp, vertical = 12.dp)
-                    .padding(bottom = if (state.showKeypad) 380.dp else 110.dp)
             ) {
                 // Type Toggle (Expense / Income)
                 TransactionTypeSelector(
@@ -419,7 +418,6 @@ fun AddTransactionScreen(
             // Sticky Bottom Container with Save Button & Keypad
             Column(
                 modifier = Modifier
-                    .align(Alignment.BottomCenter)
                     .fillMaxWidth()
                     .imePadding()
                     .navigationBarsPadding()

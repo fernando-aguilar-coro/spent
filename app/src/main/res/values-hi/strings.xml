@@ -1,0 +1,509 @@
+<resources>
+    <string name="app_name">Spent</string>
+
+    <!-- Navigation -->
+    <string name="nav_dashboard">डैशबोर्ड</string>
+    <string name="nav_analytics">एनालिटिक्स</string>
+    <string name="nav_settings">सेटिंग्स</string>
+
+    <!-- Dashboard Header & Profile -->
+    <string name="user_greeting">नमस्ते, Fernando</string>
+    <string name="safe_to_spend_today">आज खर्च करने हेतु सुरक्षित</string>
+    <string name="total_spent">कुल खर्च</string>
+    <string name="total_income">कुल आय</string>
+    <string name="net_savings">शुद्ध बचत</string>
+    <string name="remaining_in_cycle">शेष दिन</string>
+    <string name="no_active_pay_cycle">कोई सक्रिय वेतन चक्र नहीं</string>
+    <string name="days_left">वेतन चक्र में %1$d दिन शेष</string>
+    <string name="day_left">वेतन चक्र में %1$d दिन शेष</string>
+    <string name="manage_cycle">वेतन चक्र प्रबंधित करें</string>
+
+    <!-- Quick Actions -->
+    <string name="action_add_expense">खर्च जोड़ें</string>
+    <string name="action_add_income">आय जोड़ें</string>
+
+    <!-- Category Envelopes -->
+    <string name="category_envelopes">श्रेणी लिफाफे</string>
+    <string name="envelopes_count">%1$d लिफाफे</string>
+    <string name="envelope_of">में से</string>
+    <string name="no_budget_set">बजट निर्धारित नहीं</string>
+    <string name="over_budget">बजट से अधिक</string>
+
+    <!-- Extra Tools & Shortcuts -->
+    <string name="extra_tools_title">अतिरिक्त उपकरण और शॉर्टकट</string>
+    <string name="tool_savings_title">बचत</string>
+    <string name="tool_savings_goal">लक्ष्य: %1$s%2$.0f</string>
+    <string name="tool_savings_desc">लक्ष्य और फंड ट्रैक करें</string>
+    <string name="tool_loans_title">ऋण</string>
+    <string name="tool_loans_debt">ऋण: %1$s%2$.0f</string>
+    <string name="tool_loans_desc">बैंक और व्यक्तिगत ऋण</string>
+    <string name="tool_lent_debt_title">उधार / ऋण</string>
+    <string name="tool_lent_debt_desc">उधार और देनदारियों को ट्रैक करें</string>
+    <string name="tool_recurring_title">आवर्ती नियम</string>
+    <string name="tool_recurring_desc">स्वतः निर्धारित नियम</string>
+    <string name="tool_recurring_toast">सक्रिय आवर्ती नियम: %1$d लेनदेन स्वतः दर्ज</string>
+    <string name="tool_export_excel_title">एक्सेल में निर्यात करें (.xlsx)</string>
+    <string name="tool_export_excel_desc">अलग दिनांक और समय कॉलम के साथ स्प्रेडशीट डाउनलोड करें</string>
+    <string name="tool_shared_ledgers_title">साझा वित्त</string>
+    <string name="tool_shared_ledgers_desc">सहयोगात्मक बजट और सदस्य सिंक</string>
+
+    <!-- Shared Finances Screen -->
+    <string name="shared_finances_screen_title">साझा वित्त</string>
+    <string name="shared_finances_subtitle">सहयोगात्मक बजट और लाइव सदस्य सिंक</string>
+    <string name="shared_ledgers_screen_title">साझा वित्त</string>
+    <string name="shared_ledgers_subtitle">सहयोगात्मक बजट और लाइव सदस्य सिंक</string>
+    <string name="shared_ledgers_drive_status_connected">%1$s के रूप में ड्राइव से कनेक्टेड</string>
+    <string name="shared_ledgers_drive_status_disconnected">गूगल ड्राइव कनेक्ट नहीं है। सिंक सक्षम करने के लिए सेटिंग्स में कनेक्ट करें।</string>
+    <string name="shared_ledgers_share_guide_btn">यह कैसे काम करता है</string>
+    <string name="shared_ledgers_copy_my_id">ड्राइव फ़ाइल आईडी कॉपी करें</string>
+    <string name="shared_ledgers_my_file_id_copied">ड्राइव लिंक क्लिपबोर्ड पर कॉपी हो गया!</string>
+    <string name="shared_ledgers_enter_id_or_url">ड्राइव लिंक या फ़ाइल आईडी दर्ज करें</string>
+    <string name="shared_ledgers_fetch_btn">सदस्य जोड़ें</string>
+    <string name="shared_ledgers_load_sample_btn">नमूना डेमो देखें</string>
+    <string name="shared_ledgers_no_file_loaded">अभी तक कोई सदस्य लिंक नहीं हुआ। \'सदस्य जोड़ें\' पर टैप करें या अपना लिंक साझा करें।</string>
+    <string name="shared_ledgers_owner_label">खाता स्वामी</string>
+    <string name="shared_ledgers_last_synced">अंतिम अपडेट: %1$s</string>
+    <string name="shared_ledgers_category_breakdown">श्रेणी लिफाफे</string>
+    <string name="shared_ledgers_recent_txs">साझा गतिविधि फ़ीड</string>
+    <string name="shared_ledgers_pay_cycle_info">वेतन चक्र जानकारी</string>
+    <string name="shared_ledgers_guide_title">साझा वित्त कैसे काम करता है</string>
+    <string name="shared_ledgers_guide_step1">1. अपने Spent डेटा को अपने व्यक्तिगत गूगल ड्राइव पर सिंक करें।</string>
+    <string name="shared_ledgers_guide_step2">2. सार्वजनिक देखने की अनुमति के साथ रीड-ओनली ड्राइव लिंक जनरेट करने के लिए \'मेरा वित्त साझा करें\' पर टैप करें।</string>
+    <string name="shared_ledgers_guide_step3">3. अपना HTTPS ड्राइव लिंक समूह के सदस्यों के साथ साझा करें।</string>
+    <string name="shared_ledgers_guide_step4">4. सदस्य बजट और लाइव आंकड़ों को तुरंत संयोजित करने के लिए \'सदस्य जोड़ें\' में आपका लिंक पेस्ट करें!</string>
+    <string name="shared_ledgers_guide_understood">समझ गया</string>
+    <string name="tab_statistics">📊 आंकड़े</string>
+    <string name="tab_members">👥 सदस्य</string>
+    <string name="tab_invite_join">🔗 आमंत्रित करें / जुड़ें</string>
+    <string name="household_tab_combined">📊 आंकड़े</string>
+    <string name="household_tab_me">👥 सदस्य</string>
+    <string name="household_tab_partner">🔗 आमंत्रित करें / जुड़ें</string>
+    <string name="household_kpi_combined_income">संयुक्त आय</string>
+    <string name="household_kpi_combined_spent">संयुक्त खर्च</string>
+    <string name="household_kpi_combined_safe_today">आज खर्च करने हेतु सुरक्षित</string>
+    <string name="household_you_spent">आप: %1$s</string>
+    <string name="household_badge_you">आप</string>
+    <string name="household_privacy_note">100% निजी: गूगल ड्राइव लिंक शेयरिंग द्वारा संचालित। कोई तृतीय-पक्ष सर्वर नहीं।</string>
+    <string name="members_panel_title">सदस्य पैनल</string>
+    <string name="members_connected_count">%1$d सदस्य जुड़े हैं</string>
+    <string name="share_my_finances_title">मेरा वित्त साझा करें</string>
+    <string name="share_my_finances_desc">रीड-ओनली गूगल ड्राइव लिंक शेयरिंग सक्षम करें ताकि अन्य आपके वित्त देख सकें।</string>
+    <string name="share_my_finances_btn">मेरा वित्त साझा करें (लिंक कॉपी करें)</string>
+    <string name="add_member_title">सदस्य जोड़ें</string>
+    <string name="add_member_desc">सदस्य के बजट को सिंक करने के लिए उनका गूगल ड्राइव वेब लिंक या फ़ाइल आईडी पेस्ट करें।</string>
+    <string name="add_member_btn">सदस्य जोड़ें</string>
+    <string name="add_member_input_placeholder">https://drive.google.com/file/d/...</string>
+    <string name="unlink_member_btn">हटाएं</string>
+    <string name="sync_all_members_btn">सभी सिंक करें</string>
+
+    <!-- Recent Activity & History -->
+    <string name="recent_activity">हाल की गतिविधि</string>
+    <string name="see_all_transactions">सभी देखें</string>
+    <string name="no_transactions_yet">अभी तक कोई लेनदेन नहीं। ट्रैक करना शुरू करने के लिए + खर्च जोड़ें पर टैप करें!</string>
+    <string name="history_title">लेनदेन इतिहास</string>
+    <string name="history_subtitle">सभी रिकॉर्ड खोजें, फ़िल्टर करें और प्रबंधित करें</string>
+    <string name="search_transactions_placeholder">नोट या व्यापारी द्वारा खोजें…</string>
+    <string name="filter_all">सभी</string>
+    <string name="filter_expenses">खर्च</string>
+    <string name="filter_income">आय</string>
+    <string name="filter_active">फ़िल्टर किया गया</string>
+    <string name="history_results_count">रिकॉर्ड</string>
+    <string name="no_matching_transactions">कोई मेल खाता लेनदेन नहीं मिला।</string>
+
+    <!-- Savings Tracker Dialog & Screen -->
+    <string name="savings_tracker_title">बचत ट्रैकर</string>
+    <string name="total_saved">कुल बचत</string>
+    <string name="savings_goal">बचत लक्ष्य</string>
+    <string name="savings_progress_text">लक्ष्य का %1$d%% प्राप्त किया</string>
+    <string name="add_funds_to_savings">बचत में फंड जोड़ें</string>
+    <string name="deposit_amount_label">जमा राशि (%1$s)</string>
+    <string name="note_goal_name_label">नोट / लक्ष्य का नाम</string>
+    <string name="deposit_into_savings">बचत में जमा करें</string>
+    <string name="edit_target_goal">लक्ष्य संपादित करें</string>
+    <string name="update_target_savings_goal">लक्ष्य अपडेट करें</string>
+    <string name="goal_target_label">लक्ष्य (%1$s)</string>
+    <string name="back_to_deposit">जमा पर वापस जाएं</string>
+    <string name="deposit_funds">फंड जमा करें</string>
+    <string name="save_goal">लक्ष्य सहेजें</string>
+    <string name="savings_history_title">बचत इतिहास</string>
+    <string name="savings_no_history">अभी तक कोई बचत जमा दर्ज नहीं की गई।</string>
+    <string name="savings_monthly_reservation">मासिक आरक्षण</string>
+    <string name="savings_months_left">~ %1$d महीने शेष</string>
+    <string name="savings_to_go">लक्ष्य तक %1$s%2$.2f शेष</string>
+    <string name="savings_info_note">मासिक योगदान आपके दैनिक सुरक्षित खर्च भत्ते में से आरक्षित होता है।</string>
+    <string name="savings_default_deposit_note">बचत जमा</string>
+
+    <!-- Loans Tracker Dialog -->
+    <string name="loans_tracker_title">ऋण ट्रैकर</string>
+    <string name="outstanding_loan_debt">बकाया ऋण</string>
+    <string name="borrowed_amount">उधार लिया: %1$s%2$.2f</string>
+    <string name="repaid_amount">चुकाया: %1$s%2$.2f</string>
+    <string name="pay_installment">किस्त का भुगतान करें</string>
+    <string name="register_loan">+ ऋण पंजीकृत करें</string>
+    <string name="loan_name_label">ऋण का नाम / विवरण</string>
+    <string name="loan_name_placeholder">उदा. कार ऋण, बैंक ऋण, होम लोन</string>
+    <string name="lender_bank_label">ऋणदाता / बैंक संस्थान</string>
+    <string name="lender_bank_placeholder">उदा. बैंक, क्रेडिट यूनियन, मित्र</string>
+    <string name="payment_amount_label">भुगतान राशि (%1$s)</string>
+    <string name="loan_capital_label">ऋण पूंजी (%1$s)</string>
+    <string name="record_payment">भुगतान दर्ज करें</string>
+
+    <!-- Lent / Debt Dialog -->
+    <string name="lent_debt_title">उधार / ऋण रिकॉर्ड दर्ज करें</string>
+    <string name="i_lent_money">मैंने पैसे उधार दिए</string>
+    <string name="i_owe_money">मुझे पैसे देने हैं</string>
+    <string name="person_name_label">व्यक्ति का नाम</string>
+    <string name="person_name_placeholder">उदा. राहुल, प्रिया</string>
+    <string name="amount_label">राशि (%1$s)</string>
+    <string name="lent_to_prefix">%1$s को उधार दिया</string>
+    <string name="owed_to_prefix">%1$s को देना है</string>
+    <string name="save_record">रिकॉर्ड सहेजें</string>
+
+    <!-- Transaction Details Dialog -->
+    <string name="expense_details">खर्च का विवरण</string>
+    <string name="income_details">आय का विवरण</string>
+    <string name="category_label">श्रेणी</string>
+    <string name="note_merchant_label">नोट / व्यापारी</string>
+    <string name="no_note_provided">कोई नोट दर्ज नहीं किया गया</string>
+    <string name="date_time_label">दिनांक और समय</string>
+    <string name="delete_record">रिकॉर्ड हटाएं</string>
+    <string name="edit_transaction_btn">रिकॉर्ड संपादित करें</string>
+    <string name="edit_expense_title">खर्च संपादित करें</string>
+    <string name="edit_income_title">आय संपादित करें</string>
+    <string name="update_transaction">लेनदेन अपडेट करें</string>
+    <string name="transaction_updated">लेनदेन सफलतापूर्वक अपडेट किया गया</string>
+    <string name="category_general">सामान्य</string>
+
+    <!-- Delete Transaction Confirmation Dialog -->
+    <string name="delete_transaction_title">लेनदेन हटाएं?</string>
+    <string name="delete_transaction_confirmation">क्या आप वाकई इस लेनदेन को स्थायी रूप से हटाना चाहते हैं?</string>
+    <string name="delete_transaction_warning">यह आपके शुद्ध शेष और वेतन चक्र बजट को अपडेट करेगा।</string>
+
+    <!-- Common Dialog Actions -->
+    <string name="btn_close">बंद करें</string>
+    <string name="btn_cancel">रद्द करें</string>
+    <string name="btn_change">बदलें</string>
+    <string name="btn_new">नया</string>
+    <string name="btn_ok">ठीक है</string>
+    <string name="btn_next">आगे</string>
+    <string name="btn_select">चुनें</string>
+    <string name="select_date">तिथि चुनें</string>
+    <string name="select_time">समय चुनें</string>
+
+    <!-- Enhanced Debt & Loans -->
+    <string name="debt_type_direct">प्रत्यक्ष / व्यक्तिगत</string>
+    <string name="debt_type_card">क्रेडिट कार्ड</string>
+    <string name="debt_type_bank">बैंक ऋण</string>
+    <string name="debt_type_interest">ब्याज / वित्तपोषण</string>
+    <string name="installment_plan_toggle">किस्त योजना (मासिक किस्तों में भुगतान)</string>
+    <string name="installment_monthly_amount">मासिक किस्त (%1$s)</string>
+    <string name="installment_duration_months">अवधि (महीने)</string>
+    <string name="installment_months_label">%1$d महीने</string>
+    <string name="debt_total_capital">कुल मूल ऋण (%1$s)</string>
+    <string name="interest_rate_optional">ब्याज / शुल्क (%1$s)</string>
+    <string name="lender_entity_label">ऋणदाता / संस्था / व्यक्ति</string>
+    <string name="lender_entity_placeholder">उदा. बैंक, क्रेडिट कार्ड, मित्र, कार ऋण</string>
+    <string name="save_debt">ऋण रिकॉर्ड सहेजें</string>
+
+    <!-- Category Names Localization -->
+    <string name="cat_general_name">सामान्य</string>
+    <string name="cat_salary_name">वेतन / आय</string>
+    <string name="cat_groceries_name">किराना और सुपरमार्केट</string>
+    <string name="cat_food_name">खान-पान और रेस्तरां</string>
+    <string name="cat_housing_name">आवास और किराया</string>
+    <string name="cat_transport_name">परिवहन और यात्रा</string>
+    <string name="cat_utilities_name">बिल और उपयोगिताएं</string>
+    <string name="cat_entertainment_name">मनोरंजन</string>
+    <string name="cat_shopping_name">खरीदारी</string>
+    <string name="cat_health_name">स्वास्थ्य और चिकित्सा</string>
+    <string name="cat_savings_name">बचत और लक्ष्य</string>
+    <string name="cat_education_name">शिक्षा</string>
+    <string name="cat_travel_name">यात्रा और छुट्टियां</string>
+    <string name="cat_fitness_name">फिटनेस और जिम</string>
+    <string name="cat_pets_name">पालतू जानवर</string>
+
+    <!-- Loans & Debts Redesign -->
+    <string name="tab_loans_all">सभी</string>
+    <string name="tab_i_owe">मुझे देना है</string>
+    <string name="tab_owed_to_me">मुझे मिलना है</string>
+    <string name="i_owe_title">मुझे किसी का पैसा देना है</string>
+    <string name="owed_to_me_title">किसी को मेरा पैसा देना है</string>
+    <string name="i_owe_badge">देना है</string>
+    <string name="owed_to_me_badge">मिलना है</string>
+    <string name="empty_loans_title">अपने ऋण और उधार का हिसाब रखें</string>
+    <string name="empty_loans_desc">आपको क्या देना है और क्या वसूलना है, इसका स्पष्ट रिकॉर्ड रखें।</string>
+    <string name="add_i_owe_btn">+ मुझे किसी को देना है</string>
+    <string name="add_owed_to_me_btn">+ मुझे किसी से मिलना है</string>
+    <string name="add_loan_screen_title_owe">पैसा जो मुझे देना है</string>
+    <string name="add_loan_screen_title_lend">पैसा जो मुझे मिलना है</string>
+    <string name="tab_calc_monthly_quota">मासिक किस्त द्वारा</string>
+    <string name="tab_calc_total_amount">कुल ऋण राशि द्वारा</string>
+    <string name="loan_monthly_quota_label">मासिक किस्त</string>
+    <string name="loan_total_principal_label">कुल ऋण राशि</string>
+    <string name="loan_amount_label">मूल राशि</string>
+    <string name="loan_duration_label">अवधि</string>
+    <string name="loan_duration_indefinite">अनिश्चित / कोई निश्चित अवधि नहीं</string>
+    <string name="loan_start_date_label">प्रारंभ तिथि</string>
+    <string name="loan_end_date_label">समाप्ति तिथि</string>
+    <string name="loan_interest_label">ब्याज दर (%)</string>
+    <string name="loan_calculated_total_pill">कुल देय: %1$s (%2$d महीने @ %3$s/माह)</string>
+    <string name="loan_calculated_quota_pill">मासिक किस्त: %1$s/माह • कुल: %2$s</string>
+    <string name="lender_creditor_label">ऋणदाता / व्यक्ति का नाम</string>
+    <string name="debtor_borrower_label">देनदार / व्यक्ति का नाम</string>
+    <string name="lender_creditor_placeholder">उदा. बैंक, मकान मालिक, राहुल</string>
+    <string name="debtor_borrower_placeholder">उदा. प्रिया, मित्र, सहकर्मी</string>
+    <string name="loan_due_date_label">नियत तिथि</string>
+    <string name="no_due_date">कोई नियत तिथि नहीं</string>
+    <string name="repayment_plan_title">किश्तों में भुगतान / वसूली</string>
+    <string name="repayment_plan_desc">मासिक किस्त और अवधि निर्धारित करें</string>
+    <string name="monthly_installment_label">मासिक किस्त राशि</string>
+    <string name="interest_rate_optional_label">ब्याज दर (%)</string>
+    <string name="calculated_total_financing">ब्याज सहित कुल: %1$s • %2$s/माह (%3$d महीने)</string>
+    <string name="loan_notes_label">नोट / विवरण</string>
+    <string name="loan_notes_placeholder">उदा. यात्रा खर्च, आपातकालीन ऋण, डाउन पेमेंट</string>
+    <string name="save_loan_btn">रिकॉर्ड सहेजें</string>
+    <string name="edit_loan_title">ऋण / उधार संपादित करें</string>
+    <string name="update_loan_btn">रिकॉर्ड अपडेट करें</string>
+    <string name="btn_add_payment">भुगतान / किस्त जोड़ें</string>
+    <string name="payment_amount_input_label">भुगतान राशि</string>
+    <string name="record_payment_title">भुगतान दर्ज करें</string>
+    <string name="remaining_balance_label">शेष: %1$s</string>
+    <string name="total_paid_so_far">भुगतान किया: %1$s / %2$s (%3$d%%)</string>
+    <string name="mark_as_settled_btn">चुका दिया गया मार्क करें</string>
+    <string name="loan_settled_badge">चुका दिया</string>
+    <string name="delete_loan_confirm_title">ऋण रिकॉर्ड हटाएं?</string>
+    <string name="delete_loan_confirm_msg">क्या आप वाकई इस ऋण रिकॉर्ड को स्थायी रूप से हटाना चाहते हैं?</string>
+
+    <!-- Fixed Bills & Utilities -->
+    <string name="tool_fixed_bills_title">निश्चित बिल और सेवाएं</string>
+    <string name="tool_fixed_bills_desc">बिजली, पानी, इंटरनेट, गैस और किराया</string>
+    <string name="fixed_bills_dialog_title">निश्चित बिल और सेवाएं</string>
+    <string name="fixed_bills_screen_title">निश्चित बिल और उपयोगिताएं</string>
+    <string name="loans_tracker_screen_title">ऋण और उधार ट्रैकर</string>
+    <string name="add_fixed_bill_title">नया बिल जोड़ें</string>
+    <string name="quick_presets_title">त्वरित प्रीसेट</string>
+    <string name="bill_name_label">बिल का नाम / प्रदाता</string>
+    <string name="bill_name_placeholder">उदा. बिजली, पानी, इंटरनेट, गैस</string>
+    <string name="custom_bill_notes_label">प्रदाता / बिल का नाम</string>
+    <string name="custom_bill_notes_placeholder">उदा. Netflix, जिम, मकान मालिक, इंटरनेट</string>
+    <string name="bill_amount_label">अनुमानित / आधार राशि</string>
+    <string name="bill_due_day_label">महीने की देय तिथि</string>
+    <string name="bill_due_day_format">%1$d तारीख को देय</string>
+    <string name="arrival_date_label">बिल आने की तिथि</string>
+    <string name="arrival_date_format">आगमन तिथि: %1$s</string>
+    <string name="cycle_period_label">बिलिंग चक्र</string>
+    <string name="period_30_days">हर 30 दिन (मासिक)</string>
+    <string name="bill_status_paid">इस चक्र में भुगतान किया गया</string>
+    <string name="bill_status_pending">लंबित (अनुमानित)</string>
+    <string name="unpaid_cycles_warning">%1$d अवैतनिक चक्र जमा हो गए (%2$s%3$.2f)</string>
+    <string name="service_cutoff_alert">⚠️ सेवा विच्छेद चेतावनी! %1$d अवैतनिक चक्र</string>
+    <string name="service_cutoff_desc">यह सेवा 3 या अधिक चक्रों से अवैतनिक है। विच्छेदन से बचने के लिए अभी भुगतान करें।</string>
+    <string name="accumulated_total_label">कुल संचित राशि</string>
+    <string name="pay_bill_btn">बिल भुगतान दर्ज करें</string>
+    <string name="delete_bill_btn">बिल हटाएं</string>
+    <string name="save_bill_btn">बिल सहेजें</string>
+    <string name="preset_electricity">बिजली</string>
+    <string name="preset_water">पानी</string>
+    <string name="preset_internet">इंटरनेट / वाई-फाई</string>
+    <string name="preset_gas">गैस</string>
+    <string name="preset_rent">किराया</string>
+    <string name="preset_phone">फ़ोन</string>
+    <string name="preset_streaming">स्ट्रीमिंग</string>
+
+    <!-- Walkthrough Banner -->
+    <string name="walkthrough_title">Spent में आपका स्वागत है!</string>
+    <string name="walkthrough_desc">वेतन चक्र द्वारा खर्चों को ट्रैक करें, श्रेणी लिफाफे प्रबंधित करें और अपने बचत लक्ष्यों को प्राप्त करें।</string>
+    <string name="walkthrough_dismiss">समझ गया</string>
+
+    <!-- Add Transaction Screen -->
+    <string name="add_expense_title">खर्च जोड़ें</string>
+    <string name="add_income_title">आय जोड़ें</string>
+    <string name="type_expense">खर्च</string>
+    <string name="type_income">आय</string>
+    <string name="category_envelope_optional">श्रेणी लिफाफा</string>
+    <string name="select_category_envelope">श्रेणी लिफाफा चुनें</string>
+    <string name="no_category_envelope">कोई लिफाफा नहीं (सामान्य)</string>
+    <string name="add_new_category">नई श्रेणी जोड़ें</string>
+    <string name="note_merchant_optional">नोट / व्यापारी</string>
+    <string name="make_recurring_payment">आवर्ती भुगतान बनाएं</string>
+    <string name="recurring_schedule_desc">निर्धारित समय पर स्वतः दर्ज करें</string>
+    <string name="repeat_frequency">दोहराव आवृत्ति</string>
+    <string name="frequency_daily">दैनिक</string>
+    <string name="frequency_weekly">साप्ताहिक</string>
+    <string name="frequency_monthly">मासिक</string>
+    <string name="save_transaction">लेनदेन सहेजें</string>
+
+    <!-- Create Category Dialog -->
+    <string name="create_category_title">नया श्रेणी लिफाफा बनाएं</string>
+    <string name="category_name_label">श्रेणी का नाम</string>
+    <string name="category_name_placeholder">उदा. सदस्यता, पालतू जानवर</string>
+    <string name="select_color">रंग चुनें</string>
+    <string name="save_category">श्रेणी सहेजें</string>
+
+    <!-- Analytics Screen -->
+    <string name="analytics_title">एनालिटिक्स और रिपोर्ट</string>
+    <string name="analytics_subtitle">खर्च का विवरण और चक्र अंतर्दृष्टि</string>
+    <string name="savings_rate">बचत दर</string>
+    <string name="category_distribution">श्रेणी वितरण</string>
+    <string name="no_spending_recorded">इस चक्र के लिए कोई खर्च दर्ज नहीं किया गया।</string>
+    <string name="chart_net_savings">समय के साथ शुद्ध बचत</string>
+    <string name="chart_net_savings_desc">चयनित अवधि में शुद्ध शेष की प्रवृत्ति</string>
+    <string name="timeframe_7d">7 दिन</string>
+    <string name="timeframe_30d">30 दिन</string>
+    <string name="timeframe_6m">6 महीने</string>
+    <string name="chart_legend_income">आय</string>
+    <string name="chart_legend_expense">खर्च</string>
+    <string name="chart_legend_net">शुद्ध शेष</string>
+    <string name="chart_surplus">अधिशेष (बचत)</string>
+    <string name="chart_deficit">घाटा</string>
+    <string name="chart_no_data">इस अवधि में कोई लेनदेन दर्ज नहीं किया गया।</string>
+    <string name="chart_net">शुद्ध</string>
+
+    <!-- Settings Screen -->
+    <string name="settings_title">सेटिंग्स</string>
+    <string name="settings_subtitle">ऐप प्राथमिकताएं और डेटा प्रबंधन</string>
+    <string name="profile_title">उपयोगकर्ता प्रोफ़ाइल</string>
+    <string name="profile_name">Fernando Aguilar</string>
+    <string name="profile_email">fernando@example.com</string>
+    <string name="pay_cycle_title">वेतन चक्र</string>
+    <string name="pay_cycle_desc">अपनी चक्र आवृत्ति और आधार आय निर्धारित करें</string>
+    <string name="cycle_frequency">आवृत्ति</string>
+    <string name="cycle_income_label">आधार आय (%1$s)</string>
+    <string name="payday_label">वेतन दिवस / प्रारंभ तिथि</string>
+    <string name="payday_monthly_day">वेतन दिवस: महीने का %1$d तारीख</string>
+    <string name="payday_anchor_date">चक्र आधार तिथि: %1$s</string>
+    <string name="select_payday_title">वेतन दिवस / प्रारंभ तिथि चुनें</string>
+    <string name="freelance_flexible_title">फ्रीलांस / लचीली आय</string>
+    <string name="freelance_flexible_desc">वास्तविक मासिक आय से परिवर्तनीय वेतन</string>
+    <string name="salary_income_note">वेतन दिवस आधार वेतन (%1$s)</string>
+    <string name="save_pay_cycle">वेतन चक्र सहेजें</string>
+    <string name="theme_title">थीम</string>
+    <string name="theme_system">सिस्टम डिफ़ॉल्ट</string>
+    <string name="theme_light">लाइट</string>
+    <string name="theme_dark">डार्क</string>
+    <string name="currency_title">मुद्रा</string>
+    <string name="currency_desc">अपना पसंदीदा मुद्रा प्रतीक चुनें</string>
+    <string name="language_title">भाषा (Language)</string>
+    <string name="language_desc">एप्लिकेशन प्रदर्शन भाषा चुनें</string>
+    <string name="language_system">सिस्टम डिफ़ॉल्ट</string>
+    <string name="language_en">English</string>
+    <string name="language_es">Español</string>
+    <string name="language_pt">Português</string>
+    <string name="language_fr">Français</string>
+    <string name="language_de">Deutsch</string>
+    <string name="language_it">Italiano (Italian)</string>
+    <string name="language_ja">日本語 (Japanese)</string>
+    <string name="language_hi">हिन्दी (Hindi)</string>
+    <string name="export_data_title">डेटा निर्यात करें (CSV)</string>
+    <string name="export_data_desc">लेनदेन को CSV फ़ाइल के रूप में डाउनलोड करें</string>
+    <string name="export_csv_btn">CSV निर्यात करें</string>
+    <string name="app_info_title">Spent के बारे में</string>
+    <string name="app_version">संस्करण 1.0.0</string>
+    <string name="app_description">Spent आपको खर्चों को ट्रैक करने, वेतन चक्र के अनुसार बजट बनाने और वित्तीय स्पष्टता प्राप्त करने में मदद करता है।</string>
+    <string name="reset_data_title">सभी डेटा रीसेट करें</string>
+    <string name="reset_data_desc">सभी लेनदेन, श्रेणियां और सेटिंग्स स्थायी रूप से हटाएं</string>
+    <string name="reset_data_btn">डेटा रीसेट करें</string>
+    <string name="reset_data_confirm_title">सभी डेटा रीसेट करें?</string>
+    <string name="reset_data_confirm_msg">यह सभी रिकॉर्ड स्थायी रूप से हटा देगा। यह क्रिया पूर्ववत नहीं की जा सकती।</string>
+    <string name="monthly_savings_contribution_label">मासिक योगदान (%1$s)</string>
+    <string name="no_savings_goal_yet">कोई बचत लक्ष्य सक्रिय नहीं</string>
+    <string name="add_savings_goal_btn">बचत लक्ष्य जोड़ें</string>
+    <string name="salary_funding_note">\'वेतन\' के तहत आय वर्गीकृत करने से आपके दैनिक सुरक्षित खर्च भत्ते को फंड मिलता है।</string>
+
+    <!-- Google Drive & Cloud Backup Sync -->
+    <string name="drive_sync_title">गूगल ड्राइव सिंक</string>
+    <string name="drive_sync_desc">आपके लेनदेन के लिए स्वचालित क्लाउड बैकअप और सिंक</string>
+    <string name="drive_status_connected">कनेक्टेड और ऑटो-सिंक सक्रिय</string>
+    <string name="drive_status_disconnected">कनेक्ट नहीं है</string>
+    <string name="drive_connected_account">खाता: %1$s</string>
+    <string name="drive_btn_connect">गूगल ड्राइव से कनेक्ट करें</string>
+    <string name="drive_btn_disconnect">डिस्कनेक्ट करें</string>
+    <string name="drive_btn_sync_now">अभी सिंक करें</string>
+    <string name="drive_last_synced">अंतिम सिंक: %1$s</string>
+    <string name="drive_not_synced_yet">अभी तक सिंक नहीं हुआ</string>
+    <string name="drive_syncing">गूगल ड्राइव के साथ सिंक हो रहा है…</string>
+    <string name="drive_backup_success">बैकअप सफलतापूर्वक सहेजा गया</string>
+    <string name="drive_restore_success">डेटा सफलतापूर्वक पुनर्स्थापित किया गया</string>
+    <string name="drive_sync_success">गूगल ड्राइव सफलतापूर्वक सिंक हुआ</string>
+    <string name="drive_disconnected_msg">गूगल ड्राइव डिस्कनेक्ट हो गया</string>
+    <string name="drive_sync_error">ड्राइव के साथ सिंक करने में त्रुटि: %1$s</string>
+    <string name="drive_export_chooser">Spent बैकअप ड्राइव पर सहेजें</string>
+    <string name="drive_import_chooser">Spent बैकअप फ़ाइल चुनें</string>
+
+    <!-- Onboarding Walkthrough -->
+    <string name="onboarding_welcome_title">Spent में आपका स्वागत है</string>
+    <string name="onboarding_welcome_desc">अपने वित्त को शीघ्रता और गोपनीयता से प्रबंधित करना शुरू करें।</string>
+    <string name="onboarding_btn_connect_drive">गूगल ड्राइव से कनेक्ट करें</string>
+    <string name="onboarding_btn_continue_no_account">बिना खाते के जारी रखें</string>
+    <string name="onboarding_btn_continue">जारी रखें</string>
+    <string name="onboarding_connected_as">%1$s के रूप में कनेक्टेड</string>
+    <string name="onboarding_restoring_drive">गूगल ड्राइव बैकअप जांच और पुनर्स्थापित किया जा रहा है…</string>
+    <string name="onboarding_profile_title">आपके लिए कौन सा प्रोफ़ाइल सबसे उपयुक्त है?</string>
+    <string name="onboarding_profile_subtitle">यह आपके बजट चक्र और नकदी प्रवाह को अनुकूलित करने में मदद करता है</string>
+    <string name="onboarding_profile_unemployed">बेरोजगार / बिना निश्चित आय</string>
+    <string name="onboarding_profile_unemployed_desc">निश्चित वेतन अवधि के बिना लचीला बजट</string>
+    <string name="onboarding_profile_freelancer">फ्रीलांसर</string>
+    <string name="onboarding_profile_freelancer_desc">परिवर्तनीय परियोजना-आधारित आय और लचीली ट्रैकिंग</string>
+    <string name="onboarding_profile_employed">नौकरीपेशा / वेतनभोगी</string>
+    <string name="onboarding_profile_employed_desc">नियमित आवर्ती वेतन चक्र (साप्ताहिक, पाक्षिक, 15-दिन, मासिक)</string>
+    <string name="onboarding_schedule_title">आपको वेतन कब और कितनी बार मिलता है?</string>
+    <string name="onboarding_schedule_subtitle">अपना वेतन चक्र और आधार तिथि कॉन्फ़िगर करें</string>
+    <string name="onboarding_schedule_frequency">वेतन आवृत्ति</string>
+    <string name="onboarding_schedule_payday">पहला वेतन दिवस / आधार तिथि</string>
+    <string name="onboarding_schedule_salary_optional">अनुमानित आधार वेतन (%1$s)</string>
+    <string name="onboarding_btn_finish_setup">सेटअप पूरा करें</string>
+    <string name="frequency_biweekly">पाक्षिक (14 दिन)</string>
+    <string name="frequency_semimonthly">द्वि-मासिक (15 दिन)</string>
+    <string name="onboarding_initial_balance_title">शुरुआती पूंजी और बचत</string>
+    <string name="onboarding_initial_balance_subtitle">सटीकता के साथ वित्त ट्रैक करने के लिए अपनी वर्तमान बचत या शुरुआती पूंजी दर्ज करें</string>
+    <string name="onboarding_initial_balance_label">शुरुआती शेष / बचत (%1$s)</string>
+    <string name="onboarding_initial_balance_hint">आप इसे 0.00 पर छोड़ सकते हैं और बाद में आय लेनदेन जोड़ सकते हैं।</string>
+    <string name="initial_balance_transaction_note">प्रारंभिक शेष / शुरुआती पूंजी</string>
+    <string name="onboarding_image_storage_title">रसीद और फोटो संग्रहण</string>
+    <string name="onboarding_image_storage_subtitle">चुनें कि आपके नोटों से जुड़ी तस्वीरें और रसीदें कहां संग्रहीत की जाएंगी</string>
+
+    <!-- Image Attachment & Multi-Destination Storage -->
+    <string name="attach_image_label">रसीद / नोट छवि</string>
+    <string name="attach_image_btn">छवि संलग्न करें</string>
+    <string name="change_image_btn">बदलें</string>
+    <string name="remove_image_btn">हटाएं</string>
+    <string name="view_image_btn">देखें</string>
+    <string name="receipt_image_preview">रसीद पूर्वावलोकन</string>
+    <string name="image_storage_title">छवि और रसीद संग्रहण</string>
+    <string name="image_storage_desc">चुनें कि संलग्न नोट छवियां कहां सहेजी जाएंगी</string>
+    <string name="storage_option_device">डिवाइस संग्रहण (डिफ़ॉल्ट)</string>
+    <string name="storage_option_device_desc">डिवाइस के Pictures फ़ोल्डर में सहेजा गया (गैलरी में दिखाई देगा)</string>
+    <string name="storage_option_in_app">ऐप का आंतरिक निजी संग्रहण</string>
+    <string name="storage_option_in_app_desc">ऐप निर्देशिका के भीतर निजी रूप से संग्रहीत</string>
+    <string name="storage_option_google_drive">गूगल ड्राइव (कंप्रेस्ड क्लाउड)</string>
+    <string name="storage_option_google_drive_desc">स्वचालित रूप से कंप्रेस होकर गूगल ड्राइव पर अपलोड</string>
+    <string name="permission_media_required">छवियों का चयन करने के लिए संग्रहण अनुमति आवश्यक है</string>
+    <string name="permission_denied_msg">अनुमति अस्वीकृत। छवियां संलग्न करने के लिए डिवाइस सेटिंग्स में संग्रहण एक्सेस सक्षम करें।</string>
+    <string name="uploading_image_drive">गूगल ड्राइव पर छवि अपलोड हो रही है…</string>
+    <string name="drive_upload_success">छवि कंप्रेस होकर ड्राइव पर अपलोड हो गई</string>
+    <string name="drive_not_connected_warning">गूगल ड्राइव कनेक्ट नहीं है। सेटिंग्स में कनेक्ट करें या दूसरा विकल्प चुनें।</string>
+    <string name="receipt_viewer_title">रसीद / संलग्न छवि</string>
+
+    <!-- Member Customization & Data Reset Warning -->
+    <string name="edit_member_name_title">सदस्य का नाम संपादित करें</string>
+    <string name="edit_member_name_desc">अनुकूलित करें कि यह सदस्य आपके डैशबोर्ड और आंकड़ों पर कैसे दिखाई देता है।</string>
+    <string name="member_name_label">सदस्य का नाम / उपनाम</string>
+    <string name="member_name_placeholder">उदा. अमित, मां, साथी</string>
+    <string name="save_member_name_btn">नाम सहेजें</string>
+    <string name="edit_member_btn">नाम संपादित करें</string>
+    <string name="reset_data_warning_badge">स्थायी डेटा हानि चेतावनी</string>
+    <string name="reset_data_warning_bullet1">• सभी लेनदेन, श्रेणी लिफाफे और वेतन चक्र हटा दिए जाएंगे।</string>
+    <string name="reset_data_warning_bullet2">• इस डिवाइस पर संग्रहीत सभी रसीद छवियां हटा दी जाएंगी।</string>
+    <string name="reset_data_warning_bullet3">• सभी आवर्ती नियम और बचत लक्ष्य रीसेट कर दिए जाएंगे।</string>
+    <string name="reset_data_delete_drive_images_title">गूगल ड्राइव पर भी छवियां हटाएं</string>
+    <string name="reset_data_delete_drive_images_desc">आपके कनेक्टेड ड्राइव खाते पर अपलोड की गई सभी रसीद तस्वीरें स्थायी रूप से हटा देता है।</string>
+    <string name="reset_data_confirm_action">सब कुछ हटाएं</string>
+
+    <!-- Image Source Chooser -->
+    <string name="image_source_chooser_title">रसीद छवि संलग्न करें</string>
+    <string name="image_source_camera">फोटो लें (कैमरा)</string>
+    <string name="image_source_camera_desc">रसीद कैप्चर करने के लिए कैमरे का उपयोग करें</string>
+    <string name="image_source_gallery">गैलरी से चुनें</string>
+    <string name="image_source_gallery_desc">डिवाइस से मौजूदा फोटो चुनें</string>
+    <string name="camera_permission_required">फोटो लेने के लिए कैमरा अनुमति आवश्यक है</string>
+</resources>

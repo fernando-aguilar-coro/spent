@@ -122,8 +122,10 @@ fun TransactionDetailsDialog(
       style = MaterialTheme.typography.bodySmall,
       color = MaterialTheme.colorScheme.onSurfaceVariant
       )
+      val localizedCategoryName = category?.let { com.app.spent.util.CategoryLocalizationHelper.getLocalizedCategoryName(it) }
+        ?: stringResource(R.string.category_general)
       Text(
-      text = category?.name ?: stringResource(R.string.category_general),
+      text = localizedCategoryName,
       style = MaterialTheme.typography.bodyMedium,
       fontWeight = FontWeight.SemiBold
       )

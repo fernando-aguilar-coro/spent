@@ -1,7 +1,5 @@
 package com.app.spent.ui.loanstracker
 
-import java.util.Calendar
-import java.util.TimeZone
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -9,14 +7,10 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
@@ -26,13 +20,10 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Handshake
 import androidx.compose.material.icons.filled.Payments
-import androidx.compose.material3.DatePicker
-import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
-import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -41,22 +32,18 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -90,8 +77,6 @@ fun LoansTrackerScreen(
         }
     }
 
-    var showDatePicker by remember { mutableStateOf(false) }
-    var dueDateTimestamp by remember { mutableStateOf<Long?>(null) }
     var showAddTypeMenu by remember { mutableStateOf(false) }
 
     Scaffold(
@@ -121,19 +106,19 @@ fun LoansTrackerScreen(
                             IconButton(onClick = { showAddTypeMenu = true }) {
                                 Icon(
                                     imageVector = Icons.Default.Add,
-                                    contentDescription = "Add Loan",
+                                    contentDescription = "Add Loan or Debt",
                                     tint = MaterialTheme.colorScheme.primary
                                 )
                             }
-
                             DropdownMenu(
                                 expanded = showAddTypeMenu,
-                                onDismissRequest = { showAddTypeMenu = false }
+                                onDismissRequest = { showAddTypeMenu = false },
+                                modifier = Modifier.background(MaterialTheme.colorScheme.surface)
                             ) {
                                 DropdownMenuItem(
                                     text = {
                                         Text(
-                                            text = stringResource(R.string.add_i_owe_btn),
+                                            stringResource(R.string.tab_i_owe),
                                             fontWeight = FontWeight.SemiBold,
                                             color = ExpenseRed
                                         )
@@ -142,19 +127,19 @@ fun LoansTrackerScreen(
                                         Icon(
                                             imageVector = Icons.Default.Payments,
                                             contentDescription = null,
-                                            tint = ExpenseRed
+                                            tint = ExpenseRed,
+                                            modifier = Modifier.size(20.dp)
                                         )
                                     },
                                     onClick = {
                                         showAddTypeMenu = false
-                                        dueDateTimestamp = null
                                         viewModel.onIntent(LoansTrackerUiIntent.OpenAddForm("I_OWE"))
                                     }
                                 )
                                 DropdownMenuItem(
                                     text = {
                                         Text(
-                                            text = stringResource(R.string.add_owed_to_me_btn),
+                                            stringResource(R.string.tab_owed_to_me),
                                             fontWeight = FontWeight.SemiBold,
                                             color = IncomeGreen
                                         )
@@ -163,12 +148,12 @@ fun LoansTrackerScreen(
                                         Icon(
                                             imageVector = Icons.Default.Handshake,
                                             contentDescription = null,
-                                            tint = IncomeGreen
+                                            tint = IncomeGreen,
+                                            modifier = Modifier.size(20.dp)
                                         )
                                     },
                                     onClick = {
                                         showAddTypeMenu = false
-                                        dueDateTimestamp = null
                                         viewModel.onIntent(LoansTrackerUiIntent.OpenAddForm("OWED_TO_ME"))
                                     }
                                 )
@@ -179,13 +164,16 @@ fun LoansTrackerScreen(
             )
         },
         floatingActionButton = {
-            if (!state.isFormOpen && state.loans.isNotEmpty()) {
-                FloatingActionButton(
-                    onClick = { showAddTypeMenu = true },
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    contentColor = Color.White
-                ) {
-                    Icon(imageVector = Icons.Default.Add, contentDescription = "Add Loan or Debt")
+            if (!state.isFormOpen) {
+                Box {
+                    FloatingActionButton(
+                        onClick = { showAddTypeMenu = true },
+                        containerColor = MaterialTheme.colorScheme.primary,
+                        contentColor = MaterialTheme.colorScheme.onPrimary,
+                        shape = CircleShape
+                    ) {
+                        Icon(imageVector = Icons.Default.Add, contentDescription = "Add Loan")
+                    }
                 }
             }
         }
@@ -193,9 +181,8 @@ fun LoansTrackerScreen(
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues)
-                .imePadding(),
-            contentPadding = PaddingValues(horizontal = 20.dp, vertical = 12.dp),
+                .padding(paddingValues),
+            contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 88.dp),
             verticalArrangement = Arrangement.spacedBy(14.dp)
         ) {
             // 1. Add / Edit Form (When Active)
@@ -206,24 +193,24 @@ fun LoansTrackerScreen(
                         editingLoan = state.editingLoan,
                         categories = state.categories,
                         currencySymbol = state.currencySymbol,
-                        dueDateTimestamp = dueDateTimestamp ?: state.editingLoan?.dueDate,
-                        onOpenDatePicker = { showDatePicker = true },
                         onCloseForm = { viewModel.onIntent(LoansTrackerUiIntent.CloseForm) },
                         onAddNewCategoryClick = {
                             viewModel.onIntent(LoansTrackerUiIntent.ShowAddCategoryDialog(true))
                         },
-                        onSaveLoan = { type, counterparty, amount, catId, isInst, instAmount, instDuration, rate, due, note, editId ->
+                        onSaveLoan = { type, amount, catId, calcMode, isInst, instAmount, instDuration, rate, start, end, note, editId ->
                             viewModel.onIntent(
                                 LoansTrackerUiIntent.SaveLoan(
                                     type = type,
-                                    counterpartyName = counterparty,
+                                    counterpartyName = "",
                                     amount = amount,
                                     categoryId = catId,
+                                    calculationMode = calcMode,
                                     isInstallment = isInst,
                                     installmentAmount = instAmount,
                                     installmentDurationMonths = instDuration,
                                     interestRate = rate,
-                                    dueDate = due,
+                                    startDate = start,
+                                    endDate = end,
                                     note = note,
                                     editingId = editId
                                 )
@@ -252,13 +239,13 @@ fun LoansTrackerScreen(
                     FilterChip(
                         selected = state.selectedFilter == LoanFilter.ALL,
                         onClick = { viewModel.onIntent(LoansTrackerUiIntent.SetFilter(LoanFilter.ALL)) },
-                        label = { Text(stringResource(R.string.tab_loans_all)) },
+                        label = { Text(stringResource(R.string.tab_loans_all), fontSize = 12.sp) },
                         shape = RoundedCornerShape(12.dp)
                     )
                     FilterChip(
                         selected = state.selectedFilter == LoanFilter.I_OWE,
                         onClick = { viewModel.onIntent(LoansTrackerUiIntent.SetFilter(LoanFilter.I_OWE)) },
-                        label = { Text(stringResource(R.string.tab_i_owe)) },
+                        label = { Text(stringResource(R.string.tab_i_owe), fontSize = 12.sp) },
                         leadingIcon = {
                             Box(
                                 modifier = Modifier
@@ -272,7 +259,7 @@ fun LoansTrackerScreen(
                     FilterChip(
                         selected = state.selectedFilter == LoanFilter.OWED_TO_ME,
                         onClick = { viewModel.onIntent(LoansTrackerUiIntent.SetFilter(LoanFilter.OWED_TO_ME)) },
-                        label = { Text(stringResource(R.string.tab_owed_to_me)) },
+                        label = { Text(stringResource(R.string.tab_owed_to_me), fontSize = 12.sp) },
                         leadingIcon = {
                             Box(
                                 modifier = Modifier
@@ -291,11 +278,9 @@ fun LoansTrackerScreen(
                 item {
                     LoansEmptyState(
                         onAddIOweClick = {
-                            dueDateTimestamp = null
                             viewModel.onIntent(LoansTrackerUiIntent.OpenAddForm("I_OWE"))
                         },
                         onAddOwedToMeClick = {
-                            dueDateTimestamp = null
                             viewModel.onIntent(LoansTrackerUiIntent.OpenAddForm("OWED_TO_ME"))
                         }
                     )
@@ -311,7 +296,6 @@ fun LoansTrackerScreen(
                             viewModel.onIntent(LoansTrackerUiIntent.OpenPaymentDialog(it))
                         },
                         onEditClick = {
-                            dueDateTimestamp = it.dueDate
                             viewModel.onIntent(LoansTrackerUiIntent.OpenEditForm(it))
                         },
                         onSettleClick = { loanId ->
@@ -336,46 +320,6 @@ fun LoansTrackerScreen(
                 viewModel.onIntent(LoansTrackerUiIntent.RecordPayment(loan.id, amount))
             }
         )
-    }
-
-    // Due Date Picker Dialog
-    if (showDatePicker) {
-        val initialDate = dueDateTimestamp ?: System.currentTimeMillis()
-        val datePickerState = rememberDatePickerState(
-            initialSelectedDateMillis = initialDate
-        )
-
-        DatePickerDialog(
-            onDismissRequest = { showDatePicker = false },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        datePickerState.selectedDateMillis?.let { utcMillis ->
-                            val utcCal = Calendar.getInstance(TimeZone.getTimeZone("UTC")).apply {
-                                timeInMillis = utcMillis
-                            }
-                            val cal = Calendar.getInstance().apply {
-                                timeInMillis = initialDate
-                                set(Calendar.YEAR, utcCal.get(Calendar.YEAR))
-                                set(Calendar.MONTH, utcCal.get(Calendar.MONTH))
-                                set(Calendar.DAY_OF_MONTH, utcCal.get(Calendar.DAY_OF_MONTH))
-                            }
-                            dueDateTimestamp = cal.timeInMillis
-                        }
-                        showDatePicker = false
-                    }
-                ) {
-                    Text(stringResource(R.string.btn_ok), fontWeight = FontWeight.Bold)
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { showDatePicker = false }) {
-                    Text(stringResource(R.string.btn_cancel))
-                }
-            }
-        ) {
-            DatePicker(state = datePickerState)
-        }
     }
 
     // Add New Category Dialog

@@ -51,8 +51,10 @@ import androidx.compose.ui.unit.sp
 import com.app.spent.R
 import com.app.spent.data.local.entity.CategoryEntity
 import com.app.spent.data.local.entity.LoanEntity
+import com.app.spent.ui.components.CategoryIconHelper
 import com.app.spent.ui.theme.ExpenseRed
 import com.app.spent.ui.theme.IncomeGreen
+import com.app.spent.util.CategoryLocalizationHelper
 
 @Composable
 fun LoanItemCard(
@@ -68,19 +70,20 @@ fun LoanItemCard(
     val accentColor = if (isIOwe) ExpenseRed else IncomeGreen
     var showDeleteConfirm by remember { mutableStateOf(false) }
 
-    val formattedCreatedDate = remember(loan.createdAt) {
-        SimpleDateFormat("MMM dd, yyyy", Locale.getDefault()).format(Date(loan.createdAt))
+    val formattedStartDate = remember(loan.startDate) {
+        SimpleDateFormat("MMM dd, yyyy", Locale.getDefault()).format(Date(loan.startDate))
     }
-    val formattedDueDate = remember(loan.dueDate) {
-        loan.dueDate?.let { SimpleDateFormat("MMM dd, yyyy", Locale.getDefault()).format(Date(it)) }
+    val formattedEndDate = remember(loan.endDate) {
+        loan.endDate?.let { SimpleDateFormat("MMM dd, yyyy", Locale.getDefault()).format(Date(it)) }
     }
 
-    val displayName = when {
-        loan.counterpartyName.isNotBlank() -> loan.counterpartyName
-        category != null -> category.name
-        isIOwe -> stringResource(R.string.i_owe_badge)
-        else -> stringResource(R.string.owed_to_me_badge)
-    }
+    val localizedCatName = category?.let { CategoryLocalizationHelper.getLocalizedCategoryName(it) }
+        ?: stringResource(R.string.cat_general_name)
+
+    val catColor = category?.let {
+        runCatching { Color(android.graphics.Color.parseColor(it.colorHex)) }
+            .getOrDefault(MaterialTheme.colorScheme.primary)
+    } ?: MaterialTheme.colorScheme.primary
 
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -90,10 +93,10 @@ fun LoanItemCard(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
+                .padding(14.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
-            // Top Row: Type Badge + Actions (Edit, Delete)
+            // Top Row: Type Badge + Category Pill + Actions (Edit, Delete)
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -101,29 +104,61 @@ fun LoanItemCard(
             ) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    modifier = Modifier.weight(1f, fill = false)
                 ) {
+                    // Type Badge
                     Box(
                         modifier = Modifier
                             .clip(RoundedCornerShape(8.dp))
                             .background(accentColor.copy(alpha = 0.15f))
-                            .padding(horizontal = 8.dp, vertical = 4.dp)
+                            .padding(horizontal = 7.dp, vertical = 3.dp)
                     ) {
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(4.dp)
+                            horizontalArrangement = Arrangement.spacedBy(3.dp)
                         ) {
                             Icon(
                                 imageVector = if (isIOwe) Icons.Default.Payments else Icons.Default.Handshake,
                                 contentDescription = null,
                                 tint = accentColor,
-                                modifier = Modifier.size(14.dp)
+                                modifier = Modifier.size(12.dp)
                             )
                             Text(
                                 text = if (isIOwe) stringResource(R.string.i_owe_badge) else stringResource(R.string.owed_to_me_badge),
-                                fontSize = 12.sp,
+                                fontSize = 11.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = accentColor
+                            )
+                        }
+                    }
+
+                    // Category Pill
+                    Box(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(catColor.copy(alpha = 0.14f))
+                            .padding(horizontal = 7.dp, vertical = 3.dp)
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(3.dp)
+                        ) {
+                            if (category != null) {
+                                Icon(
+                                    imageVector = CategoryIconHelper.getIconByName(category.iconName),
+                                    contentDescription = null,
+                                    tint = catColor,
+                                    modifier = Modifier.size(12.dp)
+                                )
+                            }
+                            Text(
+                                text = localizedCatName,
+                                fontSize = 11.sp,
+                                fontWeight = FontWeight.SemiBold,
+                                color = catColor,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
                             )
                         }
                     }
@@ -133,21 +168,21 @@ fun LoanItemCard(
                             modifier = Modifier
                                 .clip(RoundedCornerShape(8.dp))
                                 .background(IncomeGreen.copy(alpha = 0.15f))
-                                .padding(horizontal = 8.dp, vertical = 4.dp)
+                                .padding(horizontal = 6.dp, vertical = 3.dp)
                         ) {
                             Row(
                                 verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(4.dp)
+                                horizontalArrangement = Arrangement.spacedBy(2.dp)
                             ) {
                                 Icon(
                                     imageVector = Icons.Default.CheckCircle,
                                     contentDescription = null,
                                     tint = IncomeGreen,
-                                    modifier = Modifier.size(14.dp)
+                                    modifier = Modifier.size(12.dp)
                                 )
                                 Text(
                                     text = stringResource(R.string.loan_settled_badge),
-                                    fontSize = 12.sp,
+                                    fontSize = 11.sp,
                                     fontWeight = FontWeight.Bold,
                                     color = IncomeGreen
                                 )
@@ -159,30 +194,30 @@ fun LoanItemCard(
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     IconButton(
                         onClick = { onEditClick(loan) },
-                        modifier = Modifier.size(32.dp)
+                        modifier = Modifier.size(28.dp)
                     ) {
                         Icon(
                             imageVector = Icons.Default.Edit,
                             contentDescription = "Edit",
                             tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.size(18.dp)
+                            modifier = Modifier.size(16.dp)
                         )
                     }
                     IconButton(
                         onClick = { showDeleteConfirm = true },
-                        modifier = Modifier.size(32.dp)
+                        modifier = Modifier.size(28.dp)
                     ) {
                         Icon(
                             imageVector = Icons.Default.Delete,
                             contentDescription = "Delete",
                             tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.size(18.dp)
+                            modifier = Modifier.size(16.dp)
                         )
                     }
                 }
             }
 
-            // Middle: Name & Amounts
+            // Middle: Remaining Balance & Principal Details
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -190,42 +225,45 @@ fun LoanItemCard(
             ) {
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
-                        text = displayName,
-                        style = MaterialTheme.typography.titleMedium,
+                        text = stringResource(R.string.remaining_balance_label, "$currencySymbol${"%.2f".format(loan.remainingAmount)}"),
+                        fontSize = 15.sp,
                         fontWeight = FontWeight.Bold,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
+                        color = if (loan.remainingAmount > 0) accentColor else IncomeGreen
                     )
                     Text(
-                        text = if (category != null) "${category.name} • $formattedCreatedDate" else formattedCreatedDate,
-                        style = MaterialTheme.typography.bodySmall,
+                        text = "$formattedStartDate" + (if (formattedEndDate != null) " → $formattedEndDate" else ""),
+                        fontSize = 11.sp,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
 
                 Column(horizontalAlignment = Alignment.End) {
                     Text(
-                        text = stringResource(R.string.remaining_balance_label, "$currencySymbol${"%.2f".format(loan.remainingAmount)}"),
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold,
-                        color = if (loan.remainingAmount > 0) accentColor else IncomeGreen
+                        text = "Total: $currencySymbol${"%.2f".format(loan.principalAmount)}",
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = MaterialTheme.colorScheme.onSurface
                     )
-                    Text(
-                        text = stringResource(R.string.loan_amount_label) + ": $currencySymbol${"%.2f".format(loan.principalAmount)}",
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
+                    if (loan.isInstallment && loan.installmentAmount != null && loan.installmentAmount > 0) {
+                        val durationText = loan.installmentDurationMonths?.let { " ($it m)" } ?: ""
+                        Text(
+                            text = "$currencySymbol${"%.2f".format(loan.installmentAmount)}/mo$durationText",
+                            fontSize = 11.sp,
+                            color = MaterialTheme.colorScheme.primary,
+                            fontWeight = FontWeight.Medium
+                        )
+                    }
                 }
             }
 
             // Progress Bar
-            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
                 LinearProgressIndicator(
                     progress = { loan.progress },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(8.dp)
-                        .clip(RoundedCornerShape(4.dp)),
+                        .height(6.dp)
+                        .clip(RoundedCornerShape(3.dp)),
                     color = IncomeGreen,
                     trackColor = MaterialTheme.colorScheme.surfaceVariant
                 )
@@ -241,50 +279,24 @@ fun LoanItemCard(
                             "$currencySymbol${"%.2f".format(loan.principalAmount)}",
                             percentPaid
                         ),
-                        style = MaterialTheme.typography.labelSmall,
+                        fontSize = 11.sp,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
-                    if (formattedDueDate != null) {
-                        Text(
-                            text = "Due: $formattedDueDate",
-                            style = MaterialTheme.typography.labelSmall,
-                            fontWeight = FontWeight.SemiBold,
-                            color = MaterialTheme.colorScheme.primary
-                        )
-                    }
                 }
             }
 
-            // Installment info / Notes
-            if (loan.isInstallment && loan.installmentAmount != null && loan.installmentAmount > 0) {
-                val monthsText = loan.installmentDurationMonths?.let { " • $it mos" } ?: ""
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clip(RoundedCornerShape(10.dp))
-                        .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
-                        .padding(horizontal = 10.dp, vertical = 6.dp)
-                ) {
-                    Text(
-                        text = "Installment: $currencySymbol${"%.2f".format(loan.installmentAmount)}/mo$monthsText",
-                        style = MaterialTheme.typography.bodySmall,
-                        fontWeight = FontWeight.SemiBold,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                }
-            }
-
+            // Note (Clean display)
             if (loan.note.isNotBlank()) {
                 Text(
                     text = loan.note,
-                    style = MaterialTheme.typography.bodySmall,
+                    fontSize = 12.sp,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis
                 )
             }
 
-            // Bottom Actions: "+ Add Payment / Abono" & "Mark as Settled"
+            // Bottom Action Buttons: "+ Add Payment / Abono" & "Mark as Settled"
             if (!loan.isSettled) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -293,25 +305,25 @@ fun LoanItemCard(
                     Button(
                         onClick = { onAddPaymentClick(loan) },
                         modifier = Modifier.weight(1f),
-                        shape = RoundedCornerShape(12.dp),
+                        shape = RoundedCornerShape(10.dp),
                         colors = ButtonDefaults.buttonColors(containerColor = accentColor)
                     ) {
                         Text(
                             text = stringResource(R.string.btn_add_payment),
                             fontWeight = FontWeight.Bold,
-                            fontSize = 13.sp,
+                            fontSize = 12.sp,
                             color = Color.White
                         )
                     }
 
                     OutlinedButton(
                         onClick = { onSettleClick(loan.id) },
-                        shape = RoundedCornerShape(12.dp)
+                        shape = RoundedCornerShape(10.dp)
                     ) {
                         Text(
                             text = stringResource(R.string.mark_as_settled_btn),
                             fontWeight = FontWeight.SemiBold,
-                            fontSize = 13.sp
+                            fontSize = 12.sp
                         )
                     }
                 }

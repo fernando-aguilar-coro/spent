@@ -181,7 +181,7 @@ fun SavingsActiveGoalHeroCard(
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     Text(
-                        text = "$currencySymbol%.2f / mo".format(monthlyContribution),
+                        text = if (monthlyContribution > 0) "$currencySymbol%.2f / mo".format(monthlyContribution) else stringResource(R.string.loan_duration_indefinite),
                         style = MaterialTheme.typography.bodyMedium,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.primary

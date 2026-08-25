@@ -59,7 +59,7 @@ fun SavingsGoalFormCard(
 
     val parsedTotalGoal = totalGoalText.toDoubleOrNull() ?: 0.0
     val parsedMonthly = monthlyContributionText.toDoubleOrNull() ?: 0.0
-    val isGoalValid = parsedTotalGoal > 0 && parsedMonthly > 0
+    val isGoalValid = parsedTotalGoal > 0
 
     Card(
         modifier = Modifier.fillMaxWidth(),

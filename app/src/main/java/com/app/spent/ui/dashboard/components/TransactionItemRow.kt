@@ -94,16 +94,18 @@ onClick: (() -> Unit)? = null
 
         Spacer(modifier = Modifier.width(12.dp))
 
+        val localizedCatName = category?.let { com.app.spent.util.CategoryLocalizationHelper.getLocalizedCategoryName(it) } ?: "General"
+
         Column(modifier = Modifier.weight(1f)) {
           Text(
-          text = transaction.note.ifEmpty { category?.name ?: "Transaction" },
+          text = transaction.note.ifEmpty { localizedCatName },
           style = MaterialTheme.typography.bodyMedium,
           fontWeight = FontWeight.SemiBold,
           maxLines = 1,
           overflow = TextOverflow.Ellipsis
           )
           Text(
-          text = "${category?.name ?: "General"} • $formattedDate",
+          text = "$localizedCatName • $formattedDate",
           fontSize = 11.sp,
           color = MaterialTheme.colorScheme.onSurfaceVariant,
           maxLines = 1,

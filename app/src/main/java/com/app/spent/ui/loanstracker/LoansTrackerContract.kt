@@ -49,14 +49,16 @@ sealed class LoansTrackerUiIntent : UiIntent {
 
     data class SaveLoan(
         val type: String,
-        val counterpartyName: String,
+        val counterpartyName: String = "",
         val amount: Double,
         val categoryId: String,
+        val calculationMode: String = "MONTHLY_QUOTA",
         val isInstallment: Boolean,
         val installmentAmount: Double?,
         val installmentDurationMonths: Int?,
         val interestRate: Double,
-        val dueDate: Long?,
+        val startDate: Long = System.currentTimeMillis(),
+        val endDate: Long? = null,
         val note: String,
         val editingId: String? = null
     ) : LoansTrackerUiIntent()
