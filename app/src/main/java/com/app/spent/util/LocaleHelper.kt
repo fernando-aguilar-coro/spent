@@ -52,4 +52,37 @@ object LocaleHelper {
     config.setLocale(targetLocale)
     return baseContext.createConfigurationContext(config)
   }
+
+  /**
+   * Returns the native/standard currency symbol associated with each supported language or system locale.
+   */
+  fun getDefaultCurrencySymbol(languageCode: String?, context: Context): String {
+    return when (languageCode) {
+      "hi" -> "₹"
+      "ja" -> "¥"
+      "pt" -> "R$"
+      "de", "fr", "it" -> "€"
+      "es" -> {
+        val sysLocale = getSystemPreferredLocale(context)
+        if (sysLocale.country.equals("ES", ignoreCase = true)) "€" else "$"
+      }
+      "en" -> {
+        val sysLocale = getSystemPreferredLocale(context)
+        when (sysLocale.country.uppercase()) {
+          "GB" -> "£"
+          "CA" -> "CA$"
+          "AU" -> "A$"
+          else -> "$"
+        }
+      }
+      else -> {
+        try {
+          val sysLocale = getSystemPreferredLocale(context)
+          java.util.Currency.getInstance(sysLocale).symbol
+        } catch (e: Exception) {
+          "$"
+        }
+      }
+    }
+  }
 }

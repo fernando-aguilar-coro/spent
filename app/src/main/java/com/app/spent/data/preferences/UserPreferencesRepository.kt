@@ -10,6 +10,8 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import com.app.spent.util.LocaleHelper
+
 private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "user_preferences")
 
 class UserPreferencesRepository(private val context: Context) {
@@ -115,7 +117,7 @@ class UserPreferencesRepository(private val context: Context) {
   }
 
   val currencySymbolFlow: Flow<String> = context.dataStore.data.map { preferences ->
-    preferences[PreferencesKeys.CURRENCY_SYMBOL] ?: "$"
+    preferences[PreferencesKeys.CURRENCY_SYMBOL] ?: LocaleHelper.getDefaultCurrencySymbol(preferences[PreferencesKeys.APP_LANGUAGE], context)
   }
 
   val appLanguageFlow: Flow<String?> = context.dataStore.data.map { preferences ->
