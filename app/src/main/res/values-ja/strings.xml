@@ -1,81 +1,116 @@
 <resources>
     <string name="app_name">Spent</string>
-    <string name="title_dashboard">ダッシュボード</string>
-    <string name="title_history">履歴</string>
-    <string name="title_analytics">分析</string>
-    <string name="title_settings">設定</string>
-    <string name="btn_add_transaction">取引を追加</string>
-    <string name="hero_safe_to_spend">本日使える金額</string>
-    <string name="hero_safe_today">本日</string>
-    <string name="hero_per_day">/ 日</string>
-    <string name="hero_left_in_cycle">%1$d日 残り</string>
-    <string name="hero_pay_cycle_active">給与サイクル</string>
-    <string name="hero_daily_budget">毎日の予算</string>
-    <string name="hero_monthly_savings_reserve">毎月の貯蓄目標引当: %1$s%2$.0f</string>
-    <string name="hero_no_cycle_title">月間概要</string>
-    <string name="hero_no_cycle_subtitle">今月の残高</string>
-    <string name="card_total_income">総収入</string>
-    <string name="card_total_spent">総支出</string>
-    <string name="card_net_savings">純貯蓄</string>
-    <string name="category_envelopes_title">カテゴリー別予算</string>
-    <string name="recent_activity">最近の履歴</string>
-    <string name="see_all">すべて表示</string>
-    <string name="no_transactions_title">取引はまだありません</string>
-    <string name="no_transactions_subtitle">+ ボタンをタップして最初の支出または収入を記録しましょう。</string>
+
+    <!-- Navigation -->
+    <string name="nav_dashboard">ダッシュボード</string>
+    <string name="nav_analytics">分析</string>
+    <string name="nav_settings">設定</string>
+
+    <!-- Dashboard Header & Profile -->
+    <string name="user_greeting">こんにちは、Fernando</string>
+    <string name="safe_to_spend_today">本日使える金額</string>
+    <string name="total_spent">総支出</string>
+    <string name="total_income">総収入</string>
+    <string name="net_savings">純貯蓄</string>
+    <string name="remaining_in_cycle">残日数</string>
+    <string name="no_active_pay_cycle">有効な給与サイクルがありません</string>
+    <string name="days_left">給与サイクル残り %1$d 日</string>
+    <string name="day_left">給与サイクル残り %1$d 日</string>
+    <string name="manage_cycle">給与サイクル管理</string>
+
+    <!-- Quick Actions -->
+    <string name="action_add_expense">支出を追加</string>
+    <string name="action_add_income">収入を追加</string>
+
+    <!-- Category Envelopes -->
+    <string name="category_envelopes">カテゴリー別予算</string>
+    <string name="envelopes_count">%1$d 個の封筒</string>
+    <string name="envelope_of">/</string>
+    <string name="no_budget_set">予算未設定</string>
+    <string name="over_budget">予算超過</string>
+
+    <!-- Extra Tools & Shortcuts -->
     <string name="extra_tools_title">ツールと機能</string>
-    <string name="tool_savings_title">貯蓄トラッカー</string>
-    <string name="tool_savings_desc">目標と準備金</string>
+    <string name="tool_savings_title">貯蓄</string>
     <string name="tool_savings_goal">目標: %1$s%2$.0f</string>
-    <string name="tool_loans_title">ローンと借入</string>
+    <string name="tool_savings_desc">目標と積立の管理</string>
+    <string name="tool_loans_title">ローン・借入</string>
     <string name="tool_loans_debt">残債: %1$s%2$.0f</string>
-    <string name="tool_loans_desc">借入と貸出の管理</string>
-    <string name="tool_export_title">Excelに出力</string>
-    <string name="tool_export_desc">CSVエクスポート</string>
-    <string name="tool_export_count">%1$d 件の取引</string>
-    <string name="btn_export_ready">エクスポート</string>
-    <string name="shared_ledger_title">共有台帳</string>
-    <string name="shared_ledger_desc">家族と共有</string>
-    <string name="shared_ledger_connected">%1$d 人が接続中</string>
-    <string name="shared_ledger_not_connected">未接続</string>
-    <string name="partner_avatar">共有</string>
+    <string name="tool_loans_desc">銀行ローンや個人借入</string>
+    <string name="tool_lent_debt_title">借入・貸出</string>
+    <string name="tool_lent_debt_desc">貸し借りの記録</string>
+    <string name="tool_recurring_title">定期支払ルール</string>
+    <string name="tool_recurring_desc">自動記録スケジュール</string>
+    <string name="tool_recurring_toast">有効な定期ルール: %1$d 件を自動記録しました</string>
+    <string name="tool_export_excel_title">Excelに出力 (.xlsx)</string>
+    <string name="tool_export_excel_desc">日付と時刻を分けてスプレッドシートをダウンロード</string>
+    <string name="tool_shared_ledgers_title">共有家計簿</string>
+    <string name="tool_shared_ledgers_desc">共同予算とメンバー同期</string>
 
-    <!-- Walkthrough / Onboarding -->
-    <string name="walkthrough_welcome_title">Spent へようこそ</string>
-    <string name="walkthrough_welcome_desc">シンプルで強力な給与サイクル予算管理アプリ</string>
-    <string name="walkthrough_step1_title">本日使える金額</string>
-    <string name="walkthrough_step1_desc">給与と固定費から、毎日安心して使える金額を自動計算します。</string>
-    <string name="walkthrough_step2_title">カテゴリー封筒</string>
-    <string name="walkthrough_step2_desc">予算をカテゴリーごとに整理して、支出超過を防ぎます。</string>
-    <string name="walkthrough_step3_title">固定費と貯蓄</string>
-    <string name="walkthrough_step3_desc">家賃や公共料金、貯蓄目標を自動で予算から確保します。</string>
-    <string name="walkthrough_step4_title">プライベート＆同期</string>
-    <string name="walkthrough_step4_desc">Googleドライブを使用して安全にバックアップおよび家族間で共有できます。</string>
-    <string name="walkthrough_get_started">使ってみる</string>
-    <string name="walkthrough_skip">スキップ</string>
+    <!-- Shared Finances Screen -->
+    <string name="shared_finances_screen_title">共有家計簿</string>
+    <string name="shared_finances_subtitle">共同予算とリアルタイムメンバー同期</string>
+    <string name="shared_ledgers_screen_title">共有家計簿</string>
+    <string name="shared_ledgers_subtitle">共同予算とリアルタイムメンバー同期</string>
+    <string name="shared_ledgers_drive_status_connected">Google ドライブ接続中: %1$s</string>
+    <string name="shared_ledgers_drive_status_disconnected">Google ドライブ未接続。設定で接続して同期を有効にします。</string>
+    <string name="shared_ledgers_share_guide_btn">使い方</string>
+    <string name="shared_ledgers_copy_my_id">ドライブ ファイル ID をコピー</string>
+    <string name="shared_ledgers_my_file_id_copied">ドライブリンクをクリップボードにコピーしました！</string>
+    <string name="shared_ledgers_enter_id_or_url">ドライブリンクまたはファイル ID を入力</string>
+    <string name="shared_ledgers_fetch_btn">メンバーを追加</string>
+    <string name="shared_ledgers_load_sample_btn">サンプルをプレビュー</string>
+    <string name="shared_ledgers_no_file_loaded">メンバーはまだリンクされていません。「メンバーを追加」をタップするかリンクを共有してください。</string>
+    <string name="shared_ledgers_owner_label">家計簿オーナー</string>
+    <string name="shared_ledgers_last_synced">最終更新: %1$s</string>
+    <string name="shared_ledgers_category_breakdown">カテゴリー別予算</string>
+    <string name="shared_ledgers_recent_txs">共有取引履歴</string>
+    <string name="shared_ledgers_pay_cycle_info">給与サイクル情報</string>
+    <string name="shared_ledgers_guide_title">共有家計簿の仕組み</string>
+    <string name="shared_ledgers_guide_step1">1. Spent データを個人の Google ドライブに同期します。</string>
+    <string name="shared_ledgers_guide_step2">2. 「家計簿を共有」をタップして閲覧用リンクを生成します。</string>
+    <string name="shared_ledgers_guide_step3">3. 共有リンクをメンバーに送信します。</string>
+    <string name="shared_ledgers_guide_step4">4. メンバーがリンクを貼り付けると、即座に予算と統計が合算されます！</string>
+    <string name="shared_ledgers_guide_understood">了解</string>
+    <string name="tab_statistics">📊 統計</string>
+    <string name="tab_members">👥 メンバー</string>
+    <string name="tab_invite_join">🔗 招待 / 参加</string>
+    <string name="household_tab_combined">📊 統計</string>
+    <string name="household_tab_me">👥 メンバー</string>
+    <string name="household_tab_partner">🔗 招待 / 参加</string>
+    <string name="household_kpi_combined_income">合算収入</string>
+    <string name="household_kpi_combined_spent">合算支出</string>
+    <string name="household_kpi_combined_safe_today">本日使える合計金額</string>
+    <string name="household_you_spent">あなた: %1$s</string>
+    <string name="household_badge_you">あなた</string>
+    <string name="household_privacy_note">100% プライベート: Google ドライブ共有のみを使用し、外部サーバーは経由しません。</string>
+    <string name="members_panel_title">メンバー一覧</string>
+    <string name="members_connected_count">%1$d 人接続中</string>
+    <string name="share_my_finances_title">家計簿を共有</string>
+    <string name="share_my_finances_desc">他のユーザーが家計簿を閲覧できるように Google ドライブリンクを有効にします。</string>
+    <string name="share_my_finances_btn">家計簿を共有（リンクをコピー）</string>
+    <string name="add_member_title">メンバーを追加</string>
+    <string name="add_member_desc">メンバーの Google ドライブリンクを貼り付けて同期します。</string>
+    <string name="add_member_btn">メンバーを追加</string>
+    <string name="add_member_input_placeholder">https://drive.google.com/file/d/...</string>
+    <string name="unlink_member_btn">削除</string>
+    <string name="sync_all_members_btn">すべて同期</string>
 
-    <!-- Add / Edit Transaction -->
-    <string name="add_transaction_title">取引を追加</string>
-    <string name="tab_expense">支出</string>
-    <string name="tab_income">収入</string>
-    <string name="amount_placeholder">0.00</string>
-    <string name="note_label">メモ / 店舗名</string>
-    <string name="note_placeholder">例: カフェ、スーパー、給料</string>
-    <string name="receipt_photo">レシート写真</string>
-    <string name="add_receipt_photo">レシートを追加</string>
-    <string name="change_receipt_photo">写真を変更</string>
-    <string name="remove_receipt_photo">写真を削除</string>
-    <string name="select_category_envelope">カテゴリーを選択</string>
-    <string name="no_category_envelope">カテゴリーなし</string>
-    <string name="add_new_category">+ 新しいカテゴリーを追加</string>
-    <string name="category_name_label">カテゴリー名</string>
-    <string name="category_name_placeholder">例: カフェ、交通費、娯楽</string>
-    <string name="choose_color">色を選択</string>
-    <string name="choose_icon">アイコンを選択</string>
-    <string name="save_category">カテゴリーを保存</string>
-    <string name="save_transaction">取引を保存</string>
-    <string name="transaction_saved">取引を保存しました</string>
+    <!-- Recent Activity & History -->
+    <string name="recent_activity">最近の履歴</string>
+    <string name="see_all_transactions">すべて表示</string>
+    <string name="no_transactions_yet">取引はまだありません。「+ 支出を追加」をタップして記録を始めましょう！</string>
+    <string name="history_title">取引履歴</string>
+    <string name="history_subtitle">すべての記録を検索、絞り込み、管理</string>
+    <string name="search_transactions_placeholder">メモや店舗名で検索…</string>
+    <string name="filter_all">すべて</string>
+    <string name="filter_expenses">支出</string>
+    <string name="filter_income">収入</string>
+    <string name="filter_active">絞り込み中</string>
+    <string name="history_results_count">件</string>
+    <string name="no_matching_transactions">該当する取引が見つかりませんでした。</string>
 
-    <!-- Savings Tracker -->
+    <!-- Savings Tracker Dialog & Screen -->
     <string name="savings_tracker_title">貯蓄トラッカー</string>
     <string name="total_saved">貯蓄総額</string>
     <string name="savings_goal">目標金額</string>
@@ -100,7 +135,7 @@
 
     <!-- Loans Tracker Dialog -->
     <string name="loans_tracker_title">ローン・借入トラッカー</string>
-    <string name="outstanding_loan_debt">残債・貸出残高</string>
+    <string name="outstanding_loan_debt">残債・借入残高</string>
     <string name="borrowed_amount">借入: %1$s%2$.2f</string>
     <string name="repaid_amount">返済済: %1$s%2$.2f</string>
     <string name="pay_installment">分割返済を支払う</string>
@@ -227,30 +262,94 @@
     <string name="bill_due_day_label">毎月の支払日</string>
     <string name="bill_due_day_format">毎月 %1$d 日に支払</string>
     <string name="arrival_date_label">請求日 / 発行日</string>
+    <string name="arrival_date_format">請求日: %1$s</string>
     <string name="cycle_period_label">請求サイクル</string>
     <string name="period_30_days">毎月（30日ごと）</string>
+    <string name="bill_status_paid">今月支払済</string>
+    <string name="bill_status_pending">未払い（見込）</string>
+    <string name="unpaid_cycles_warning">%1$d サイクル未払い累積 (%2$s%3$.2f)</string>
+    <string name="service_cutoff_alert">⚠️ サービス停止警告！ %1$d サイクル未払い</string>
+    <string name="service_cutoff_desc">このサービスは3サイクル以上連続で支払われていません。停止を防ぐために支払ってください。</string>
+    <string name="accumulated_total_label">累積合計</string>
+    <string name="pay_bill_btn">支払を記録</string>
+    <string name="delete_bill_btn">請求を削除</string>
     <string name="save_bill_btn">固定費を保存</string>
     <string name="preset_electricity">電気</string>
     <string name="preset_water">水道</string>
+    <string name="preset_internet">インターネット / Wi-Fi</string>
     <string name="preset_gas">ガス</string>
-    <string name="preset_internet">インターネット</string>
-    <string name="preset_phone">携帯料金</string>
     <string name="preset_rent">家賃</string>
+    <string name="preset_phone">携帯電話</string>
     <string name="preset_streaming">サブスク</string>
-    <string name="paid_this_cycle">今月支払済</string>
-    <string name="pending_this_cycle">今月未払い</string>
-    <string name="approx_from_last_cycle">先月の実績: %1$s%2$.2f</string>
-    <string name="baseline_estimation">基準予定額: %1$s%2$.2f</string>
-    <string name="log_actual_payment_btn">実際の支払を記録</string>
-    <string name="actual_payment_dialog_title">実際の支払を記録</string>
-    <string name="actual_amount_label">実際の金額 (%1$s)</string>
-    <string name="confirm_payment_btn">支払を確定</string>
-    <string name="bill_paid_success">支払を記録し、今月の残高を更新しました！</string>
+
+    <!-- Walkthrough Banner -->
+    <string name="walkthrough_title">Spent へようこそ！</string>
+    <string name="walkthrough_desc">給与サイクルごとの支出管理、カテゴリー封筒、貯蓄目標の達成をサポートします。</string>
+    <string name="walkthrough_dismiss">了解</string>
+
+    <!-- Add Transaction Screen -->
+    <string name="add_expense_title">支出を追加</string>
+    <string name="add_income_title">収入を追加</string>
+    <string name="type_expense">支出</string>
+    <string name="type_income">収入</string>
+    <string name="category_envelope_optional">カテゴリー封筒（任意）</string>
+    <string name="select_category_envelope">カテゴリーを選択</string>
+    <string name="no_category_envelope">カテゴリーなし（一般）</string>
+    <string name="add_new_category">新しいカテゴリーを追加</string>
+    <string name="note_merchant_optional">メモ / 店舗名（任意）</string>
+    <string name="make_recurring_payment">定期支払にする</string>
+    <string name="recurring_schedule_desc">指定スケジュールで自動記録</string>
+    <string name="repeat_frequency">繰り返し頻度</string>
+    <string name="frequency_daily">毎日</string>
+    <string name="frequency_weekly">毎週</string>
+    <string name="frequency_monthly">毎月</string>
+    <string name="save_transaction">取引を保存</string>
+
+    <!-- Create Category Dialog -->
+    <string name="create_category_title">新しいカテゴリー封筒を作成</string>
+    <string name="category_name_label">カテゴリー名</string>
+    <string name="category_name_placeholder">例: サブスク、ペット</string>
+    <string name="select_color">色を選択</string>
+    <string name="save_category">カテゴリーを保存</string>
+
+    <!-- Analytics Screen -->
+    <string name="analytics_title">分析とレポート</string>
+    <string name="analytics_subtitle">支出の内訳とサイクルインサイト</string>
+    <string name="savings_rate">貯蓄率</string>
+    <string name="category_distribution">カテゴリー別割合</string>
+    <string name="no_spending_recorded">このサイクルの支出記録はありません。</string>
+    <string name="chart_net_savings">純貯蓄の推移</string>
+    <string name="chart_net_savings_desc">選択期間における純残高の推移</string>
+    <string name="timeframe_7d">7日間</string>
+    <string name="timeframe_30d">30日間</string>
+    <string name="timeframe_6m">6ヶ月</string>
+    <string name="chart_legend_income">収入</string>
+    <string name="chart_legend_expense">支出</string>
+    <string name="chart_legend_net">純残高</string>
+    <string name="chart_surplus">黒字</string>
+    <string name="chart_deficit">赤字</string>
+    <string name="chart_no_data">この期間の取引記録はありません。</string>
+    <string name="chart_net">純額</string>
 
     <!-- Settings Screen -->
     <string name="settings_title">設定</string>
+    <string name="settings_subtitle">アプリ設定とデータ管理</string>
+    <string name="profile_title">ユーザープロフィール</string>
+    <string name="profile_name">Fernando Aguilar</string>
+    <string name="profile_email">fernando@example.com</string>
+    <string name="pay_cycle_title">給与サイクル</string>
+    <string name="pay_cycle_desc">サイクルの頻度と基本給を設定</string>
+    <string name="cycle_frequency">頻度</string>
+    <string name="cycle_income_label">基本給 (%1$s)</string>
+    <string name="payday_label">給料日 / 開始日</string>
+    <string name="payday_monthly_day">給料日: 毎月 %1$d 日</string>
+    <string name="payday_anchor_date">サイクル基準日: %1$s</string>
+    <string name="select_payday_title">給料日 / 開始日を選択</string>
+    <string name="freelance_flexible_title">フリーランス / 変動収入</string>
+    <string name="freelance_flexible_desc">今月の実際の収入に基づく変動給与</string>
+    <string name="salary_income_note">給料日基本給 (%1$s)</string>
+    <string name="save_pay_cycle">給与サイクルを保存</string>
     <string name="theme_title">テーマ</string>
-    <string name="theme_desc">ライト / ダークモードの切り替え</string>
     <string name="theme_system">システム設定に従う</string>
     <string name="theme_light">ライト</string>
     <string name="theme_dark">ダーク</string>
@@ -267,7 +366,7 @@
     <string name="language_it">Italiano</string>
     <string name="language_ja">日本語 (Japanese)</string>
     <string name="export_data_title">データ出力 (CSV)</string>
-    <string name="export_data_desc">取引履歴をCSVファイルとして保存</string>
+    <string name="export_data_desc">取引履歴をCSVファイルとしてダウンロード</string>
     <string name="export_csv_btn">CSVエクスポート</string>
     <string name="app_info_title">Spent について</string>
     <string name="app_version">バージョン 1.0.0</string>
@@ -275,4 +374,107 @@
     <string name="reset_data_title">すべてのデータを初期化</string>
     <string name="reset_data_desc">すべての取引、カテゴリー、設定を完全に消去します</string>
     <string name="reset_data_btn">データを初期化</string>
+    <string name="reset_data_confirm_title">すべてのデータを初期化しますか？</string>
+    <string name="reset_data_confirm_msg">すべての記録が完全に消去されます。この操作は元に戻せません。</string>
+    <string name="monthly_savings_contribution_label">毎月の積立額 (%1$s)</string>
+    <string name="no_savings_goal_yet">有効な貯蓄目標がありません</string>
+    <string name="add_savings_goal_btn">貯蓄目標を追加</string>
+    <string name="salary_funding_note">「給与」に分類された収入は毎日の「本日使える金額」に充当されます。</string>
+
+    <!-- Google Drive & Cloud Backup Sync -->
+    <string name="drive_sync_title">Google ドライブ同期</string>
+    <string name="drive_sync_desc">取引データの自動クラウドバックアップと同期</string>
+    <string name="drive_status_connected">接続中＆自動同期有効</string>
+    <string name="drive_status_disconnected">未接続</string>
+    <string name="drive_connected_account">アカウント: %1$s</string>
+    <string name="drive_btn_connect">Google ドライブに接続</string>
+    <string name="drive_btn_disconnect">接続解除</string>
+    <string name="drive_btn_sync_now">今すぐ同期</string>
+    <string name="drive_last_synced">最終同期: %1$s</string>
+    <string name="drive_not_synced_yet">未同期</string>
+    <string name="drive_syncing">Google ドライブと同期中…</string>
+    <string name="drive_backup_success">バックアップを保存しました</string>
+    <string name="drive_restore_success">データを復元しました</string>
+    <string name="drive_sync_success">Google ドライブと同期が完了しました</string>
+    <string name="drive_disconnected_msg">Google ドライブの接続を解除しました</string>
+    <string name="drive_sync_error">同期エラー: %1$s</string>
+    <string name="drive_export_chooser">Spent バックアップをドライブに保存</string>
+    <string name="drive_import_chooser">Spent バックアップファイルを選択</string>
+
+    <!-- Onboarding Walkthrough -->
+    <string name="onboarding_welcome_title">Spent へようこそ</string>
+    <string name="onboarding_welcome_desc">プライバシーを保護しながら、スマートに家計管理を始めましょう。</string>
+    <string name="onboarding_btn_connect_drive">Google ドライブに接続</string>
+    <string name="onboarding_btn_continue_no_account">アカウントなしで続ける</string>
+    <string name="onboarding_btn_continue">続ける</string>
+    <string name="onboarding_connected_as">接続中: %1$s</string>
+    <string name="onboarding_restoring_drive">Google ドライブのバックアップを確認・復元中…</string>
+    <string name="onboarding_profile_title">どのプロファイルが最適ですか？</string>
+    <string name="onboarding_profile_subtitle">予算管理サイクルと収支の流れを最適化します</string>
+    <string name="onboarding_profile_unemployed">休職中・無職</string>
+    <string name="onboarding_profile_unemployed_desc">固定給与期間なしの柔軟な予算管理</string>
+    <string name="onboarding_profile_freelancer">フリーランス</string>
+    <string name="onboarding_profile_freelancer_desc">プロジェクトベースの変動収入に合わせた管理</string>
+    <string name="onboarding_profile_employed">会社員 / 給与所得者</string>
+    <string name="onboarding_profile_employed_desc">定期的な給与サイクル（毎週、隔週、15日ごと、毎月）</string>
+    <string name="onboarding_schedule_title">給料日はいつ、どの頻度ですか？</string>
+    <string name="onboarding_schedule_subtitle">給料日サイクルと基準日を設定します</string>
+    <string name="onboarding_schedule_frequency">支払頻度</string>
+    <string name="onboarding_schedule_payday">最初の給料日 / 基準日</string>
+    <string name="onboarding_schedule_salary_optional">予想基本給 (%1$s, 任意)</string>
+    <string name="onboarding_btn_finish_setup">設定を完了する</string>
+    <string name="frequency_biweekly">隔週（14日）</string>
+    <string name="frequency_semimonthly">月2回（15日）</string>
+    <string name="onboarding_initial_balance_title">初期残高と貯蓄</string>
+    <string name="onboarding_initial_balance_subtitle">現在の貯蓄や手元資金を設定して、正確に家計管理をスタートしましょう</string>
+    <string name="onboarding_initial_balance_label">開始残高 / 貯蓄 (%1$s, 任意)</string>
+    <string name="onboarding_initial_balance_hint">0.00のままにして後から収入を追加することもできます。</string>
+    <string name="initial_balance_transaction_note">初期残高 / 開始資金</string>
+    <string name="onboarding_image_storage_title">レシート・写真の保存先</string>
+    <string name="onboarding_image_storage_subtitle">メモに添付した写真やレシートの保存先を選択してください</string>
+
+    <!-- Image Attachment & Multi-Destination Storage -->
+    <string name="attach_image_label">レシート / メモ画像</string>
+    <string name="attach_image_btn">画像を添付</string>
+    <string name="change_image_btn">変更</string>
+    <string name="remove_image_btn">削除</string>
+    <string name="view_image_btn">表示</string>
+    <string name="receipt_image_preview">レシートのプレビュー</string>
+    <string name="image_storage_title">画像・レシート保存先</string>
+    <string name="image_storage_desc">添付画像の保存場所を選択</string>
+    <string name="storage_option_device">端末内ストレージ（デフォルト）</string>
+    <string name="storage_option_device_desc">端末の写真フォルダーに保存（ギャラリーで閲覧可能）</string>
+    <string name="storage_option_in_app">アプリ内プライベート保存</string>
+    <string name="storage_option_in_app_desc">アプリ内領域に非公開で保存</string>
+    <string name="storage_option_google_drive">Google ドライブ（圧縮クラウド保存）</string>
+    <string name="storage_option_google_drive_desc">自動圧縮してGoogleドライブにアップロード</string>
+    <string name="permission_media_required">画像を選択するにはストレージ権限が必要です</string>
+    <string name="permission_denied_msg">権限が拒否されました。設定でアクセスを許可してください。</string>
+    <string name="uploading_image_drive">画像を圧縮してGoogle ドライブにアップロード中…</string>
+    <string name="drive_upload_success">画像を圧縮してドライブにアップロードしました</string>
+    <string name="drive_not_connected_warning">Google ドライブが接続されていません。設定で接続してください。</string>
+    <string name="receipt_viewer_title">レシート / 添付画像</string>
+
+    <!-- Member Customization & Data Reset Warning -->
+    <string name="edit_member_name_title">メンバー名を編集</string>
+    <string name="edit_member_name_desc">ダッシュボードや統計での表示名を変更します。</string>
+    <string name="member_name_label">メンバー名 / ニックネーム</string>
+    <string name="member_name_placeholder">例: アレックス、お母さん、パートナー</string>
+    <string name="save_member_name_btn">名前を保存</string>
+    <string name="edit_member_btn">名前を編集</string>
+    <string name="reset_data_warning_badge">完全なデータ消去の警告</string>
+    <string name="reset_data_warning_bullet1">• すべての取引、カテゴリー封筒、給与サイクルが削除されます。</string>
+    <string name="reset_data_warning_bullet2">• この端末に保存されたすべてのレシート画像が削除されます。</string>
+    <string name="reset_data_warning_bullet3">• すべての定期ルールと貯蓄目標が初期化されます。</string>
+    <string name="reset_data_delete_drive_images_title">Google ドライブ上の画像も削除する</string>
+    <string name="reset_data_delete_drive_images_desc">接続中のドライブアカウントに保存されたレシート写真を完全に削除します。</string>
+    <string name="reset_data_confirm_action">すべて削除する</string>
+
+    <!-- Image Source Chooser -->
+    <string name="image_source_chooser_title">レシート画像を添付</string>
+    <string name="image_source_camera">写真を撮る（カメラ）</string>
+    <string name="image_source_camera_desc">カメラでレシートを撮影</string>
+    <string name="image_source_gallery">ギャラリーから選択</string>
+    <string name="image_source_gallery_desc">端末の写真を選択</string>
+    <string name="camera_permission_required">写真を撮影するにはカメラの権限が必要です</string>
 </resources>
