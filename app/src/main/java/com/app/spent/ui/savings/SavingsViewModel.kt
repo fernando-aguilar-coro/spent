@@ -80,16 +80,11 @@ class SavingsViewModel(
 
     private fun depositFunds(amount: Double, note: String) {
         viewModelScope.launch {
-            val categories = currentState.categories
-            val savingsCatId = categories.find {
-                it.id == "cat_savings" || it.name.equals("Savings", ignoreCase = true)
-            }?.id ?: "cat_savings"
-
             val tx = TransactionEntity(
                 id = UUID.randomUUID().toString(),
                 amount = amount,
                 type = "SAVING",
-                categoryId = savingsCatId,
+                categoryId = "savings_goal",
                 note = note.ifBlank { "Savings Deposit" },
                 timestamp = System.currentTimeMillis()
             )

@@ -51,7 +51,7 @@ object DriveBackupManager {
 
     // 2. Normal Transactions (Strictly pure income & expenses, no savings or loan records)
     val allTransactions = repository.getTransactionsFlow().firstOrNull() ?: emptyList()
-    val normalTransactions = allTransactions.filter { it.type != "SAVING" && it.categoryId != "cat_savings" }
+    val normalTransactions = allTransactions.filter { it.type != "SAVING" }
     val txArray = JSONArray()
     for (tx in normalTransactions) {
       val obj = JSONObject().apply {
@@ -98,7 +98,7 @@ object DriveBackupManager {
     root.put("loans", loanArray)
 
     // 4. Savings (Stored in a separate distinct section: goal configuration + deposit history)
-    val savingsDeposits = allTransactions.filter { it.type == "SAVING" || it.categoryId == "cat_savings" }
+    val savingsDeposits = allTransactions.filter { it.type == "SAVING" }
     val savingsGoalName = repository.savingsGoalNameFlow.firstOrNull() ?: ""
     val savingsGoalTotal = repository.savingsGoalTotalFlow.firstOrNull() ?: 0.0
     val savingsMonthly = repository.savingsMonthlyContributionFlow.firstOrNull() ?: 0.0

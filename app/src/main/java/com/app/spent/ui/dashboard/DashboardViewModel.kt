@@ -93,7 +93,7 @@ class DashboardViewModel(
                     .sumOf { it.amount }
 
                 val totalSpent = transactions
-                    .filter { it.type == "EXPENSE" && it.categoryId != "cat_savings" }
+                    .filter { it.type == "EXPENSE" }
                     .sumOf { it.amount }
 
                 // Safe to Spend Today: funded strictly by Base Salary + Salary-categorized income, reserving monthly savings contribution
@@ -110,7 +110,7 @@ class DashboardViewModel(
                     val cycleTotalIncome = baseIncome + extraSalaryIncome
 
                     val spentInCycle = transactions
-                        .filter { it.type == "EXPENSE" && it.categoryId != "cat_savings" && it.timestamp in cyclePeriod.startTimestamp..cyclePeriod.endTimestamp }
+                        .filter { it.type == "EXPENSE" && it.timestamp in cyclePeriod.startTimestamp..cyclePeriod.endTimestamp }
                         .sumOf { it.amount }
 
                     val remainingDiscretionary = cycleTotalIncome - pendingFixedBills - monthlySavings - spentInCycle
@@ -125,7 +125,7 @@ class DashboardViewModel(
                         .sumOf { it.amount }
 
                     val spentThisMonth = transactions
-                        .filter { it.type == "EXPENSE" && it.categoryId != "cat_savings" && it.timestamp in cyclePeriod.startTimestamp..cyclePeriod.endTimestamp }
+                        .filter { it.type == "EXPENSE" && it.timestamp in cyclePeriod.startTimestamp..cyclePeriod.endTimestamp }
                         .sumOf { it.amount }
 
                     val remainingDiscretionary = salaryIncomeThisMonth - pendingFixedBills - monthlySavings - spentThisMonth
@@ -161,7 +161,7 @@ class DashboardViewModel(
                     daysRemainingInCycle = daysRemaining,
                     isPayCycleActive = isPayCycleActive,
                     categoriesWithProgress = envelopes,
-                    recentTransactions = transactions.filter { it.type != "SAVING" && it.categoryId != "cat_savings" }.take(20),
+                    recentTransactions = transactions.filter { it.type != "SAVING" }.take(20),
                     allCategories = categories,
                     recurringRules = recurringRules,
                     loans = loans,
