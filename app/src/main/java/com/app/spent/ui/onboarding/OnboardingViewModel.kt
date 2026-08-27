@@ -22,8 +22,11 @@ class OnboardingViewModel(
 
     private fun observeInitialData() {
         viewModelScope.launch {
-            val currency = repository.currencySymbolFlow.firstOrNull() ?: "$"
-            setState { copy(currencySymbol = currency) }
+            launch {
+                repository.currencySymbolFlow.collect { currency ->
+                    setState { copy(currencySymbol = currency) }
+                }
+            }
 
             launch {
                 repository.imageStorageLocationFlow.collect { location ->
@@ -103,6 +106,9 @@ class OnboardingViewModel(
             is OnboardingUiIntent.SelectImageStorageLocation -> {
                 handleSelectImageStorageLocation(intent.location)
             }
+            is OnboardingUiIntent.SelectCurrency -> {
+                handleSelectCurrency(intent.symbol)
+            }
             is OnboardingUiIntent.CompleteSetup -> {
                 finishOnboardingSetup()
             }
@@ -112,6 +118,13 @@ class OnboardingViewModel(
             is OnboardingUiIntent.OnDriveAccountConnected -> {
                 handleDriveAccountConnected(intent.account)
             }
+        }
+    }
+
+    private fun handleSelectCurrency(symbol: String) {
+        viewModelScope.launch {
+            setState { copy(currencySymbol = symbol) }
+            repository.setCurrencySymbol(symbol)
         }
     }
 

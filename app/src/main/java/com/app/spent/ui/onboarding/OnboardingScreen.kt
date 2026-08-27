@@ -163,9 +163,13 @@ fun OnboardingScreen(
             ) { step ->
                 when (step) {
                     OnboardingStep.WELCOME -> WelcomeStep(
+                        currencySymbol = state.currencySymbol,
                         isRestoring = state.isRestoring,
                         isConnected = state.isDriveConnected,
                         accountEmail = state.driveAccountEmail,
+                        onSelectCurrency = {
+                            viewModel.onIntent(OnboardingUiIntent.SelectCurrency(it))
+                        },
                         onConnectDrive = {
                             viewModel.onIntent(OnboardingUiIntent.RequestDriveConnect)
                         },

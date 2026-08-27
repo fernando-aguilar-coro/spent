@@ -8,6 +8,12 @@ import android.content.res.Configuration
 import android.content.res.Resources
 import androidx.core.os.ConfigurationCompat
 
+data class CurrencyItem(
+  val code: String,
+  val symbol: String,
+  val name: String
+)
+
 object LocaleHelper {
 
   /**
@@ -61,10 +67,52 @@ object LocaleHelper {
     "ILS" to "₪"
   )
 
-  /**
-   * ISO-3166 Country Code to ISO-4217 Currency Code mapping.
-   * Guarantees exact currency mapping directly from system locale preferences.
-   */
+  val SUPPORTED_CURRENCIES: List<CurrencyItem> = listOf(
+    CurrencyItem("BOB", "Bs", "Bolivian Boliviano (Bs • BOB)"),
+    CurrencyItem("USD", "$", "US Dollar ($ • USD)"),
+    CurrencyItem("VES", "Bs.", "Venezuelan Bolívar (Bs. • VES)"),
+    CurrencyItem("EUR", "€", "Euro (€ • EUR)"),
+    CurrencyItem("PEN", "S/", "Peruvian Sol (S/ • PEN)"),
+    CurrencyItem("COP", "$", "Colombian Peso ($ • COP)"),
+    CurrencyItem("MXN", "$", "Mexican Peso ($ • MXN)"),
+    CurrencyItem("ARS", "$", "Argentine Peso ($ • ARS)"),
+    CurrencyItem("CLP", "$", "Chilean Peso ($ • CLP)"),
+    CurrencyItem("BRL", "R$", "Brazilian Real (R$ • BRL)"),
+    CurrencyItem("GBP", "£", "British Pound (£ • GBP)"),
+    CurrencyItem("CAD", "CA$", "Canadian Dollar (CA$ • CAD)"),
+    CurrencyItem("AUD", "A$", "Australian Dollar (A$ • AUD)"),
+    CurrencyItem("JPY", "¥", "Japanese Yen (¥ • JPY)"),
+    CurrencyItem("CNY", "¥", "Chinese Yuan (¥ • CNY)"),
+    CurrencyItem("INR", "₹", "Indian Rupee (₹ • INR)"),
+    CurrencyItem("CHF", "CHF", "Swiss Franc (CHF • CHF)"),
+    CurrencyItem("PYG", "₲", "Paraguayan Guaraní (₲ • PYG)"),
+    CurrencyItem("UYU", "$", "Uruguayan Peso ($ • UYU)"),
+    CurrencyItem("CRC", "₡", "Costa Rican Colón (₡ • CRC)"),
+    CurrencyItem("GTQ", "Q", "Guatemalan Quetzal (Q • GTQ)"),
+    CurrencyItem("HNL", "L", "Honduran Lempira (L • HNL)"),
+    CurrencyItem("NIO", "C$", "Nicaraguan Córdoba (C$ • NIO)"),
+    CurrencyItem("DOP", "RD$", "Dominican Peso (RD$ • DOP)"),
+    CurrencyItem("PAB", "B/.", "Panamanian Balboa (B/. • PAB)"),
+    CurrencyItem("KRW", "₩", "South Korean Won (₩ • KRW)"),
+    CurrencyItem("RUB", "₽", "Russian Ruble (₽ • RUB)"),
+    CurrencyItem("TRY", "₺", "Turkish Lira (₺ • TRY)"),
+    CurrencyItem("SAR", "﷼", "Saudi Riyal (﷼ • SAR)"),
+    CurrencyItem("AED", "د.إ", "UAE Dirham (د.إ • AED)"),
+    CurrencyItem("ZAR", "R", "South African Rand (R • ZAR)"),
+    CurrencyItem("SGD", "S$", "Singapore Dollar (S$ • SGD)"),
+    CurrencyItem("NZD", "NZ$", "New Zealand Dollar (NZ$ • NZD)"),
+    CurrencyItem("HKD", "HK$", "Hong Kong Dollar (HK$ • HKD)"),
+    CurrencyItem("SEK", "kr", "Swedish Krona (kr • SEK)"),
+    CurrencyItem("NOK", "kr", "Norwegian Krone (kr • NOK)"),
+    CurrencyItem("DKK", "kr", "Danish Krone (kr • DKK)"),
+    CurrencyItem("PLN", "zł", "Polish Zloty (zł • PLN)"),
+    CurrencyItem("THB", "฿", "Thai Baht (฿ • THB)"),
+    CurrencyItem("IDR", "Rp", "Indonesian Rupiah (Rp • IDR)"),
+    CurrencyItem("MYR", "RM", "Malaysian Ringgit (RM • MYR)"),
+    CurrencyItem("PHP", "₱", "Philippine Peso (₱ • PHP)"),
+    CurrencyItem("VND", "₫", "Vietnamese Dong (₫ • VND)")
+  )
+
   val COUNTRY_TO_CURRENCY_CODE: Map<String, String> = mapOf(
     "BO" to "BOB",
     "US" to "USD",
@@ -127,6 +175,14 @@ object LocaleHelper {
 
   fun getSymbolForCurrencyCode(currencyCode: String): String? {
     return CUSTOM_CURRENCY_SYMBOLS[currencyCode.uppercase()]
+  }
+
+  fun getEffectiveSymbol(currencyCode: String): String {
+    return CUSTOM_CURRENCY_SYMBOLS[currencyCode.uppercase()] ?: currencyCode.uppercase()
+  }
+
+  fun getCurrencyItemForSymbol(symbol: String): CurrencyItem? {
+    return SUPPORTED_CURRENCIES.find { it.symbol == symbol }
   }
 
   /**

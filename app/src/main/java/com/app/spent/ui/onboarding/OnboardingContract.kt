@@ -38,6 +38,7 @@ sealed class OnboardingUiIntent : UiIntent {
   data class UpdateInitialBalanceText(val initialBalance: String) : OnboardingUiIntent()
   object ProceedFromInitialBalance : OnboardingUiIntent()
   data class SelectImageStorageLocation(val location: String) : OnboardingUiIntent()
+  data class SelectCurrency(val symbol: String) : OnboardingUiIntent()
   object CompleteSetup : OnboardingUiIntent()
 
   // Drive single unified intent

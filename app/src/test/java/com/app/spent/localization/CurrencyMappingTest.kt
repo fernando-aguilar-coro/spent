@@ -66,4 +66,20 @@ class CurrencyMappingTest {
             Locale.setDefault(originalDefault)
         }
     }
+
+    @Test
+    fun testEffectiveSymbolFallback() {
+        assertEquals("Bs", LocaleHelper.getEffectiveSymbol("BOB"))
+        assertEquals("$", LocaleHelper.getEffectiveSymbol("USD"))
+        assertEquals("CHF", LocaleHelper.getEffectiveSymbol("CHF"))
+        assertEquals("XYZ", LocaleHelper.getEffectiveSymbol("XYZ"))
+    }
+
+    @Test
+    fun testSupportedCurrenciesList() {
+        assert(LocaleHelper.SUPPORTED_CURRENCIES.isNotEmpty())
+        val bob = LocaleHelper.getCurrencyItemForSymbol("Bs")
+        assertNotNull(bob)
+        assertEquals("BOB", bob?.code)
+    }
 }
