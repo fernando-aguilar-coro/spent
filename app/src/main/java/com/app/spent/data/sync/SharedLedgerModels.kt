@@ -147,11 +147,12 @@ object SharedLedgerParser {
         }
       }
 
-      // 2. Preferences
+      // 2. Preferences & Savings
       var currencySymbol = "$"
       var savingsGoalName = ""
       var savingsGoalTotal = 0.0
       var savingsMonthlyContribution = 0.0
+      var savingsSaved = 0.0
 
       if (root.has("preferences")) {
         val prefObj = root.getJSONObject("preferences")
@@ -159,6 +160,20 @@ object SharedLedgerParser {
         savingsGoalName = prefObj.optString("savingsGoalName", "")
         savingsGoalTotal = prefObj.optDouble("savingsGoalTotal", 0.0)
         savingsMonthlyContribution = prefObj.optDouble("savingsMonthlyContribution", 0.0)
+      }
+
+      if (root.has("savings")) {
+        val savingsObj = root.getJSONObject("savings")
+        savingsGoalName = savingsObj.optString("goalName", savingsGoalName)
+        savingsGoalTotal = savingsObj.optDouble("goalTotal", savingsGoalTotal)
+        savingsMonthlyContribution = savingsObj.optDouble("monthlyContribution", savingsMonthlyContribution)
+        if (savingsObj.has("deposits")) {
+          val depArray = savingsObj.getJSONArray("deposits")
+          for (i in 0 until depArray.length()) {
+            val depObj = depArray.getJSONObject(i)
+            savingsSaved += depObj.optDouble("amount", 0.0)
+          }
+        }
       }
 
       // 3. Pay Cycle
@@ -196,7 +211,6 @@ object SharedLedgerParser {
       val categorySpentMap = mutableMapOf<String, Double>()
       var totalIncome = 0.0
       var totalSpent = 0.0
-      var savingsSaved = 0.0
 
       if (root.has("transactions")) {
         val txArray = root.getJSONArray("transactions")

@@ -90,11 +90,12 @@ interface SpentRepository {
   suspend fun clearSavingsGoal()
   suspend fun setLastDriveSyncTimestamp(timestamp: Long)
   suspend fun restoreAllData(
-  categories: List<CategoryEntity>,
-  transactions: List<TransactionEntity>,
-  payCycle: PayCycleEntity?,
-  recurringRules: List<RecurringRuleEntity>,
-  userAccount: UserAccountEntity?
+    categories: List<CategoryEntity>,
+    transactions: List<TransactionEntity>,
+    payCycle: PayCycleEntity?,
+    recurringRules: List<RecurringRuleEntity>,
+    userAccount: UserAccountEntity?,
+    loans: List<LoanEntity> = emptyList()
   )
   suspend fun resetAllData(deleteDriveImages: Boolean = false)
 }

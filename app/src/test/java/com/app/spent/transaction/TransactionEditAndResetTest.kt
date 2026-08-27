@@ -247,7 +247,8 @@ private class FakeSpentRepository : SpentRepository {
         transactions: List<TransactionEntity>,
         payCycle: PayCycleEntity?,
         recurringRules: List<RecurringRuleEntity>,
-        userAccount: UserAccountEntity?
+        userAccount: UserAccountEntity?,
+        loans: List<com.app.spent.data.local.entity.LoanEntity>
     ) {}
 
     override suspend fun resetAllData(deleteDriveImages: Boolean) {

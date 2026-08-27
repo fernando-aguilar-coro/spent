@@ -161,7 +161,7 @@ class DashboardViewModel(
                     daysRemainingInCycle = daysRemaining,
                     isPayCycleActive = isPayCycleActive,
                     categoriesWithProgress = envelopes,
-                    recentTransactions = transactions.take(20),
+                    recentTransactions = transactions.filter { it.type != "SAVING" && it.categoryId != "cat_savings" }.take(20),
                     allCategories = categories,
                     recurringRules = recurringRules,
                     loans = loans,

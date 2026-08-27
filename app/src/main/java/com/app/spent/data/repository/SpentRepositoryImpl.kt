@@ -322,7 +322,8 @@ class SpentRepositoryImpl(
         transactions: List<TransactionEntity>,
         payCycle: PayCycleEntity?,
         recurringRules: List<RecurringRuleEntity>,
-        userAccount: UserAccountEntity?
+        userAccount: UserAccountEntity?,
+        loans: List<LoanEntity>
     ) {
         dao.deleteAllTransactions()
         dao.deleteAllCategories()
@@ -335,6 +336,7 @@ class SpentRepositoryImpl(
         if (recurringRules.isNotEmpty()) dao.insertRecurringRules(recurringRules)
         if (payCycle != null) dao.insertPayCycle(payCycle)
         if (userAccount != null) dao.insertOrUpdateUserAccount(userAccount)
+        if (loans.isNotEmpty()) dao.insertLoans(loans)
     }
 
     override suspend fun resetAllData(deleteDriveImages: Boolean) {

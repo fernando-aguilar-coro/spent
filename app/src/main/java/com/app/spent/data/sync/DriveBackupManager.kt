@@ -11,6 +11,7 @@ import java.util.Locale
 import android.content.Context
 import android.net.Uri
 import com.app.spent.data.local.entity.CategoryEntity
+import com.app.spent.data.local.entity.LoanEntity
 import com.app.spent.data.local.entity.PayCycleEntity
 import com.app.spent.data.local.entity.RecurringRuleEntity
 import com.app.spent.data.local.entity.TransactionEntity
@@ -23,7 +24,7 @@ import org.json.JSONArray
 import org.json.JSONObject
 object DriveBackupManager {
 
-  private const val BACKUP_VERSION = 1
+  private const val BACKUP_VERSION = 2
 
   suspend fun generateBackupJson(repository: SpentRepository): String = withContext(Dispatchers.IO) {
     val root = JSONObject()
@@ -48,10 +49,11 @@ object DriveBackupManager {
     }
     root.put("categories", catArray)
 
-    // 2. Transactions
-    val transactions = repository.getTransactionsFlow().firstOrNull() ?: emptyList()
+    // 2. Normal Transactions (Strictly pure income & expenses, no savings or loan records)
+    val allTransactions = repository.getTransactionsFlow().firstOrNull() ?: emptyList()
+    val normalTransactions = allTransactions.filter { it.type != "SAVING" && it.categoryId != "cat_savings" }
     val txArray = JSONArray()
-    for (tx in transactions) {
+    for (tx in normalTransactions) {
       val obj = JSONObject().apply {
         put("id", tx.id)
         put("ownerProfileId", tx.ownerProfileId)
@@ -67,7 +69,61 @@ object DriveBackupManager {
     }
     root.put("transactions", txArray)
 
-    // 3. Pay Cycle
+    // 3. Loans & Debts (Stored in a separate distinct section)
+    val loans = repository.getLoansFlow().firstOrNull() ?: emptyList()
+    val loanArray = JSONArray()
+    for (l in loans) {
+      val obj = JSONObject().apply {
+        put("id", l.id)
+        put("ownerProfileId", l.ownerProfileId)
+        put("type", l.type)
+        put("counterpartyName", l.counterpartyName)
+        put("principalAmount", l.principalAmount)
+        put("paidAmount", l.paidAmount)
+        put("categoryId", l.categoryId)
+        put("createdAt", l.createdAt)
+        put("startDate", l.startDate)
+        if (l.endDate != null) put("endDate", l.endDate)
+        put("calculationMode", l.calculationMode)
+        if (l.dueDate != null) put("dueDate", l.dueDate)
+        put("isInstallment", l.isInstallment)
+        if (l.installmentAmount != null) put("installmentAmount", l.installmentAmount)
+        if (l.installmentDurationMonths != null) put("installmentDurationMonths", l.installmentDurationMonths)
+        put("interestRate", l.interestRate)
+        put("note", l.note)
+        put("isSettled", l.isSettled)
+      }
+      loanArray.put(obj)
+    }
+    root.put("loans", loanArray)
+
+    // 4. Savings (Stored in a separate distinct section: goal configuration + deposit history)
+    val savingsDeposits = allTransactions.filter { it.type == "SAVING" || it.categoryId == "cat_savings" }
+    val savingsGoalName = repository.savingsGoalNameFlow.firstOrNull() ?: ""
+    val savingsGoalTotal = repository.savingsGoalTotalFlow.firstOrNull() ?: 0.0
+    val savingsMonthly = repository.savingsMonthlyContributionFlow.firstOrNull() ?: 0.0
+
+    val savingsObj = JSONObject().apply {
+      put("goalName", savingsGoalName)
+      put("goalTotal", savingsGoalTotal)
+      put("monthlyContribution", savingsMonthly)
+
+      val depositsArray = JSONArray()
+      for (d in savingsDeposits) {
+        val depObj = JSONObject().apply {
+          put("id", d.id)
+          put("ownerProfileId", d.ownerProfileId)
+          put("amount", d.amount)
+          put("timestamp", d.timestamp)
+          put("note", d.note)
+        }
+        depositsArray.put(depObj)
+      }
+      put("deposits", depositsArray)
+    }
+    root.put("savings", savingsObj)
+
+    // 5. Pay Cycle
     val payCycle = repository.getCurrentPayCycleFlow().firstOrNull()
     if (payCycle != null) {
       val pcObj = JSONObject().apply {
@@ -79,7 +135,7 @@ object DriveBackupManager {
       root.put("payCycle", pcObj)
     }
 
-    // 4. Recurring Rules
+    // 6. Recurring Rules
     val recurringRules = repository.getRecurringRulesFlow().firstOrNull() ?: emptyList()
     val rrArray = JSONArray()
     for (r in recurringRules) {
@@ -98,7 +154,7 @@ object DriveBackupManager {
     }
     root.put("recurringRules", rrArray)
 
-    // 5. User Account
+    // 7. User Account
     val userAccount = repository.getUserAccountFlow().firstOrNull()
     if (userAccount != null) {
       val uaObj = JSONObject().apply {
@@ -110,14 +166,11 @@ object DriveBackupManager {
       root.put("userAccount", uaObj)
     }
 
-    // 6. Preferences
+    // 8. Preferences
     val currency = repository.currencySymbolFlow.firstOrNull() ?: "$"
     val darkTheme = repository.isDarkThemeFlow.firstOrNull()
     val language = repository.appLanguageFlow.firstOrNull()
     val imageStorage = repository.imageStorageLocationFlow.firstOrNull() ?: "DEVICE"
-    val savingsGoalName = repository.savingsGoalNameFlow.firstOrNull() ?: ""
-    val savingsGoalTotal = repository.savingsGoalTotalFlow.firstOrNull() ?: 0.0
-    val savingsMonthly = repository.savingsMonthlyContributionFlow.firstOrNull() ?: 0.0
 
     val prefObj = JSONObject().apply {
       put("currencySymbol", currency)
@@ -137,26 +190,26 @@ object DriveBackupManager {
     try {
       val root = JSONObject(jsonString)
 
-      // Categories
+      // 1. Categories
       val categoriesList = mutableListOf<CategoryEntity>()
       if (root.has("categories")) {
         val catArray = root.getJSONArray("categories")
         for (i in 0 until catArray.length()) {
           val obj = catArray.getJSONObject(i)
           categoriesList.add(
-          CategoryEntity(
-          id = obj.optString("id", "cat_$i"),
-          name = obj.optString("name", "Category"),
-          iconName = obj.optString("iconName", "Category"),
-          colorHex = obj.optString("colorHex", "#64748B"),
-          budgetAmount = obj.optDouble("budgetAmount", 0.0),
-          displayOrder = obj.optInt("displayOrder", i)
-          )
+            CategoryEntity(
+              id = obj.optString("id", "cat_$i"),
+              name = obj.optString("name", "Category"),
+              iconName = obj.optString("iconName", "Category"),
+              colorHex = obj.optString("colorHex", "#64748B"),
+              budgetAmount = obj.optDouble("budgetAmount", 0.0),
+              displayOrder = obj.optInt("displayOrder", i)
+            )
           )
         }
       }
 
-      // Transactions
+      // 2. Normal Transactions
       val transactionsList = mutableListOf<TransactionEntity>()
       if (root.has("transactions")) {
         val txArray = root.getJSONArray("transactions")
@@ -164,35 +217,103 @@ object DriveBackupManager {
           val obj = txArray.getJSONObject(i)
           val recRuleId = obj.optString("recurringRuleId", "").ifEmpty { null }
           val imgUri = obj.optString("imageUri", "").ifEmpty { null }
+          val type = obj.optString("type", "EXPENSE")
+          val categoryId = obj.optString("categoryId", "cat_general")
           transactionsList.add(
-          TransactionEntity(
-          id = obj.optString("id", java.util.UUID.randomUUID().toString()),
-          ownerProfileId = obj.optString("ownerProfileId", "primary_user"),
-          amount = obj.optDouble("amount", 0.0),
-          type = obj.optString("type", "EXPENSE"),
-          categoryId = obj.optString("categoryId", "cat_general"),
-          timestamp = obj.optLong("timestamp", System.currentTimeMillis()),
-          note = obj.optString("note", ""),
-          imageUri = imgUri,
-          recurringRuleId = recRuleId
-          )
+            TransactionEntity(
+              id = obj.optString("id", java.util.UUID.randomUUID().toString()),
+              ownerProfileId = obj.optString("ownerProfileId", "primary_user"),
+              amount = obj.optDouble("amount", 0.0),
+              type = type,
+              categoryId = categoryId,
+              timestamp = obj.optLong("timestamp", System.currentTimeMillis()),
+              note = obj.optString("note", ""),
+              imageUri = imgUri,
+              recurringRuleId = recRuleId
+            )
           )
         }
       }
 
-      // Pay Cycle
+      // 3. Loans & Debts (Separate section)
+      val loansList = mutableListOf<LoanEntity>()
+      if (root.has("loans")) {
+        val loansArray = root.getJSONArray("loans")
+        for (i in 0 until loansArray.length()) {
+          val obj = loansArray.getJSONObject(i)
+          val endTs = if (obj.has("endDate") && !obj.isNull("endDate")) obj.optLong("endDate") else null
+          val dueTs = if (obj.has("dueDate") && !obj.isNull("dueDate")) obj.optLong("dueDate") else null
+          val instAmt = if (obj.has("installmentAmount") && !obj.isNull("installmentAmount")) obj.optDouble("installmentAmount") else null
+          val instDur = if (obj.has("installmentDurationMonths") && !obj.isNull("installmentDurationMonths")) obj.optInt("installmentDurationMonths") else null
+
+          loansList.add(
+            LoanEntity(
+              id = obj.optString("id", java.util.UUID.randomUUID().toString()),
+              ownerProfileId = obj.optString("ownerProfileId", "primary_account"),
+              type = obj.optString("type", "I_OWE"),
+              counterpartyName = obj.optString("counterpartyName", ""),
+              principalAmount = obj.optDouble("principalAmount", 0.0),
+              paidAmount = obj.optDouble("paidAmount", 0.0),
+              categoryId = obj.optString("categoryId", "cat_general"),
+              createdAt = obj.optLong("createdAt", System.currentTimeMillis()),
+              startDate = obj.optLong("startDate", System.currentTimeMillis()),
+              endDate = endTs,
+              calculationMode = obj.optString("calculationMode", "TOTAL_PRINCIPAL"),
+              dueDate = dueTs,
+              isInstallment = obj.optBoolean("isInstallment", false),
+              installmentAmount = instAmt,
+              installmentDurationMonths = instDur,
+              interestRate = obj.optDouble("interestRate", 0.0),
+              note = obj.optString("note", ""),
+              isSettled = obj.optBoolean("isSettled", false)
+            )
+          )
+        }
+      }
+
+      // 4. Savings (Separate section: goal + deposits)
+      val savingsDepositsList = mutableListOf<TransactionEntity>()
+      if (root.has("savings")) {
+        val savingsObj = root.getJSONObject("savings")
+        val goalName = savingsObj.optString("goalName", "")
+        val goalTotal = savingsObj.optDouble("goalTotal", 0.0)
+        val monthlyContribution = savingsObj.optDouble("monthlyContribution", 0.0)
+        if (goalName.isNotBlank() || goalTotal > 0) {
+          repository.setSavingsGoal(goalName, goalTotal, monthlyContribution)
+        }
+
+        if (savingsObj.has("deposits")) {
+          val depArray = savingsObj.getJSONArray("deposits")
+          for (i in 0 until depArray.length()) {
+            val obj = depArray.getJSONObject(i)
+            savingsDepositsList.add(
+              TransactionEntity(
+                id = obj.optString("id", java.util.UUID.randomUUID().toString()),
+                ownerProfileId = obj.optString("ownerProfileId", "primary_account"),
+                amount = obj.optDouble("amount", 0.0),
+                type = "SAVING",
+                categoryId = "cat_savings",
+                timestamp = obj.optLong("timestamp", System.currentTimeMillis()),
+                note = obj.optString("note", "Savings Deposit")
+              )
+            )
+          }
+        }
+      }
+
+      // 5. Pay Cycle
       var payCycle: PayCycleEntity? = null
       if (root.has("payCycle")) {
         val obj = root.getJSONObject("payCycle")
         payCycle = PayCycleEntity(
-        id = obj.optString("id", "default_cycle"),
-        frequency = obj.optString("frequency", "MONTHLY"),
-        startDate = obj.optLong("startDate", System.currentTimeMillis()),
-        income = obj.optDouble("income", 0.0)
+          id = obj.optString("id", "default_cycle"),
+          frequency = obj.optString("frequency", "MONTHLY"),
+          startDate = obj.optLong("startDate", System.currentTimeMillis()),
+          income = obj.optDouble("income", 0.0)
         )
       }
 
-      // Recurring Rules
+      // 6. Recurring Rules
       val recurringRulesList = mutableListOf<RecurringRuleEntity>()
       if (root.has("recurringRules")) {
         val rrArray = root.getJSONArray("recurringRules")
@@ -200,43 +321,44 @@ object DriveBackupManager {
           val obj = rrArray.getJSONObject(i)
           val endTs = obj.optLong("endDate", -1L)
           recurringRulesList.add(
-          RecurringRuleEntity(
-          id = obj.optString("id", java.util.UUID.randomUUID().toString()),
-          ownerProfileId = obj.optString("ownerProfileId", "primary_account"),
-          amount = obj.optDouble("amount", 0.0),
-          categoryId = obj.optString("categoryId", "cat_general"),
-          frequency = obj.optString("frequency", "MONTHLY"),
-          startDate = obj.optLong("startDate", System.currentTimeMillis()),
-          endDate = if (endTs > 0) endTs else null,
-          lastExecuted = obj.optLong("lastExecuted", 0L),
-          note = obj.optString("note", "")
-          )
+            RecurringRuleEntity(
+              id = obj.optString("id", java.util.UUID.randomUUID().toString()),
+              ownerProfileId = obj.optString("ownerProfileId", "primary_account"),
+              amount = obj.optDouble("amount", 0.0),
+              categoryId = obj.optString("categoryId", "cat_general"),
+              frequency = obj.optString("frequency", "MONTHLY"),
+              startDate = obj.optLong("startDate", System.currentTimeMillis()),
+              endDate = if (endTs > 0) endTs else null,
+              lastExecuted = obj.optLong("lastExecuted", 0L),
+              note = obj.optString("note", "")
+            )
           )
         }
       }
 
-      // User Account
+      // 7. User Account
       var userAccount: UserAccountEntity? = null
       if (root.has("userAccount")) {
         val obj = root.getJSONObject("userAccount")
         userAccount = UserAccountEntity(
-        id = obj.optString("id", "primary_account"),
-        displayName = obj.optString("displayName", "Primary User"),
-        role = obj.optString("role", "INDEPENDENT"),
-        lastDriveSyncTimestamp = System.currentTimeMillis()
+          id = obj.optString("id", "primary_account"),
+          displayName = obj.optString("displayName", "Primary User"),
+          role = obj.optString("role", "INDEPENDENT"),
+          lastDriveSyncTimestamp = System.currentTimeMillis()
         )
       }
 
       // Restore Database in Repository
       repository.restoreAllData(
-      categories = categoriesList,
-      transactions = transactionsList,
-      payCycle = payCycle,
-      recurringRules = recurringRulesList,
-      userAccount = userAccount
+        categories = categoriesList,
+        transactions = transactionsList + savingsDepositsList,
+        payCycle = payCycle,
+        recurringRules = recurringRulesList,
+        userAccount = userAccount,
+        loans = loansList
       )
 
-      // Restore Preferences
+      // 8. Restore Preferences
       if (root.has("preferences")) {
         val prefObj = root.getJSONObject("preferences")
         if (prefObj.has("currencySymbol")) {
@@ -251,7 +373,7 @@ object DriveBackupManager {
         if (prefObj.has("imageStorageLocation")) {
           repository.setImageStorageLocation(prefObj.getString("imageStorageLocation"))
         }
-        if (prefObj.has("savingsGoalName") || prefObj.has("savingsGoalTotal")) {
+        if (!root.has("savings") && (prefObj.has("savingsGoalName") || prefObj.has("savingsGoalTotal"))) {
           val name = prefObj.optString("savingsGoalName", "")
           val total = prefObj.optDouble("savingsGoalTotal", 0.0)
           val monthly = prefObj.optDouble("savingsMonthlyContribution", 0.0)
