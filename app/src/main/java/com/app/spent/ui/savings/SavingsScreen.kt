@@ -68,7 +68,9 @@ fun SavingsScreen(
     }
 
     val savingsCat = categories.find { it.id == "cat_savings" || it.name.equals("Savings", ignoreCase = true) }
-    val savingsTransactions = transactions.filter { it.categoryId == savingsCat?.id && it.type == "EXPENSE" }
+    val savingsTransactions = transactions.filter {
+        it.type == "SAVING" || (it.categoryId == savingsCat?.id && it.type == "EXPENSE")
+    }
     val totalSaved = savingsTransactions.sumOf { it.amount }
 
     var isEditingGoal by remember { mutableStateOf(false) }

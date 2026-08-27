@@ -88,7 +88,7 @@ class SavingsViewModel(
             val tx = TransactionEntity(
                 id = UUID.randomUUID().toString(),
                 amount = amount,
-                type = "EXPENSE",
+                type = "SAVING",
                 categoryId = savingsCatId,
                 note = note.ifBlank { "Savings Deposit" },
                 timestamp = System.currentTimeMillis()

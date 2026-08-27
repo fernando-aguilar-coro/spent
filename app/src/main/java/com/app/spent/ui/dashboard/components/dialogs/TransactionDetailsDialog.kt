@@ -78,7 +78,17 @@ fun TransactionDetailsDialog(
     val context = LocalContext.current
     val category = categories.find { it.id == transaction.categoryId }
     val isExpense = transaction.type == "EXPENSE"
-    val accentColor = if (isExpense) ExpenseRed else IncomeGreen
+    val isIncome = transaction.type == "INCOME"
+    val accentColor = when {
+        isExpense -> ExpenseRed
+        isIncome -> IncomeGreen
+        else -> MaterialTheme.colorScheme.primary
+    }
+    val signPrefix = when {
+        isExpense -> "-"
+        isIncome -> "+"
+        else -> ""
+    }
     val formattedDate = SimpleDateFormat("EEEE, MMMM dd, yyyy • HH:mm", Locale.getDefault()).format(Date(transaction.timestamp))
     var showFullImage by remember { mutableStateOf(false) }
 
@@ -129,15 +139,20 @@ fun TransactionDetailsDialog(
                             contentAlignment = Alignment.Center
                         ) {
                             Text(
-                                text = if (isExpense) "-" else "+",
+                                text = if (isExpense) "-" else if (isIncome) "+" else "★",
                                 fontWeight = FontWeight.ExtraBold,
                                 fontSize = 20.sp,
                                 color = accentColor
                             )
                         }
                         Spacer(modifier = Modifier.width(12.dp))
+                        val titleText = when {
+                            isExpense -> stringResource(R.string.expense_details)
+                            isIncome -> stringResource(R.string.income_details)
+                            else -> stringResource(R.string.tool_savings_title)
+                        }
                         Text(
-                            text = if (isExpense) stringResource(R.string.expense_details) else stringResource(R.string.income_details),
+                            text = titleText,
                             style = MaterialTheme.typography.titleLarge,
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.onSurface
@@ -176,7 +191,7 @@ fun TransactionDetailsDialog(
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Text(
-                            text = "${if (isExpense) "-" else "+"}$currencySymbol${"%.2f".format(transaction.amount)}",
+                            text = "$signPrefix$currencySymbol${"%.2f".format(transaction.amount)}",
                             style = MaterialTheme.typography.headlineMedium,
                             fontWeight = FontWeight.Black,
                             color = accentColor

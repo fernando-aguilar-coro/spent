@@ -50,6 +50,7 @@ onClick: (() -> Unit)? = null
 ) {
   val category = categories.find { it.id == transaction.categoryId }
   val isExpense = transaction.type == "EXPENSE"
+  val isIncome = transaction.type == "INCOME"
   val formattedDate = remember(transaction.timestamp) {
     SimpleDateFormat("MMM dd • HH:mm", Locale.getDefault()).format(Date(transaction.timestamp))
   }
@@ -74,8 +75,13 @@ onClick: (() -> Unit)? = null
       modifier = Modifier.weight(1f),
       verticalAlignment = Alignment.CenterVertically
       ) {
+        val defaultFallbackColor = when {
+          isExpense -> ExpenseRed
+          isIncome -> IncomeGreen
+          else -> MaterialTheme.colorScheme.primary
+        }
         val catColor = runCatching { Color(android.graphics.Color.parseColor(category?.colorHex ?: "#64748B")) }
-        .getOrDefault(if (isExpense) ExpenseRed else IncomeGreen)
+        .getOrDefault(defaultFallbackColor)
 
         Box(
         modifier = Modifier
@@ -116,11 +122,22 @@ onClick: (() -> Unit)? = null
 
       Spacer(modifier = Modifier.width(8.dp))
 
+      val signPrefix = when {
+        isExpense -> "-"
+        isIncome -> "+"
+        else -> ""
+      }
+      val amountColor = when {
+        isExpense -> ExpenseRed
+        isIncome -> IncomeGreen
+        else -> MaterialTheme.colorScheme.primary
+      }
+
       Text(
-      text = "${if (isExpense) "-" else "+"}$currencySymbol${"%.2f".format(transaction.amount)}",
+      text = "$signPrefix$currencySymbol${"%.2f".format(transaction.amount)}",
       fontSize = 15.sp,
       fontWeight = FontWeight.Bold,
-      color = if (isExpense) ExpenseRed else IncomeGreen
+      color = amountColor
       )
     }
   }

@@ -34,7 +34,7 @@ class AnalyticsViewModel(
                 val totalIncome = baseIncome + manualIncome
 
                 val totalSpent = transactions
-                    .filter { it.type == "EXPENSE" }
+                    .filter { it.type == "EXPENSE" && it.categoryId != "cat_savings" }
                     .sumOf { it.amount }
 
                 val netSavings = totalIncome - totalSpent
@@ -44,7 +44,7 @@ class AnalyticsViewModel(
 
                 val breakdowns = categories.map { cat ->
                     val spentInCat = transactions
-                        .filter { it.categoryId == cat.id && it.type == "EXPENSE" }
+                        .filter { it.categoryId == cat.id && it.type == "EXPENSE" && it.categoryId != "cat_savings" }
                         .sumOf { it.amount }
                     val pct = if (totalSpent > 0) (spentInCat / totalSpent).toFloat() else 0f
 

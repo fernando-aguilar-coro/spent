@@ -107,14 +107,14 @@ fun AddLoanFormCard(
     // Calculation mode: 0 = By Monthly Quota ("MONTHLY_QUOTA"), 1 = By Total Amount ("TOTAL_PRINCIPAL")
     var selectedTabMode by remember(editingLoan) {
         mutableIntStateOf(
-            if (editingLoan?.calculationMode == "TOTAL_PRINCIPAL" || (editingLoan != null && !editingLoan.isInstallment)) 1 else 0
+            if (editingLoan?.calculationMode == "MONTHLY_QUOTA") 0 else 1
         )
     }
 
     // Path 1 Inputs (Monthly Quota)
     var monthlyQuotaText by remember(editingLoan) {
         mutableStateOf(
-            if (editingLoan?.calculationMode != "TOTAL_PRINCIPAL" && editingLoan?.installmentAmount != null && editingLoan.installmentAmount > 0) {
+            if (editingLoan?.calculationMode == "MONTHLY_QUOTA" && editingLoan?.installmentAmount != null && editingLoan.installmentAmount > 0) {
                 "%.2f".format(editingLoan.installmentAmount).removeSuffix(".00")
             } else ""
         )
@@ -126,7 +126,7 @@ fun AddLoanFormCard(
     // Path 2 Inputs (Total Principal)
     var totalPrincipalText by remember(editingLoan) {
         mutableStateOf(
-            if (editingLoan?.calculationMode == "TOTAL_PRINCIPAL" || (editingLoan != null && !editingLoan.isInstallment)) {
+            if (editingLoan?.calculationMode != "MONTHLY_QUOTA" && editingLoan != null) {
                 "%.2f".format(editingLoan.principalAmount).removeSuffix(".00")
             } else ""
         )
@@ -135,7 +135,7 @@ fun AddLoanFormCard(
         mutableStateOf(editingLoan?.let { if (it.interestRate > 0) "%.1f".format(it.interestRate).removeSuffix(".0") else "" } ?: "")
     }
     var totalDurationMonths by remember(editingLoan) {
-        mutableStateOf<Int?>(if (editingLoan?.calculationMode == "TOTAL_PRINCIPAL") editingLoan.installmentDurationMonths else null)
+        mutableStateOf<Int?>(if (editingLoan?.calculationMode != "MONTHLY_QUOTA") editingLoan?.installmentDurationMonths else null)
     }
 
     // Start & End Dates

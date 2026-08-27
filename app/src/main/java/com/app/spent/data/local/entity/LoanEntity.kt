@@ -16,7 +16,7 @@ data class LoanEntity(
     val createdAt: Long = System.currentTimeMillis(),
     val startDate: Long = System.currentTimeMillis(),
     val endDate: Long? = null,
-    val calculationMode: String = "MONTHLY_QUOTA", // "MONTHLY_QUOTA" vs "TOTAL_PRINCIPAL"
+    val calculationMode: String = "TOTAL_PRINCIPAL", // "TOTAL_PRINCIPAL" vs "MONTHLY_QUOTA"
     val dueDate: Long? = null,
     val isInstallment: Boolean = false,
     val installmentAmount: Double? = null,

@@ -49,7 +49,13 @@ class TransactionHistoryViewModel(
             }
 
             combine(coreDataFlow, filterParamsFlow) { (transactions, categories, currency), (query, type, categoryId) ->
-                val totalAmount = transactions.sumOf { if (it.type == "INCOME") it.amount else -it.amount }
+                val totalAmount = transactions.sumOf {
+                    when (it.type) {
+                        "INCOME" -> it.amount
+                        "EXPENSE" -> -it.amount
+                        else -> 0.0
+                    }
+                }
                 TransactionHistoryUiState(
                     isLoading = false,
                     searchQuery = query,

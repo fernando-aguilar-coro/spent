@@ -43,6 +43,12 @@ onConfirmDelete: (TransactionEntity) -> Unit
     com.app.spent.util.CategoryLocalizationHelper.getLocalizedCategoryName(it)
   } ?: stringResource(R.string.category_general)
   val isExpense = transaction.type == "EXPENSE"
+  val isIncome = transaction.type == "INCOME"
+  val signPrefix = when {
+    isExpense -> "-"
+    isIncome -> "+"
+    else -> ""
+  }
 
   AlertDialog(
   onDismissRequest = onDismiss,
@@ -76,7 +82,7 @@ onConfirmDelete: (TransactionEntity) -> Unit
       ) {
         Column {
           Text(
-          text = "${if (isExpense) "-" else "+"}$currencySymbol${"%.2f".format(transaction.amount)} • $catName",
+          text = "$signPrefix$currencySymbol${"%.2f".format(transaction.amount)} • $catName",
           fontWeight = FontWeight.Bold,
           color = MaterialTheme.colorScheme.onSurfaceVariant
           )

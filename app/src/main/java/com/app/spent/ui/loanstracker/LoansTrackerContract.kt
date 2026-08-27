@@ -52,7 +52,7 @@ sealed class LoansTrackerUiIntent : UiIntent {
         val counterpartyName: String = "",
         val amount: Double,
         val categoryId: String,
-        val calculationMode: String = "MONTHLY_QUOTA",
+        val calculationMode: String = "TOTAL_PRINCIPAL",
         val isInstallment: Boolean,
         val installmentAmount: Double?,
         val installmentDurationMonths: Int?,
