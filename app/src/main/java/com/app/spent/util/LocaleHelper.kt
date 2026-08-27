@@ -54,6 +54,28 @@ object LocaleHelper {
   }
 
   /**
+   * Returns the system currency symbol based on system locale / location.
+   * If determination fails for any reason, falls back to "$".
+   */
+  fun getSystemCurrencySymbol(context: Context): String {
+    return try {
+      val sysLocale = getSystemPreferredLocale(context)
+      val currency = java.util.Currency.getInstance(sysLocale)
+      val symbol = currency.getSymbol(sysLocale)
+      if (!symbol.isNullOrBlank()) symbol else "$"
+    } catch (e: Exception) {
+      try {
+        val defaultLocale = Locale.getDefault()
+        val currency = java.util.Currency.getInstance(defaultLocale)
+        val symbol = currency.getSymbol(defaultLocale)
+        if (!symbol.isNullOrBlank()) symbol else "$"
+      } catch (e2: Exception) {
+        "$"
+      }
+    }
+  }
+
+  /**
    * Returns the native/standard currency symbol associated with each supported language or system locale.
    */
   fun getDefaultCurrencySymbol(languageCode: String?, context: Context): String {
@@ -75,14 +97,7 @@ object LocaleHelper {
           else -> "$"
         }
       }
-      else -> {
-        try {
-          val sysLocale = getSystemPreferredLocale(context)
-          java.util.Currency.getInstance(sysLocale).symbol
-        } catch (e: Exception) {
-          "$"
-        }
-      }
+      else -> getSystemCurrencySymbol(context)
     }
   }
 }

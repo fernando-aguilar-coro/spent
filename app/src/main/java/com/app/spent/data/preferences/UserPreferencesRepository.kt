@@ -122,9 +122,14 @@ class UserPreferencesRepository(private val context: Context) {
     preferences[PreferencesKeys.DARK_THEME_ENABLED]
   }
 
-  // FIXED: Do not call context-dependent LocaleHelper logic inside a DataStore map (IO thread)
   val currencySymbolFlow: Flow<String> = context.dataStore.data.map { preferences ->
-    preferences[PreferencesKeys.CURRENCY_SYMBOL] ?: "$"
+    val storedSymbol = preferences[PreferencesKeys.CURRENCY_SYMBOL]
+    if (!storedSymbol.isNullOrBlank()) {
+      storedSymbol
+    } else {
+      val lang = preferences[PreferencesKeys.APP_LANGUAGE]
+      LocaleHelper.getDefaultCurrencySymbol(lang, context)
+    }
   }
 
   val appLanguageFlow: Flow<String?> = context.dataStore.data.map { preferences ->
