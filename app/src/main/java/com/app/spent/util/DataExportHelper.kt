@@ -2,6 +2,7 @@ package com.app.spent.util
 
 import java.io.File
 import java.io.FileOutputStream
+import java.io.OutputStream
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -10,21 +11,51 @@ import java.util.zip.ZipOutputStream
 
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import android.widget.Toast
 import androidx.core.content.FileProvider
 import com.app.spent.data.local.entity.CategoryEntity
 import com.app.spent.data.local.entity.TransactionEntity
+
 object DataExportHelper {
 
   /**
-   * Exports transactions in a native Microsoft Excel (.xlsx) spreadsheet format.
-   * Separates Date and Time into distinct columns and excludes internal database IDs.
-   * Columns: Date, Time, Type, Amount, Category, Note
+   * Generates a standard default filename for transaction exports.
    */
-  fun exportTransactionsToExcel(
-  context: Context,
-  transactions: List<TransactionEntity>,
-  categories: List<CategoryEntity>
+  fun getDefaultXlsxFileName(): String {
+    val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(Date())
+    return "Spent_Transactions_$timeStamp.xlsx"
+  }
+
+  /**
+   * Exports transactions directly to a selected Content URI (e.g. from ACTION_CREATE_DOCUMENT / Storage Access Framework).
+   */
+  fun writeExcelToUri(
+    context: Context,
+    uri: Uri,
+    transactions: List<TransactionEntity>,
+    categories: List<CategoryEntity>
+  ): Boolean {
+    return try {
+      context.contentResolver.openOutputStream(uri)?.use { outputStream ->
+        generateXlsxToStream(outputStream, transactions, categories)
+      }
+      Toast.makeText(context, "Spreadsheet saved successfully", Toast.LENGTH_SHORT).show()
+      true
+    } catch (e: Exception) {
+      e.printStackTrace()
+      Toast.makeText(context, "Save error: ${e.localizedMessage ?: "Unknown error"}", Toast.LENGTH_LONG).show()
+      false
+    }
+  }
+
+  /**
+   * Shares the spreadsheet with other apps via Android Sharesheet (ACTION_SEND).
+   */
+  fun shareExcelFile(
+    context: Context,
+    transactions: List<TransactionEntity>,
+    categories: List<CategoryEntity>
   ) {
     if (transactions.isEmpty()) {
       Toast.makeText(context, "No transactions available to export", Toast.LENGTH_SHORT).show()
@@ -32,28 +63,18 @@ object DataExportHelper {
     }
 
     try {
-      val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-      val timeFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
-      val categoryMap = categories.associateBy({ it.id }, { it.name })
-
       val exportDir = File(context.cacheDir, "exports").apply { mkdirs() }
-      val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(Date())
-      val xlsxFileName = "Spent_Transactions_$timeStamp.xlsx"
+      val xlsxFileName = getDefaultXlsxFileName()
       val xlsxFile = File(exportDir, xlsxFileName)
 
-      // Generate genuine OpenXML (.xlsx) file structure using ZipOutputStream
-      generateXlsxFile(
-      file = xlsxFile,
-      transactions = transactions.sortedByDescending { it.timestamp },
-      categoryMap = categoryMap,
-      dateFormat = dateFormat,
-      timeFormat = timeFormat
-      )
+      FileOutputStream(xlsxFile).use { outputStream ->
+        generateXlsxToStream(outputStream, transactions, categories)
+      }
 
       val fileUri = FileProvider.getUriForFile(
-      context,
-      "${context.packageName}.fileprovider",
-      xlsxFile
+        context,
+        "${context.packageName}.fileprovider",
+        xlsxFile
       )
 
       val shareIntent = Intent(Intent.ACTION_SEND).apply {
@@ -64,7 +85,7 @@ object DataExportHelper {
         addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
       }
 
-      val chooser = Intent.createChooser(shareIntent, "Download / Export Transactions (.xlsx)")
+      val chooser = Intent.createChooser(shareIntent, "Share Transactions (.xlsx)")
       chooser.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
       context.startActivity(chooser)
     } catch (e: Exception) {
@@ -73,14 +94,31 @@ object DataExportHelper {
     }
   }
 
-  private fun generateXlsxFile(
-  file: File,
-  transactions: List<TransactionEntity>,
-  categoryMap: Map<String, String>,
-  dateFormat: SimpleDateFormat,
-  timeFormat: SimpleDateFormat
+  /**
+   * Legacy method for direct export (delegates to shareExcelFile).
+   */
+  fun exportTransactionsToExcel(
+    context: Context,
+    transactions: List<TransactionEntity>,
+    categories: List<CategoryEntity>
   ) {
-    ZipOutputStream(FileOutputStream(file)).use { zip ->
+    shareExcelFile(context, transactions, categories)
+  }
+
+  /**
+   * Generates genuine OpenXML (.xlsx) file structure and streams it to the given OutputStream.
+   */
+  fun generateXlsxToStream(
+    outputStream: OutputStream,
+    transactions: List<TransactionEntity>,
+    categories: List<CategoryEntity>
+  ) {
+    val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+    val timeFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
+    val categoryMap = categories.associateBy({ it.id }, { it.name })
+    val sortedTransactions = transactions.sortedByDescending { it.timestamp }
+
+    ZipOutputStream(outputStream).use { zip ->
       // 1. [Content_Types].xml
       zip.putNextEntry(ZipEntry("[Content_Types].xml"))
       zip.write("""
@@ -181,7 +219,7 @@ object DataExportHelper {
       sheetBuilder.append("""</row>""")
 
       // Data Rows (Row 2, 3, ...)
-      transactions.forEachIndexed { index, tx ->
+      sortedTransactions.forEachIndexed { index, tx ->
         val rowIndex = index + 2
         val dateStr = dateFormat.format(Date(tx.timestamp))
         val timeStr = timeFormat.format(Date(tx.timestamp))
@@ -210,10 +248,10 @@ object DataExportHelper {
 
   private fun escapeXml(text: String): String {
     return text
-    .replace("&", "&amp;")
-    .replace("<", "&lt;")
-    .replace(">", "&gt;")
-    .replace("\"", "&quot;")
-    .replace("'", "&apos;")
+      .replace("&", "&amp;")
+      .replace("<", "&lt;")
+      .replace(">", "&gt;")
+      .replace("\"", "&quot;")
+      .replace("'", "&apos;")
   }
 }

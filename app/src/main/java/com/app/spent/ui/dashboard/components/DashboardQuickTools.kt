@@ -26,6 +26,10 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -39,13 +43,14 @@ import com.app.spent.data.local.entity.CategoryEntity
 import com.app.spent.data.local.entity.LoanEntity
 import com.app.spent.data.local.entity.RecurringRuleEntity
 import com.app.spent.data.local.entity.TransactionEntity
+import com.app.spent.ui.components.ExportExcelDialog
 import com.app.spent.ui.theme.IncomeGreen
 import com.app.spent.util.DataExportHelper
 
 @Composable
 fun DashboardQuickTools(
-    transactions: List<TransactionEntity>,
-    categories: List<CategoryEntity>,
+    transactions: List<TransactionEntity> = emptyList(),
+    categories: List<CategoryEntity> = emptyList(),
     recurringRules: List<RecurringRuleEntity> = emptyList(),
     loans: List<LoanEntity> = emptyList(),
     currencySymbol: String = "$",
@@ -55,6 +60,7 @@ fun DashboardQuickTools(
     onNavigateToSharedLedgers: () -> Unit = {}
 ) {
     val context = LocalContext.current
+    var showExportDialog by remember { mutableStateOf(false) }
 
     // Savings computations
     val savingsCat = categories.find { it.id == "cat_savings" || it.name.equals("Savings", ignoreCase = true) }
@@ -239,7 +245,7 @@ fun DashboardQuickTools(
             Card(
                 modifier = Modifier
                     .weight(1f)
-                    .clickable { DataExportHelper.exportTransactionsToExcel(context, transactions, categories) },
+                    .clickable { showExportDialog = true },
                 shape = RoundedCornerShape(16.dp),
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
             ) {
@@ -337,5 +343,13 @@ fun DashboardQuickTools(
                 }
             }
         }
+    }
+
+    if (showExportDialog) {
+        ExportExcelDialog(
+            transactions = transactions,
+            categories = categories,
+            onDismiss = { showExportDialog = false }
+        )
     }
 }
