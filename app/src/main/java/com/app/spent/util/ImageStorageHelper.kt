@@ -20,6 +20,7 @@ object ImageStorageHelper {
 
     /**
      * Processes and stores an image based on the chosen destination setting.
+     * If Google Drive is chosen but no Google account is connected, seamlessly defaults to in-app storage.
      */
     suspend fun processAndSaveImage(
         context: Context,
@@ -29,20 +30,37 @@ object ImageStorageHelper {
         when (destinationType) {
             DESTINATION_IN_APP -> saveToInAppStorage(context, sourceUri)
             DESTINATION_DEVICE -> saveToDeviceStorage(context, sourceUri)
-            else -> saveToGoogleDrive(context, sourceUri)
+            DESTINATION_GOOGLE_DRIVE -> {
+                val account = GoogleDriveRestService.getSignedInAccount(context)
+                if (account != null) {
+                    saveToGoogleDrive(context, sourceUri)
+                } else {
+                    // Gracefully save inside app without forcing the user
+                    saveToInAppStorage(context, sourceUri)
+                }
+            }
+            else -> {
+                val account = GoogleDriveRestService.getSignedInAccount(context)
+                if (account != null) {
+                    saveToGoogleDrive(context, sourceUri)
+                } else {
+                    saveToInAppStorage(context, sourceUri)
+                }
+            }
         }
     }
 
     /**
      * Compresses the image using ImageCompressor and uploads it to Google Drive.
+     * Falls back to in-app storage if Google account is disconnected.
      */
     suspend fun saveToGoogleDrive(context: Context, sourceUri: Uri): Result<String> =
         withContext(Dispatchers.IO) {
             try {
                 val account = GoogleDriveRestService.getSignedInAccount(context)
-                    ?: return@withContext Result.failure(
-                        Exception(context.getString(R.string.drive_not_connected_warning))
-                    )
+                if (account == null) {
+                    return@withContext saveToInAppStorage(context, sourceUri)
+                }
 
                 val compressedBytes = ImageCompressor.compressImageBitmap(
                     context = context,
@@ -55,7 +73,8 @@ object ImageStorageHelper {
                 GoogleDriveRestService.uploadReceiptImage(context, account, compressedBytes, fileName)
             } catch (e: Exception) {
                 e.printStackTrace()
-                Result.failure(e)
+                // Fallback to in-app storage if upload fails so user's image is not lost
+                saveToInAppStorage(context, sourceUri)
             }
         }
 

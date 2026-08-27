@@ -37,7 +37,13 @@ class UserPreferencesRepository(private val context: Context) {
   }
 
   val imageStorageLocationFlow: Flow<String> = context.dataStore.data.map { preferences ->
-    preferences[PreferencesKeys.IMAGE_STORAGE_LOCATION] ?: "GOOGLE_DRIVE"
+    val explicitLocation = preferences[PreferencesKeys.IMAGE_STORAGE_LOCATION]
+    if (explicitLocation != null) {
+      explicitLocation
+    } else {
+      val isDriveConnected = preferences[PreferencesKeys.IS_DRIVE_CONNECTED] ?: false
+      if (isDriveConnected) "GOOGLE_DRIVE" else "IN_APP"
+    }
   }
 
   val sharedMembersFlow: Flow<List<com.app.spent.data.sync.SharedMemberInfo>> = context.dataStore.data.map { preferences ->

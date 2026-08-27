@@ -211,10 +211,11 @@ class AddTransactionViewModel(
             if (result.isSuccess) {
                 val savedUri = result.getOrNull()
                 setState { copy(selectedImageUri = savedUri, isProcessingImage = false) }
-                val msg = if (currentState.imageStorageLocation == com.app.spent.util.ImageStorageHelper.DESTINATION_GOOGLE_DRIVE) {
+                val isDriveUpload = savedUri != null && !savedUri.startsWith("file:") && !savedUri.contains("receipt_images")
+                val msg = if (isDriveUpload) {
                     "Image compressed and uploaded to Google Drive"
                 } else {
-                    "Image attached successfully"
+                    "Image saved securely in app storage"
                 }
                 sendEffect(AddTransactionUiEffect.ShowSnackbar(msg))
             } else {

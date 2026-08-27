@@ -17,7 +17,7 @@ val lastDriveSyncTimestamp: Long = 0L,
 val isDriveConnected: Boolean = false,
 val driveAccountEmail: String? = null,
 val isDriveSyncing: Boolean = false,
-val imageStorageLocation: String = "DEVICE",
+val imageStorageLocation: String = "IN_APP",
 val isLoading: Boolean = false
 ) : UiState
 

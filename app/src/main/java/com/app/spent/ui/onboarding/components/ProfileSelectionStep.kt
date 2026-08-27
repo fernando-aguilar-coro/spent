@@ -19,7 +19,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Badge
-import androidx.compose.material.icons.filled.Laptop
 import androidx.compose.material.icons.filled.PersonOutline
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -82,7 +81,7 @@ onSelectRole: (String) -> Unit
         CircularProgressIndicator()
       }
     } else {
-      // Profile Option 1: Unemployed
+      // Profile Option 1: Unemployed / Flexible Tracker
       ProfileOptionCard(
       icon = Icons.Default.PersonOutline,
       title = stringResource(R.string.onboarding_profile_unemployed),
@@ -92,17 +91,7 @@ onSelectRole: (String) -> Unit
 
       Spacer(modifier = Modifier.height(14.dp))
 
-      // Profile Option 2: Freelancer
-      ProfileOptionCard(
-      icon = Icons.Default.Laptop,
-      title = stringResource(R.string.onboarding_profile_freelancer),
-      description = stringResource(R.string.onboarding_profile_freelancer_desc),
-      onClick = { onSelectRole("FREELANCER") }
-      )
-
-      Spacer(modifier = Modifier.height(14.dp))
-
-      // Profile Option 3: Employed / Salaryman
+      // Profile Option 2: Employed / Salaryman
       ProfileOptionCard(
       icon = Icons.Default.Badge,
       title = stringResource(R.string.onboarding_profile_employed),

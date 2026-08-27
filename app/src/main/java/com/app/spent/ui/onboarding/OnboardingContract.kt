@@ -13,13 +13,13 @@ enum class OnboardingStep {
 
 data class OnboardingUiState(
 val currentStep: OnboardingStep = OnboardingStep.WELCOME,
-val selectedProfileRole: String = "EMPLOYED", // UNEMPLOYED, FREELANCER, EMPLOYED
+val selectedProfileRole: String = "EMPLOYED", // UNEMPLOYED, EMPLOYED
 val selectedFrequency: String = "MONTHLY", // WEEKLY, BIWEEKLY, SEMIMONTHLY, MONTHLY
 val selectedStartDate: Long = System.currentTimeMillis(),
 val salaryText: String = "",
 val initialBalanceText: String = "",
 val currencySymbol: String = "$",
-val imageStorageLocation: String = "GOOGLE_DRIVE",
+val imageStorageLocation: String = "IN_APP",
 val isLoading: Boolean = false,
 val isRestoring: Boolean = false,
 val isDriveConnected: Boolean = false,

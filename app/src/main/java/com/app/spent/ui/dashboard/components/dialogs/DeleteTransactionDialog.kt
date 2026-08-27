@@ -39,7 +39,9 @@ currencySymbol: String,
 onDismiss: () -> Unit,
 onConfirmDelete: (TransactionEntity) -> Unit
 ) {
-  val catName = categories.find { it.id == transaction.categoryId }?.name ?: stringResource(R.string.category_general)
+  val catName = categories.find { it.id == transaction.categoryId }?.let {
+    com.app.spent.util.CategoryLocalizationHelper.getLocalizedCategoryName(it)
+  } ?: stringResource(R.string.category_general)
   val isExpense = transaction.type == "EXPENSE"
 
   AlertDialog(

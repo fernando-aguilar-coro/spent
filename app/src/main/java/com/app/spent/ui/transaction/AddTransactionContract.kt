@@ -20,7 +20,7 @@ data class AddTransactionUiState(
     val showAddCategoryDialog: Boolean = false,
     val inputMode: InputMode = InputMode.IDLE,
     val selectedImageUri: String? = null,
-    val imageStorageLocation: String = "GOOGLE_DRIVE",
+    val imageStorageLocation: String = "IN_APP",
     val isProcessingImage: Boolean = false,
     val isSaving: Boolean = false,
     val isEditing: Boolean = false,
