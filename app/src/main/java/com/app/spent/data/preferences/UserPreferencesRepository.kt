@@ -127,8 +127,7 @@ class UserPreferencesRepository(private val context: Context) {
     if (!storedSymbol.isNullOrBlank()) {
       storedSymbol
     } else {
-      val lang = preferences[PreferencesKeys.APP_LANGUAGE]
-      LocaleHelper.getDefaultCurrencySymbol(lang, context)
+      LocaleHelper.getSystemCurrencySymbol(context)
     }
   }
 

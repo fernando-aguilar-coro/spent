@@ -78,9 +78,10 @@ fun CurrencySelectionCard(
         .filter { it.currencyCode != null && it.currencyCode.length == 3 }
         .map { cur ->
           val code = cur.currencyCode
-          val symbol = try {
+          val customSymbol = LocaleHelper.getSymbolForCurrencyCode(code)
+          val symbol = customSymbol ?: try {
             val s = cur.getSymbol(sysLocale)
-            if (s.isNotBlank()) s else cur.symbol
+            if (s.isNotBlank() && s != code) s else cur.symbol
           } catch (e: Exception) {
             cur.symbol ?: code
           }
@@ -278,21 +279,29 @@ fun CurrencySelectionCard(
 }
 
 private fun getFallbackCurrencies(): List<CurrencyOption> = listOf(
+  CurrencyOption("BOB", "Bs", "Bolivian Boliviano (Bs • BOB)"),
   CurrencyOption("USD", "$", "US Dollar ($ • USD)"),
-  CurrencyOption("EUR", "€", "Euro (€ • EUR)"),
-  CurrencyOption("INR", "₹", "Indian Rupee (₹ • INR)"),
-  CurrencyOption("JPY", "¥", "Japanese Yen (¥ • JPY)"),
-  CurrencyOption("GBP", "£", "British Pound (£ • GBP)"),
-  CurrencyOption("BRL", "R$", "Brazilian Real (R$ • BRL)"),
-  CurrencyOption("CAD", "CA$", "Canadian Dollar (CA$ • CAD)"),
-  CurrencyOption("CHF", "CHF", "Swiss Franc (CHF • CHF)"),
-  CurrencyOption("AUD", "A$", "Australian Dollar (A$ • AUD)"),
-  CurrencyOption("MXN", "MXN $", "Mexican Peso (MXN $ • MXN)"),
-  CurrencyOption("COP", "COP $", "Colombian Peso (COP $ • COP)"),
-  CurrencyOption("PEN", "S/", "Peruvian Sol (S/ • PEN)"),
-  CurrencyOption("CLP", "CLP $", "Chilean Peso (CLP $ • CLP)"),
-  CurrencyOption("ARS", "ARS $", "Argentine Peso (ARS $ • ARS)"),
-  CurrencyOption("BOB", "Bs.", "Bolivian Boliviano (Bs. • BOB)"),
   CurrencyOption("VES", "Bs.", "Venezuelan Bolívar (Bs. • VES)"),
-  CurrencyOption("PYG", "₲", "Paraguayan Guaraní (₲ • PYG)")
+  CurrencyOption("EUR", "€", "Euro (€ • EUR)"),
+  CurrencyOption("PEN", "S/", "Peruvian Sol (S/ • PEN)"),
+  CurrencyOption("COP", "$", "Colombian Peso ($ • COP)"),
+  CurrencyOption("MXN", "$", "Mexican Peso ($ • MXN)"),
+  CurrencyOption("ARS", "$", "Argentine Peso ($ • ARS)"),
+  CurrencyOption("CLP", "$", "Chilean Peso ($ • CLP)"),
+  CurrencyOption("BRL", "R$", "Brazilian Real (R$ • BRL)"),
+  CurrencyOption("GBP", "£", "British Pound (£ • GBP)"),
+  CurrencyOption("CAD", "CA$", "Canadian Dollar (CA$ • CAD)"),
+  CurrencyOption("AUD", "A$", "Australian Dollar (A$ • AUD)"),
+  CurrencyOption("JPY", "¥", "Japanese Yen (¥ • JPY)"),
+  CurrencyOption("CNY", "¥", "Chinese Yuan (¥ • CNY)"),
+  CurrencyOption("INR", "₹", "Indian Rupee (₹ • INR)"),
+  CurrencyOption("CHF", "CHF", "Swiss Franc (CHF • CHF)"),
+  CurrencyOption("PYG", "₲", "Paraguayan Guaraní (₲ • PYG)"),
+  CurrencyOption("UYU", "$", "Uruguayan Peso ($ • UYU)"),
+  CurrencyOption("CRC", "₡", "Costa Rican Colón (₡ • CRC)"),
+  CurrencyOption("GTQ", "Q", "Guatemalan Quetzal (Q • GTQ)"),
+  CurrencyOption("HNL", "L", "Honduran Lempira (L • HNL)"),
+  CurrencyOption("NIO", "C$", "Nicaraguan Córdoba (C$ • NIO)"),
+  CurrencyOption("DOP", "RD$", "Dominican Peso (RD$ • DOP)"),
+  CurrencyOption("PAB", "B/.", "Panamanian Balboa (B/. • PAB)")
 )

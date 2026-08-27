@@ -1,18 +1,234 @@
 package com.app.spent.util
 
+import java.util.Currency
 import java.util.Locale
 
 import android.content.Context
 import android.content.res.Configuration
+import android.content.res.Resources
 import androidx.core.os.ConfigurationCompat
+
 object LocaleHelper {
+
+  /**
+   * Custom mapping of ISO-4217 Currency Codes to their user-friendly, standard display symbols.
+   */
+  val CUSTOM_CURRENCY_SYMBOLS: Map<String, String> = mapOf(
+    "BOB" to "Bs",
+    "USD" to "$",
+    "VES" to "Bs.",
+    "EUR" to "€",
+    "PEN" to "S/",
+    "COP" to "$",
+    "MXN" to "$",
+    "ARS" to "$",
+    "CLP" to "$",
+    "UYU" to "$",
+    "PYG" to "₲",
+    "CRC" to "₡",
+    "GTQ" to "Q",
+    "HNL" to "L",
+    "NIO" to "C$",
+    "DOP" to "RD$",
+    "PAB" to "B/.",
+    "GBP" to "£",
+    "BRL" to "R$",
+    "CAD" to "CA$",
+    "AUD" to "A$",
+    "NZD" to "NZ$",
+    "JPY" to "¥",
+    "CNY" to "¥",
+    "INR" to "₹",
+    "KRW" to "₩",
+    "CHF" to "CHF",
+    "SEK" to "kr",
+    "NOK" to "kr",
+    "DKK" to "kr",
+    "PLN" to "zł",
+    "TRY" to "₺",
+    "RUB" to "₽",
+    "SAR" to "﷼",
+    "AED" to "د.إ",
+    "ZAR" to "R",
+    "SGD" to "S$",
+    "HKD" to "HK$",
+    "THB" to "฿",
+    "IDR" to "Rp",
+    "MYR" to "RM",
+    "PHP" to "₱",
+    "VND" to "₫",
+    "EGP" to "E£",
+    "ILS" to "₪"
+  )
+
+  /**
+   * ISO-3166 Country Code to ISO-4217 Currency Code mapping.
+   * Guarantees exact currency mapping directly from system locale preferences.
+   */
+  val COUNTRY_TO_CURRENCY_CODE: Map<String, String> = mapOf(
+    "BO" to "BOB",
+    "US" to "USD",
+    "VE" to "VES",
+    "ES" to "EUR",
+    "DE" to "EUR",
+    "FR" to "EUR",
+    "IT" to "EUR",
+    "PT" to "EUR",
+    "NL" to "EUR",
+    "BE" to "EUR",
+    "AT" to "EUR",
+    "IE" to "EUR",
+    "FI" to "EUR",
+    "GR" to "EUR",
+    "PE" to "PEN",
+    "CO" to "COP",
+    "MX" to "MXN",
+    "AR" to "ARS",
+    "CL" to "CLP",
+    "BR" to "BRL",
+    "UY" to "UYU",
+    "PY" to "PYG",
+    "EC" to "USD",
+    "PA" to "USD",
+    "SV" to "USD",
+    "CR" to "CRC",
+    "GT" to "GTQ",
+    "HN" to "HNL",
+    "NI" to "NIO",
+    "DO" to "DOP",
+    "GB" to "GBP",
+    "CA" to "CAD",
+    "AU" to "AUD",
+    "NZ" to "NZD",
+    "JP" to "JPY",
+    "CN" to "CNY",
+    "IN" to "INR",
+    "KR" to "KRW",
+    "RU" to "RUB",
+    "TR" to "TRY",
+    "CH" to "CHF",
+    "SE" to "SEK",
+    "NO" to "NOK",
+    "DK" to "DKK",
+    "PL" to "PLN",
+    "TH" to "THB",
+    "ID" to "IDR",
+    "MY" to "MYR",
+    "PH" to "PHP",
+    "VN" to "VND",
+    "SA" to "SAR",
+    "AE" to "AED",
+    "ZA" to "ZAR",
+    "SG" to "SGD",
+    "HK" to "HKD",
+    "IL" to "ILS",
+    "EG" to "EGP"
+  )
+
+  fun getSymbolForCurrencyCode(currencyCode: String): String? {
+    return CUSTOM_CURRENCY_SYMBOLS[currencyCode.uppercase()]
+  }
 
   /**
    * Retrieves the primary preferred Locale from system configuration using ConfigurationCompat.
    */
-  fun getSystemPreferredLocale(context: Context): Locale {
-    val localeList = ConfigurationCompat.getLocales(context.resources.configuration)
-    return localeList.get(0) ?: Locale.getDefault()
+  fun getSystemPreferredLocale(context: Context? = null): Locale {
+    try {
+      val sysConfig = Resources.getSystem().configuration
+      val locales = ConfigurationCompat.getLocales(sysConfig)
+      if (!locales.isEmpty) {
+        val loc = locales.get(0)
+        if (loc != null) return loc
+      }
+    } catch (e: Exception) {}
+
+    if (context != null) {
+      try {
+        val locales = ConfigurationCompat.getLocales(context.resources.configuration)
+        if (!locales.isEmpty) {
+          val loc = locales.get(0)
+          if (loc != null) return loc
+        }
+      } catch (e: Exception) {}
+    }
+
+    return Locale.getDefault()
+  }
+
+  /**
+   * Returns an ordered list of all preferred system locales from Android System Preferences.
+   */
+  fun getAllSystemPreferredLocales(context: Context? = null): List<Locale> {
+    val result = mutableListOf<Locale>()
+
+    try {
+      val sysConfig = Resources.getSystem().configuration
+      val locales = ConfigurationCompat.getLocales(sysConfig)
+      for (i in 0 until locales.size()) {
+        locales.get(i)?.let { if (!result.contains(it)) result.add(it) }
+      }
+    } catch (e: Exception) {}
+
+    if (context != null) {
+      try {
+        val locales = ConfigurationCompat.getLocales(context.resources.configuration)
+        for (i in 0 until locales.size()) {
+          locales.get(i)?.let { if (!result.contains(it)) result.add(it) }
+        }
+      } catch (e: Exception) {}
+    }
+
+    val defaultLocale = Locale.getDefault()
+    if (!result.contains(defaultLocale)) {
+      result.add(defaultLocale)
+    }
+
+    return result
+  }
+
+  /**
+   * Resolves the currency symbol strictly from System Preferences (Language / Region settings).
+   * Checks country and custom mappings first, falls back to Currency.getInstance, then to "$".
+   */
+  fun getSystemCurrencySymbol(context: Context? = null): String {
+    val locales = getAllSystemPreferredLocales(context)
+
+    for (loc in locales) {
+      val country = loc.country.trim().uppercase()
+      if (country.isNotBlank()) {
+        // 1. Direct country to custom currency symbol mapping
+        val mappedCurrencyCode = COUNTRY_TO_CURRENCY_CODE[country]
+        if (mappedCurrencyCode != null) {
+          val customSym = CUSTOM_CURRENCY_SYMBOLS[mappedCurrencyCode]
+          if (!customSym.isNullOrBlank()) return customSym
+        }
+
+        // 2. Currency.getInstance(Locale) with custom symbol lookup
+        try {
+          val currency = Currency.getInstance(loc)
+          val code = currency.currencyCode
+          val customSym = CUSTOM_CURRENCY_SYMBOLS[code]
+          if (!customSym.isNullOrBlank()) return customSym
+
+          val symbol = currency.getSymbol(loc)
+          if (!symbol.isNullOrBlank() && symbol != code) return symbol
+        } catch (e: Exception) {}
+      }
+    }
+
+    // 3. If no country or country matching failed, check system language
+    for (loc in locales) {
+      val lang = loc.language.lowercase()
+      when (lang) {
+        "hi" -> return "₹"
+        "ja" -> return "¥"
+        "pt" -> return "R$"
+        "de", "fr", "it" -> return "€"
+      }
+    }
+
+    // 4. Default fallback
+    return "$"
   }
 
   /**
@@ -54,50 +270,9 @@ object LocaleHelper {
   }
 
   /**
-   * Returns the system currency symbol based on system locale / location.
-   * If determination fails for any reason, falls back to "$".
+   * Returns default currency symbol based on system preferences.
    */
-  fun getSystemCurrencySymbol(context: Context): String {
-    return try {
-      val sysLocale = getSystemPreferredLocale(context)
-      val currency = java.util.Currency.getInstance(sysLocale)
-      val symbol = currency.getSymbol(sysLocale)
-      if (!symbol.isNullOrBlank()) symbol else "$"
-    } catch (e: Exception) {
-      try {
-        val defaultLocale = Locale.getDefault()
-        val currency = java.util.Currency.getInstance(defaultLocale)
-        val symbol = currency.getSymbol(defaultLocale)
-        if (!symbol.isNullOrBlank()) symbol else "$"
-      } catch (e2: Exception) {
-        "$"
-      }
-    }
-  }
-
-  /**
-   * Returns the native/standard currency symbol associated with each supported language or system locale.
-   */
-  fun getDefaultCurrencySymbol(languageCode: String?, context: Context): String {
-    return when (languageCode) {
-      "hi" -> "₹"
-      "ja" -> "¥"
-      "pt" -> "R$"
-      "de", "fr", "it" -> "€"
-      "es" -> {
-        val sysLocale = getSystemPreferredLocale(context)
-        if (sysLocale.country.equals("ES", ignoreCase = true)) "€" else "$"
-      }
-      "en" -> {
-        val sysLocale = getSystemPreferredLocale(context)
-        when (sysLocale.country.uppercase()) {
-          "GB" -> "£"
-          "CA" -> "CA$"
-          "AU" -> "A$"
-          else -> "$"
-        }
-      }
-      else -> getSystemCurrencySymbol(context)
-    }
+  fun getDefaultCurrencySymbol(languageCode: String?, context: Context? = null): String {
+    return getSystemCurrencySymbol(context)
   }
 }
