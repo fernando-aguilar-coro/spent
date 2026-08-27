@@ -346,8 +346,13 @@
     <string name="savings_rate">Tasso di risparmio</string>
     <string name="category_distribution">Distribuzione categorie</string>
     <string name="no_spending_recorded">Nessuna spesa registrata per questo ciclo.</string>
-    <string name="chart_net_savings">Risparmio netto nel tempo</string>
-    <string name="chart_net_savings_desc">Andamento del saldo netto nel periodo selezionato</string>
+    <string name="chart_net_savings">Entrate vs Uscite</string>
+    <string name="chart_net_savings_desc">Confronto tra entrate e uscite nel periodo selezionato</string>
+    <string name="chart_total_balance">Saldo Totale nel Tempo</string>
+    <string name="chart_total_balance_desc">Evoluzione del denaro totale e saldo cumulativo</string>
+    <string name="chart_current_balance">Totale Attuale</string>
+    <string name="chart_period_change">Variazione Periodo</string>
+    <string name="chart_starting_balance">Iniziale</string>
     <string name="timeframe_7d">7 giorni</string>
     <string name="timeframe_30d">30 giorni</string>
     <string name="timeframe_6m">6 mesi</string>

@@ -345,8 +345,13 @@
     <string name="savings_rate">Taux d\'épargne</string>
     <string name="category_distribution">Répartition par catégorie</string>
     <string name="no_spending_recorded">Aucune dépense enregistrée pour ce cycle.</string>
-    <string name="chart_net_savings">Évolution de l\'épargne nette</string>
-    <string name="chart_net_savings_desc">Trajectoire du solde net sur la période sélectionnée</string>
+    <string name="chart_net_savings">Revenus vs Dépenses</string>
+    <string name="chart_net_savings_desc">Comparaison des revenus et dépenses sur la période sélectionnée</string>
+    <string name="chart_total_balance">Solde Total au Fil du Temps</string>
+    <string name="chart_total_balance_desc">Évolution de l\'argent total et solde cumulé</string>
+    <string name="chart_current_balance">Total Actuel</string>
+    <string name="chart_period_change">Variation de Période</string>
+    <string name="chart_starting_balance">Initial</string>
     <string name="timeframe_7d">7 jours</string>
     <string name="timeframe_30d">30 jours</string>
     <string name="timeframe_6m">6 mois</string>

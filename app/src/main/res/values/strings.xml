@@ -346,8 +346,13 @@
     <string name="savings_rate">Savings Rate</string>
     <string name="category_distribution">Category Distribution</string>
     <string name="no_spending_recorded">No spending recorded for this cycle.</string>
-    <string name="chart_net_savings">Net Savings Over Time</string>
-    <string name="chart_net_savings_desc">Net balance trajectory across the selected period</string>
+    <string name="chart_net_savings">Income vs Expenses</string>
+    <string name="chart_net_savings_desc">Income and expenses comparison across the selected period</string>
+    <string name="chart_total_balance">Total Balance Over Time</string>
+    <string name="chart_total_balance_desc">Total money trajectory and cumulative balance</string>
+    <string name="chart_current_balance">Current Total</string>
+    <string name="chart_period_change">Period Change</string>
+    <string name="chart_starting_balance">Starting</string>
     <string name="timeframe_7d">7 Days</string>
     <string name="timeframe_30d">30 Days</string>
     <string name="timeframe_6m">6 Months</string>

@@ -346,8 +346,13 @@
     <string name="savings_rate">貯蓄率</string>
     <string name="category_distribution">カテゴリー別割合</string>
     <string name="no_spending_recorded">このサイクルの支出記録はありません。</string>
-    <string name="chart_net_savings">純貯蓄の推移</string>
-    <string name="chart_net_savings_desc">選択期間における純残高の推移</string>
+    <string name="chart_net_savings">収入 vs 支出</string>
+    <string name="chart_net_savings_desc">選択期間における収入と支出の比較</string>
+    <string name="chart_total_balance">総残高の推移</string>
+    <string name="chart_total_balance_desc">総資金の推移と累積残高</string>
+    <string name="chart_current_balance">現在合計</string>
+    <string name="chart_period_change">期間変動</string>
+    <string name="chart_starting_balance">初期残高</string>
     <string name="timeframe_7d">7日間</string>
     <string name="timeframe_30d">30日間</string>
     <string name="timeframe_6m">6ヶ月</string>

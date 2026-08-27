@@ -346,8 +346,13 @@
     <string name="savings_rate">Taxa de Poupança</string>
     <string name="category_distribution">Distribuição por Categoria</string>
     <string name="no_spending_recorded">Nenhum gasto registrado para este ciclo.</string>
-    <string name="chart_net_savings">Saldo Líquido ao Longo do Tempo</string>
-    <string name="chart_net_savings_desc">Trajetória do saldo líquido no período selecionado</string>
+    <string name="chart_net_savings">Receitas vs Despesas</string>
+    <string name="chart_net_savings_desc">Comparação de receitas e despesas no período selecionado</string>
+    <string name="chart_total_balance">Saldo Total ao Longo do Tempo</string>
+    <string name="chart_total_balance_desc">Evolução do dinheiro total e saldo acumulado</string>
+    <string name="chart_current_balance">Total Atual</string>
+    <string name="chart_period_change">Variação no Período</string>
+    <string name="chart_starting_balance">Inicial</string>
     <string name="timeframe_7d">7 Dias</string>
     <string name="timeframe_30d">30 Dias</string>
     <string name="timeframe_6m">6 Meses</string>

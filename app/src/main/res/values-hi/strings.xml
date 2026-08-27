@@ -346,8 +346,13 @@
     <string name="savings_rate">बचत दर</string>
     <string name="category_distribution">श्रेणी वितरण</string>
     <string name="no_spending_recorded">इस चक्र के लिए कोई खर्च दर्ज नहीं किया गया।</string>
-    <string name="chart_net_savings">समय के साथ शुद्ध बचत</string>
-    <string name="chart_net_savings_desc">चयनित अवधि में शुद्ध शेष की प्रवृत्ति</string>
+    <string name="chart_net_savings">आय बनाम व्यय</string>
+    <string name="chart_net_savings_desc">चयनित अवधि में आय और व्यय की तुलना</string>
+    <string name="chart_total_balance">समय के साथ कुल शेष</string>
+    <string name="chart_total_balance_desc">कुल धन की प्रवृत्ति और संचयी शेष</string>
+    <string name="chart_current_balance">वर्तमान कुल</string>
+    <string name="chart_period_change">अवधि परिवर्तन</string>
+    <string name="chart_starting_balance">प्रारंभिक</string>
     <string name="timeframe_7d">7 दिन</string>
     <string name="timeframe_30d">30 दिन</string>
     <string name="timeframe_6m">6 महीने</string>

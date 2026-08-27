@@ -346,8 +346,13 @@
     <string name="savings_rate">Sparquote</string>
     <string name="category_distribution">Kategorieverteilung</string>
     <string name="no_spending_recorded">Keine Ausgaben in diesem Zyklus erfasst.</string>
-    <string name="chart_net_savings">Netto-Ersparnis im Zeitverlauf</string>
-    <string name="chart_net_savings_desc">Entwicklung des Nettosaldos im gewählten Zeitraum</string>
+    <string name="chart_net_savings">Einnahmen vs. Ausgaben</string>
+    <string name="chart_net_savings_desc">Vergleich von Einnahmen und Ausgaben im gewählten Zeitraum</string>
+    <string name="chart_total_balance">Gesamtsaldo im Zeitverlauf</string>
+    <string name="chart_total_balance_desc">Entwicklung des Gesamtgeldes und kumulierter Saldo</string>
+    <string name="chart_current_balance">Aktueller Gesamtsaldo</string>
+    <string name="chart_period_change">Zeitraumveränderung</string>
+    <string name="chart_starting_balance">Startguthaben</string>
     <string name="timeframe_7d">7 Tage</string>
     <string name="timeframe_30d">30 Tage</string>
     <string name="timeframe_6m">6 Monate</string>
