@@ -91,7 +91,7 @@ fun RecordLoanPaymentDialog(
                         item {
                             FilterChip(
                                 selected = false,
-                                onClick = { paymentAmountText = "%.2f".format(loan.installmentAmount) },
+                                onClick = { paymentAmountText = String.format(java.util.Locale.US, "%.2f", loan.installmentAmount) },
                                 label = { Text("Quota: $currencySymbol${"%.2f".format(loan.installmentAmount)}", fontSize = 12.sp) }
                             )
                         }
@@ -100,7 +100,7 @@ fun RecordLoanPaymentDialog(
                         item {
                             FilterChip(
                                 selected = false,
-                                onClick = { paymentAmountText = "%.2f".format(remaining / 2.0) },
+                                onClick = { paymentAmountText = String.format(java.util.Locale.US, "%.2f", remaining / 2.0) },
                                 label = { Text("50%: $currencySymbol${"%.2f".format(remaining / 2.0)}", fontSize = 12.sp) }
                             )
                         }
@@ -108,7 +108,7 @@ fun RecordLoanPaymentDialog(
                     item {
                         FilterChip(
                             selected = false,
-                            onClick = { paymentAmountText = "%.2f".format(remaining) },
+                            onClick = { paymentAmountText = String.format(java.util.Locale.US, "%.2f", remaining) },
                             label = { Text("Full: $currencySymbol${"%.2f".format(remaining)}", fontSize = 12.sp) }
                         )
                     }
@@ -117,8 +117,9 @@ fun RecordLoanPaymentDialog(
                 OutlinedTextField(
                     value = paymentAmountText,
                     onValueChange = { input ->
-                        if (input.isEmpty() || input.matches(Regex("^\\d*\\.?\\d{0,2}$"))) {
-                            paymentAmountText = input
+                        val normalized = input.replace(',', '.')
+                        if (normalized.isEmpty() || normalized.matches(Regex("^\\d*\\.?\\d{0,2}$"))) {
+                            paymentAmountText = normalized
                         }
                     },
                     label = { Text(stringResource(R.string.payment_amount_input_label)) },
@@ -134,7 +135,7 @@ fun RecordLoanPaymentDialog(
             }
         },
         confirmButton = {
-            val parsedAmount = paymentAmountText.toDoubleOrNull() ?: 0.0
+            val parsedAmount = paymentAmountText.replace(',', '.').toDoubleOrNull() ?: 0.0
             val isValid = parsedAmount > 0
 
             Button(

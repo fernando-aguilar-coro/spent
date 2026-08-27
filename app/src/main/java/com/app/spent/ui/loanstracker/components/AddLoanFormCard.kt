@@ -115,7 +115,7 @@ fun AddLoanFormCard(
     var monthlyQuotaText by remember(editingLoan) {
         mutableStateOf(
             if (editingLoan?.calculationMode == "MONTHLY_QUOTA" && editingLoan?.installmentAmount != null && editingLoan.installmentAmount > 0) {
-                "%.2f".format(editingLoan.installmentAmount).removeSuffix(".00")
+                String.format(java.util.Locale.US, "%.2f", editingLoan.installmentAmount).removeSuffix(".00")
             } else ""
         )
     }
@@ -127,12 +127,12 @@ fun AddLoanFormCard(
     var totalPrincipalText by remember(editingLoan) {
         mutableStateOf(
             if (editingLoan?.calculationMode != "MONTHLY_QUOTA" && editingLoan != null) {
-                "%.2f".format(editingLoan.principalAmount).removeSuffix(".00")
+                String.format(java.util.Locale.US, "%.2f", editingLoan.principalAmount).removeSuffix(".00")
             } else ""
         )
     }
     var interestRateText by remember(editingLoan) {
-        mutableStateOf(editingLoan?.let { if (it.interestRate > 0) "%.1f".format(it.interestRate).removeSuffix(".0") else "" } ?: "")
+        mutableStateOf(editingLoan?.let { if (it.interestRate > 0) String.format(java.util.Locale.US, "%.1f", it.interestRate).removeSuffix(".0") else "" } ?: "")
     }
     var totalDurationMonths by remember(editingLoan) {
         mutableStateOf<Int?>(if (editingLoan?.calculationMode != "MONTHLY_QUOTA") editingLoan?.installmentDurationMonths else null)
@@ -328,7 +328,7 @@ fun AddLoanFormCard(
 
             // ==================== PATH 1: BY MONTHLY QUOTA ====================
             if (selectedTabMode == 0) {
-                val parsedQuota = monthlyQuotaText.toDoubleOrNull() ?: 0.0
+                val parsedQuota = monthlyQuotaText.replace(',', '.').toDoubleOrNull() ?: 0.0
                 val computedTotal = parsedQuota * quotaDurationMonths
 
                 // 1. Monthly Quota Input Field
@@ -479,8 +479,8 @@ fun AddLoanFormCard(
 
             // ==================== PATH 2: BY TOTAL LOAN AMOUNT ====================
             if (selectedTabMode == 1) {
-                val parsedPrincipal = totalPrincipalText.toDoubleOrNull() ?: 0.0
-                val parsedRate = interestRateText.toDoubleOrNull() ?: 0.0
+                val parsedPrincipal = totalPrincipalText.replace(',', '.').toDoubleOrNull() ?: 0.0
+                val parsedRate = interestRateText.replace(',', '.').toDoubleOrNull() ?: 0.0
                 val totalWithInterest = if (parsedRate > 0) parsedPrincipal * (1.0 + (parsedRate / 100.0)) else parsedPrincipal
                 val activeDuration = totalDurationMonths
                 val isIndefinite = activeDuration == null || activeDuration <= 0
@@ -524,8 +524,9 @@ fun AddLoanFormCard(
                 OutlinedTextField(
                     value = interestRateText,
                     onValueChange = { input ->
-                        if (input.isEmpty() || input.matches(Regex("^\\d*\\.?\\d{0,2}$"))) {
-                            interestRateText = input
+                        val normalized = input.replace(',', '.')
+                        if (normalized.isEmpty() || normalized.matches(Regex("^\\d*\\.?\\d{0,2}$"))) {
+                            interestRateText = normalized
                         }
                     },
                     label = { Text(stringResource(R.string.loan_interest_label), fontSize = 13.sp) },
@@ -688,16 +689,16 @@ fun AddLoanFormCard(
 
             // ==================== SAVE BUTTON ====================
             val isFormValid = if (selectedTabMode == 0) {
-                (monthlyQuotaText.toDoubleOrNull() ?: 0.0) > 0
+                (monthlyQuotaText.replace(',', '.').toDoubleOrNull() ?: 0.0) > 0
             } else {
-                (totalPrincipalText.toDoubleOrNull() ?: 0.0) > 0
+                (totalPrincipalText.replace(',', '.').toDoubleOrNull() ?: 0.0) > 0
             }
 
             Button(
                 onClick = {
                     if (isFormValid) {
                         if (selectedTabMode == 0) {
-                            val monthly = monthlyQuotaText.toDoubleOrNull() ?: 0.0
+                            val monthly = monthlyQuotaText.replace(',', '.').toDoubleOrNull() ?: 0.0
                             val total = monthly * quotaDurationMonths
                             val calEnd = customEndDateMillis ?: Calendar.getInstance().apply {
                                 timeInMillis = startDateMillis
@@ -719,8 +720,8 @@ fun AddLoanFormCard(
                                 editingLoan?.id
                             )
                         } else {
-                            val principal = totalPrincipalText.toDoubleOrNull() ?: 0.0
-                            val rate = interestRateText.toDoubleOrNull() ?: 0.0
+                            val principal = totalPrincipalText.replace(',', '.').toDoubleOrNull() ?: 0.0
+                            val rate = interestRateText.replace(',', '.').toDoubleOrNull() ?: 0.0
                             val totalWithRate = if (rate > 0) principal * (1.0 + (rate / 100.0)) else principal
                             val isInst = totalDurationMonths != null && totalDurationMonths!! > 0
                             val quota = if (isInst) totalWithRate / totalDurationMonths!! else null
