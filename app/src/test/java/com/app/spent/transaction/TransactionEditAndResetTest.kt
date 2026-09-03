@@ -388,8 +388,26 @@ private class FakeSpentRepository : SpentRepository {
     override suspend fun addRecurringRule(rule: RecurringRuleEntity) {
         storedRecurringRules[rule.id] = rule
     }
+    override suspend fun updateRecurringRule(rule: RecurringRuleEntity) {
+        storedRecurringRules[rule.id] = rule
+    }
+    override suspend fun stopRecurringRule(id: String) {
+        val existing = storedRecurringRules[id]
+        if (existing != null) {
+            storedRecurringRules[id] = existing.copy(isActive = false)
+        }
+    }
     override suspend fun deleteRecurringRuleById(id: String) {
         storedRecurringRules.remove(id)
+    }
+    override suspend fun deleteRecurringRuleAndTransactions(id: String) {
+        storedRecurringRules.remove(id)
+        val iterator = storedTransactions.iterator()
+        while (iterator.hasNext()) {
+            if (iterator.next().value.recurringRuleId == id) {
+                iterator.remove()
+            }
+        }
     }
     override suspend fun executePendingRecurringRules() {}
 

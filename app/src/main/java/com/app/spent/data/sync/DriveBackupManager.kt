@@ -150,6 +150,7 @@ object DriveBackupManager {
         put("endDate", r.endDate ?: -1L)
         put("lastExecuted", r.lastExecuted)
         put("type", r.type)
+        put("isActive", r.isActive)
       }
       rrArray.put(obj)
     }
@@ -332,7 +333,8 @@ object DriveBackupManager {
               endDate = if (endTs > 0) endTs else null,
               lastExecuted = obj.optLong("lastExecuted", 0L),
               note = obj.optString("note", ""),
-              type = obj.optString("type", "EXPENSE")
+              type = obj.optString("type", "EXPENSE"),
+              isActive = obj.optBoolean("isActive", true)
             )
           )
         }

@@ -114,6 +114,9 @@ interface SpentDao {
   @Query("SELECT * FROM recurring_rules")
   suspend fun getAllRecurringRules(): List<RecurringRuleEntity>
 
+  @Query("SELECT * FROM recurring_rules WHERE isActive = 1")
+  suspend fun getActiveRecurringRules(): List<RecurringRuleEntity>
+
   @Insert(onConflict = OnConflictStrategy.REPLACE)
   suspend fun insertRecurringRule(rule: RecurringRuleEntity)
 
@@ -123,8 +126,14 @@ interface SpentDao {
   @Update
   suspend fun updateRecurringRule(rule: RecurringRuleEntity)
 
+  @Query("UPDATE recurring_rules SET isActive = :isActive WHERE id = :id")
+  suspend fun updateRecurringRuleActiveStatus(id: String, isActive: Boolean)
+
   @Query("DELETE FROM recurring_rules WHERE id = :id")
   suspend fun deleteRecurringRuleById(id: String)
+
+  @Query("DELETE FROM transactions WHERE recurringRuleId = :ruleId")
+  suspend fun deleteTransactionsByRecurringRuleId(ruleId: String)
 
   // Loans & Debts
   @Query("SELECT * FROM loans ORDER BY createdAt DESC")

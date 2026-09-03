@@ -274,6 +274,9 @@ class AddTransactionViewModel(
                         ?: "cat_general"
                 }
 
+                val now = System.currentTimeMillis()
+                val isFuture = state.selectedTimestamp > now
+
                 var ruleId: String? = state.editingRecurringRuleId
                 if (state.isRecurring) {
                     if (ruleId != null) {
@@ -284,13 +287,14 @@ class AddTransactionViewModel(
                             amount = finalAmount,
                             categoryId = targetCatId,
                             frequency = state.selectedFrequency,
-                            startDate = existingRule?.startDate ?: state.selectedTimestamp,
+                            startDate = state.selectedTimestamp,
                             endDate = existingRule?.endDate,
-                            lastExecuted = existingRule?.lastExecuted ?: state.selectedTimestamp,
+                            lastExecuted = if (isFuture) 0L else (existingRule?.lastExecuted ?: state.selectedTimestamp),
                             note = state.noteText,
-                            type = state.selectedType
+                            type = state.selectedType,
+                            isActive = true
                         )
-                        repository.addRecurringRule(updatedRule)
+                        repository.updateRecurringRule(updatedRule)
                     } else {
                         val newRuleId = UUID.randomUUID().toString()
                         ruleId = newRuleId
@@ -300,9 +304,10 @@ class AddTransactionViewModel(
                             categoryId = targetCatId,
                             frequency = state.selectedFrequency,
                             startDate = state.selectedTimestamp,
-                            lastExecuted = state.selectedTimestamp,
+                            lastExecuted = if (isFuture) 0L else state.selectedTimestamp,
                             note = state.noteText,
-                            type = state.selectedType
+                            type = state.selectedType,
+                            isActive = true
                         )
                         repository.addRecurringRule(rule)
                     }
@@ -313,27 +318,32 @@ class AddTransactionViewModel(
                     }
                 }
 
-                val txId = if (state.isEditing && !state.editingTransactionId.isNullOrEmpty()) {
-                    state.editingTransactionId
-                } else {
-                    UUID.randomUUID().toString()
-                }
+                // If scheduled for the future and not editing an existing transaction, do not log a transaction today
+                val shouldInsertTransaction = !isFuture || state.isEditing
 
-                val tx = TransactionEntity(
-                    id = txId,
-                    amount = finalAmount,
-                    type = state.selectedType,
-                    categoryId = targetCatId,
-                    note = state.noteText,
-                    timestamp = state.selectedTimestamp,
-                    imageUri = state.selectedImageUri,
-                    recurringRuleId = ruleId
-                )
+                if (shouldInsertTransaction) {
+                    val txId = if (state.isEditing && !state.editingTransactionId.isNullOrEmpty()) {
+                        state.editingTransactionId
+                    } else {
+                        UUID.randomUUID().toString()
+                    }
 
-                if (state.isEditing) {
-                    repository.updateTransaction(tx)
-                } else {
-                    repository.addTransaction(tx)
+                    val tx = TransactionEntity(
+                        id = txId,
+                        amount = finalAmount,
+                        type = state.selectedType,
+                        categoryId = targetCatId,
+                        note = state.noteText,
+                        timestamp = state.selectedTimestamp,
+                        imageUri = state.selectedImageUri,
+                        recurringRuleId = ruleId
+                    )
+
+                    if (state.isEditing) {
+                        repository.updateTransaction(tx)
+                    } else {
+                        repository.addTransaction(tx)
+                    }
                 }
 
                 if (state.isRecurring) {

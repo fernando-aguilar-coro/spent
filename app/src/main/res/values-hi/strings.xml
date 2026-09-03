@@ -274,11 +274,20 @@
     <string name="delete_loan_confirm_title">ऋण रिकॉर्ड हटाएं?</string>
     <string name="delete_loan_confirm_msg">क्या आप वाकई इस ऋण रिकॉर्ड को स्थायी रूप से हटाना चाहते हैं?</string>
 
-    <!-- Fixed Bills & Utilities -->
-    <string name="tool_fixed_bills_title">निश्चित बिल और सेवाएं</string>
-    <string name="tool_fixed_bills_desc">बिजली, पानी, इंटरनेट, गैस और किराया</string>
-    <string name="fixed_bills_dialog_title">निश्चित बिल और सेवाएं</string>
-    <string name="fixed_bills_screen_title">निश्चित बिल और उपयोगिताएं</string>
+    <!-- Recurring Payments & Bills -->
+    <string name="tool_fixed_bills_title">आवर्ती भुगतान और बिल</string>
+    <string name="tool_fixed_bills_desc">सदस्यता, सेवाएं, किराया और आवर्ती खर्च</string>
+    <string name="fixed_bills_dialog_title">आवर्ती भुगतान और बिल</string>
+    <string name="fixed_bills_screen_title">आवर्ती भुगतान और उपयोगिताएं</string>
+    <string name="recurring_dialog_cancel_title">आवर्ती नियम प्रबंधित करें</string>
+    <string name="recurring_dialog_stop_future_btn">भविष्य के भुगतान रोकें</string>
+    <string name="recurring_dialog_stop_future_desc">पिछला इतिहास रखें, लेकिन भविष्य के स्वचालित भुगतान रोकें।</string>
+    <string name="recurring_dialog_delete_all_btn">नियम और पूरा इतिहास हटाएं</string>
+    <string name="recurring_dialog_delete_all_desc">इस नियम और इससे जुड़े सभी लेन-देन को स्थायी रूप से हटाएं।</string>
+    <string name="recurring_rule_status_paused">रोका गया</string>
+    <string name="recurring_rule_status_active">सक्रिय</string>
+    <string name="edit_bill_title">आवर्ती भुगतान संपादित करें</string>
+    <string name="action_edit">संपादित करें</string>
     <string name="loans_tracker_screen_title">ऋण और उधार ट्रैकर</string>
     <string name="add_fixed_bill_title">नया बिल जोड़ें</string>
     <string name="quick_presets_title">त्वरित प्रीसेट</string>

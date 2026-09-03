@@ -274,11 +274,20 @@
     <string name="delete_loan_confirm_title">Krediteintrag löschen?</string>
     <string name="delete_loan_confirm_msg">Möchtest du diesen Eintrag wirklich dauerhaft löschen?</string>
 
-    <!-- Fixed Bills & Utilities -->
-    <string name="tool_fixed_bills_title">Fixkosten &amp; Nebenkosten</string>
-    <string name="tool_fixed_bills_desc">Strom, Wasser, Internet, Gas &amp; Miete</string>
-    <string name="fixed_bills_dialog_title">Fixkosten &amp; Nebenkosten</string>
-    <string name="fixed_bills_screen_title">Fixkosten &amp; Rechnungen</string>
+    <!-- Recurring Payments & Bills -->
+    <string name="tool_fixed_bills_title">Wiederkehrende Zahlungen</string>
+    <string name="tool_fixed_bills_desc">Abonnements, Nebenkosten, Miete &amp; regelmäßige Zahlungen</string>
+    <string name="fixed_bills_dialog_title">Wiederkehrende Zahlungen</string>
+    <string name="fixed_bills_screen_title">Wiederkehrende Zahlungen &amp; Rechnungen</string>
+    <string name="recurring_dialog_cancel_title">Wiederkehrende Zahlung verwalten</string>
+    <string name="recurring_dialog_stop_future_btn">Zukünftige Zahlungen stoppen</string>
+    <string name="recurring_dialog_stop_future_desc">Behält vergangene Buchungen, stoppt zukünftige automatische Zahlungen.</string>
+    <string name="recurring_dialog_delete_all_btn">Regel &amp; gesamten Verlauf löschen</string>
+    <string name="recurring_dialog_delete_all_desc">Löscht diese Regel und alle damit erstellten Transaktionen dauerhaft.</string>
+    <string name="recurring_rule_status_paused">Gestoppt</string>
+    <string name="recurring_rule_status_active">Aktiv</string>
+    <string name="edit_bill_title">Wiederkehrende Zahlung bearbeiten</string>
+    <string name="action_edit">Bearbeiten</string>
     <string name="loans_tracker_screen_title">Kredite &amp; Schulden</string>
     <string name="add_fixed_bill_title">Neue Rechnung hinzufügen</string>
     <string name="quick_presets_title">Schnellvorlagen</string>

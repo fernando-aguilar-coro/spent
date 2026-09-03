@@ -27,6 +27,10 @@ sealed class FixedBillsUiIntent : UiIntent {
     ) : FixedBillsUiIntent()
 
     data class DeleteBill(val ruleId: String) : FixedBillsUiIntent()
+    data class StopBill(val ruleId: String) : FixedBillsUiIntent()
+    data class ResumeBill(val ruleId: String) : FixedBillsUiIntent()
+    data class DeleteBillAndTransactions(val ruleId: String) : FixedBillsUiIntent()
+    data class UpdateBill(val rule: RecurringRuleEntity) : FixedBillsUiIntent()
 
     data class PayBill(
         val amount: Double,

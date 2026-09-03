@@ -62,7 +62,7 @@ class DashboardViewModel(
 
                 // Smart Fixed Bills calculation with dynamic approximation for pending bills
                 val nowMillis = System.currentTimeMillis()
-                val activeRules = recurringRules.filter { it.endDate == null || it.endDate >= nowMillis }
+                val activeRules = recurringRules.filter { it.isActive && (it.endDate == null || it.endDate >= nowMillis) }
 
                 var pendingFixedBills = 0.0
 
@@ -260,7 +260,12 @@ class DashboardViewModel(
 
     override fun onIntent(intent: DashboardUiIntent) {
         when (intent) {
-            is DashboardUiIntent.LoadData -> observeData()
+            is DashboardUiIntent.LoadData -> {
+                viewModelScope.launch {
+                    repository.executePendingRecurringRules()
+                }
+                observeData()
+            }
             is DashboardUiIntent.AddTransaction -> addTransaction(intent.amount, intent.type, intent.categoryId, intent.note)
             is DashboardUiIntent.DeleteTransaction -> deleteTransaction(intent.transaction)
             is DashboardUiIntent.UndoDelete -> undoDelete(intent.transaction)

@@ -274,11 +274,20 @@
     <string name="delete_loan_confirm_title">ローン記録を削除しますか？</string>
     <string name="delete_loan_confirm_msg">この記録を完全に削除してもよろしいですか？</string>
 
-    <!-- Fixed Bills & Utilities -->
-    <string name="tool_fixed_bills_title">固定費と定期サービス</string>
-    <string name="tool_fixed_bills_desc">電気、水道、ネット、ガス、家賃</string>
-    <string name="fixed_bills_dialog_title">固定費と公共料金</string>
-    <string name="fixed_bills_screen_title">固定費と公共サービス</string>
+    <!-- Recurring Payments & Bills -->
+    <string name="tool_fixed_bills_title">定期支払と固定費</string>
+    <string name="tool_fixed_bills_desc">サブスク、公共料金、家賃、定期的な支払い</string>
+    <string name="fixed_bills_dialog_title">定期支払と請求</string>
+    <string name="fixed_bills_screen_title">定期支払と公共サービス</string>
+    <string name="recurring_dialog_cancel_title">定期支払を管理</string>
+    <string name="recurring_dialog_stop_future_btn">今後の支払いを停止</string>
+    <string name="recurring_dialog_stop_future_desc">過去の履歴は保持し、今後の自動支払いを停止します。</string>
+    <string name="recurring_dialog_delete_all_btn">ルールと全履歴を削除</string>
+    <string name="recurring_dialog_delete_all_desc">このルールと関連する全取引を完全に削除します。</string>
+    <string name="recurring_rule_status_paused">停止中</string>
+    <string name="recurring_rule_status_active">有効</string>
+    <string name="edit_bill_title">定期支払を編集</string>
+    <string name="action_edit">編集</string>
     <string name="loans_tracker_screen_title">ローンと借入</string>
     <string name="add_fixed_bill_title">新しい請求を追加</string>
     <string name="quick_presets_title">クイックプリセット</string>

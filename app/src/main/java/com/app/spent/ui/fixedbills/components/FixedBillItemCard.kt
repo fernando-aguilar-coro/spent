@@ -21,6 +21,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Bolt
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -55,7 +57,9 @@ fun FixedBillItemCard(
     currentMonth: Int,
     currentYear: Int,
     onPayBill: (amount: Double, name: String, categoryId: String, ruleId: String) -> Unit,
-    onDeleteBill: (ruleId: String) -> Unit
+    onDeleteBill: (ruleId: String) -> Unit,
+    onEditBill: (rule: RecurringRuleEntity) -> Unit = {},
+    onResumeBill: (ruleId: String) -> Unit = {}
 ) {
     val cleanName = rule.note.removePrefix("Bill: ").removePrefix("Factura: ").ifEmpty { "Bill" }
 
@@ -162,16 +166,56 @@ fun FixedBillItemCard(
                     }
                 }
 
-                IconButton(
-                    onClick = { onDeleteBill(rule.id) },
-                    modifier = Modifier.size(32.dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Delete,
-                        contentDescription = "Delete",
-                        tint = ExpenseRed,
-                        modifier = Modifier.size(18.dp)
-                    )
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    if (!rule.isActive) {
+                        androidx.compose.material3.Surface(
+                            shape = RoundedCornerShape(8.dp),
+                            color = MaterialTheme.colorScheme.surfaceVariant,
+                            modifier = Modifier.padding(end = 4.dp)
+                        ) {
+                            Text(
+                                text = stringResource(R.string.recurring_rule_status_paused),
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                            )
+                        }
+                        IconButton(
+                            onClick = { onResumeBill(rule.id) },
+                            modifier = Modifier.size(32.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.PlayArrow,
+                                contentDescription = "Resume",
+                                tint = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.size(20.dp)
+                            )
+                        }
+                    }
+
+                    IconButton(
+                        onClick = { onEditBill(rule) },
+                        modifier = Modifier.size(32.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Edit,
+                            contentDescription = stringResource(R.string.action_edit),
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.size(18.dp)
+                        )
+                    }
+
+                    IconButton(
+                        onClick = { onDeleteBill(rule.id) },
+                        modifier = Modifier.size(32.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Delete,
+                            contentDescription = "Delete",
+                            tint = ExpenseRed,
+                            modifier = Modifier.size(18.dp)
+                        )
+                    }
                 }
             }
 

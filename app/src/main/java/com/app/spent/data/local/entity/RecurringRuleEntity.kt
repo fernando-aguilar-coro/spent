@@ -15,5 +15,6 @@ val startDate: Long = System.currentTimeMillis(),
 val endDate: Long? = null,
 val lastExecuted: Long = 0L,
 val note: String = "",
-val type: String = "EXPENSE"
+val type: String = "EXPENSE",
+val isActive: Boolean = true
 )

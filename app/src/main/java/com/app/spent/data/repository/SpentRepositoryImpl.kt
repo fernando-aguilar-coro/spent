@@ -13,15 +13,20 @@ import com.app.spent.data.local.entity.UserAccountEntity
 import com.app.spent.data.preferences.UserPreferencesRepository
 import com.app.spent.data.sync.DriveConnectResult
 import com.app.spent.data.sync.DriveSyncManager
+import com.app.spent.domain.recurring.RecurringRuleEngine
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 
 class SpentRepositoryImpl(
     private val context: Context,
     private val dao: SpentDao,
     private val preferencesRepository: UserPreferencesRepository
 ) : SpentRepository {
+
+    private val recurringMutex = Mutex()
 
     override fun getTransactionsFlow(): Flow<List<TransactionEntity>> = dao.getTransactionsFlow()
     override fun getRecentTransactionsFlow(limit: Int): Flow<List<TransactionEntity>> = dao.getRecentTransactionsFlow(limit)
@@ -189,7 +194,23 @@ class SpentRepositoryImpl(
         triggerAutoSync()
     }
 
+    override suspend fun updateRecurringRule(rule: RecurringRuleEntity) {
+        dao.updateRecurringRule(rule)
+        triggerAutoSync()
+    }
+
+    override suspend fun stopRecurringRule(id: String) {
+        dao.updateRecurringRuleActiveStatus(id, false)
+        triggerAutoSync()
+    }
+
     override suspend fun deleteRecurringRuleById(id: String) {
+        dao.deleteRecurringRuleById(id)
+        triggerAutoSync()
+    }
+
+    override suspend fun deleteRecurringRuleAndTransactions(id: String) {
+        dao.deleteTransactionsByRecurringRuleId(id)
         dao.deleteRecurringRuleById(id)
         triggerAutoSync()
     }
@@ -222,98 +243,51 @@ class SpentRepositoryImpl(
     }
 
     override suspend fun executePendingRecurringRules() {
-        val rules = dao.getAllRecurringRules()
-        val now = System.currentTimeMillis()
-        val zone = java.time.ZoneId.systemDefault()
-        val nowDate = java.time.Instant.ofEpochMilli(now).atZone(zone).toLocalDate()
+        recurringMutex.withLock {
+            val rules = dao.getActiveRecurringRules()
+            val now = System.currentTimeMillis()
+            val zone = java.time.ZoneId.systemDefault()
+            val nowDate = java.time.Instant.ofEpochMilli(now).atZone(zone).toLocalDate()
 
-        for (rule in rules) {
-            if (rule.endDate != null && rule.endDate > 0 && now > rule.endDate) continue
+            for (rule in rules) {
+                try {
+                    val pendingOccurrences = RecurringRuleEngine.calculatePendingDueDates(
+                        rule = rule,
+                        today = nowDate,
+                        zone = zone
+                    )
 
-            val startZdt = java.time.Instant.ofEpochMilli(rule.startDate).atZone(zone)
-            val startLocalDate = startZdt.toLocalDate()
-            val startLocalTime = startZdt.toLocalTime()
-            val anchorDay = startLocalDate.dayOfMonth
+                    if (pendingOccurrences.isEmpty()) continue
 
-            var currentLastExecuted = rule.lastExecuted
+                    var latestExecutedTs = rule.lastExecuted
 
-            // If rule has never been marked as executed
-            if (currentLastExecuted == 0L) {
-                if (rule.startDate <= now) {
-                    val count = dao.getTransactionCountForRecurringRule(rule.id)
-                    if (count == 0) {
-                        // Insert occurrence for startDate
+                    for (occurrence in pendingOccurrences) {
+                        val existingCount = dao.getTransactionCountForRecurringRule(rule.id)
+                        if (occurrence.timestamp == rule.startDate && existingCount > 0) {
+                            latestExecutedTs = maxOf(latestExecutedTs, occurrence.timestamp)
+                            continue
+                        }
+
                         dao.insertTransaction(
                             TransactionEntity(
                                 ownerProfileId = rule.ownerProfileId,
                                 amount = rule.amount,
                                 type = rule.type,
                                 categoryId = rule.categoryId,
-                                timestamp = rule.startDate,
+                                timestamp = occurrence.timestamp,
                                 note = rule.note,
                                 recurringRuleId = rule.id
                             )
                         )
+                        latestExecutedTs = maxOf(latestExecutedTs, occurrence.timestamp)
                     }
-                    currentLastExecuted = rule.startDate
-                } else {
-                    // Start date is in the future
-                    continue
-                }
-            }
 
-            var lastRunDate = java.time.Instant.ofEpochMilli(currentLastExecuted).atZone(zone).toLocalDate()
-            var lastExecutedTs = currentLastExecuted
-            var hasExecutedNewOccurrences = false
-
-            while (true) {
-                val nextDueDate: java.time.LocalDate = when (rule.frequency) {
-                    "DAILY" -> lastRunDate.plusDays(1)
-                    "WEEKLY" -> lastRunDate.plusWeeks(1)
-                    "BIWEEKLY" -> lastRunDate.plusWeeks(2)
-                    "MONTHLY" -> {
-                        // Option B: End-of-month clamping preserving anchorDay
-                        val nextYearMonth = java.time.YearMonth.from(lastRunDate).plusMonths(1)
-                        val effectiveDay = minOf(anchorDay, nextYearMonth.lengthOfMonth())
-                        nextYearMonth.atDay(effectiveDay)
+                    if (latestExecutedTs != rule.lastExecuted) {
+                        dao.updateRecurringRule(rule.copy(lastExecuted = latestExecutedTs))
                     }
-                    else -> {
-                        val nextYearMonth = java.time.YearMonth.from(lastRunDate).plusMonths(1)
-                        val effectiveDay = minOf(anchorDay, nextYearMonth.lengthOfMonth())
-                        nextYearMonth.atDay(effectiveDay)
-                    }
+                } catch (e: Exception) {
+                    // Isolate each rule's execution
                 }
-
-                if (nextDueDate.isAfter(nowDate)) {
-                    break
-                }
-
-                val nextDateTime = nextDueDate.atTime(startLocalTime)
-                val nextTimestamp = nextDateTime.atZone(zone).toInstant().toEpochMilli()
-
-                if (rule.endDate != null && rule.endDate > 0 && nextTimestamp > rule.endDate) {
-                    break
-                }
-
-                dao.insertTransaction(
-                    TransactionEntity(
-                        ownerProfileId = rule.ownerProfileId,
-                        amount = rule.amount,
-                        type = rule.type,
-                        categoryId = rule.categoryId,
-                        timestamp = nextTimestamp,
-                        note = rule.note,
-                        recurringRuleId = rule.id
-                    )
-                )
-
-                lastRunDate = nextDueDate
-                lastExecutedTs = nextTimestamp
-                hasExecutedNewOccurrences = true
-            }
-
-            if (hasExecutedNewOccurrences || currentLastExecuted != rule.lastExecuted) {
-                dao.updateRecurringRule(rule.copy(lastExecuted = lastExecutedTs))
             }
         }
     }

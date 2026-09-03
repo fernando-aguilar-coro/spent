@@ -152,6 +152,110 @@ class RecurringTransactionExecutionTest {
         // Should NOT create any duplicate transaction today
         assertEquals(0, fakeDao.transactions.size)
     }
+
+    @Test
+    fun testStopRecurringRulePreservesPastTransactions() = runTest {
+        val now = System.currentTimeMillis()
+        val rule = RecurringRuleEntity(
+            id = "rule-netflix",
+            amount = 15.99,
+            categoryId = "cat_subs",
+            frequency = "MONTHLY",
+            startDate = now,
+            lastExecuted = now,
+            isActive = true
+        )
+        fakeDao.recurringRules[rule.id] = rule
+        fakeDao.transactions.add(
+            TransactionEntity(
+                id = "tx-1",
+                amount = 15.99,
+                type = "EXPENSE",
+                categoryId = "cat_subs",
+                timestamp = now,
+                recurringRuleId = "rule-netflix"
+            )
+        )
+
+        // User stops the recurring rule
+        repository.stopRecurringRule("rule-netflix")
+
+        // Rule is now inactive
+        assertEquals(false, fakeDao.recurringRules["rule-netflix"]?.isActive)
+        // Past transaction is preserved!
+        assertEquals(1, fakeDao.transactions.size)
+        assertEquals("tx-1", fakeDao.transactions[0].id)
+    }
+
+    @Test
+    fun testDeleteRecurringRuleAndTransactionsWipesHistory() = runTest {
+        val now = System.currentTimeMillis()
+        val rule = RecurringRuleEntity(
+            id = "rule-mistake",
+            amount = 99.0,
+            categoryId = "cat_general",
+            frequency = "DAILY",
+            startDate = now,
+            lastExecuted = now,
+            isActive = true
+        )
+        fakeDao.recurringRules[rule.id] = rule
+        fakeDao.transactions.add(
+            TransactionEntity(
+                id = "tx-mistake-1",
+                amount = 99.0,
+                type = "EXPENSE",
+                categoryId = "cat_general",
+                timestamp = now,
+                recurringRuleId = "rule-mistake"
+            )
+        )
+
+        // User deletes rule AND all history
+        repository.deleteRecurringRuleAndTransactions("rule-mistake")
+
+        // Rule is gone and transactions are wiped!
+        assertEquals(null, fakeDao.recurringRules["rule-mistake"])
+        assertEquals(0, fakeDao.transactions.size)
+    }
+
+    @Test
+    fun testMultipleRulesExecuteReliably() = runTest {
+        val now = System.currentTimeMillis()
+        val zone = ZoneId.systemDefault()
+        val twoDaysAgo = ZonedDateTime.ofInstant(java.time.Instant.ofEpochMilli(now), zone).minusDays(2)
+        val startTs = twoDaysAgo.toInstant().toEpochMilli()
+
+        val rule1 = RecurringRuleEntity(
+            id = "rule-multi-1",
+            amount = 10.0,
+            categoryId = "cat_1",
+            frequency = "DAILY",
+            startDate = startTs,
+            lastExecuted = startTs,
+            isActive = true
+        )
+        val rule2 = RecurringRuleEntity(
+            id = "rule-multi-2",
+            amount = 20.0,
+            categoryId = "cat_2",
+            frequency = "DAILY",
+            startDate = startTs,
+            lastExecuted = startTs,
+            isActive = true
+        )
+
+        fakeDao.recurringRules[rule1.id] = rule1
+        fakeDao.recurringRules[rule2.id] = rule2
+
+        repository.executePendingRecurringRules()
+
+        // Rule 1 should generate 2 occurrences (yesterday and today)
+        // Rule 2 should generate 2 occurrences (yesterday and today)
+        assertEquals(4, fakeDao.transactions.size)
+        assertEquals(2, fakeDao.transactions.count { it.recurringRuleId == "rule-multi-1" })
+        assertEquals(2, fakeDao.transactions.count { it.recurringRuleId == "rule-multi-2" })
+    }
 }
 
 class FakeSpentDao : SpentDao {
@@ -159,6 +263,7 @@ class FakeSpentDao : SpentDao {
     val transactions = mutableListOf<TransactionEntity>()
 
     override suspend fun getAllRecurringRules(): List<RecurringRuleEntity> = recurringRules.values.toList()
+    override suspend fun getActiveRecurringRules(): List<RecurringRuleEntity> = recurringRules.values.filter { it.isActive }
 
     override suspend fun insertTransaction(transaction: TransactionEntity) {
         transactions.add(transaction)
@@ -166,6 +271,17 @@ class FakeSpentDao : SpentDao {
 
     override suspend fun updateRecurringRule(rule: RecurringRuleEntity) {
         recurringRules[rule.id] = rule
+    }
+
+    override suspend fun updateRecurringRuleActiveStatus(id: String, isActive: Boolean) {
+        val existing = recurringRules[id]
+        if (existing != null) {
+            recurringRules[id] = existing.copy(isActive = isActive)
+        }
+    }
+
+    override suspend fun deleteTransactionsByRecurringRuleId(ruleId: String) {
+        transactions.removeAll { it.recurringRuleId == ruleId }
     }
 
     override suspend fun getTransactionCountForRecurringRule(ruleId: String): Int {

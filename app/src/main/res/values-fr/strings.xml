@@ -273,11 +273,20 @@
     <string name="delete_loan_confirm_title">Supprimer le prêt ?</string>
     <string name="delete_loan_confirm_msg">Voulez-vous vraiment supprimer définitivement cet enregistrement ?</string>
 
-    <!-- Fixed Bills & Utilities -->
-    <string name="tool_fixed_bills_title">Factures fixes et charges</string>
-    <string name="tool_fixed_bills_desc">Électricité, eau, internet, gaz et loyer</string>
-    <string name="fixed_bills_dialog_title">Factures fixes et charges</string>
-    <string name="fixed_bills_screen_title">Factures fixes et services</string>
+    <!-- Recurring Payments & Bills -->
+    <string name="tool_fixed_bills_title">Paiements récurrents et factures</string>
+    <string name="tool_fixed_bills_desc">Abonnements, charges, loyer et dépenses récurrentes</string>
+    <string name="fixed_bills_dialog_title">Paiements récurrents et factures</string>
+    <string name="fixed_bills_screen_title">Paiements récurrents et services</string>
+    <string name="recurring_dialog_cancel_title">Gérer le paiement récurrent</string>
+    <string name="recurring_dialog_stop_future_btn">Arrêter les paiements futurs</string>
+    <string name="recurring_dialog_stop_future_desc">Conserver l\'historique des transactions, mais arrêter les prélèvements futurs.</string>
+    <string name="recurring_dialog_delete_all_btn">Supprimer la règle et tout l\'historique</string>
+    <string name="recurring_dialog_delete_all_desc">Supprimer définitivement cette règle et toutes les transactions associées.</string>
+    <string name="recurring_rule_status_paused">Arrêté</string>
+    <string name="recurring_rule_status_active">Actif</string>
+    <string name="edit_bill_title">Modifier le paiement récurrent</string>
+    <string name="action_edit">Modifier</string>
     <string name="loans_tracker_screen_title">Prêts et dettes</string>
     <string name="add_fixed_bill_title">Ajouter une nouvelle facture</string>
     <string name="quick_presets_title">Modèles rapides</string>

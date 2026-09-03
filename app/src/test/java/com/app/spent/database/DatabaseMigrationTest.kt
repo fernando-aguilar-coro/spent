@@ -72,6 +72,9 @@ class DatabaseMigrationTest {
 
         assertEquals(3, SpentDatabase.MIGRATION_3_4.startVersion)
         assertEquals(4, SpentDatabase.MIGRATION_3_4.endVersion)
+
+        assertEquals(4, SpentDatabase.MIGRATION_4_5.startVersion)
+        assertEquals(5, SpentDatabase.MIGRATION_4_5.endVersion)
     }
 
     @Test
@@ -84,6 +87,19 @@ class DatabaseMigrationTest {
         assertTrue(
             "MIGRATION_3_4 must add type column to recurring_rules",
             executedSql.any { it.contains("ALTER TABLE `recurring_rules` ADD COLUMN `type`") }
+        )
+    }
+
+    @Test
+    fun testMigration4To5SqlExecution() {
+        val executedSql = mutableListOf<String>()
+        val proxyDb = createMockDatabase(executedSql)
+
+        SpentDatabase.MIGRATION_4_5.migrate(proxyDb)
+
+        assertTrue(
+            "MIGRATION_4_5 must add isActive column to recurring_rules",
+            executedSql.any { it.contains("ALTER TABLE `recurring_rules` ADD COLUMN `isActive`") }
         )
     }
 

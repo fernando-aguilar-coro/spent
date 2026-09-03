@@ -45,7 +45,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.app.spent.R
+import com.app.spent.data.local.entity.RecurringRuleEntity
 import com.app.spent.ui.fixedbills.components.AddFixedBillFormCard
+import com.app.spent.ui.fixedbills.components.CancelOrDeleteRecurringDialog
+import com.app.spent.ui.fixedbills.components.EditRecurringBillDialog
 import com.app.spent.ui.fixedbills.components.FixedBillItemCard
 import com.app.spent.ui.fixedbills.components.FixedBillsEmptyState
 import com.app.spent.ui.transaction.components.AddCategoryDialog
@@ -77,6 +80,8 @@ fun FixedBillsScreen(
     var isAddingNewBill by remember { mutableStateOf(false) }
     var arrivalTimestamp by remember { mutableLongStateOf(System.currentTimeMillis()) }
     var showDatePicker by remember { mutableStateOf(false) }
+    var rulePendingDelete by remember { mutableStateOf<RecurringRuleEntity?>(null) }
+    var rulePendingEdit by remember { mutableStateOf<RecurringRuleEntity?>(null) }
     var billDueDay by remember {
         val todayDay = Calendar.getInstance().get(Calendar.DAY_OF_MONTH)
         mutableIntStateOf(todayDay)
@@ -208,8 +213,10 @@ fun FixedBillsScreen(
                                 )
                             )
                         },
-                        onDeleteBill = { ruleId ->
-                            viewModel.onIntent(FixedBillsUiIntent.DeleteBill(ruleId))
+                        onDeleteBill = { rulePendingDelete = rule },
+                        onEditBill = { rulePendingEdit = rule },
+                        onResumeBill = { ruleId ->
+                            viewModel.onIntent(FixedBillsUiIntent.ResumeBill(ruleId))
                         }
                     )
                 }
@@ -261,6 +268,35 @@ fun FixedBillsScreen(
             onDismiss = { viewModel.onIntent(FixedBillsUiIntent.ShowAddCategoryDialog(false)) },
             onSaveCategory = { name, colorHex, iconName ->
                 viewModel.onIntent(FixedBillsUiIntent.CreateCategory(name, colorHex, iconName))
+            }
+        )
+    }
+
+    rulePendingDelete?.let { rule ->
+        val cleanName = rule.note.removePrefix("Bill: ").removePrefix("Factura: ").ifEmpty { "Bill" }
+        CancelOrDeleteRecurringDialog(
+            ruleName = cleanName,
+            onDismiss = { rulePendingDelete = null },
+            onStopFuture = {
+                viewModel.onIntent(FixedBillsUiIntent.StopBill(rule.id))
+                rulePendingDelete = null
+            },
+            onDeleteAll = {
+                viewModel.onIntent(FixedBillsUiIntent.DeleteBillAndTransactions(rule.id))
+                rulePendingDelete = null
+            }
+        )
+    }
+
+    rulePendingEdit?.let { rule ->
+        EditRecurringBillDialog(
+            rule = rule,
+            categories = categories,
+            currencySymbol = currencySymbol,
+            onDismiss = { rulePendingEdit = null },
+            onSave = { updatedRule ->
+                viewModel.onIntent(FixedBillsUiIntent.UpdateBill(updatedRule))
+                rulePendingEdit = null
             }
         )
     }

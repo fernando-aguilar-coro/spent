@@ -274,11 +274,20 @@
     <string name="delete_loan_confirm_title">Eliminare record di prestito?</string>
     <string name="delete_loan_confirm_msg">Sei sicuro di voler eliminare definitivamente questo record?</string>
 
-    <!-- Fixed Bills & Utilities -->
-    <string name="tool_fixed_bills_title">Bollette fisse e utenze</string>
-    <string name="tool_fixed_bills_desc">Elettricità, acqua, internet, gas e affitto</string>
-    <string name="fixed_bills_dialog_title">Bollette fisse e utenze</string>
-    <string name="fixed_bills_screen_title">Bollette fisse e servizi</string>
+    <!-- Recurring Payments & Bills -->
+    <string name="tool_fixed_bills_title">Pagamenti ricorrenti e bollette</string>
+    <string name="tool_fixed_bills_desc">Abbonamenti, utenze, affitto e spese ricorrenti</string>
+    <string name="fixed_bills_dialog_title">Pagamenti ricorrenti e bollette</string>
+    <string name="fixed_bills_screen_title">Pagamenti ricorrenti e servizi</string>
+    <string name="recurring_dialog_cancel_title">Gestisci pagamento ricorrente</string>
+    <string name="recurring_dialog_stop_future_btn">Interrompi pagamenti futuri</string>
+    <string name="recurring_dialog_stop_future_desc">Conserva lo storico passato, ma interrompi gli addebiti futuri.</string>
+    <string name="recurring_dialog_delete_all_btn">Elimina regola e tutta la cronologia</string>
+    <string name="recurring_dialog_delete_all_desc">Elimina definitivamente questa regola e tutte le transazioni collegate.</string>
+    <string name="recurring_rule_status_paused">Interrotto</string>
+    <string name="recurring_rule_status_active">Attivo</string>
+    <string name="edit_bill_title">Modifica pagamento ricorrente</string>
+    <string name="action_edit">Modifica</string>
     <string name="loans_tracker_screen_title">Prestiti e debiti</string>
     <string name="add_fixed_bill_title">Aggiungi nuova bolletta</string>
     <string name="quick_presets_title">Modelli rapidi</string>

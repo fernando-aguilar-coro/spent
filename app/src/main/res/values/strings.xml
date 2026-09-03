@@ -274,11 +274,20 @@
     <string name="delete_loan_confirm_title">Delete Loan Record?</string>
     <string name="delete_loan_confirm_msg">Are you sure you want to permanently delete this loan record?</string>
 
-    <!-- Fixed Bills & Utilities -->
-    <string name="tool_fixed_bills_title">Fixed Bills &amp; Utilities</string>
-    <string name="tool_fixed_bills_desc">Electricity, water, internet, gas &amp; rent</string>
-    <string name="fixed_bills_dialog_title">Fixed Bills &amp; Utilities</string>
-    <string name="fixed_bills_screen_title">Fixed Bills &amp; Services</string>
+    <!-- Recurring Payments & Bills -->
+    <string name="tool_fixed_bills_title">Recurring Payments &amp; Bills</string>
+    <string name="tool_fixed_bills_desc">Subscriptions, utilities, rent &amp; recurring charges</string>
+    <string name="fixed_bills_dialog_title">Recurring Payments &amp; Bills</string>
+    <string name="fixed_bills_screen_title">Recurring Payments &amp; Services</string>
+    <string name="recurring_dialog_cancel_title">Manage Recurring Rule</string>
+    <string name="recurring_dialog_stop_future_btn">Stop Future Payments</string>
+    <string name="recurring_dialog_stop_future_desc">Keep past transaction history, but stop future automatic occurrences.</string>
+    <string name="recurring_dialog_delete_all_btn">Delete Rule &amp; All History</string>
+    <string name="recurring_dialog_delete_all_desc">Permanently erase this rule and delete all past transactions created by it.</string>
+    <string name="recurring_rule_status_paused">Stopped</string>
+    <string name="recurring_rule_status_active">Active</string>
+    <string name="edit_bill_title">Edit Recurring Payment</string>
+    <string name="action_edit">Edit</string>
     <string name="loans_tracker_screen_title">Loans &amp; Debts</string>
     <string name="add_fixed_bill_title">Add New Bill</string>
     <string name="quick_presets_title">Quick Presets</string>

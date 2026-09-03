@@ -55,8 +55,20 @@ class FixedBillsViewModel(
             is FixedBillsUiIntent.AddBill -> {
                 addBill(intent.name, intent.amount, intent.dueDay, intent.categoryId, intent.arrivalTimestamp, intent.frequency)
             }
+            is FixedBillsUiIntent.UpdateBill -> {
+                updateBill(intent.rule)
+            }
+            is FixedBillsUiIntent.StopBill -> {
+                stopBill(intent.ruleId)
+            }
+            is FixedBillsUiIntent.ResumeBill -> {
+                resumeBill(intent.ruleId)
+            }
             is FixedBillsUiIntent.DeleteBill -> {
                 deleteBill(intent.ruleId)
+            }
+            is FixedBillsUiIntent.DeleteBillAndTransactions -> {
+                deleteBillAndTransactions(intent.ruleId)
             }
             is FixedBillsUiIntent.PayBill -> {
                 payBill(intent.amount, intent.name, intent.categoryId, intent.ruleId)
@@ -102,10 +114,43 @@ class FixedBillsViewModel(
         }
     }
 
+    private fun updateBill(rule: RecurringRuleEntity) {
+        viewModelScope.launch {
+            repository.updateRecurringRule(rule)
+            repository.executePendingRecurringRules()
+            sendEffect(FixedBillsUiEffect.ShowSnackbar("Bill updated successfully"))
+        }
+    }
+
+    private fun stopBill(ruleId: String) {
+        viewModelScope.launch {
+            repository.stopRecurringRule(ruleId)
+            sendEffect(FixedBillsUiEffect.ShowSnackbar("Recurring bill stopped"))
+        }
+    }
+
+    private fun resumeBill(ruleId: String) {
+        viewModelScope.launch {
+            val rule = currentState.recurringRules.find { it.id == ruleId }
+            if (rule != null) {
+                repository.updateRecurringRule(rule.copy(isActive = true))
+                repository.executePendingRecurringRules()
+                sendEffect(FixedBillsUiEffect.ShowSnackbar("Recurring bill resumed"))
+            }
+        }
+    }
+
     private fun deleteBill(ruleId: String) {
         viewModelScope.launch {
             repository.deleteRecurringRuleById(ruleId)
             sendEffect(FixedBillsUiEffect.ShowSnackbar("Bill removed successfully"))
+        }
+    }
+
+    private fun deleteBillAndTransactions(ruleId: String) {
+        viewModelScope.launch {
+            repository.deleteRecurringRuleAndTransactions(ruleId)
+            sendEffect(FixedBillsUiEffect.ShowSnackbar("Bill and all history deleted"))
         }
     }
 
