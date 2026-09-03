@@ -356,6 +356,9 @@
     <string name="timeframe_7d">7 giorni</string>
     <string name="timeframe_30d">30 giorni</string>
     <string name="timeframe_6m">6 mesi</string>
+    <string name="interval_day">Giorno</string>
+    <string name="interval_week">Settimana</string>
+    <string name="interval_month">Mese</string>
     <string name="chart_legend_income">Entrate</string>
     <string name="chart_legend_expense">Spese</string>
     <string name="chart_legend_net">Saldo netto</string>

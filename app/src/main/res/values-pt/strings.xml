@@ -356,6 +356,9 @@
     <string name="timeframe_7d">7 Dias</string>
     <string name="timeframe_30d">30 Dias</string>
     <string name="timeframe_6m">6 Meses</string>
+    <string name="interval_day">Dia</string>
+    <string name="interval_week">Semana</string>
+    <string name="interval_month">Mês</string>
     <string name="chart_legend_income">Renda</string>
     <string name="chart_legend_expense">Despesas</string>
     <string name="chart_legend_net">Saldo Líquido</string>

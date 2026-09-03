@@ -63,7 +63,8 @@ class AnalyticsViewModel(
                     netSavings = netSavings,
                     savingsRatePercentage = savingsRate,
                     categoryBreakdowns = breakdowns,
-                    recentTransactions = transactions.filter { it.type != "SAVING" }
+                    recentTransactions = transactions.filter { it.type != "SAVING" },
+                    selectedInterval = currentState.selectedInterval
                 )
             }.collect { newState ->
                 setState { newState }
@@ -74,6 +75,7 @@ class AnalyticsViewModel(
     override fun onIntent(intent: AnalyticsUiIntent) {
         when (intent) {
             is AnalyticsUiIntent.RefreshData -> observeAnalytics()
+            is AnalyticsUiIntent.SelectInterval -> setState { copy(selectedInterval = intent.interval) }
         }
     }
 }

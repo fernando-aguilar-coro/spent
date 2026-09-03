@@ -356,6 +356,9 @@
     <string name="timeframe_7d">7日間</string>
     <string name="timeframe_30d">30日間</string>
     <string name="timeframe_6m">6ヶ月</string>
+    <string name="interval_day">日</string>
+    <string name="interval_week">週</string>
+    <string name="interval_month">月</string>
     <string name="chart_legend_income">収入</string>
     <string name="chart_legend_expense">支出</string>
     <string name="chart_legend_net">純残高</string>

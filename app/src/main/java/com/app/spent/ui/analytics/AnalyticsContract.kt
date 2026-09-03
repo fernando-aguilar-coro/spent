@@ -11,19 +11,27 @@ val totalSpent: Double,
 val percentageOfTotal: Float
 )
 
+enum class ChartInterval {
+    DAY,
+    WEEK,
+    MONTH
+}
+
 data class AnalyticsUiState(
-val isLoading: Boolean = true,
-val currencySymbol: String = "$",
-val totalIncome: Double = 0.0,
-val totalSpent: Double = 0.0,
-val netSavings: Double = 0.0,
-val savingsRatePercentage: Float = 0f,
-val categoryBreakdowns: List<CategorySpendingBreakdown> = emptyList(),
-val recentTransactions: List<TransactionEntity> = emptyList()
+    val isLoading: Boolean = true,
+    val currencySymbol: String = "$",
+    val totalIncome: Double = 0.0,
+    val totalSpent: Double = 0.0,
+    val netSavings: Double = 0.0,
+    val savingsRatePercentage: Float = 0f,
+    val categoryBreakdowns: List<CategorySpendingBreakdown> = emptyList(),
+    val recentTransactions: List<TransactionEntity> = emptyList(),
+    val selectedInterval: ChartInterval = ChartInterval.DAY
 ) : UiState
 
 sealed class AnalyticsUiIntent : UiIntent {
-  object RefreshData : AnalyticsUiIntent()
+    object RefreshData : AnalyticsUiIntent()
+    data class SelectInterval(val interval: ChartInterval) : AnalyticsUiIntent()
 }
 
 sealed class AnalyticsUiEffect : UiEffect

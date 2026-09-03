@@ -70,7 +70,9 @@ fun AnalyticsScreen(
     item {
       TotalBalanceChart(
         transactions = state.recentTransactions,
-        currencySymbol = state.currencySymbol
+        currencySymbol = state.currencySymbol,
+        selectedInterval = state.selectedInterval,
+        onSelectInterval = { viewModel.onIntent(AnalyticsUiIntent.SelectInterval(it)) }
       )
       Spacer(modifier = Modifier.height(20.dp))
     }
@@ -79,7 +81,9 @@ fun AnalyticsScreen(
     item {
       NetSavingsChart(
         transactions = state.recentTransactions,
-        currencySymbol = state.currencySymbol
+        currencySymbol = state.currencySymbol,
+        selectedInterval = state.selectedInterval,
+        onSelectInterval = { viewModel.onIntent(AnalyticsUiIntent.SelectInterval(it)) }
       )
       Spacer(modifier = Modifier.height(24.dp))
     }

@@ -356,6 +356,9 @@
     <string name="timeframe_7d">7 दिन</string>
     <string name="timeframe_30d">30 दिन</string>
     <string name="timeframe_6m">6 महीने</string>
+    <string name="interval_day">दिन</string>
+    <string name="interval_week">सप्ताह</string>
+    <string name="interval_month">महीना</string>
     <string name="chart_legend_income">आय</string>
     <string name="chart_legend_expense">खर्च</string>
     <string name="chart_legend_net">शुद्ध शेष</string>
