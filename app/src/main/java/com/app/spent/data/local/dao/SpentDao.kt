@@ -104,6 +104,9 @@ interface SpentDao {
   @Query("DELETE FROM transactions WHERE id = :id")
   suspend fun deleteTransactionById(id: String)
 
+  @Query("SELECT COUNT(*) FROM transactions WHERE recurringRuleId = :ruleId")
+  suspend fun getTransactionCountForRecurringRule(ruleId: String): Int
+
   // Recurring Rules
   @Query("SELECT * FROM recurring_rules")
   fun getRecurringRulesFlow(): Flow<List<RecurringRuleEntity>>

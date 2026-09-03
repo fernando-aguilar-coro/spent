@@ -35,25 +35,25 @@ class SpentRepositoryImpl(
     override fun getRecurringRulesFlow(): Flow<List<RecurringRuleEntity>> = dao.getRecurringRulesFlow()
     override fun getLoansFlow(): Flow<List<LoanEntity>> = dao.getLoansFlow()
 
-    override val isWalkthroughCompletedFlow: Flow<Boolean> = preferencesRepository.isWalkthroughCompletedFlow
-    override val isDarkThemeFlow: Flow<Boolean?> = preferencesRepository.isDarkThemeFlow
-    override val currencySymbolFlow: Flow<String> = preferencesRepository.currencySymbolFlow
-    override val appLanguageFlow: Flow<String?> = preferencesRepository.appLanguageFlow
-    override val savingsGoalNameFlow: Flow<String> = preferencesRepository.savingsGoalNameFlow
-    override val savingsGoalTotalFlow: Flow<Double> = preferencesRepository.savingsGoalTotalFlow
-    override val savingsMonthlyContributionFlow: Flow<Double> = preferencesRepository.savingsMonthlyContributionFlow
-    override val lastDriveSyncTimestampFlow: Flow<Long> = preferencesRepository.lastDriveSyncTimestampFlow
+    override val isWalkthroughCompletedFlow: Flow<Boolean> get() = preferencesRepository.isWalkthroughCompletedFlow
+    override val isDarkThemeFlow: Flow<Boolean?> get() = preferencesRepository.isDarkThemeFlow
+    override val currencySymbolFlow: Flow<String> get() = preferencesRepository.currencySymbolFlow
+    override val appLanguageFlow: Flow<String?> get() = preferencesRepository.appLanguageFlow
+    override val savingsGoalNameFlow: Flow<String> get() = preferencesRepository.savingsGoalNameFlow
+    override val savingsGoalTotalFlow: Flow<Double> get() = preferencesRepository.savingsGoalTotalFlow
+    override val savingsMonthlyContributionFlow: Flow<Double> get() = preferencesRepository.savingsMonthlyContributionFlow
+    override val lastDriveSyncTimestampFlow: Flow<Long> get() = preferencesRepository.lastDriveSyncTimestampFlow
 
-    override val isDriveConnectedFlow: Flow<Boolean> = preferencesRepository.isDriveConnectedFlow
-    override val driveAccountEmailFlow: Flow<String?> = preferencesRepository.driveAccountEmailFlow
-    override val isSyncingDriveFlow: Flow<Boolean> = DriveSyncManager.isSyncing
-    override val partnerDriveFileIdFlow: Flow<String?> = preferencesRepository.partnerDriveFileIdFlow
-    override val partnerNameFlow: Flow<String?> = preferencesRepository.partnerNameFlow
-    override val partnerEmailFlow: Flow<String?> = preferencesRepository.partnerEmailFlow
-    override val partnerLastSyncTimestampFlow: Flow<Long> = preferencesRepository.partnerLastSyncTimestampFlow
-    override val isPartnerPairedFlow: Flow<Boolean> = preferencesRepository.isPartnerPairedFlow
-    override val sharedMembersFlow: Flow<List<com.app.spent.data.sync.SharedMemberInfo>> = preferencesRepository.sharedMembersFlow
-    override val imageStorageLocationFlow: Flow<String> = preferencesRepository.imageStorageLocationFlow
+    override val isDriveConnectedFlow: Flow<Boolean> get() = preferencesRepository.isDriveConnectedFlow
+    override val driveAccountEmailFlow: Flow<String?> get() = preferencesRepository.driveAccountEmailFlow
+    override val isSyncingDriveFlow: Flow<Boolean> get() = DriveSyncManager.isSyncing
+    override val partnerDriveFileIdFlow: Flow<String?> get() = preferencesRepository.partnerDriveFileIdFlow
+    override val partnerNameFlow: Flow<String?> get() = preferencesRepository.partnerNameFlow
+    override val partnerEmailFlow: Flow<String?> get() = preferencesRepository.partnerEmailFlow
+    override val partnerLastSyncTimestampFlow: Flow<Long> get() = preferencesRepository.partnerLastSyncTimestampFlow
+    override val isPartnerPairedFlow: Flow<Boolean> get() = preferencesRepository.isPartnerPairedFlow
+    override val sharedMembersFlow: Flow<List<com.app.spent.data.sync.SharedMemberInfo>> get() = preferencesRepository.sharedMembersFlow
+    override val imageStorageLocationFlow: Flow<String> get() = preferencesRepository.imageStorageLocationFlow
 
     override suspend fun connectGoogleDrive(account: GoogleSignInAccount): DriveConnectResult =
         DriveSyncManager.connectAccount(context, account, this, preferencesRepository)
@@ -229,34 +229,91 @@ class SpentRepositoryImpl(
 
         for (rule in rules) {
             if (rule.endDate != null && rule.endDate > 0 && now > rule.endDate) continue
-            val lastRun = rule.lastExecuted
-            val shouldRun = if (lastRun == 0L) {
-                true
-            } else {
-                val lastRunDate = java.time.Instant.ofEpochMilli(lastRun).atZone(zone).toLocalDate()
-                val nextDueDate = when (rule.frequency) {
+
+            val startZdt = java.time.Instant.ofEpochMilli(rule.startDate).atZone(zone)
+            val startLocalDate = startZdt.toLocalDate()
+            val startLocalTime = startZdt.toLocalTime()
+            val anchorDay = startLocalDate.dayOfMonth
+
+            var currentLastExecuted = rule.lastExecuted
+
+            // If rule has never been marked as executed
+            if (currentLastExecuted == 0L) {
+                if (rule.startDate <= now) {
+                    val count = dao.getTransactionCountForRecurringRule(rule.id)
+                    if (count == 0) {
+                        // Insert occurrence for startDate
+                        dao.insertTransaction(
+                            TransactionEntity(
+                                ownerProfileId = rule.ownerProfileId,
+                                amount = rule.amount,
+                                type = rule.type,
+                                categoryId = rule.categoryId,
+                                timestamp = rule.startDate,
+                                note = rule.note,
+                                recurringRuleId = rule.id
+                            )
+                        )
+                    }
+                    currentLastExecuted = rule.startDate
+                } else {
+                    // Start date is in the future
+                    continue
+                }
+            }
+
+            var lastRunDate = java.time.Instant.ofEpochMilli(currentLastExecuted).atZone(zone).toLocalDate()
+            var lastExecutedTs = currentLastExecuted
+            var hasExecutedNewOccurrences = false
+
+            while (true) {
+                val nextDueDate: java.time.LocalDate = when (rule.frequency) {
                     "DAILY" -> lastRunDate.plusDays(1)
                     "WEEKLY" -> lastRunDate.plusWeeks(1)
                     "BIWEEKLY" -> lastRunDate.plusWeeks(2)
-                    "MONTHLY" -> lastRunDate.plusMonths(1)
-                    else -> lastRunDate.plusMonths(1)
+                    "MONTHLY" -> {
+                        // Option B: End-of-month clamping preserving anchorDay
+                        val nextYearMonth = java.time.YearMonth.from(lastRunDate).plusMonths(1)
+                        val effectiveDay = minOf(anchorDay, nextYearMonth.lengthOfMonth())
+                        nextYearMonth.atDay(effectiveDay)
+                    }
+                    else -> {
+                        val nextYearMonth = java.time.YearMonth.from(lastRunDate).plusMonths(1)
+                        val effectiveDay = minOf(anchorDay, nextYearMonth.lengthOfMonth())
+                        nextYearMonth.atDay(effectiveDay)
+                    }
                 }
-                !nowDate.isBefore(nextDueDate)
-            }
 
-            if (shouldRun) {
+                if (nextDueDate.isAfter(nowDate)) {
+                    break
+                }
+
+                val nextDateTime = nextDueDate.atTime(startLocalTime)
+                val nextTimestamp = nextDateTime.atZone(zone).toInstant().toEpochMilli()
+
+                if (rule.endDate != null && rule.endDate > 0 && nextTimestamp > rule.endDate) {
+                    break
+                }
+
                 dao.insertTransaction(
                     TransactionEntity(
                         ownerProfileId = rule.ownerProfileId,
                         amount = rule.amount,
-                        type = "EXPENSE",
+                        type = rule.type,
                         categoryId = rule.categoryId,
-                        timestamp = now,
+                        timestamp = nextTimestamp,
                         note = rule.note,
                         recurringRuleId = rule.id
                     )
                 )
-                dao.updateRecurringRule(rule.copy(lastExecuted = now))
+
+                lastRunDate = nextDueDate
+                lastExecutedTs = nextTimestamp
+                hasExecutedNewOccurrences = true
+            }
+
+            if (hasExecutedNewOccurrences || currentLastExecuted != rule.lastExecuted) {
+                dao.updateRecurringRule(rule.copy(lastExecuted = lastExecutedTs))
             }
         }
     }

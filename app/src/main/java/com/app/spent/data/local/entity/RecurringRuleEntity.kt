@@ -14,5 +14,6 @@ val frequency: String = "MONTHLY", // DAILY, WEEKLY, MONTHLY
 val startDate: Long = System.currentTimeMillis(),
 val endDate: Long? = null,
 val lastExecuted: Long = 0L,
-val note: String = ""
+val note: String = "",
+val type: String = "EXPENSE"
 )

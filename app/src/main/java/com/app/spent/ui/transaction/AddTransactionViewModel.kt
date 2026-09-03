@@ -43,12 +43,14 @@ class AddTransactionViewModel(
                 }
                 var isRecurring = false
                 var frequency = "MONTHLY"
+                var ruleId: String? = null
                 if (tx.recurringRuleId != null) {
                     val rules = repository.getRecurringRulesFlow().firstOrNull() ?: emptyList()
                     val rule = rules.find { it.id == tx.recurringRuleId }
                     if (rule != null) {
                         isRecurring = true
                         frequency = rule.frequency
+                        ruleId = rule.id
                     }
                 }
                 setState {
@@ -62,7 +64,8 @@ class AddTransactionViewModel(
                         isRecurring = isRecurring,
                         selectedFrequency = frequency,
                         isEditing = true,
-                        editingTransactionId = tx.id
+                        editingTransactionId = tx.id,
+                        editingRecurringRuleId = ruleId
                     )
                 }
                 sendEffect(AddTransactionUiEffect.SyncCursor(formattedAmount, formattedAmount.length))
@@ -271,18 +274,43 @@ class AddTransactionViewModel(
                         ?: "cat_general"
                 }
 
-                var ruleId: String? = null
+                var ruleId: String? = state.editingRecurringRuleId
                 if (state.isRecurring) {
-                    ruleId = UUID.randomUUID().toString()
-                    val rule = RecurringRuleEntity(
-                        id = ruleId,
-                        amount = finalAmount,
-                        categoryId = targetCatId,
-                        frequency = state.selectedFrequency,
-                        startDate = state.selectedTimestamp,
-                        note = state.noteText
-                    )
-                    repository.addRecurringRule(rule)
+                    if (ruleId != null) {
+                        val existingRule = repository.getRecurringRulesFlow().firstOrNull()?.find { it.id == ruleId }
+                        val updatedRule = RecurringRuleEntity(
+                            id = ruleId,
+                            ownerProfileId = existingRule?.ownerProfileId ?: "primary_account",
+                            amount = finalAmount,
+                            categoryId = targetCatId,
+                            frequency = state.selectedFrequency,
+                            startDate = existingRule?.startDate ?: state.selectedTimestamp,
+                            endDate = existingRule?.endDate,
+                            lastExecuted = existingRule?.lastExecuted ?: state.selectedTimestamp,
+                            note = state.noteText,
+                            type = state.selectedType
+                        )
+                        repository.addRecurringRule(updatedRule)
+                    } else {
+                        val newRuleId = UUID.randomUUID().toString()
+                        ruleId = newRuleId
+                        val rule = RecurringRuleEntity(
+                            id = newRuleId,
+                            amount = finalAmount,
+                            categoryId = targetCatId,
+                            frequency = state.selectedFrequency,
+                            startDate = state.selectedTimestamp,
+                            lastExecuted = state.selectedTimestamp,
+                            note = state.noteText,
+                            type = state.selectedType
+                        )
+                        repository.addRecurringRule(rule)
+                    }
+                } else {
+                    if (ruleId != null) {
+                        repository.deleteRecurringRuleById(ruleId)
+                        ruleId = null
+                    }
                 }
 
                 val txId = if (state.isEditing && !state.editingTransactionId.isNullOrEmpty()) {

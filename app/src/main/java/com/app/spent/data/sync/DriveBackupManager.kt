@@ -149,6 +149,7 @@ object DriveBackupManager {
         put("startDate", r.startDate)
         put("endDate", r.endDate ?: -1L)
         put("lastExecuted", r.lastExecuted)
+        put("type", r.type)
       }
       rrArray.put(obj)
     }
@@ -330,7 +331,8 @@ object DriveBackupManager {
               startDate = obj.optLong("startDate", System.currentTimeMillis()),
               endDate = if (endTs > 0) endTs else null,
               lastExecuted = obj.optLong("lastExecuted", 0L),
-              note = obj.optString("note", "")
+              note = obj.optString("note", ""),
+              type = obj.optString("type", "EXPENSE")
             )
           )
         }

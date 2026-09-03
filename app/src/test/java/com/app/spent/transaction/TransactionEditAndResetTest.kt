@@ -118,6 +118,127 @@ class TransactionEditAndResetTest {
     }
 
     @Test
+    fun testCreateRecurringTransactionInitializesRuleProperly() = runTest {
+        val viewModel = AddTransactionViewModel(repository = fakeRepository, initialType = "INCOME")
+        advanceUntilIdle()
+
+        val selectedTs = 1710000000000L
+        viewModel.onIntent(AddTransactionUiIntent.UpdateAmount("3000.00"))
+        viewModel.onIntent(AddTransactionUiIntent.UpdateTimestamp(selectedTs))
+        viewModel.onIntent(AddTransactionUiIntent.ToggleRecurring(true))
+        viewModel.onIntent(AddTransactionUiIntent.SelectFrequency("MONTHLY"))
+        viewModel.onIntent(AddTransactionUiIntent.UpdateNote("Monthly Salary"))
+        viewModel.onIntent(AddTransactionUiIntent.SaveTransaction)
+        advanceUntilIdle()
+
+        assertEquals(1, fakeRepository.addedTransactions.size)
+        val tx = fakeRepository.addedTransactions[0]
+        assertEquals("INCOME", tx.type)
+        assertEquals(3000.0, tx.amount, 0.001)
+        assertNotNull(tx.recurringRuleId)
+
+        assertEquals(1, fakeRepository.storedRecurringRules.size)
+        val rule = fakeRepository.storedRecurringRules[tx.recurringRuleId!!]!!
+        assertEquals("INCOME", rule.type)
+        assertEquals(3000.0, rule.amount, 0.001)
+        assertEquals("MONTHLY", rule.frequency)
+        assertEquals(selectedTs, rule.startDate)
+        assertEquals(selectedTs, rule.lastExecuted) // Must be initialized to avoid duplicate on day 0
+    }
+
+    @Test
+    fun testEditRecurringTransactionUpdatesExistingRule() = runTest {
+        val rule = RecurringRuleEntity(
+            id = "rule-salary-1",
+            amount = 2500.0,
+            categoryId = "cat_salary",
+            frequency = "MONTHLY",
+            startDate = 1700000000000L,
+            lastExecuted = 1700000000000L,
+            note = "Old Salary",
+            type = "INCOME"
+        )
+        fakeRepository.storedRecurringRules["rule-salary-1"] = rule
+
+        val tx = TransactionEntity(
+            id = "tx-salary-1",
+            amount = 2500.0,
+            type = "INCOME",
+            categoryId = "cat_salary",
+            note = "Old Salary",
+            timestamp = 1700000000000L,
+            recurringRuleId = "rule-salary-1"
+        )
+        fakeRepository.storedTransactions["tx-salary-1"] = tx
+
+        val viewModel = AddTransactionViewModel(
+            repository = fakeRepository,
+            initialType = "INCOME",
+            transactionId = "tx-salary-1"
+        )
+        advanceUntilIdle()
+
+        assertTrue(viewModel.uiState.value.isRecurring)
+        assertEquals("rule-salary-1", viewModel.uiState.value.editingRecurringRuleId)
+
+        // Modify amount and note
+        viewModel.onIntent(AddTransactionUiIntent.UpdateAmount("2800.00"))
+        viewModel.onIntent(AddTransactionUiIntent.UpdateNote("Raised Salary"))
+        viewModel.onIntent(AddTransactionUiIntent.SaveTransaction)
+        advanceUntilIdle()
+
+        // Verify existing rule updated without creating a new rule ID
+        assertEquals(1, fakeRepository.storedRecurringRules.size)
+        val updatedRule = fakeRepository.storedRecurringRules["rule-salary-1"]!!
+        assertEquals(2800.0, updatedRule.amount, 0.001)
+        assertEquals("Raised Salary", updatedRule.note)
+        assertEquals("INCOME", updatedRule.type)
+    }
+
+    @Test
+    fun testEditTransactionUncheckingRecurringDeletesRule() = runTest {
+        val rule = RecurringRuleEntity(
+            id = "rule-to-delete",
+            amount = 50.0,
+            categoryId = "cat_general",
+            frequency = "MONTHLY",
+            startDate = 1700000000000L,
+            lastExecuted = 1700000000000L,
+            note = "Gym membership",
+            type = "EXPENSE"
+        )
+        fakeRepository.storedRecurringRules["rule-to-delete"] = rule
+
+        val tx = TransactionEntity(
+            id = "tx-gym",
+            amount = 50.0,
+            type = "EXPENSE",
+            categoryId = "cat_general",
+            note = "Gym membership",
+            timestamp = 1700000000000L,
+            recurringRuleId = "rule-to-delete"
+        )
+        fakeRepository.storedTransactions["tx-gym"] = tx
+
+        val viewModel = AddTransactionViewModel(
+            repository = fakeRepository,
+            initialType = "EXPENSE",
+            transactionId = "tx-gym"
+        )
+        advanceUntilIdle()
+
+        // Uncheck recurring
+        viewModel.onIntent(AddTransactionUiIntent.ToggleRecurring(false))
+        viewModel.onIntent(AddTransactionUiIntent.SaveTransaction)
+        advanceUntilIdle()
+
+        // Recurring rule should be deleted
+        assertEquals(0, fakeRepository.storedRecurringRules.size)
+        val updatedTx = fakeRepository.updatedTransactions[0]
+        assertEquals(null, updatedTx.recurringRuleId)
+    }
+
+    @Test
     fun testEditTransactionLoadsExistingDataAndUpdatesOnSave() = runTest {
         val existingTx = TransactionEntity(
             id = "tx-123",
@@ -180,6 +301,7 @@ private class FakeSpentRepository : SpentRepository {
     val storedTransactions = mutableMapOf<String, TransactionEntity>()
     val addedTransactions = mutableListOf<TransactionEntity>()
     val updatedTransactions = mutableListOf<TransactionEntity>()
+    val storedRecurringRules = mutableMapOf<String, RecurringRuleEntity>()
     var seedStarterDataCalled = false
 
     val categoriesFlow = MutableStateFlow<List<CategoryEntity>>(
@@ -199,7 +321,7 @@ private class FakeSpentRepository : SpentRepository {
     override fun getUserAccountFlow(): Flow<UserAccountEntity?> = MutableStateFlow(null)
     override fun getFamilyMembersFlow(): Flow<List<FamilyMemberEntity>> = MutableStateFlow(emptyList())
     override fun getParentalConfigFlow(): Flow<ParentalControlConfigEntity?> = MutableStateFlow(null)
-    override fun getRecurringRulesFlow(): Flow<List<RecurringRuleEntity>> = MutableStateFlow(emptyList())
+    override fun getRecurringRulesFlow(): Flow<List<RecurringRuleEntity>> = MutableStateFlow(storedRecurringRules.values.toList())
     override fun getLoansFlow(): Flow<List<com.app.spent.data.local.entity.LoanEntity>> = MutableStateFlow(emptyList())
 
     override val isWalkthroughCompletedFlow: Flow<Boolean> = MutableStateFlow(true)
@@ -263,8 +385,12 @@ private class FakeSpentRepository : SpentRepository {
     override suspend fun updateCategory(category: CategoryEntity) {}
     override suspend fun deleteCategoryById(id: String) {}
     override suspend fun setPayCycle(payCycle: PayCycleEntity) {}
-    override suspend fun addRecurringRule(rule: RecurringRuleEntity) {}
-    override suspend fun deleteRecurringRuleById(id: String) {}
+    override suspend fun addRecurringRule(rule: RecurringRuleEntity) {
+        storedRecurringRules[rule.id] = rule
+    }
+    override suspend fun deleteRecurringRuleById(id: String) {
+        storedRecurringRules.remove(id)
+    }
     override suspend fun executePendingRecurringRules() {}
 
     override suspend fun addLoan(loan: com.app.spent.data.local.entity.LoanEntity) {}

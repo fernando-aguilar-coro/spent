@@ -23,6 +23,7 @@ class DashboardViewModel(
     private fun observeData() {
         viewModelScope.launch {
             repository.seedStarterDataIfEmpty()
+            repository.executePendingRecurringRules()
 
             val coreDataFlow = combine(
                 repository.getTransactionsFlow(),

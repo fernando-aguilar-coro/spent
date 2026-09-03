@@ -24,7 +24,8 @@ data class AddTransactionUiState(
     val isProcessingImage: Boolean = false,
     val isSaving: Boolean = false,
     val isEditing: Boolean = false,
-    val editingTransactionId: String? = null
+    val editingTransactionId: String? = null,
+    val editingRecurringRuleId: String? = null
 ) : UiState {
     val showKeypad: Boolean
         get() = inputMode == InputMode.CUSTOM_KEYPAD

@@ -69,6 +69,22 @@ class DatabaseMigrationTest {
 
         assertEquals(1, SpentDatabase.MIGRATION_1_3.startVersion)
         assertEquals(3, SpentDatabase.MIGRATION_1_3.endVersion)
+
+        assertEquals(3, SpentDatabase.MIGRATION_3_4.startVersion)
+        assertEquals(4, SpentDatabase.MIGRATION_3_4.endVersion)
+    }
+
+    @Test
+    fun testMigration3To4SqlExecution() {
+        val executedSql = mutableListOf<String>()
+        val proxyDb = createMockDatabase(executedSql)
+
+        SpentDatabase.MIGRATION_3_4.migrate(proxyDb)
+
+        assertTrue(
+            "MIGRATION_3_4 must add type column to recurring_rules",
+            executedSql.any { it.contains("ALTER TABLE `recurring_rules` ADD COLUMN `type`") }
+        )
     }
 
     private fun createMockDatabase(executedSql: MutableList<String>): SupportSQLiteDatabase {

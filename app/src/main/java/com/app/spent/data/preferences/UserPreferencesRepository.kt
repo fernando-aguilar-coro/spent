@@ -36,7 +36,7 @@ class UserPreferencesRepository(private val context: Context) {
     val IMAGE_STORAGE_LOCATION = stringPreferencesKey("image_storage_location")
   }
 
-  val imageStorageLocationFlow: Flow<String> = context.dataStore.data.map { preferences ->
+  val imageStorageLocationFlow: Flow<String> get() = context.dataStore.data.map { preferences ->
     val explicitLocation = preferences[PreferencesKeys.IMAGE_STORAGE_LOCATION]
     if (explicitLocation != null) {
       explicitLocation
@@ -46,7 +46,7 @@ class UserPreferencesRepository(private val context: Context) {
     }
   }
 
-  val sharedMembersFlow: Flow<List<com.app.spent.data.sync.SharedMemberInfo>> = context.dataStore.data.map { preferences ->
+  val sharedMembersFlow: Flow<List<com.app.spent.data.sync.SharedMemberInfo>> get() = context.dataStore.data.map { preferences ->
     val json = preferences[PreferencesKeys.SHARED_MEMBERS_JSON]
     if (!json.isNullOrBlank()) {
       try {
@@ -82,47 +82,47 @@ class UserPreferencesRepository(private val context: Context) {
     }
   }
 
-  val partnerDriveFileIdFlow: Flow<String?> = context.dataStore.data.map { preferences ->
+  val partnerDriveFileIdFlow: Flow<String?> get() = context.dataStore.data.map { preferences ->
     preferences[PreferencesKeys.PARTNER_DRIVE_FILE_ID]
   }
 
-  val partnerNameFlow: Flow<String?> = context.dataStore.data.map { preferences ->
+  val partnerNameFlow: Flow<String?> get() = context.dataStore.data.map { preferences ->
     preferences[PreferencesKeys.PARTNER_NAME]
   }
 
-  val partnerEmailFlow: Flow<String?> = context.dataStore.data.map { preferences ->
+  val partnerEmailFlow: Flow<String?> get() = context.dataStore.data.map { preferences ->
     preferences[PreferencesKeys.PARTNER_EMAIL]
   }
 
-  val partnerLastSyncTimestampFlow: Flow<Long> = context.dataStore.data.map { preferences ->
+  val partnerLastSyncTimestampFlow: Flow<Long> get() = context.dataStore.data.map { preferences ->
     preferences[PreferencesKeys.PARTNER_LAST_SYNC_TIMESTAMP] ?: 0L
   }
 
-  val isPartnerPairedFlow: Flow<Boolean> = context.dataStore.data.map { preferences ->
+  val isPartnerPairedFlow: Flow<Boolean> get() = context.dataStore.data.map { preferences ->
     preferences[PreferencesKeys.IS_PARTNER_PAIRED] ?: false
   }
 
-  val lastDriveSyncTimestampFlow: Flow<Long> = context.dataStore.data.map { preferences ->
+  val lastDriveSyncTimestampFlow: Flow<Long> get() = context.dataStore.data.map { preferences ->
     preferences[PreferencesKeys.LAST_DRIVE_SYNC_TIMESTAMP] ?: 0L
   }
 
-  val isDriveConnectedFlow: Flow<Boolean> = context.dataStore.data.map { preferences ->
+  val isDriveConnectedFlow: Flow<Boolean> get() = context.dataStore.data.map { preferences ->
     preferences[PreferencesKeys.IS_DRIVE_CONNECTED] ?: false
   }
 
-  val driveAccountEmailFlow: Flow<String?> = context.dataStore.data.map { preferences ->
+  val driveAccountEmailFlow: Flow<String?> get() = context.dataStore.data.map { preferences ->
     preferences[PreferencesKeys.DRIVE_ACCOUNT_EMAIL]
   }
 
-  val isWalkthroughCompletedFlow: Flow<Boolean> = context.dataStore.data.map { preferences ->
+  val isWalkthroughCompletedFlow: Flow<Boolean> get() = context.dataStore.data.map { preferences ->
     preferences[PreferencesKeys.IS_WALKTHROUGH_COMPLETED] ?: false
   }
 
-  val isDarkThemeFlow: Flow<Boolean?> = context.dataStore.data.map { preferences ->
+  val isDarkThemeFlow: Flow<Boolean?> get() = context.dataStore.data.map { preferences ->
     preferences[PreferencesKeys.DARK_THEME_ENABLED]
   }
 
-  val currencySymbolFlow: Flow<String> = context.dataStore.data.map { preferences ->
+  val currencySymbolFlow: Flow<String> get() = context.dataStore.data.map { preferences ->
     val storedSymbol = preferences[PreferencesKeys.CURRENCY_SYMBOL]
     if (!storedSymbol.isNullOrBlank()) {
       storedSymbol
@@ -131,19 +131,19 @@ class UserPreferencesRepository(private val context: Context) {
     }
   }
 
-  val appLanguageFlow: Flow<String?> = context.dataStore.data.map { preferences ->
+  val appLanguageFlow: Flow<String?> get() = context.dataStore.data.map { preferences ->
     preferences[PreferencesKeys.APP_LANGUAGE]
   }
 
-  val savingsGoalNameFlow: Flow<String> = context.dataStore.data.map { preferences ->
+  val savingsGoalNameFlow: Flow<String> get() = context.dataStore.data.map { preferences ->
     preferences[PreferencesKeys.SAVINGS_GOAL_NAME] ?: ""
   }
 
-  val savingsGoalTotalFlow: Flow<Double> = context.dataStore.data.map { preferences ->
+  val savingsGoalTotalFlow: Flow<Double> get() = context.dataStore.data.map { preferences ->
     preferences[PreferencesKeys.SAVINGS_GOAL_TOTAL] ?: 0.0
   }
 
-  val savingsMonthlyContributionFlow: Flow<Double> = context.dataStore.data.map { preferences ->
+  val savingsMonthlyContributionFlow: Flow<Double> get() = context.dataStore.data.map { preferences ->
     preferences[PreferencesKeys.SAVINGS_MONTHLY_CONTRIBUTION] ?: 0.0
   }
 

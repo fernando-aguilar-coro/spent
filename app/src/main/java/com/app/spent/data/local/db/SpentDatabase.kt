@@ -27,7 +27,7 @@ import com.app.spent.data.local.entity.UserAccountEntity
         RecurringRuleEntity::class,
         LoanEntity::class
     ],
-    version = 3,
+    version = 4,
     exportSchema = true
 )
 abstract class SpentDatabase : RoomDatabase() {
@@ -115,6 +115,16 @@ abstract class SpentDatabase : RoomDatabase() {
       }
     }
 
+    val MIGRATION_3_4 = object : Migration(3, 4) {
+      override fun migrate(db: SupportSQLiteDatabase) {
+        try {
+          db.execSQL("ALTER TABLE `recurring_rules` ADD COLUMN `type` TEXT NOT NULL DEFAULT 'EXPENSE'")
+        } catch (e: Exception) {
+          // Column may already exist
+        }
+      }
+    }
+
     fun getInstance(context: Context): SpentDatabase {
       return INSTANCE ?: synchronized(this) {
         val instance = Room.databaseBuilder(
@@ -122,7 +132,7 @@ abstract class SpentDatabase : RoomDatabase() {
           SpentDatabase::class.java,
           "spent_database"
         )
-        .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_1_3)
+        .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_1_3, MIGRATION_3_4)
         .build()
         INSTANCE = instance
         instance
