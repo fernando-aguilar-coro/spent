@@ -128,6 +128,8 @@ fun DashboardScreen(
                     recurringRules = state.recurringRules,
                     loans = state.loans,
                     currencySymbol = state.currencySymbol,
+                    pendingBillsCount = state.pendingBillsCount,
+                    pendingBillsTotal = state.pendingBillsTotal,
                     onNavigateToSavingsTracker = onNavigateToSavingsTracker,
                     onNavigateToFixedBills = onNavigateToFixedBills,
                     onNavigateToLoansTracker = onNavigateToLoansTracker,
@@ -203,27 +205,32 @@ fun DashboardScreen(
     }
 
     selectedTransactionForDetails?.let { tx ->
+        val matchingRule = state.recurringRules.find { it.id == tx.recurringRuleId }
         TransactionDetailsDialog(
             transaction = tx,
             categories = state.allCategories,
             currencySymbol = state.currencySymbol,
+            recurringRule = matchingRule,
             onDismiss = { selectedTransactionForDetails = null },
             onRequestDelete = { transactionToDelete = tx },
             onEdit = { transactionToEdit ->
                 selectedTransactionForDetails = null
                 onNavigateToEditTransaction(transactionToEdit.type, transactionToEdit.id)
-            }
+            },
+            onNavigateToFixedBills = onNavigateToFixedBills
         )
     }
 
     transactionToDelete?.let { tx ->
+        val matchingRule = state.recurringRules.find { it.id == tx.recurringRuleId }
         DeleteTransactionDialog(
             transaction = tx,
             categories = state.allCategories,
             currencySymbol = state.currencySymbol,
+            recurringRule = matchingRule,
             onDismiss = { transactionToDelete = null },
-            onConfirmDelete = {
-                viewModel.onIntent(DashboardUiIntent.DeleteTransaction(tx))
+            onConfirmDelete = { txToDelete, mode ->
+                viewModel.onIntent(DashboardUiIntent.DeleteTransaction(txToDelete, mode))
                 transactionToDelete = null
             }
         )

@@ -54,6 +54,8 @@ fun DashboardQuickTools(
     recurringRules: List<RecurringRuleEntity> = emptyList(),
     loans: List<LoanEntity> = emptyList(),
     currencySymbol: String = "$",
+    pendingBillsCount: Int = 0,
+    pendingBillsTotal: Double = 0.0,
     onNavigateToSavingsTracker: () -> Unit = {},
     onNavigateToFixedBills: () -> Unit = {},
     onNavigateToLoansTracker: () -> Unit = {},
@@ -72,7 +74,7 @@ fun DashboardQuickTools(
     val totalOwedToMe = activeLoans.filter { it.type == "OWED_TO_ME" }.sumOf { it.remainingAmount }
 
     // Active bills count
-    val activeBillsCount = recurringRules.count { it.endDate == null || it.endDate >= System.currentTimeMillis() }
+    val activeBillsCount = recurringRules.count { it.isActive && (it.endDate == null || it.endDate >= System.currentTimeMillis()) }
 
     Column(modifier = Modifier.padding(vertical = 12.dp)) {
         Text(
@@ -232,10 +234,15 @@ fun DashboardQuickTools(
                         overflow = TextOverflow.Ellipsis
                     )
                     Spacer(modifier = Modifier.height(2.dp))
+                    val billsSubtitle = when {
+                        pendingBillsCount > 0 -> stringResource(R.string.tool_fixed_bills_pending_summary, pendingBillsCount, currencySymbol, pendingBillsTotal)
+                        activeBillsCount > 0 -> stringResource(R.string.tool_fixed_bills_all_paid)
+                        else -> stringResource(R.string.tool_fixed_bills_desc)
+                    }
                     Text(
-                        text = if (activeBillsCount > 0) "$activeBillsCount active bills" else stringResource(R.string.tool_fixed_bills_desc),
+                        text = billsSubtitle,
                         style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        color = if (pendingBillsCount > 0) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
                         maxLines = 1
                     )
                 }

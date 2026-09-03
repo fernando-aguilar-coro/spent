@@ -23,6 +23,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Autorenew
 import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
@@ -59,6 +60,7 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.app.spent.R
 import com.app.spent.data.local.entity.CategoryEntity
+import com.app.spent.data.local.entity.RecurringRuleEntity
 import com.app.spent.data.local.entity.TransactionEntity
 import com.app.spent.ui.components.CategoryIconHelper
 import com.app.spent.ui.theme.ExpenseRed
@@ -71,9 +73,11 @@ fun TransactionDetailsDialog(
     transaction: TransactionEntity,
     categories: List<CategoryEntity>,
     currencySymbol: String,
+    recurringRule: RecurringRuleEntity? = null,
     onDismiss: () -> Unit,
     onRequestDelete: (TransactionEntity) -> Unit,
-    onEdit: (TransactionEntity) -> Unit = {}
+    onEdit: (TransactionEntity) -> Unit = {},
+    onNavigateToFixedBills: (() -> Unit)? = null
 ) {
     val context = LocalContext.current
     val category = categories.find { it.id == transaction.categoryId }
@@ -306,6 +310,96 @@ fun TransactionDetailsDialog(
                                 color = MaterialTheme.colorScheme.onSurface,
                                 fontWeight = FontWeight.Medium
                             )
+                        }
+                    }
+                }
+
+                // 4b. Recurring Schedule Card (if recurring)
+                if (recurringRule != null) {
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Surface(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(16.dp),
+                        color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.35f),
+                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.25f))
+                    ) {
+                        Column(modifier = Modifier.padding(14.dp)) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Icon(
+                                        imageVector = Icons.Default.Autorenew,
+                                        contentDescription = null,
+                                        tint = MaterialTheme.colorScheme.primary,
+                                        modifier = Modifier.size(18.dp)
+                                    )
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Text(
+                                        text = stringResource(R.string.recurring_badge_label),
+                                        style = MaterialTheme.typography.labelLarge,
+                                        fontWeight = FontWeight.Bold,
+                                        color = MaterialTheme.colorScheme.primary
+                                    )
+                                }
+
+                                val statusText = if (recurringRule.isActive) {
+                                    stringResource(R.string.recurring_rule_status_active)
+                                } else {
+                                    stringResource(R.string.recurring_rule_status_paused)
+                                }
+                                val statusColor = if (recurringRule.isActive) IncomeGreen else MaterialTheme.colorScheme.error
+
+                                Surface(
+                                    shape = RoundedCornerShape(8.dp),
+                                    color = statusColor.copy(alpha = 0.15f)
+                                ) {
+                                    Text(
+                                        text = statusText,
+                                        color = statusColor,
+                                        style = MaterialTheme.typography.labelSmall,
+                                        fontWeight = FontWeight.Bold,
+                                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp)
+                                    )
+                                }
+                            }
+
+                            Spacer(modifier = Modifier.height(6.dp))
+
+                            val freqText = when (recurringRule.frequency) {
+                                "DAILY" -> stringResource(R.string.frequency_daily)
+                                "WEEKLY" -> stringResource(R.string.frequency_weekly)
+                                "BIWEEKLY" -> stringResource(R.string.frequency_biweekly)
+                                "SEMIMONTHLY" -> stringResource(R.string.frequency_semimonthly)
+                                "MONTHLY" -> stringResource(R.string.frequency_monthly)
+                                else -> recurringRule.frequency
+                            }
+
+                            Text(
+                                text = stringResource(R.string.recurring_schedule_repeats, freqText),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+
+                            if (onNavigateToFixedBills != null) {
+                                Spacer(modifier = Modifier.height(10.dp))
+                                androidx.compose.material3.TextButton(
+                                    onClick = {
+                                        onDismiss()
+                                        onNavigateToFixedBills()
+                                    },
+                                    modifier = Modifier.align(Alignment.End)
+                                ) {
+                                    Text(
+                                        text = "${stringResource(R.string.manage_in_fixed_bills)} →",
+                                        style = MaterialTheme.typography.labelMedium,
+                                        fontWeight = FontWeight.Bold,
+                                        color = MaterialTheme.colorScheme.primary
+                                    )
+                                }
+                            }
                         }
                     }
                 }

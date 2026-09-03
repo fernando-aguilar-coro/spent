@@ -65,6 +65,7 @@ class DashboardViewModel(
                 val activeRules = recurringRules.filter { it.isActive && (it.endDate == null || it.endDate >= nowMillis) }
 
                 var pendingFixedBills = 0.0
+                var pendingBillsCount = 0
 
                 activeRules.forEach { rule ->
                     val cleanRuleName = rule.note.removePrefix("Bill: ").removePrefix("Factura: ").removePrefix("Debt Installment: ").trim()
@@ -85,6 +86,7 @@ class DashboardViewModel(
                         }
                         val estimatedAmount = prevCyclePayment?.amount ?: rule.amount
                         pendingFixedBills += estimatedAmount
+                        pendingBillsCount++
                     }
                 }
 
@@ -160,6 +162,8 @@ class DashboardViewModel(
                     totalSpent = totalSpent,
                     safeToSpendToday = safeToSpend,
                     daysRemainingInCycle = daysRemaining,
+                    pendingBillsCount = pendingBillsCount,
+                    pendingBillsTotal = pendingFixedBills,
                     isPayCycleActive = isPayCycleActive,
                     categoriesWithProgress = envelopes,
                     recentTransactions = transactions.filter { it.type != "SAVING" }.take(20),
@@ -268,7 +272,7 @@ class DashboardViewModel(
                 observeData()
             }
             is DashboardUiIntent.AddTransaction -> addTransaction(intent.amount, intent.type, intent.categoryId, intent.note)
-            is DashboardUiIntent.DeleteTransaction -> deleteTransaction(intent.transaction)
+            is DashboardUiIntent.DeleteTransaction -> deleteTransaction(intent.transaction, intent.recurringDeleteMode)
             is DashboardUiIntent.UndoDelete -> undoDelete(intent.transaction)
             is DashboardUiIntent.DismissWalkthrough -> dismissWalkthrough()
         }
@@ -289,16 +293,47 @@ class DashboardViewModel(
         }
     }
 
-    private fun deleteTransaction(transaction: TransactionEntity) {
+    private fun deleteTransaction(
+        transaction: TransactionEntity,
+        mode: RecurringDeleteMode = RecurringDeleteMode.ONLY_THIS_OCCURRENCE
+    ) {
         viewModelScope.launch {
-            repository.deleteTransaction(transaction)
-            sendEffect(
-                DashboardUiEffect.ShowSnackbar(
-                    message = "Transaction deleted",
-                    actionLabel = "Undo",
-                    onAction = { onIntent(DashboardUiIntent.UndoDelete(transaction)) }
-                )
-            )
+            val ruleId = transaction.recurringRuleId
+            when (mode) {
+                RecurringDeleteMode.ONLY_THIS_OCCURRENCE -> {
+                    repository.deleteTransaction(transaction)
+                    sendEffect(
+                        DashboardUiEffect.ShowSnackbar(
+                            message = "Transaction deleted",
+                            actionLabel = "Undo",
+                            onAction = { onIntent(DashboardUiIntent.UndoDelete(transaction)) }
+                        )
+                    )
+                }
+                RecurringDeleteMode.DELETE_AND_STOP_FUTURE -> {
+                    repository.deleteTransaction(transaction)
+                    if (ruleId != null) {
+                        repository.stopRecurringRule(ruleId)
+                    }
+                    sendEffect(
+                        DashboardUiEffect.ShowSnackbar(
+                            message = "Transaction deleted & recurring bill stopped"
+                        )
+                    )
+                }
+                RecurringDeleteMode.DELETE_ALL_HISTORY -> {
+                    if (ruleId != null) {
+                        repository.deleteRecurringRuleAndTransactions(ruleId)
+                    } else {
+                        repository.deleteTransaction(transaction)
+                    }
+                    sendEffect(
+                        DashboardUiEffect.ShowSnackbar(
+                            message = "Recurring bill and all transactions deleted"
+                        )
+                    )
+                }
+            }
         }
     }
 

@@ -9,6 +9,12 @@ import com.app.spent.ui.mvi.UiEffect
 import com.app.spent.ui.mvi.UiIntent
 import com.app.spent.ui.mvi.UiState
 
+enum class RecurringDeleteMode {
+    ONLY_THIS_OCCURRENCE,
+    DELETE_AND_STOP_FUTURE,
+    DELETE_ALL_HISTORY
+}
+
 data class CategoryEnvelopeState(
     val category: CategoryEntity,
     val spentAmount: Double,
@@ -23,6 +29,8 @@ data class DashboardUiState(
     val totalSpent: Double = 0.0,
     val safeToSpendToday: Double = 0.0,
     val daysRemainingInCycle: Int = 30,
+    val pendingBillsCount: Int = 0,
+    val pendingBillsTotal: Double = 0.0,
     val categoriesWithProgress: List<CategoryEnvelopeState> = emptyList(),
     val recentTransactions: List<TransactionEntity> = emptyList(),
     val allTransactions: List<TransactionEntity> = emptyList(),
@@ -43,7 +51,10 @@ sealed class DashboardUiIntent : UiIntent {
         val categoryId: String,
         val note: String
     ) : DashboardUiIntent()
-    data class DeleteTransaction(val transaction: TransactionEntity) : DashboardUiIntent()
+    data class DeleteTransaction(
+        val transaction: TransactionEntity,
+        val recurringDeleteMode: RecurringDeleteMode = RecurringDeleteMode.ONLY_THIS_OCCURRENCE
+    ) : DashboardUiIntent()
     data class UndoDelete(val transaction: TransactionEntity) : DashboardUiIntent()
     object DismissWalkthrough : DashboardUiIntent()
 }

@@ -20,6 +20,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDownward
 import androidx.compose.material.icons.filled.ArrowUpward
+import androidx.compose.material.icons.filled.Autorenew
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -110,13 +111,31 @@ onClick: (() -> Unit)? = null
           maxLines = 1,
           overflow = TextOverflow.Ellipsis
           )
-          Text(
-          text = "$localizedCatName • $formattedDate",
-          fontSize = 11.sp,
-          color = MaterialTheme.colorScheme.onSurfaceVariant,
-          maxLines = 1,
-          overflow = TextOverflow.Ellipsis
-          )
+          Row(verticalAlignment = Alignment.CenterVertically) {
+            if (transaction.recurringRuleId != null) {
+              Icon(
+                imageVector = Icons.Default.Autorenew,
+                contentDescription = androidx.compose.ui.res.stringResource(com.app.spent.R.string.recurring_badge_label),
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(12.dp)
+              )
+              Spacer(modifier = Modifier.width(3.dp))
+              Text(
+                text = "${androidx.compose.ui.res.stringResource(com.app.spent.R.string.recurring_badge_label)} • ",
+                fontSize = 11.sp,
+                fontWeight = FontWeight.SemiBold,
+                color = MaterialTheme.colorScheme.primary,
+                maxLines = 1
+              )
+            }
+            Text(
+              text = "$localizedCatName • $formattedDate",
+              fontSize = 11.sp,
+              color = MaterialTheme.colorScheme.onSurfaceVariant,
+              maxLines = 1,
+              overflow = TextOverflow.Ellipsis
+            )
+          }
         }
       }
 

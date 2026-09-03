@@ -127,6 +127,9 @@ fun SpentAppNavHost(
                     onNavigateBack = { navController.popBackStack() },
                     onNavigateToEditTransaction = { type, id ->
                         navController.navigate(Screen.AddTransaction.createRoute(type, id))
+                    },
+                    onNavigateToFixedBills = {
+                        navController.navigate(Screen.FixedBills.route)
                     }
                 )
             }
