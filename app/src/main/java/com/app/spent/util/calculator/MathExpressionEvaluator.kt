@@ -52,12 +52,12 @@ object MathExpressionEvaluator {
     }
 
     /**
-     * Attempts evaluation, returning double if valid and > 0, otherwise null.
+     * Attempts evaluation, returning double as positive/absolute value if valid and non-zero, otherwise null.
      */
     fun evaluateToPositiveDouble(expression: String): Double? {
         val result = evaluate(expression)
-        return if (result is EvaluationResult.Success && result.value > 0) {
-            result.value
+        return if (result is EvaluationResult.Success && kotlin.math.abs(result.value) > 0) {
+            kotlin.math.abs(result.value)
         } else {
             null
         }

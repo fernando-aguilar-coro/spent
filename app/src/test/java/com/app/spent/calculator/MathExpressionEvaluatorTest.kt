@@ -114,7 +114,8 @@ class MathExpressionEvaluatorTest {
     @Test
     fun testEvaluateToPositiveDouble() {
         assertEquals(15.0, MathExpressionEvaluator.evaluateToPositiveDouble("(10 + 5)") ?: 0.0, 0.001)
-        assertEquals(null, MathExpressionEvaluator.evaluateToPositiveDouble("10 - 20"))
+        assertEquals(10.0, MathExpressionEvaluator.evaluateToPositiveDouble("10 - 20") ?: 0.0, 0.001)
+        assertEquals(50.0, MathExpressionEvaluator.evaluateToPositiveDouble("-50") ?: 0.0, 0.001)
         assertEquals(null, MathExpressionEvaluator.evaluateToPositiveDouble("10 / 0"))
         assertEquals(null, MathExpressionEvaluator.evaluateToPositiveDouble(""))
     }

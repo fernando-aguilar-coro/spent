@@ -34,7 +34,10 @@ data class AddTransactionUiState(
 
     val parsedAmount: Double
         get() = when (val res = evaluationResult) {
-            is EvaluationResult.Success -> if (res.value > 0) res.value else 0.0
+            is EvaluationResult.Success -> {
+                val absVal = kotlin.math.abs(res.value)
+                if (absVal > 0) absVal else 0.0
+            }
             is EvaluationResult.Error -> 0.0
         }
 
@@ -43,7 +46,7 @@ data class AddTransactionUiState(
             is EvaluationResult.Success -> {
                 // Show preview if expression has calculations or differs from simple raw number
                 if (amountExpression.any { it in listOf('+', '-', '×', '÷', '*', '/', '(', ')') }) {
-                    res.formatted
+                    MathExpressionEvaluator.formatResult(kotlin.math.abs(res.value))
                 } else {
                     null
                 }

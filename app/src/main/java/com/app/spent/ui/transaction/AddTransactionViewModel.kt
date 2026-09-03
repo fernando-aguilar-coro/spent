@@ -192,8 +192,9 @@ class AddTransactionViewModel(
 
         when (val res = MathExpressionEvaluator.evaluate(current)) {
             is EvaluationResult.Success -> {
-                setState { copy(amountExpression = res.formatted) }
-                sendEffect(AddTransactionUiEffect.SyncCursor(res.formatted, res.formatted.length))
+                val absFormatted = MathExpressionEvaluator.formatResult(kotlin.math.abs(res.value))
+                setState { copy(amountExpression = absFormatted) }
+                sendEffect(AddTransactionUiEffect.SyncCursor(absFormatted, absFormatted.length))
             }
             is EvaluationResult.Error -> {
                 sendEffect(AddTransactionUiEffect.ShowSnackbar("Invalid calculation: ${res.message}"))

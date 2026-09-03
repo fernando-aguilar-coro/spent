@@ -69,6 +69,55 @@ class TransactionEditAndResetTest {
     }
 
     @Test
+    fun testNegativeAmountSavesAsPositive() = runTest {
+        val viewModel = AddTransactionViewModel(repository = fakeRepository, initialType = "EXPENSE")
+        advanceUntilIdle()
+
+        viewModel.onIntent(AddTransactionUiIntent.UpdateAmount("-45.50"))
+        assertTrue(viewModel.uiState.value.isValid)
+        assertEquals(45.50, viewModel.uiState.value.parsedAmount, 0.001)
+
+        viewModel.onIntent(AddTransactionUiIntent.UpdateNote("Negative expense"))
+        viewModel.onIntent(AddTransactionUiIntent.SaveTransaction)
+        advanceUntilIdle()
+
+        assertEquals(1, fakeRepository.addedTransactions.size)
+        assertEquals(45.50, fakeRepository.addedTransactions[0].amount, 0.001)
+    }
+
+    @Test
+    fun testNegativeIncomeSavesAsPositive() = runTest {
+        val viewModel = AddTransactionViewModel(repository = fakeRepository, initialType = "INCOME")
+        advanceUntilIdle()
+
+        viewModel.onIntent(AddTransactionUiIntent.UpdateAmount("-1200"))
+        assertTrue(viewModel.uiState.value.isValid)
+        assertEquals(1200.0, viewModel.uiState.value.parsedAmount, 0.001)
+
+        viewModel.onIntent(AddTransactionUiIntent.UpdateNote("Negative income"))
+        viewModel.onIntent(AddTransactionUiIntent.SaveTransaction)
+        advanceUntilIdle()
+
+        assertEquals(1, fakeRepository.addedTransactions.size)
+        assertEquals(1200.0, fakeRepository.addedTransactions[0].amount, 0.001)
+        assertEquals("INCOME", fakeRepository.addedTransactions[0].type)
+    }
+
+    @Test
+    fun testNegativeCalculationEvaluationConvertsToPositive() = runTest {
+        val viewModel = AddTransactionViewModel(repository = fakeRepository, initialType = "EXPENSE")
+        advanceUntilIdle()
+
+        viewModel.onIntent(AddTransactionUiIntent.UpdateAmount("20 - 50"))
+        assertEquals("30", viewModel.uiState.value.computedPreviewFormatted)
+        viewModel.onIntent(AddTransactionUiIntent.EvaluateAmount)
+        advanceUntilIdle()
+
+        assertEquals("30", viewModel.uiState.value.amountExpression)
+        assertEquals(30.0, viewModel.uiState.value.parsedAmount, 0.001)
+    }
+
+    @Test
     fun testEditTransactionLoadsExistingDataAndUpdatesOnSave() = runTest {
         val existingTx = TransactionEntity(
             id = "tx-123",
