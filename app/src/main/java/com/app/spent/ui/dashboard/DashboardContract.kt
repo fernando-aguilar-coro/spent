@@ -25,6 +25,7 @@ data class DashboardUiState(
     val daysRemainingInCycle: Int = 30,
     val categoriesWithProgress: List<CategoryEnvelopeState> = emptyList(),
     val recentTransactions: List<TransactionEntity> = emptyList(),
+    val allTransactions: List<TransactionEntity> = emptyList(),
     val allCategories: List<CategoryEntity> = emptyList(),
     val recurringRules: List<RecurringRuleEntity> = emptyList(),
     val loans: List<LoanEntity> = emptyList(),

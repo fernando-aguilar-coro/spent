@@ -123,7 +123,7 @@ fun DashboardScreen(
             // Extra Tools & Shortcuts Component
             item {
                 DashboardQuickTools(
-                    transactions = state.recentTransactions,
+                    transactions = state.allTransactions,
                     categories = state.allCategories,
                     recurringRules = state.recurringRules,
                     loans = state.loans,
