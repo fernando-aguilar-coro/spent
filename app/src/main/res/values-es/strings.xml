@@ -462,6 +462,29 @@
     <string name="drive_export_chooser">Guardar Respaldo de Spent en Drive</string>
     <string name="drive_import_chooser">Seleccionar Archivo de Respaldo de Spent</string>
 
+    <!-- Google Drive Sync Conflict Resolution -->
+    <string name="sync_conflict_dialog_title">Conflicto de sincronización</string>
+    <string name="sync_conflict_dialog_desc">Se encontraron datos financieros tanto en este dispositivo como en tu Google Drive. Elige cómo deseas resolver este conflicto:</string>
+    <string name="sync_conflict_local_card_title">Este Dispositivo (Local)</string>
+    <string name="sync_conflict_cloud_card_title">Google Drive (Nube)</string>
+    <string name="sync_conflict_account_label">Cuenta: %1$s</string>
+    <string name="sync_conflict_transactions_count">%1$d transacciones</string>
+    <string name="sync_conflict_loans_count">%1$d préstamos / deudas</string>
+    <string name="sync_conflict_backup_date">Fecha de respaldo: %1$s</string>
+    <string name="sync_conflict_last_modified">Última actividad: %1$s</string>
+    <string name="sync_conflict_option_merge_title">Combinar ambos (Conservar todo)</string>
+    <string name="sync_conflict_option_merge_desc">Combina registros locales y de la nube sin perder nada. Actualiza tanto el dispositivo como Google Drive.</string>
+    <string name="sync_conflict_option_keep_local_title">Conservar datos locales</string>
+    <string name="sync_conflict_option_keep_local_desc">Conserva los datos de este dispositivo y reemplaza tu respaldo actual en Google Drive.</string>
+    <string name="sync_conflict_option_keep_cloud_title">Conservar datos de la nube</string>
+    <string name="sync_conflict_option_keep_cloud_desc">Reemplaza los datos de este dispositivo con la copia de seguridad de Google Drive.</string>
+    <string name="sync_conflict_recommended_badge">RECOMENDADO</string>
+    <string name="sync_conflict_btn_apply">Aplicar selección</string>
+    <string name="sync_conflict_btn_cancel">Cancelar</string>
+    <string name="drive_sync_conflict_merged">Datos combinados y sincronizados con Google Drive</string>
+    <string name="drive_sync_conflict_local_kept">Datos locales conservados y subidos a Google Drive</string>
+    <string name="drive_sync_conflict_cancelled">Sincronización cancelada, datos locales sin cambios</string>
+
     <!-- Onboarding Walkthrough -->
     <string name="onboarding_welcome_title">Bienvenido a Spent</string>
     <string name="onboarding_welcome_desc">Empieza a administrar tus finanzas de forma rápida y privada.</string>

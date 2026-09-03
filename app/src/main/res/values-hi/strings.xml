@@ -462,6 +462,29 @@
     <string name="drive_export_chooser">Spent बैकअप ड्राइव पर सहेजें</string>
     <string name="drive_import_chooser">Spent बैकअप फ़ाइल चुनें</string>
 
+    <!-- Google Drive Sync Conflict Resolution -->
+    <string name="sync_conflict_dialog_title">सिंक विरोध पाया गया</string>
+    <string name="sync_conflict_dialog_desc">इस डिवाइस और आपके Google Drive दोनों पर डेटा मौजूद है। चुनें कि आप कैसे सिंक करना चाहते हैं:</string>
+    <string name="sync_conflict_local_card_title">यह डिवाइस (स्थानीय)</string>
+    <string name="sync_conflict_cloud_card_title">Google Drive (क्लाउड)</string>
+    <string name="sync_conflict_account_label">खाता: %1$s</string>
+    <string name="sync_conflict_transactions_count">%1$d लेन-देन</string>
+    <string name="sync_conflict_loans_count">%1$d ऋण / उधार</string>
+    <string name="sync_conflict_backup_date">बैकअप तिथि: %1$s</string>
+    <string name="sync_conflict_last_modified">अंतिम गतिविधि: %1$s</string>
+    <string name="sync_conflict_option_merge_title">दोनों को मिलाएं (सब कुछ रखें)</string>
+    <string name="sync_conflict_option_merge_desc">बिना कुछ खोए स्थानीय और क्लाउड डेटा को मिलाता है।</string>
+    <string name="sync_conflict_option_keep_local_title">स्थानीय डेटा रखें</string>
+    <string name="sync_conflict_option_keep_local_desc">इस डिवाइस का डेटा रखता है और Google Drive को बदल देता है।</string>
+    <string name="sync_conflict_option_keep_cloud_title">क्लाउड डेटा रखें</string>
+    <string name="sync_conflict_option_keep_cloud_desc">इस डिवाइस के डेटा को Google Drive बैकअप से बदल देता है।</string>
+    <string name="sync_conflict_recommended_badge">अनुशंसित</string>
+    <string name="sync_conflict_btn_apply">चयन लागू करें</string>
+    <string name="sync_conflict_btn_cancel">रद्द करें</string>
+    <string name="drive_sync_conflict_merged">डेटा सफलतापूर्वक मिलाया और सिंक किया गया</string>
+    <string name="drive_sync_conflict_local_kept">स्थानीय डेटा सुरक्षित रखा गया और Google Drive पर अपलोड किया गया</string>
+    <string name="drive_sync_conflict_cancelled">सिंक रद्द कर दिया गया, स्थानीय डेटा अपरिवर्तित है</string>
+
     <!-- Onboarding Walkthrough -->
     <string name="onboarding_welcome_title">Spent में आपका स्वागत है</string>
     <string name="onboarding_welcome_desc">अपने वित्त को शीघ्रता और गोपनीयता से प्रबंधित करना शुरू करें।</string>

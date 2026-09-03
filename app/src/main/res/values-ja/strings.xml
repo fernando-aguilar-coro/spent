@@ -462,6 +462,29 @@
     <string name="drive_export_chooser">Spent バックアップをドライブに保存</string>
     <string name="drive_import_chooser">Spent バックアップファイルを選択</string>
 
+    <!-- Google Drive Sync Conflict Resolution -->
+    <string name="sync_conflict_dialog_title">同期の競合が検出されました</string>
+    <string name="sync_conflict_dialog_desc">この端末とGoogle ドライブの両方にデータが存在します。同期方法を選択してください：</string>
+    <string name="sync_conflict_local_card_title">この端末（ローカル）</string>
+    <string name="sync_conflict_cloud_card_title">Google ドライブ（クラウド）</string>
+    <string name="sync_conflict_account_label">アカウント: %1$s</string>
+    <string name="sync_conflict_transactions_count">%1$d 件の取引</string>
+    <string name="sync_conflict_loans_count">%1$d 件のローン/借入</string>
+    <string name="sync_conflict_backup_date">バックアップ日時: %1$s</string>
+    <string name="sync_conflict_last_modified">最終更新: %1$s</string>
+    <string name="sync_conflict_option_merge_title">両方を結合（すべて保持）</string>
+    <string name="sync_conflict_option_merge_desc">ローカルとクラウドのデータを失うことなく結合します。</string>
+    <string name="sync_conflict_option_keep_local_title">ローカルデータを保持</string>
+    <string name="sync_conflict_option_keep_local_desc">この端末のデータを優先し、Google ドライブを上書きします。</string>
+    <string name="sync_conflict_option_keep_cloud_title">クラウドデータを保持</string>
+    <string name="sync_conflict_option_keep_cloud_desc">この端末のデータをGoogle ドライブのバックアップで置き換えます。</string>
+    <string name="sync_conflict_recommended_badge">推奨</string>
+    <string name="sync_conflict_btn_apply">選択を適用</string>
+    <string name="sync_conflict_btn_cancel">キャンセル</string>
+    <string name="drive_sync_conflict_merged">データを結合して正常に同期しました</string>
+    <string name="drive_sync_conflict_local_kept">ローカルデータを保持し、ドライブにアップロードしました</string>
+    <string name="drive_sync_conflict_cancelled">同期をキャンセルしました。端末データは変更されていません</string>
+
     <!-- Onboarding Walkthrough -->
     <string name="onboarding_welcome_title">Spent へようこそ</string>
     <string name="onboarding_welcome_desc">プライバシーを保護しながら、スマートに家計管理を始めましょう。</string>

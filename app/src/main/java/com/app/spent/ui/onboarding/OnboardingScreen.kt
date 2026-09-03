@@ -64,6 +64,18 @@ fun OnboardingScreen(
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
 
+    if (state.syncConflict != null) {
+        com.app.spent.ui.components.SyncConflictDialog(
+            conflictData = state.syncConflict!!,
+            onResolve = { choice ->
+                viewModel.onIntent(OnboardingUiIntent.ResolveSyncConflict(choice))
+            },
+            onDismiss = {
+                viewModel.onIntent(OnboardingUiIntent.DismissSyncConflict)
+            }
+        )
+    }
+
     // Handle system back button / gesture to step back within onboarding
     BackHandler(enabled = state.currentStep != OnboardingStep.WELCOME) {
         viewModel.onIntent(OnboardingUiIntent.NavigateBack)

@@ -462,6 +462,29 @@
     <string name="drive_export_chooser">Save Spent Backup to Drive</string>
     <string name="drive_import_chooser">Select Spent Backup File</string>
 
+    <!-- Google Drive Sync Conflict Resolution -->
+    <string name="sync_conflict_dialog_title">Sync Conflict Detected</string>
+    <string name="sync_conflict_dialog_desc">Both this device and your Google Drive have existing financial data. Choose how you want to resolve this conflict:</string>
+    <string name="sync_conflict_local_card_title">This Device (Local)</string>
+    <string name="sync_conflict_cloud_card_title">Google Drive (Cloud)</string>
+    <string name="sync_conflict_account_label">Account: %1$s</string>
+    <string name="sync_conflict_transactions_count">%1$d transactions</string>
+    <string name="sync_conflict_loans_count">%1$d loans / debts</string>
+    <string name="sync_conflict_backup_date">Backup date: %1$s</string>
+    <string name="sync_conflict_last_modified">Last activity: %1$s</string>
+    <string name="sync_conflict_option_merge_title">Merge Both (Keep Everything)</string>
+    <string name="sync_conflict_option_merge_desc">Combines local and cloud records without losing anything. Updates both device and Google Drive.</string>
+    <string name="sync_conflict_option_keep_local_title">Keep Local Data</string>
+    <string name="sync_conflict_option_keep_local_desc">Keeps this device\'s data and replaces your existing Google Drive backup.</string>
+    <string name="sync_conflict_option_keep_cloud_title">Keep Cloud Data</string>
+    <string name="sync_conflict_option_keep_cloud_desc">Replaces the data on this device with the Google Drive cloud backup.</string>
+    <string name="sync_conflict_recommended_badge">RECOMMENDED</string>
+    <string name="sync_conflict_btn_apply">Apply Selection</string>
+    <string name="sync_conflict_btn_cancel">Cancel</string>
+    <string name="drive_sync_conflict_merged">Data merged and synchronized with Google Drive</string>
+    <string name="drive_sync_conflict_local_kept">Local data preserved and uploaded to Google Drive</string>
+    <string name="drive_sync_conflict_cancelled">Sync cancelled, local data unchanged</string>
+
     <!-- Onboarding Walkthrough -->
     <string name="onboarding_welcome_title">Welcome to Spent</string>
     <string name="onboarding_welcome_desc">Start managing your finances quickly and privately.</string>

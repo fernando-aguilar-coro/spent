@@ -18,7 +18,8 @@ val isDriveConnected: Boolean = false,
 val driveAccountEmail: String? = null,
 val isDriveSyncing: Boolean = false,
 val imageStorageLocation: String = "IN_APP",
-val isLoading: Boolean = false
+val isLoading: Boolean = false,
+val syncConflict: com.app.spent.data.sync.SyncConflictData? = null
 ) : UiState
 
 sealed class SettingsUiIntent : UiIntent {
@@ -28,6 +29,8 @@ sealed class SettingsUiIntent : UiIntent {
   data class SetAppLanguage(val languageCode: String?) : SettingsUiIntent()
   data class SetImageStorageLocation(val location: String) : SettingsUiIntent()
   data class ConnectDriveAccount(val account: com.google.android.gms.auth.api.signin.GoogleSignInAccount) : SettingsUiIntent()
+  data class ResolveSyncConflict(val choice: com.app.spent.data.sync.SyncConflictChoice) : SettingsUiIntent()
+  object DismissSyncConflict : SettingsUiIntent()
   object DisconnectDrive : SettingsUiIntent()
   object SyncDriveNow : SettingsUiIntent()
   object RequestDriveSignIn : SettingsUiIntent()

@@ -63,6 +63,17 @@ class SpentRepositoryImpl(
     override suspend fun connectGoogleDrive(account: GoogleSignInAccount): DriveConnectResult =
         DriveSyncManager.connectAccount(context, account, this, preferencesRepository)
 
+    override suspend fun resolveDriveConflict(
+        account: GoogleSignInAccount,
+        choice: com.app.spent.data.sync.SyncConflictChoice,
+        cloudBackupJson: String
+    ): DriveConnectResult =
+        DriveSyncManager.resolveConflict(context, account, this, preferencesRepository, choice, cloudBackupJson)
+
+    override suspend fun cancelDriveConflict() {
+        DriveSyncManager.cancelConflict(context, preferencesRepository)
+    }
+
     override suspend fun disconnectGoogleDrive() {
         DriveSyncManager.disconnectAccount(context, preferencesRepository)
     }

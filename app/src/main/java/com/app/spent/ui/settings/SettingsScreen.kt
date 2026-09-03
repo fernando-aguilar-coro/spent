@@ -26,6 +26,7 @@ import androidx.compose.ui.unit.dp
 import com.app.spent.R
 import com.app.spent.data.repository.SpentRepository
 import com.app.spent.data.sync.GoogleDriveRestService
+import com.app.spent.ui.components.SyncConflictDialog
 import com.app.spent.ui.settings.components.AppInfoCard
 import com.app.spent.ui.settings.components.CurrencySelectionCard
 import com.app.spent.ui.settings.components.ExportCsvCard
@@ -45,6 +46,18 @@ repository: SpentRepository
   val state by viewModel.uiState.collectAsState()
   val snackbarHostState = remember { SnackbarHostState() }
   val context = LocalContext.current
+
+  if (state.syncConflict != null) {
+    SyncConflictDialog(
+      conflictData = state.syncConflict!!,
+      onResolve = { choice ->
+        viewModel.onIntent(SettingsUiIntent.ResolveSyncConflict(choice))
+      },
+      onDismiss = {
+        viewModel.onIntent(SettingsUiIntent.DismissSyncConflict)
+      }
+    )
+  }
 
   val googleSignInLauncher = rememberLauncherForActivityResult(
   contract = ActivityResultContracts.StartActivityForResult()

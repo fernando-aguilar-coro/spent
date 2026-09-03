@@ -10,6 +10,7 @@ import java.util.Locale
 
 import android.content.Context
 import android.net.Uri
+import android.util.Log
 import com.app.spent.data.local.entity.CategoryEntity
 import com.app.spent.data.local.entity.LoanEntity
 import com.app.spent.data.local.entity.PayCycleEntity
@@ -188,183 +189,297 @@ object DriveBackupManager {
     root.toString(2)
   }
 
-  suspend fun restoreFromJson(jsonString: String, repository: SpentRepository): Result<Boolean> = withContext(Dispatchers.IO) {
+  data class ParsedBackupData(
+    val categories: List<CategoryEntity>,
+    val transactions: List<TransactionEntity>,
+    val loans: List<LoanEntity>,
+    val payCycle: PayCycleEntity?,
+    val recurringRules: List<RecurringRuleEntity>,
+    val userAccount: UserAccountEntity?,
+    val savingsGoalName: String,
+    val savingsGoalTotal: Double,
+    val savingsMonthlyContribution: Double,
+    val exportTimestamp: Long,
+    val preferences: JSONObject?
+  )
+
+  private val defaultCategoryIds = setOf(
+    "cat_general", "cat_salary", "cat_groceries", "cat_food", "cat_housing",
+    "cat_transport", "cat_utilities", "cat_entertainment", "cat_shopping",
+    "cat_health", "cat_savings", "cat_education", "cat_travel", "cat_fitness", "cat_pets"
+  )
+
+  suspend fun hasLocalUserData(repository: SpentRepository): Boolean = withContext(Dispatchers.IO) {
     try {
+      val transactions = repository.getTransactionsFlow().firstOrNull() ?: emptyList()
+      if (transactions.isNotEmpty()) return@withContext true
+
+      val loans = repository.getLoansFlow().firstOrNull() ?: emptyList()
+      if (loans.isNotEmpty()) return@withContext true
+
+      val recurringRules = repository.getRecurringRulesFlow().firstOrNull() ?: emptyList()
+      if (recurringRules.isNotEmpty()) return@withContext true
+
+      val payCycle = repository.getCurrentPayCycleFlow().firstOrNull()
+      if (payCycle != null && payCycle.income > 0.0) return@withContext true
+
+      val savingsGoalTotal = repository.savingsGoalTotalFlow.firstOrNull() ?: 0.0
+      val savingsGoalName = repository.savingsGoalNameFlow.firstOrNull() ?: ""
+      if (savingsGoalTotal > 0.0 || savingsGoalName.isNotBlank()) return@withContext true
+
+      val categories = repository.getCategoriesFlow().firstOrNull() ?: emptyList()
+      val hasCustomOrBudgetedCategories = categories.any { it.id !in defaultCategoryIds || it.budgetAmount > 0.0 }
+      if (hasCustomOrBudgetedCategories) return@withContext true
+
+      false
+    } catch (e: Exception) {
+      Log.e("DriveBackupManager", "Error checking local user data", e)
+      false
+    }
+  }
+
+  fun hasCloudUserData(jsonString: String): Boolean {
+    if (jsonString.isBlank()) return false
+    return try {
       val root = JSONObject(jsonString)
+      val parsed = parseBackupJson(root)
+      val hasTransactions = parsed.transactions.isNotEmpty()
+      val hasLoans = parsed.loans.isNotEmpty()
+      val hasRules = parsed.recurringRules.isNotEmpty()
+      val hasSavings = parsed.savingsGoalTotal > 0.0 || parsed.savingsGoalName.isNotBlank()
+      val hasPayCycle = parsed.payCycle != null && parsed.payCycle.income > 0.0
+      val hasCustomCategories = parsed.categories.any { it.id !in defaultCategoryIds || it.budgetAmount > 0.0 }
 
-      // 1. Categories
-      val categoriesList = mutableListOf<CategoryEntity>()
-      if (root.has("categories")) {
-        val catArray = root.getJSONArray("categories")
-        for (i in 0 until catArray.length()) {
-          val obj = catArray.getJSONObject(i)
-          categoriesList.add(
-            CategoryEntity(
-              id = obj.optString("id", "cat_$i"),
-              name = obj.optString("name", "Category"),
-              iconName = obj.optString("iconName", "Category"),
-              colorHex = obj.optString("colorHex", "#64748B"),
-              budgetAmount = obj.optDouble("budgetAmount", 0.0),
-              displayOrder = obj.optInt("displayOrder", i)
-            )
+      hasTransactions || hasLoans || hasRules || hasSavings || hasPayCycle || hasCustomCategories
+    } catch (e: Exception) {
+      Log.e("DriveBackupManager", "Error checking cloud user data", e)
+      false
+    }
+  }
+
+  suspend fun extractLocalSummary(repository: SpentRepository): SyncDataSummary = withContext(Dispatchers.IO) {
+    val txs = repository.getTransactionsFlow().firstOrNull() ?: emptyList()
+    val loans = repository.getLoansFlow().firstOrNull() ?: emptyList()
+    val cats = repository.getCategoriesFlow().firstOrNull() ?: emptyList()
+    val maxTxTime = txs.maxOfOrNull { it.timestamp } ?: 0L
+    val maxLoanTime = loans.maxOfOrNull { it.createdAt } ?: 0L
+    val lastModified = maxOf(maxTxTime, maxLoanTime, if (txs.isEmpty() && loans.isEmpty()) 0L else System.currentTimeMillis())
+
+    SyncDataSummary(
+      transactionCount = txs.size,
+      loanCount = loans.size,
+      categoryCount = cats.size,
+      lastModifiedTimestamp = lastModified
+    )
+  }
+
+  fun extractCloudSummary(jsonString: String): SyncDataSummary {
+    return try {
+      val parsed = parseBackupJson(JSONObject(jsonString))
+      SyncDataSummary(
+        transactionCount = parsed.transactions.size,
+        loanCount = parsed.loans.size,
+        categoryCount = parsed.categories.size,
+        lastModifiedTimestamp = parsed.exportTimestamp
+      )
+    } catch (e: Exception) {
+      SyncDataSummary(0, 0, 0, 0L)
+    }
+  }
+
+  fun parseBackupJson(root: JSONObject): ParsedBackupData {
+    val categoriesList = mutableListOf<CategoryEntity>()
+    if (root.has("categories")) {
+      val catArray = root.getJSONArray("categories")
+      for (i in 0 until catArray.length()) {
+        val obj = catArray.getJSONObject(i)
+        categoriesList.add(
+          CategoryEntity(
+            id = obj.optString("id", "cat_$i"),
+            name = obj.optString("name", "Category"),
+            iconName = obj.optString("iconName", "Category"),
+            colorHex = obj.optString("colorHex", "#64748B"),
+            budgetAmount = obj.optDouble("budgetAmount", 0.0),
+            displayOrder = obj.optInt("displayOrder", i)
           )
-        }
+        )
       }
+    }
 
-      // 2. Normal Transactions
-      val transactionsList = mutableListOf<TransactionEntity>()
-      if (root.has("transactions")) {
-        val txArray = root.getJSONArray("transactions")
-        for (i in 0 until txArray.length()) {
-          val obj = txArray.getJSONObject(i)
-          val recRuleId = obj.optString("recurringRuleId", "").ifEmpty { null }
-          val imgUri = obj.optString("imageUri", "").ifEmpty { null }
-          val type = obj.optString("type", "EXPENSE")
-          val categoryId = obj.optString("categoryId", "cat_general")
+    val transactionsList = mutableListOf<TransactionEntity>()
+    if (root.has("transactions")) {
+      val txArray = root.getJSONArray("transactions")
+      for (i in 0 until txArray.length()) {
+        val obj = txArray.getJSONObject(i)
+        val recRuleId = obj.optString("recurringRuleId", "").ifEmpty { null }
+        val imgUri = obj.optString("imageUri", "").ifEmpty { null }
+        val type = obj.optString("type", "EXPENSE")
+        val categoryId = obj.optString("categoryId", "cat_general")
+        transactionsList.add(
+          TransactionEntity(
+            id = obj.optString("id", java.util.UUID.randomUUID().toString()),
+            ownerProfileId = obj.optString("ownerProfileId", "primary_user"),
+            amount = obj.optDouble("amount", 0.0),
+            type = type,
+            categoryId = categoryId,
+            timestamp = obj.optLong("timestamp", System.currentTimeMillis()),
+            note = obj.optString("note", ""),
+            imageUri = imgUri,
+            recurringRuleId = recRuleId
+          )
+        )
+      }
+    }
+
+    val loansList = mutableListOf<LoanEntity>()
+    if (root.has("loans")) {
+      val loansArray = root.getJSONArray("loans")
+      for (i in 0 until loansArray.length()) {
+        val obj = loansArray.getJSONObject(i)
+        val endTs = if (obj.has("endDate") && !obj.isNull("endDate")) obj.optLong("endDate") else null
+        val dueTs = if (obj.has("dueDate") && !obj.isNull("dueDate")) obj.optLong("dueDate") else null
+        val instAmt = if (obj.has("installmentAmount") && !obj.isNull("installmentAmount")) obj.optDouble("installmentAmount") else null
+        val instDur = if (obj.has("installmentDurationMonths") && !obj.isNull("installmentDurationMonths")) obj.optInt("installmentDurationMonths") else null
+
+        loansList.add(
+          LoanEntity(
+            id = obj.optString("id", java.util.UUID.randomUUID().toString()),
+            ownerProfileId = obj.optString("ownerProfileId", "primary_account"),
+            type = obj.optString("type", "I_OWE"),
+            counterpartyName = obj.optString("counterpartyName", ""),
+            principalAmount = obj.optDouble("principalAmount", 0.0),
+            paidAmount = obj.optDouble("paidAmount", 0.0),
+            categoryId = obj.optString("categoryId", "cat_general"),
+            createdAt = obj.optLong("createdAt", System.currentTimeMillis()),
+            startDate = obj.optLong("startDate", System.currentTimeMillis()),
+            endDate = endTs,
+            calculationMode = obj.optString("calculationMode", "TOTAL_PRINCIPAL"),
+            dueDate = dueTs,
+            isInstallment = obj.optBoolean("isInstallment", false),
+            installmentAmount = instAmt,
+            installmentDurationMonths = instDur,
+            interestRate = obj.optDouble("interestRate", 0.0),
+            note = obj.optString("note", ""),
+            isSettled = obj.optBoolean("isSettled", false)
+          )
+        )
+      }
+    }
+
+    var savingsGoalName = ""
+    var savingsGoalTotal = 0.0
+    var savingsMonthlyContribution = 0.0
+    if (root.has("savings")) {
+      val savingsObj = root.getJSONObject("savings")
+      savingsGoalName = savingsObj.optString("goalName", "")
+      savingsGoalTotal = savingsObj.optDouble("goalTotal", 0.0)
+      savingsMonthlyContribution = savingsObj.optDouble("monthlyContribution", 0.0)
+
+      if (savingsObj.has("deposits")) {
+        val depArray = savingsObj.getJSONArray("deposits")
+        for (i in 0 until depArray.length()) {
+          val obj = depArray.getJSONObject(i)
           transactionsList.add(
             TransactionEntity(
               id = obj.optString("id", java.util.UUID.randomUUID().toString()),
-              ownerProfileId = obj.optString("ownerProfileId", "primary_user"),
+              ownerProfileId = obj.optString("ownerProfileId", "primary_account"),
               amount = obj.optDouble("amount", 0.0),
-              type = type,
-              categoryId = categoryId,
+              type = "SAVING",
+              categoryId = "cat_savings",
               timestamp = obj.optLong("timestamp", System.currentTimeMillis()),
-              note = obj.optString("note", ""),
-              imageUri = imgUri,
-              recurringRuleId = recRuleId
+              note = obj.optString("note", "Savings Deposit")
             )
           )
         }
       }
+    }
 
-      // 3. Loans & Debts (Separate section)
-      val loansList = mutableListOf<LoanEntity>()
-      if (root.has("loans")) {
-        val loansArray = root.getJSONArray("loans")
-        for (i in 0 until loansArray.length()) {
-          val obj = loansArray.getJSONObject(i)
-          val endTs = if (obj.has("endDate") && !obj.isNull("endDate")) obj.optLong("endDate") else null
-          val dueTs = if (obj.has("dueDate") && !obj.isNull("dueDate")) obj.optLong("dueDate") else null
-          val instAmt = if (obj.has("installmentAmount") && !obj.isNull("installmentAmount")) obj.optDouble("installmentAmount") else null
-          val instDur = if (obj.has("installmentDurationMonths") && !obj.isNull("installmentDurationMonths")) obj.optInt("installmentDurationMonths") else null
+    var payCycle: PayCycleEntity? = null
+    if (root.has("payCycle")) {
+      val obj = root.getJSONObject("payCycle")
+      payCycle = PayCycleEntity(
+        id = obj.optString("id", "default_cycle"),
+        frequency = obj.optString("frequency", "MONTHLY"),
+        startDate = obj.optLong("startDate", System.currentTimeMillis()),
+        income = obj.optDouble("income", 0.0)
+      )
+    }
 
-          loansList.add(
-            LoanEntity(
-              id = obj.optString("id", java.util.UUID.randomUUID().toString()),
-              ownerProfileId = obj.optString("ownerProfileId", "primary_account"),
-              type = obj.optString("type", "I_OWE"),
-              counterpartyName = obj.optString("counterpartyName", ""),
-              principalAmount = obj.optDouble("principalAmount", 0.0),
-              paidAmount = obj.optDouble("paidAmount", 0.0),
-              categoryId = obj.optString("categoryId", "cat_general"),
-              createdAt = obj.optLong("createdAt", System.currentTimeMillis()),
-              startDate = obj.optLong("startDate", System.currentTimeMillis()),
-              endDate = endTs,
-              calculationMode = obj.optString("calculationMode", "TOTAL_PRINCIPAL"),
-              dueDate = dueTs,
-              isInstallment = obj.optBoolean("isInstallment", false),
-              installmentAmount = instAmt,
-              installmentDurationMonths = instDur,
-              interestRate = obj.optDouble("interestRate", 0.0),
-              note = obj.optString("note", ""),
-              isSettled = obj.optBoolean("isSettled", false)
-            )
+    val recurringRulesList = mutableListOf<RecurringRuleEntity>()
+    if (root.has("recurringRules")) {
+      val rrArray = root.getJSONArray("recurringRules")
+      for (i in 0 until rrArray.length()) {
+        val obj = rrArray.getJSONObject(i)
+        val endTs = obj.optLong("endDate", -1L)
+        recurringRulesList.add(
+          RecurringRuleEntity(
+            id = obj.optString("id", java.util.UUID.randomUUID().toString()),
+            ownerProfileId = obj.optString("ownerProfileId", "primary_account"),
+            amount = obj.optDouble("amount", 0.0),
+            categoryId = obj.optString("categoryId", "cat_general"),
+            frequency = obj.optString("frequency", "MONTHLY"),
+            startDate = obj.optLong("startDate", System.currentTimeMillis()),
+            endDate = if (endTs > 0) endTs else null,
+            lastExecuted = obj.optLong("lastExecuted", 0L),
+            note = obj.optString("note", ""),
+            type = obj.optString("type", "EXPENSE"),
+            isActive = obj.optBoolean("isActive", true)
           )
-        }
-      }
-
-      // 4. Savings (Separate section: goal + deposits)
-      val savingsDepositsList = mutableListOf<TransactionEntity>()
-      if (root.has("savings")) {
-        val savingsObj = root.getJSONObject("savings")
-        val goalName = savingsObj.optString("goalName", "")
-        val goalTotal = savingsObj.optDouble("goalTotal", 0.0)
-        val monthlyContribution = savingsObj.optDouble("monthlyContribution", 0.0)
-        if (goalName.isNotBlank() || goalTotal > 0) {
-          repository.setSavingsGoal(goalName, goalTotal, monthlyContribution)
-        }
-
-        if (savingsObj.has("deposits")) {
-          val depArray = savingsObj.getJSONArray("deposits")
-          for (i in 0 until depArray.length()) {
-            val obj = depArray.getJSONObject(i)
-            savingsDepositsList.add(
-              TransactionEntity(
-                id = obj.optString("id", java.util.UUID.randomUUID().toString()),
-                ownerProfileId = obj.optString("ownerProfileId", "primary_account"),
-                amount = obj.optDouble("amount", 0.0),
-                type = "SAVING",
-                categoryId = "cat_savings",
-                timestamp = obj.optLong("timestamp", System.currentTimeMillis()),
-                note = obj.optString("note", "Savings Deposit")
-              )
-            )
-          }
-        }
-      }
-
-      // 5. Pay Cycle
-      var payCycle: PayCycleEntity? = null
-      if (root.has("payCycle")) {
-        val obj = root.getJSONObject("payCycle")
-        payCycle = PayCycleEntity(
-          id = obj.optString("id", "default_cycle"),
-          frequency = obj.optString("frequency", "MONTHLY"),
-          startDate = obj.optLong("startDate", System.currentTimeMillis()),
-          income = obj.optDouble("income", 0.0)
         )
       }
+    }
 
-      // 6. Recurring Rules
-      val recurringRulesList = mutableListOf<RecurringRuleEntity>()
-      if (root.has("recurringRules")) {
-        val rrArray = root.getJSONArray("recurringRules")
-        for (i in 0 until rrArray.length()) {
-          val obj = rrArray.getJSONObject(i)
-          val endTs = obj.optLong("endDate", -1L)
-          recurringRulesList.add(
-            RecurringRuleEntity(
-              id = obj.optString("id", java.util.UUID.randomUUID().toString()),
-              ownerProfileId = obj.optString("ownerProfileId", "primary_account"),
-              amount = obj.optDouble("amount", 0.0),
-              categoryId = obj.optString("categoryId", "cat_general"),
-              frequency = obj.optString("frequency", "MONTHLY"),
-              startDate = obj.optLong("startDate", System.currentTimeMillis()),
-              endDate = if (endTs > 0) endTs else null,
-              lastExecuted = obj.optLong("lastExecuted", 0L),
-              note = obj.optString("note", ""),
-              type = obj.optString("type", "EXPENSE"),
-              isActive = obj.optBoolean("isActive", true)
-            )
-          )
-        }
-      }
+    var userAccount: UserAccountEntity? = null
+    if (root.has("userAccount")) {
+      val obj = root.getJSONObject("userAccount")
+      userAccount = UserAccountEntity(
+        id = obj.optString("id", "primary_account"),
+        displayName = obj.optString("displayName", "Primary User"),
+        role = obj.optString("role", "INDEPENDENT"),
+        lastDriveSyncTimestamp = System.currentTimeMillis()
+      )
+    }
 
-      // 7. User Account
-      var userAccount: UserAccountEntity? = null
-      if (root.has("userAccount")) {
-        val obj = root.getJSONObject("userAccount")
-        userAccount = UserAccountEntity(
-          id = obj.optString("id", "primary_account"),
-          displayName = obj.optString("displayName", "Primary User"),
-          role = obj.optString("role", "INDEPENDENT"),
-          lastDriveSyncTimestamp = System.currentTimeMillis()
-        )
+    val preferences = if (root.has("preferences")) root.getJSONObject("preferences") else null
+    val exportTimestamp = root.optLong("exportTimestamp", System.currentTimeMillis())
+
+    return ParsedBackupData(
+      categories = categoriesList,
+      transactions = transactionsList,
+      loans = loansList,
+      payCycle = payCycle,
+      recurringRules = recurringRulesList,
+      userAccount = userAccount,
+      savingsGoalName = savingsGoalName,
+      savingsGoalTotal = savingsGoalTotal,
+      savingsMonthlyContribution = savingsMonthlyContribution,
+      exportTimestamp = exportTimestamp,
+      preferences = preferences
+    )
+  }
+
+  suspend fun restoreFromJson(jsonString: String, repository: SpentRepository): Result<Boolean> = withContext(Dispatchers.IO) {
+    try {
+      val root = JSONObject(jsonString)
+      val parsed = parseBackupJson(root)
+
+      if (parsed.savingsGoalName.isNotBlank() || parsed.savingsGoalTotal > 0) {
+        repository.setSavingsGoal(parsed.savingsGoalName, parsed.savingsGoalTotal, parsed.savingsMonthlyContribution)
       }
 
       // Restore Database in Repository
       repository.restoreAllData(
-        categories = categoriesList,
-        transactions = transactionsList + savingsDepositsList,
-        payCycle = payCycle,
-        recurringRules = recurringRulesList,
-        userAccount = userAccount,
-        loans = loansList
+        categories = parsed.categories,
+        transactions = parsed.transactions,
+        payCycle = parsed.payCycle,
+        recurringRules = parsed.recurringRules,
+        userAccount = parsed.userAccount,
+        loans = parsed.loans
       )
 
-      // 8. Restore Preferences
-      if (root.has("preferences")) {
-        val prefObj = root.getJSONObject("preferences")
+      // Restore Preferences
+      if (parsed.preferences != null) {
+        val prefObj = parsed.preferences
         if (prefObj.has("currencySymbol")) {
           repository.setCurrencySymbol(prefObj.getString("currencySymbol"))
         }
@@ -393,7 +508,112 @@ object DriveBackupManager {
 
       Result.success(true)
     } catch (e: Exception) {
-      e.printStackTrace()
+      Log.e("DriveBackupManager", "Error restoring from JSON", e)
+      Result.failure(e)
+    }
+  }
+
+  suspend fun mergeCloudAndLocal(cloudJson: String, repository: SpentRepository): Result<Boolean> = withContext(Dispatchers.IO) {
+    try {
+      val root = JSONObject(cloudJson)
+      val cloudData = parseBackupJson(root)
+
+      // 1. Categories
+      val localCategories = repository.getCategoriesFlow().firstOrNull() ?: emptyList()
+      val catMap = linkedMapOf<String, CategoryEntity>()
+      for (c in cloudData.categories) {
+        catMap[c.id] = c
+      }
+      for (c in localCategories) {
+        val existing = catMap[c.id]
+        if (existing == null) {
+          catMap[c.id] = c
+        } else {
+          val budget = if (c.budgetAmount > 0.0) c.budgetAmount else existing.budgetAmount
+          catMap[c.id] = c.copy(budgetAmount = budget)
+        }
+      }
+      val mergedCategories = catMap.values.toList().sortedBy { it.displayOrder }
+
+      // 2. Transactions (deduplicated by id, preferring local)
+      val localTransactions = repository.getTransactionsFlow().firstOrNull() ?: emptyList()
+      val txMap = linkedMapOf<String, TransactionEntity>()
+      for (t in cloudData.transactions) {
+        txMap[t.id] = t
+      }
+      for (t in localTransactions) {
+        txMap[t.id] = t
+      }
+      val mergedTransactions = txMap.values.toList().sortedByDescending { it.timestamp }
+
+      // 3. Loans
+      val localLoans = repository.getLoansFlow().firstOrNull() ?: emptyList()
+      val loanMap = linkedMapOf<String, LoanEntity>()
+      for (l in cloudData.loans) {
+        loanMap[l.id] = l
+      }
+      for (l in localLoans) {
+        loanMap[l.id] = l
+      }
+      val mergedLoans = loanMap.values.toList().sortedByDescending { it.createdAt }
+
+      // 4. Recurring Rules
+      val localRules = repository.getRecurringRulesFlow().firstOrNull() ?: emptyList()
+      val rulesMap = linkedMapOf<String, RecurringRuleEntity>()
+      for (r in cloudData.recurringRules) {
+        rulesMap[r.id] = r
+      }
+      for (r in localRules) {
+        rulesMap[r.id] = r
+      }
+      val mergedRules = rulesMap.values.toList()
+
+      // 5. Pay Cycle
+      val localPayCycle = repository.getCurrentPayCycleFlow().firstOrNull()
+      val finalPayCycle = if (localPayCycle != null && localPayCycle.income > 0.0) {
+        localPayCycle
+      } else {
+        cloudData.payCycle ?: localPayCycle
+      }
+
+      // 6. User Account
+      val localAccount = repository.getUserAccountFlow().firstOrNull()
+      val finalAccount = localAccount ?: cloudData.userAccount
+
+      // 7. Savings Goal
+      val localSavingsGoalName = repository.savingsGoalNameFlow.firstOrNull() ?: ""
+      val localSavingsGoalTotal = repository.savingsGoalTotalFlow.firstOrNull() ?: 0.0
+      val localSavingsMonthly = repository.savingsMonthlyContributionFlow.firstOrNull() ?: 0.0
+
+      val (finalGoalName, finalGoalTotal, finalMonthly) = if (localSavingsGoalTotal > 0.0 || localSavingsGoalName.isNotBlank()) {
+        Triple(localSavingsGoalName, localSavingsGoalTotal, localSavingsMonthly)
+      } else if (cloudData.savingsGoalTotal > 0.0 || cloudData.savingsGoalName.isNotBlank()) {
+        Triple(cloudData.savingsGoalName, cloudData.savingsGoalTotal, cloudData.savingsMonthlyContribution)
+      } else {
+        Triple("", 0.0, 0.0)
+      }
+
+      // Restore combined dataset to database
+      repository.restoreAllData(
+        categories = mergedCategories,
+        transactions = mergedTransactions,
+        payCycle = finalPayCycle,
+        recurringRules = mergedRules,
+        userAccount = finalAccount,
+        loans = mergedLoans
+      )
+
+      if (finalGoalName.isNotBlank() || finalGoalTotal > 0.0) {
+        repository.setSavingsGoal(finalGoalName, finalGoalTotal, finalMonthly)
+      }
+
+      val now = System.currentTimeMillis()
+      repository.setLastDriveSyncTimestamp(now)
+      repository.setWalkthroughCompleted(true)
+
+      Result.success(true)
+    } catch (e: Exception) {
+      Log.e("DriveBackupManager", "Error merging cloud and local data", e)
       Result.failure(e)
     }
   }

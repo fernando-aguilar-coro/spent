@@ -23,7 +23,8 @@ val imageStorageLocation: String = "IN_APP",
 val isLoading: Boolean = false,
 val isRestoring: Boolean = false,
 val isDriveConnected: Boolean = false,
-val driveAccountEmail: String? = null
+val driveAccountEmail: String? = null,
+val syncConflict: com.app.spent.data.sync.SyncConflictData? = null
 ) : UiState
 
 sealed class OnboardingUiIntent : UiIntent {
@@ -44,6 +45,8 @@ sealed class OnboardingUiIntent : UiIntent {
   // Drive single unified intent
   object RequestDriveConnect : OnboardingUiIntent()
   data class OnDriveAccountConnected(val account: com.google.android.gms.auth.api.signin.GoogleSignInAccount) : OnboardingUiIntent()
+  data class ResolveSyncConflict(val choice: com.app.spent.data.sync.SyncConflictChoice) : OnboardingUiIntent()
+  object DismissSyncConflict : OnboardingUiIntent()
 }
 
 sealed class OnboardingUiEffect : UiEffect {

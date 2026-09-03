@@ -344,6 +344,12 @@ private class FakeSpentRepository : SpentRepository {
     override val imageStorageLocationFlow: Flow<String> = MutableStateFlow("GOOGLE_DRIVE")
 
     override suspend fun connectGoogleDrive(account: GoogleSignInAccount): DriveConnectResult = DriveConnectResult.ConnectedNew
+    override suspend fun resolveDriveConflict(
+        account: GoogleSignInAccount,
+        choice: com.app.spent.data.sync.SyncConflictChoice,
+        cloudBackupJson: String
+    ): DriveConnectResult = DriveConnectResult.ConnectedNew
+    override suspend fun cancelDriveConflict() {}
     override suspend fun disconnectGoogleDrive() {}
     override suspend fun syncToGoogleDrive(): Result<Boolean> = Result.success(true)
     override fun triggerAutoSync() {}

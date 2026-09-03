@@ -118,6 +118,12 @@ class OnboardingViewModel(
             is OnboardingUiIntent.OnDriveAccountConnected -> {
                 handleDriveAccountConnected(intent.account)
             }
+            is OnboardingUiIntent.ResolveSyncConflict -> {
+                handleResolveConflict(intent.choice)
+            }
+            is OnboardingUiIntent.DismissSyncConflict -> {
+                handleDismissConflict()
+            }
         }
     }
 
@@ -142,6 +148,9 @@ class OnboardingViewModel(
             setState { copy(isRestoring = false) }
 
             when (result) {
+                is DriveConnectResult.ConflictDetected -> {
+                    setState { copy(syncConflict = result.conflictData) }
+                }
                 is DriveConnectResult.RestoredFromCloud -> {
                     repository.setWalkthroughCompleted(true)
                     sendEffect(OnboardingUiEffect.NavigateToDashboard)
@@ -153,6 +162,41 @@ class OnboardingViewModel(
                     sendEffect(OnboardingUiEffect.ShowSnackbar(result.message))
                 }
             }
+        }
+    }
+
+    private fun handleResolveConflict(choice: com.app.spent.data.sync.SyncConflictChoice) {
+        val conflict = currentState.syncConflict ?: return
+        viewModelScope.launch {
+            setState { copy(isRestoring = true) }
+            val result = repository.resolveDriveConflict(
+                account = conflict.account,
+                choice = choice,
+                cloudBackupJson = conflict.cloudBackupJson
+            )
+            setState { copy(isRestoring = false, syncConflict = null) }
+
+            when (result) {
+                is DriveConnectResult.RestoredFromCloud -> {
+                    repository.setWalkthroughCompleted(true)
+                    sendEffect(OnboardingUiEffect.NavigateToDashboard)
+                }
+                is DriveConnectResult.ConnectedNew -> {
+                    setState { copy(currentStep = OnboardingStep.PROFILE_SELECTION) }
+                }
+                is DriveConnectResult.Error -> {
+                    sendEffect(OnboardingUiEffect.ShowSnackbar(result.message))
+                }
+                else -> {}
+            }
+        }
+    }
+
+    private fun handleDismissConflict() {
+        viewModelScope.launch {
+            repository.cancelDriveConflict()
+            setState { copy(syncConflict = null) }
+            sendEffect(OnboardingUiEffect.ShowSnackbar("Sync cancelled, local data unchanged"))
         }
     }
 

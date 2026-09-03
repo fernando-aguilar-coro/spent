@@ -42,6 +42,12 @@ interface SpentRepository {
   val imageStorageLocationFlow: Flow<String>
 
   suspend fun connectGoogleDrive(account: com.google.android.gms.auth.api.signin.GoogleSignInAccount): com.app.spent.data.sync.DriveConnectResult
+  suspend fun resolveDriveConflict(
+    account: com.google.android.gms.auth.api.signin.GoogleSignInAccount,
+    choice: com.app.spent.data.sync.SyncConflictChoice,
+    cloudBackupJson: String
+  ): com.app.spent.data.sync.DriveConnectResult
+  suspend fun cancelDriveConflict()
   suspend fun disconnectGoogleDrive()
   suspend fun syncToGoogleDrive(): Result<Boolean>
   fun triggerAutoSync()

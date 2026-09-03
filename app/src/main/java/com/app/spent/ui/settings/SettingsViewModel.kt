@@ -91,6 +91,8 @@ private val repository: SpentRepository
       is SettingsUiIntent.SetAppLanguage -> setAppLanguage(intent.languageCode)
       is SettingsUiIntent.SetImageStorageLocation -> setImageStorageLocation(intent.location)
       is SettingsUiIntent.ConnectDriveAccount -> connectDriveAccount(intent.account)
+      is SettingsUiIntent.ResolveSyncConflict -> resolveSyncConflict(intent.choice)
+      is SettingsUiIntent.DismissSyncConflict -> dismissSyncConflict()
       is SettingsUiIntent.DisconnectDrive -> disconnectDrive()
       is SettingsUiIntent.SyncDriveNow -> syncDriveNow()
       is SettingsUiIntent.RequestDriveSignIn -> sendEffect(SettingsUiEffect.LaunchDriveSignIn)
@@ -103,6 +105,9 @@ private val repository: SpentRepository
     viewModelScope.launch {
       val result = repository.connectGoogleDrive(account)
       when (result) {
+        is com.app.spent.data.sync.DriveConnectResult.ConflictDetected -> {
+          setState { copy(syncConflict = result.conflictData) }
+        }
         is com.app.spent.data.sync.DriveConnectResult.RestoredFromCloud -> {
           sendEffect(SettingsUiEffect.ShowSnackbar("Data restored from Google Drive successfully"))
         }
@@ -113,6 +118,43 @@ private val repository: SpentRepository
           sendEffect(SettingsUiEffect.ShowSnackbar(result.message))
         }
       }
+    }
+  }
+
+  private fun resolveSyncConflict(choice: com.app.spent.data.sync.SyncConflictChoice) {
+    val conflict = currentState.syncConflict ?: return
+    viewModelScope.launch {
+      val result = repository.resolveDriveConflict(
+        account = conflict.account,
+        choice = choice,
+        cloudBackupJson = conflict.cloudBackupJson
+      )
+      setState { copy(syncConflict = null) }
+      when (result) {
+        is com.app.spent.data.sync.DriveConnectResult.RestoredFromCloud -> {
+          val msg = if (choice == com.app.spent.data.sync.SyncConflictChoice.MERGE) {
+            "Data merged and synchronized with Google Drive"
+          } else {
+            "Data restored from Google Drive successfully"
+          }
+          sendEffect(SettingsUiEffect.ShowSnackbar(msg))
+        }
+        is com.app.spent.data.sync.DriveConnectResult.ConnectedNew -> {
+          sendEffect(SettingsUiEffect.ShowSnackbar("Local data preserved and uploaded to Google Drive"))
+        }
+        is com.app.spent.data.sync.DriveConnectResult.Error -> {
+          sendEffect(SettingsUiEffect.ShowSnackbar(result.message))
+        }
+        else -> {}
+      }
+    }
+  }
+
+  private fun dismissSyncConflict() {
+    viewModelScope.launch {
+      repository.cancelDriveConflict()
+      setState { copy(syncConflict = null) }
+      sendEffect(SettingsUiEffect.ShowSnackbar("Sync cancelled, local data unchanged"))
     }
   }
 
