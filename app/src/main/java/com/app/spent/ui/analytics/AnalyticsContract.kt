@@ -26,6 +26,8 @@ data class AnalyticsUiState(
     val savingsRatePercentage: Float = 0f,
     val categoryBreakdowns: List<CategorySpendingBreakdown> = emptyList(),
     val recentTransactions: List<TransactionEntity> = emptyList(),
+    val totalBalancePoints: List<com.app.spent.ui.analytics.components.TotalBalancePoint> = emptyList(),
+    val netSavingsPoints: List<com.app.spent.ui.analytics.components.NetSavingsPoint> = emptyList(),
     val selectedInterval: ChartInterval = ChartInterval.DAY
 ) : UiState
 

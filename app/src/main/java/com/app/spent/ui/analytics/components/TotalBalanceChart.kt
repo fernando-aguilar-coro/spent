@@ -69,6 +69,7 @@ fun TotalBalanceChart(
     transactions: List<TransactionEntity>,
     currencySymbol: String,
     modifier: Modifier = Modifier,
+    precomputedPoints: List<TotalBalancePoint> = emptyList(),
     selectedInterval: ChartInterval = ChartInterval.DAY,
     onSelectInterval: (ChartInterval) -> Unit = {}
 ) {
@@ -80,8 +81,9 @@ fun TotalBalanceChart(
 
     var selectedPointIndex by remember { mutableIntStateOf(-1) }
 
-    val points = remember(transactions, activeInterval) {
-        ChartTimelineHelper.computeTotalBalancePoints(transactions, activeInterval)
+    val points = remember(precomputedPoints, transactions, activeInterval) {
+        if (precomputedPoints.isNotEmpty() && selectedInterval == activeInterval) precomputedPoints
+        else ChartTimelineHelper.computeTotalBalancePoints(transactions, activeInterval)
     }
 
     val currentTotalBalance = remember(points) { points.lastOrNull()?.totalBalance ?: 0.0 }

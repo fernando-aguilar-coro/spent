@@ -71,6 +71,7 @@ fun AnalyticsScreen(
       TotalBalanceChart(
         transactions = state.recentTransactions,
         currencySymbol = state.currencySymbol,
+        precomputedPoints = state.totalBalancePoints,
         selectedInterval = state.selectedInterval,
         onSelectInterval = { viewModel.onIntent(AnalyticsUiIntent.SelectInterval(it)) }
       )
@@ -82,6 +83,7 @@ fun AnalyticsScreen(
       NetSavingsChart(
         transactions = state.recentTransactions,
         currencySymbol = state.currencySymbol,
+        precomputedPoints = state.netSavingsPoints,
         selectedInterval = state.selectedInterval,
         onSelectInterval = { viewModel.onIntent(AnalyticsUiIntent.SelectInterval(it)) }
       )

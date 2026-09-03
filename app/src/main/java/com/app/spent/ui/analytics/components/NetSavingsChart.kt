@@ -71,6 +71,7 @@ fun NetSavingsChart(
     transactions: List<TransactionEntity>,
     currencySymbol: String,
     modifier: Modifier = Modifier,
+    precomputedPoints: List<NetSavingsPoint> = emptyList(),
     selectedInterval: ChartInterval = ChartInterval.DAY,
     onSelectInterval: (ChartInterval) -> Unit = {}
 ) {
@@ -82,8 +83,9 @@ fun NetSavingsChart(
 
     var selectedPointIndex by remember { mutableIntStateOf(-1) }
 
-    val points = remember(transactions, activeInterval) {
-        ChartTimelineHelper.computeNetSavingsPoints(transactions, activeInterval)
+    val points = remember(precomputedPoints, transactions, activeInterval) {
+        if (precomputedPoints.isNotEmpty() && selectedInterval == activeInterval) precomputedPoints
+        else ChartTimelineHelper.computeNetSavingsPoints(transactions, activeInterval)
     }
 
     val totalPeriodIncome = remember(points) { points.sumOf { it.income } }

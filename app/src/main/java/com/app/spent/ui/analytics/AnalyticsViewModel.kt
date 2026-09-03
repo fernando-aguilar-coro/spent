@@ -2,10 +2,13 @@ package com.app.spent.ui.analytics
 
 import androidx.lifecycle.viewModelScope
 import com.app.spent.data.repository.SpentRepository
+import com.app.spent.ui.analytics.components.ChartTimelineHelper
 import com.app.spent.ui.mvi.BaseViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class AnalyticsViewModel(
     private val repository: SpentRepository
@@ -23,49 +26,60 @@ class AnalyticsViewModel(
                 repository.getCurrentPayCycleFlow().distinctUntilChanged(),
                 repository.currencySymbolFlow.distinctUntilChanged()
             ) { transactions, categories, payCycle, currency ->
-                
-                val isPayCycleActive = payCycle != null && payCycle.frequency != "NONE"
-                val baseIncome = if (isPayCycleActive) payCycle?.income ?: 0.0 else 0.0
-                
-                val manualIncome = transactions
-                    .filter { it.type == "INCOME" }
-                    .sumOf { it.amount }
-                
-                val totalIncome = baseIncome + manualIncome
+                withContext(Dispatchers.Default) {
+                    val isPayCycleActive = payCycle != null && payCycle.frequency != "NONE"
+                    val baseIncome = if (isPayCycleActive) payCycle?.income ?: 0.0 else 0.0
 
-                val totalSpent = transactions
-                    .filter { it.type == "EXPENSE" }
-                    .sumOf { it.amount }
+                    var manualIncome = 0.0
+                    var totalSpent = 0.0
+                    val expensesByCategory = mutableMapOf<String, Double>()
 
-                val netSavings = totalIncome - totalSpent
-                val savingsRate = if (totalIncome > 0) {
-                    ((netSavings / totalIncome) * 100).toFloat().coerceIn(0f, 100f)
-                } else 0f
+                    for (tx in transactions) {
+                        if (tx.type == "INCOME") {
+                            manualIncome += tx.amount
+                        } else if (tx.type == "EXPENSE") {
+                            totalSpent += tx.amount
+                            expensesByCategory[tx.categoryId] = (expensesByCategory[tx.categoryId] ?: 0.0) + tx.amount
+                        }
+                    }
 
-                val breakdowns = categories.map { cat ->
-                    val spentInCat = transactions
-                        .filter { it.categoryId == cat.id && it.type == "EXPENSE" }
-                        .sumOf { it.amount }
-                    val pct = if (totalSpent > 0) (spentInCat / totalSpent).toFloat() else 0f
+                    val totalIncome = baseIncome + manualIncome
+                    val netSavings = totalIncome - totalSpent
+                    val savingsRate = if (totalIncome > 0) {
+                        ((netSavings / totalIncome) * 100).toFloat().coerceIn(0f, 100f)
+                    } else 0f
 
-                    CategorySpendingBreakdown(
-                        category = cat,
-                        totalSpent = spentInCat,
-                        percentageOfTotal = pct
+                    val breakdowns = categories.mapNotNull { cat ->
+                        val spentInCat = expensesByCategory[cat.id] ?: 0.0
+                        if (spentInCat > 0) {
+                            val pct = if (totalSpent > 0) (spentInCat / totalSpent).toFloat() else 0f
+                            CategorySpendingBreakdown(
+                                category = cat,
+                                totalSpent = spentInCat,
+                                percentageOfTotal = pct
+                            )
+                        } else null
+                    }.sortedByDescending { it.totalSpent }
+
+                    val interval = currentState.selectedInterval
+                    val nonSavingTransactions = transactions.filter { it.type != "SAVING" }
+                    val balancePoints = ChartTimelineHelper.computeTotalBalancePoints(nonSavingTransactions, interval)
+                    val netSavingsPoints = ChartTimelineHelper.computeNetSavingsPoints(nonSavingTransactions, interval)
+
+                    AnalyticsUiState(
+                        isLoading = false,
+                        currencySymbol = currency,
+                        totalIncome = totalIncome,
+                        totalSpent = totalSpent,
+                        netSavings = netSavings,
+                        savingsRatePercentage = savingsRate,
+                        categoryBreakdowns = breakdowns,
+                        recentTransactions = nonSavingTransactions,
+                        totalBalancePoints = balancePoints,
+                        netSavingsPoints = netSavingsPoints,
+                        selectedInterval = interval
                     )
-                }.filter { it.totalSpent > 0 }.sortedByDescending { it.totalSpent }
-
-                AnalyticsUiState(
-                    isLoading = false,
-                    currencySymbol = currency,
-                    totalIncome = totalIncome,
-                    totalSpent = totalSpent,
-                    netSavings = netSavings,
-                    savingsRatePercentage = savingsRate,
-                    categoryBreakdowns = breakdowns,
-                    recentTransactions = transactions.filter { it.type != "SAVING" },
-                    selectedInterval = currentState.selectedInterval
-                )
+                }
             }.collect { newState ->
                 setState { newState }
             }
@@ -75,7 +89,21 @@ class AnalyticsViewModel(
     override fun onIntent(intent: AnalyticsUiIntent) {
         when (intent) {
             is AnalyticsUiIntent.RefreshData -> observeAnalytics()
-            is AnalyticsUiIntent.SelectInterval -> setState { copy(selectedInterval = intent.interval) }
+            is AnalyticsUiIntent.SelectInterval -> {
+                setState { copy(selectedInterval = intent.interval) }
+                viewModelScope.launch(Dispatchers.Default) {
+                    val nonSavingTransactions = currentState.recentTransactions
+                    val balancePoints = ChartTimelineHelper.computeTotalBalancePoints(nonSavingTransactions, intent.interval)
+                    val netSavingsPoints = ChartTimelineHelper.computeNetSavingsPoints(nonSavingTransactions, intent.interval)
+                    setState {
+                        copy(
+                            selectedInterval = intent.interval,
+                            totalBalancePoints = balancePoints,
+                            netSavingsPoints = netSavingsPoints
+                        )
+                    }
+                }
+            }
         }
     }
 }

@@ -154,4 +154,49 @@ class AnalyticsScrollableTimelineTest {
         assertEquals("-$2.3k", ChartTimelineHelper.formatCompactAmount(-2300.0, "$"))
         assertEquals("$1.0M", ChartTimelineHelper.formatCompactAmount(1_000_000.0, "$"))
     }
+
+    @Test
+    fun testStressWithThousandsOfTransactions() {
+        val now = System.currentTimeMillis()
+        val numTransactions = 10_000
+        val txList = ArrayList<TransactionEntity>(numTransactions)
+
+        val threeYearsAgo = now - (3L * 365 * 24 * 60 * 60 * 1000)
+        val stepMs = (now - threeYearsAgo) / numTransactions
+
+        var expectedTotalIncome = 0.0
+        var expectedTotalExpense = 0.0
+
+        for (i in 0 until numTransactions) {
+            val ts = threeYearsAgo + (i * stepMs)
+            val isIncome = (i % 3 == 0)
+            val amount = 10.0 + (i % 50)
+            if (isIncome) expectedTotalIncome += amount else expectedTotalExpense += amount
+
+            txList.add(
+                TransactionEntity(
+                    id = "tx-$i",
+                    amount = amount,
+                    type = if (isIncome) "INCOME" else "EXPENSE",
+                    categoryId = "cat_general",
+                    timestamp = ts
+                )
+            )
+        }
+
+        val startTime = System.currentTimeMillis()
+        val dailyPoints = ChartTimelineHelper.computeTotalBalancePoints(txList, ChartInterval.DAY)
+        val weeklyPoints = ChartTimelineHelper.computeTotalBalancePoints(txList, ChartInterval.WEEK)
+        val monthlyPoints = ChartTimelineHelper.computeTotalBalancePoints(txList, ChartInterval.MONTH)
+        val durationMs = System.currentTimeMillis() - startTime
+
+        assertTrue("Linear calculation of 10,000 records must take < 500ms, took ${durationMs}ms", durationMs < 500)
+        assertTrue("Daily points should not exceed 90 points, was ${dailyPoints.size}", dailyPoints.size <= 90)
+        assertTrue("Weekly points should not exceed 104 points, was ${weeklyPoints.size}", weeklyPoints.size <= 104)
+
+        val expectedFinalBalance = expectedTotalIncome - expectedTotalExpense
+        assertEquals(expectedFinalBalance, dailyPoints.last().totalBalance, 0.001)
+        assertEquals(expectedFinalBalance, weeklyPoints.last().totalBalance, 0.001)
+        assertEquals(expectedFinalBalance, monthlyPoints.last().totalBalance, 0.001)
+    }
 }
