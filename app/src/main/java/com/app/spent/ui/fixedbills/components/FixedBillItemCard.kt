@@ -59,9 +59,17 @@ fun FixedBillItemCard(
 ) {
     val cleanName = rule.note.removePrefix("Bill: ").removePrefix("Factura: ").ifEmpty { "Bill" }
 
-    // Check how many 30-day periods elapsed since startDate
+    val nowCal = Calendar.getInstance().apply { timeInMillis = currentMillis }
+    val currentDayOfYear = nowCal.get(Calendar.DAY_OF_YEAR)
+    val currentWeekOfYear = nowCal.get(Calendar.WEEK_OF_YEAR)
+
+    // Check how many periods elapsed since startDate based on rule.frequency
     val daysSinceStart = ((currentMillis - rule.startDate) / (1000L * 60 * 60 * 24)).coerceAtLeast(0)
-    val elapsedCycles = (daysSinceStart / 30).toInt() + 1
+    val elapsedCycles = when (rule.frequency) {
+        "DAILY" -> daysSinceStart.toInt() + 1
+        "WEEKLY" -> (daysSinceStart / 7).toInt() + 1
+        else -> (daysSinceStart / 30).toInt() + 1
+    }
 
     // Check payments recorded
     val paidCyclesCount = transactions.count { tx ->
@@ -69,14 +77,20 @@ fun FixedBillItemCard(
         (tx.recurringRuleId == rule.id || tx.note.contains(cleanName, ignoreCase = true))
     }
 
-    val isPaidThisCurrentMonth = transactions.any { tx ->
-        tx.type == "EXPENSE" &&
-        (tx.recurringRuleId == rule.id || tx.note.contains(cleanName, ignoreCase = true)) &&
-        Calendar.getInstance().apply { timeInMillis = tx.timestamp }.get(Calendar.MONTH) == currentMonth &&
-        Calendar.getInstance().apply { timeInMillis = tx.timestamp }.get(Calendar.YEAR) == currentYear
+    val isPaidThisCurrentPeriod = transactions.any { tx ->
+        val txMatches = tx.type == "EXPENSE" &&
+            (tx.recurringRuleId == rule.id || tx.note.contains(cleanName, ignoreCase = true))
+        if (!txMatches) return@any false
+
+        val txCal = Calendar.getInstance().apply { timeInMillis = tx.timestamp }
+        when (rule.frequency) {
+            "DAILY" -> txCal.get(Calendar.DAY_OF_YEAR) == currentDayOfYear && txCal.get(Calendar.YEAR) == currentYear
+            "WEEKLY" -> txCal.get(Calendar.WEEK_OF_YEAR) == currentWeekOfYear && txCal.get(Calendar.YEAR) == currentYear
+            else -> txCal.get(Calendar.MONTH) == currentMonth && txCal.get(Calendar.YEAR) == currentYear
+        }
     }
 
-    val unpaidCycles = if (isPaidThisCurrentMonth) 0 else (elapsedCycles - paidCyclesCount).coerceAtLeast(1)
+    val unpaidCycles = if (isPaidThisCurrentPeriod) 0 else (elapsedCycles - paidCyclesCount).coerceAtLeast(1)
     val accumulatedAmount = rule.amount * (if (unpaidCycles > 0) unpaidCycles else 1)
     val isCutoffWarning = unpaidCycles >= 3
 
@@ -135,8 +149,13 @@ fun FixedBillItemCard(
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis
                         )
+                        val freqBadge = when (rule.frequency) {
+                            "DAILY" -> stringResource(R.string.frequency_daily)
+                            "WEEKLY" -> stringResource(R.string.frequency_weekly)
+                            else -> stringResource(R.string.frequency_monthly)
+                        }
                         Text(
-                            text = stringResource(R.string.arrival_date_format, formattedArrival),
+                            text = "${stringResource(R.string.arrival_date_format, formattedArrival)} • $freqBadge",
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -204,8 +223,13 @@ fun FixedBillItemCard(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Column {
+                    val cadenceLabel = when (rule.frequency) {
+                        "DAILY" -> stringResource(R.string.frequency_daily)
+                        "WEEKLY" -> stringResource(R.string.frequency_weekly)
+                        else -> stringResource(R.string.bill_due_day_format, dueDay)
+                    }
                     Text(
-                        text = if (unpaidCycles > 1) stringResource(R.string.accumulated_total_label) else stringResource(R.string.bill_due_day_format, dueDay),
+                        text = if (unpaidCycles > 1) stringResource(R.string.accumulated_total_label) else cadenceLabel,
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )

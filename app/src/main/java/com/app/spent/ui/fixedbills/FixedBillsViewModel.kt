@@ -53,7 +53,7 @@ class FixedBillsViewModel(
     override fun onIntent(intent: FixedBillsUiIntent) {
         when (intent) {
             is FixedBillsUiIntent.AddBill -> {
-                addBill(intent.name, intent.amount, intent.dueDay, intent.categoryId, intent.arrivalTimestamp)
+                addBill(intent.name, intent.amount, intent.dueDay, intent.categoryId, intent.arrivalTimestamp, intent.frequency)
             }
             is FixedBillsUiIntent.DeleteBill -> {
                 deleteBill(intent.ruleId)
@@ -86,17 +86,18 @@ class FixedBillsViewModel(
         }
     }
 
-    private fun addBill(name: String, amount: Double, dueDay: Int, categoryId: String, arrivalTimestamp: Long) {
+    private fun addBill(name: String, amount: Double, dueDay: Int, categoryId: String, arrivalTimestamp: Long, frequency: String = "MONTHLY") {
         viewModelScope.launch {
             val rule = RecurringRuleEntity(
                 id = UUID.randomUUID().toString(),
                 amount = amount,
                 categoryId = categoryId,
-                frequency = "MONTHLY",
+                frequency = frequency,
                 startDate = arrivalTimestamp,
                 note = "Bill: $name"
             )
             repository.addRecurringRule(rule)
+            repository.executePendingRecurringRules()
             sendEffect(FixedBillsUiEffect.ShowSnackbar("Bill scheduled: $name"))
         }
     }
@@ -120,6 +121,7 @@ class FixedBillsViewModel(
                 recurringRuleId = ruleId
             )
             repository.addTransaction(tx)
+            repository.executePendingRecurringRules()
             sendEffect(FixedBillsUiEffect.ShowSnackbar("Payment recorded for $name"))
         }
     }

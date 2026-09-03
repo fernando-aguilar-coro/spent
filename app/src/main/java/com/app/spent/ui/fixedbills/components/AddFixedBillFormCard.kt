@@ -34,6 +34,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -78,11 +79,12 @@ fun AddFixedBillFormCard(
     onOpenDatePicker: () -> Unit,
     onCloseForm: () -> Unit,
     onAddNewCategoryClick: () -> Unit,
-    onSaveBill: (name: String, amount: Double, dueDay: Int, categoryId: String, arrivalTimestamp: Long) -> Unit
+    onSaveBill: (name: String, amount: Double, dueDay: Int, categoryId: String, arrivalTimestamp: Long, frequency: String) -> Unit
 ) {
     var selectedPresetName by remember { mutableStateOf<String?>(null) }
     var customBillNotesText by remember { mutableStateOf("") }
     var billAmountText by remember { mutableStateOf("") }
+    var selectedFrequency by remember { mutableStateOf("MONTHLY") }
     val focusRequester = remember { FocusRequester() }
 
     val defaultCategoryId = remember(categories) {
@@ -268,34 +270,60 @@ fun AddFixedBillFormCard(
                 )
             }
 
-            // 5. Billing Cadence / Frequency
-            Row(
+            // 5. Billing Cadence / Frequency (Default: Monthly, but user can choose)
+            Column(
                 modifier = Modifier
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(14.dp))
                     .background(MaterialTheme.colorScheme.surface)
-                    .padding(horizontal = 14.dp, vertical = 10.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+                    .padding(horizontal = 14.dp, vertical = 10.dp)
             ) {
-                Column {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
                     Text(
                         text = stringResource(R.string.cycle_period_label),
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
-                    Text(
-                        text = stringResource(R.string.period_30_days),
-                        style = MaterialTheme.typography.bodyMedium,
-                        fontWeight = FontWeight.SemiBold
-                    )
+                    if (selectedFrequency == "MONTHLY") {
+                        Text(
+                            text = stringResource(R.string.bill_due_day_format, billDueDay),
+                            style = MaterialTheme.typography.labelMedium,
+                            color = MaterialTheme.colorScheme.primary,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
                 }
-                Text(
-                    text = stringResource(R.string.bill_due_day_format, billDueDay),
-                    style = MaterialTheme.typography.labelMedium,
-                    color = MaterialTheme.colorScheme.primary,
-                    fontWeight = FontWeight.Bold
-                )
+                Spacer(modifier = Modifier.height(6.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    listOf(
+                        "DAILY" to stringResource(R.string.frequency_daily),
+                        "WEEKLY" to stringResource(R.string.frequency_weekly),
+                        "MONTHLY" to stringResource(R.string.frequency_monthly)
+                    ).forEach { (freqKey, freqLabel) ->
+                        FilterChip(
+                            selected = selectedFrequency == freqKey,
+                            onClick = { selectedFrequency = freqKey },
+                            label = {
+                                Text(
+                                    text = freqLabel,
+                                    style = MaterialTheme.typography.labelMedium,
+                                    fontWeight = if (selectedFrequency == freqKey) FontWeight.Bold else FontWeight.Normal
+                                )
+                            },
+                            colors = FilterChipDefaults.filterChipColors(
+                                selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                                selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer
+                            )
+                        )
+                    }
+                }
             }
 
             // 6. Provider / Merchant Name (Optional) - Positioned below Frequency
@@ -338,10 +366,11 @@ fun AddFixedBillFormCard(
                 onClick = {
                     if (isValid) {
                         val chosenCatId = selectedCategoryId.ifEmpty { defaultCategoryId }
-                        onSaveBill(finalBillName, parsedAmount, billDueDay, chosenCatId, arrivalTimestamp)
+                        onSaveBill(finalBillName, parsedAmount, billDueDay, chosenCatId, arrivalTimestamp, selectedFrequency)
                         selectedPresetName = null
                         customBillNotesText = ""
                         billAmountText = ""
+                        selectedFrequency = "MONTHLY"
                     }
                 },
                 enabled = isValid,

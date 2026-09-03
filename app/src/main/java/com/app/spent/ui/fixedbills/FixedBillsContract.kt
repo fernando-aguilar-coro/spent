@@ -22,7 +22,8 @@ sealed class FixedBillsUiIntent : UiIntent {
         val amount: Double,
         val dueDay: Int,
         val categoryId: String,
-        val arrivalTimestamp: Long
+        val arrivalTimestamp: Long,
+        val frequency: String = "MONTHLY"
     ) : FixedBillsUiIntent()
 
     data class DeleteBill(val ruleId: String) : FixedBillsUiIntent()

@@ -146,14 +146,15 @@ fun FixedBillsScreen(
                         onOpenDatePicker = { showDatePicker = true },
                         onCloseForm = { isAddingNewBill = false },
                         onAddNewCategoryClick = { viewModel.onIntent(FixedBillsUiIntent.ShowAddCategoryDialog(true)) },
-                        onSaveBill = { name, amount, dueDay, categoryId, timestamp ->
+                        onSaveBill = { name, amount, dueDay, categoryId, timestamp, frequency ->
                             viewModel.onIntent(
                                 FixedBillsUiIntent.AddBill(
                                     name = name,
                                     amount = amount,
                                     dueDay = dueDay,
                                     categoryId = categoryId,
-                                    arrivalTimestamp = timestamp
+                                    arrivalTimestamp = timestamp,
+                                    frequency = frequency
                                 )
                             )
                             isAddingNewBill = false

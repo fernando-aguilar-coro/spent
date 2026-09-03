@@ -336,6 +336,10 @@ class AddTransactionViewModel(
                     repository.addTransaction(tx)
                 }
 
+                if (state.isRecurring) {
+                    repository.executePendingRecurringRules()
+                }
+
                 sendEffect(AddTransactionUiEffect.NavigateBack)
             } catch (e: Exception) {
                 setState { copy(isSaving = false) }
