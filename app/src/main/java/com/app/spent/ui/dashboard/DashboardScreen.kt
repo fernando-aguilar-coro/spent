@@ -137,31 +137,16 @@ fun DashboardScreen(
                 )
             }
 
-            // Phase 4: Recent Activity Section Header with See All button
+            // Phase 4: Recent Activity Section Header
             item {
-                androidx.compose.foundation.layout.Row(
+                Text(
+                    text = stringResource(R.string.recent_activity),
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 20.dp, vertical = 4.dp),
-                    horizontalArrangement = androidx.compose.foundation.layout.Arrangement.SpaceBetween,
-                    verticalAlignment = androidx.compose.ui.Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = stringResource(R.string.recent_activity),
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold
-                    )
-                    androidx.compose.material3.TextButton(
-                        onClick = onNavigateToHistory
-                    ) {
-                        Text(
-                            text = "${stringResource(R.string.see_all_transactions)} >",
-                            style = MaterialTheme.typography.labelLarge,
-                            color = MaterialTheme.colorScheme.primary,
-                            fontWeight = FontWeight.SemiBold
-                        )
-                    }
-                }
+                        .padding(horizontal = 20.dp, vertical = 8.dp)
+                )
             }
 
             if (state.recentTransactions.isEmpty()) {
@@ -190,6 +175,27 @@ fun DashboardScreen(
                         currencySymbol = state.currencySymbol,
                         onClick = { selectedTransactionForDetails = transaction }
                     )
+                }
+
+                // "See All" button placed after transactions for improved UX
+                item {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 4.dp, bottom = 8.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        androidx.compose.material3.TextButton(
+                            onClick = onNavigateToHistory
+                        ) {
+                            Text(
+                                text = "${stringResource(R.string.see_all_transactions)} >",
+                                style = MaterialTheme.typography.labelLarge,
+                                color = MaterialTheme.colorScheme.primary,
+                                fontWeight = FontWeight.SemiBold
+                            )
+                        }
+                    }
                 }
             }
 
