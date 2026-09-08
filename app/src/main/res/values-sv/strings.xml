@@ -1,0 +1,565 @@
+<resources>
+    <string name="app_name">Spent</string>
+
+    <!-- Navigation -->
+    <string name="nav_dashboard">Översikt</string>
+    <string name="nav_analytics">Analys</string>
+    <string name="nav_settings">Inställningar</string>
+
+    <!-- Dashboard Header & Profile -->
+    <string name="user_greeting">Hej, Fernando</string>
+    <string name="safe_to_spend_today">Säkert att spendera idag</string>
+    <string name="total_spent">Totalt spenderat</string>
+    <string name="total_income">Total inkomst</string>
+    <string name="net_savings">Nettosparande</string>
+    <string name="remaining_in_cycle">Dagar kvar</string>
+    <string name="no_active_pay_cycle">Ingen aktiv lönecykel</string>
+    <string name="days_left">%1$d dagar kvar i lönecykeln</string>
+    <string name="day_left">%1$d dag kvar i lönecykeln</string>
+    <string name="manage_cycle">Hantera lönecykel</string>
+
+    <!-- Quick Actions -->
+    <string name="action_add_expense">Lägg till utgift</string>
+    <string name="action_add_income">Lägg till inkomst</string>
+
+    <!-- Category Envelopes -->
+    <string name="category_envelopes">Kategorikuvert</string>
+    <string name="envelopes_count">%1$d kuvert</string>
+    <string name="envelope_of">av</string>
+    <string name="no_budget_set">Ingen budget angiven</string>
+    <string name="over_budget">Budget överskriden</string>
+
+    <!-- Extra Tools & Shortcuts -->
+    <string name="extra_tools_title">Extra verktyg &amp; genvägar</string>
+    <string name="tool_savings_title">Sparande</string>
+    <string name="tool_savings_goal">Mål: %1$s%2$.0f</string>
+    <string name="tool_savings_desc">Följ sparmål &amp; buffert</string>
+    <string name="tool_loans_title">Lån</string>
+    <string name="tool_loans_debt">Skuld: %1$s%2$.0f</string>
+    <string name="tool_loans_desc">Banklån &amp; privatlån</string>
+    <string name="tool_lent_debt_title">Utlånat / Skulder</string>
+    <string name="tool_lent_debt_desc">Spåra skulder &amp; lån</string>
+    <string name="tool_recurring_title">Återkommande regler</string>
+    <string name="tool_recurring_desc">Automatiskt schemalagda regler</string>
+    <string name="tool_recurring_toast">Aktiva återkommande regler: %1$d transaktioner loggades automatiskt</string>
+    <string name="tool_export_excel_title">Exportera till Excel (.xlsx)</string>
+    <string name="tool_export_excel_desc">Ladda ner kalkylblad med separata datum- och tidskolumner</string>
+    <string name="tool_shared_ledgers_title">Delad ekonomi</string>
+    <string name="tool_shared_ledgers_desc">Gemensamma budgetar &amp; medlemssynk</string>
+
+    <!-- Shared Finances Screen -->
+    <string name="shared_finances_screen_title">Delad ekonomi</string>
+    <string name="shared_finances_subtitle">Gemensam budget &amp; direkt synkning med medlemmar</string>
+    <string name="shared_ledgers_screen_title">Delad ekonomi</string>
+    <string name="shared_ledgers_subtitle">Gemensam budget &amp; direkt synkning med medlemmar</string>
+    <string name="shared_ledgers_drive_status_connected">Ansluten till Drive som %1$s</string>
+    <string name="shared_ledgers_drive_status_disconnected">Google Drive inte anslutet. Anslut i Inställningar för att aktivera synkning.</string>
+    <string name="shared_ledgers_share_guide_btn">Hur det fungerar</string>
+    <string name="shared_ledgers_copy_my_id">Kopiera Drive-fil-ID</string>
+    <string name="shared_ledgers_my_file_id_copied">Drive-länk kopierad till urklipp!</string>
+    <string name="shared_ledgers_enter_id_or_url">Ange Drive-länk eller fil-ID</string>
+    <string name="shared_ledgers_fetch_btn">Lägg till medlem</string>
+    <string name="shared_ledgers_load_sample_btn">Förhandsgranska exempel</string>
+    <string name="shared_ledgers_no_file_loaded">Inga medlemmar länkade än. Tryck på \'Lägg till medlem\' eller dela din länk.</string>
+    <string name="shared_ledgers_owner_label">Huvudägare</string>
+    <string name="shared_ledgers_last_synced">Senast uppdaterad: %1$s</string>
+    <string name="shared_ledgers_category_breakdown">Kategorikuvert</string>
+    <string name="shared_ledgers_recent_txs">Delat aktivitetsflöde</string>
+    <string name="shared_ledgers_pay_cycle_info">Information om lönecykel</string>
+    <string name="shared_ledgers_guide_title">Hur delad ekonomi fungerar</string>
+    <string name="shared_ledgers_guide_step1">1. Synkronisera dina Spent-data till din personliga Google Drive.</string>
+    <string name="shared_ledgers_guide_step2">2. Tryck på \'Dela min ekonomi\' för att skapa en skrivskyddad Google Drive-länk med allmän visningsbehörighet.</string>
+    <string name="shared_ledgers_guide_step3">3. Dela din HTTPS Drive-länk med gruppmedlemmar.</string>
+    <string name="shared_ledgers_guide_step4">4. Medlemmar klistrar in din länk under \'Lägg till medlem\' för att omedelbart kombinera budgetar och livestatistik!</string>
+    <string name="shared_ledgers_guide_understood">Uppfattat</string>
+    <string name="tab_statistics">📊 Statistik</string>
+    <string name="tab_members">👥 Medlemmar</string>
+    <string name="tab_invite_join">🔗 Bjud in / Gå med</string>
+    <string name="household_tab_combined">📊 Statistik</string>
+    <string name="household_tab_me">👥 Medlemmar</string>
+    <string name="household_tab_partner">🔗 Bjud in / Gå med</string>
+    <string name="household_kpi_combined_income">Sammanlagd inkomst</string>
+    <string name="household_kpi_combined_spent">Sammanlagt spenderat</string>
+    <string name="household_kpi_combined_safe_today">Säkert att spendera idag</string>
+    <string name="household_you_spent">Du: %1$s</string>
+    <string name="household_badge_you">Du</string>
+    <string name="household_privacy_note">100 % privat: Drivs av Google Drive-länkdelning. Inga tredjepartsservrar.</string>
+    <string name="members_panel_title">Medlemspanel</string>
+    <string name="members_connected_count">%1$d medlemmar anslutna</string>
+    <string name="share_my_finances_title">Dela min ekonomi</string>
+    <string name="share_my_finances_desc">Aktivera skrivskyddad Google Drive-länkdelning så att andra kan se din ekonomi.</string>
+    <string name="share_my_finances_btn">Dela min ekonomi (kopiera länk)</string>
+    <string name="add_member_title">Lägg till medlem</string>
+    <string name="add_member_desc">Klistra in en medlems Google Drive-webblänk eller fil-ID för att synka deras budget.</string>
+    <string name="add_member_btn">Lägg till medlem</string>
+    <string name="add_member_input_placeholder">https://drive.google.com/file/d/...</string>
+    <string name="unlink_member_btn">Ta bort</string>
+    <string name="sync_all_members_btn">Synka alla</string>
+
+
+    <!-- Recent Activity & History -->
+    <string name="recent_activity">Senaste aktivitet</string>
+    <string name="see_all_transactions">Visa alla</string>
+    <string name="no_transactions_yet">Inga transaktioner ännu. Tryck på + Lägg till utgift för att börja spåra!</string>
+    <string name="history_title">Transaktionshistorik</string>
+    <string name="history_subtitle">Sök, filtrera och hantera alla poster</string>
+    <string name="search_transactions_placeholder">Sök på anteckning eller mottagare…</string>
+    <string name="filter_all">Alla</string>
+    <string name="filter_expenses">Utgifter</string>
+    <string name="filter_income">Inkomster</string>
+    <string name="filter_active">Filtrerat</string>
+    <string name="history_results_count">poster</string>
+    <string name="no_matching_transactions">Inga matchande transaktioner hittades.</string>
+
+    <!-- Savings Tracker Dialog & Screen -->
+    <string name="savings_tracker_title">Sparmålskoll</string>
+    <string name="total_saved">Totalt sparat</string>
+    <string name="savings_goal">Sparmål</string>
+    <string name="savings_progress_text">%1$d %% av målet uppnått</string>
+    <string name="add_funds_to_savings">Sätt in pengar i sparandet</string>
+    <string name="deposit_amount_label">Insättningsbelopp (%1$s)</string>
+    <string name="note_goal_name_label">Anteckning / Målnamn</string>
+    <string name="deposit_into_savings">Sätt in på sparkonto</string>
+    <string name="edit_target_goal">Redigera mål</string>
+    <string name="update_target_savings_goal">Uppdatera sparmål</string>
+    <string name="goal_target_label">Sparmål (%1$s)</string>
+    <string name="back_to_deposit">Tillbaka till insättning</string>
+    <string name="deposit_funds">Sätt in pengar</string>
+    <string name="save_goal">Spara mål</string>
+    <string name="savings_history_title">Sparhistorik</string>
+    <string name="savings_no_history">Inga sparinsättningar registrerade än. Tryck på + för att sätta in pengar!</string>
+    <string name="savings_monthly_reservation">Månatlig reservation</string>
+    <string name="savings_months_left">~ %1$d månader kvar</string>
+    <string name="savings_to_go">%1$s%2$.2f kvar</string>
+    <string name="savings_info_note">Ditt månatliga spardragning är det som dras från ditt dagliga belopp som är säkert att spendera, vilket skyddar din vardagsbudget samtidigt som du bygger upp ditt långsiktiga mål.</string>
+    <string name="savings_default_deposit_note">Sparinsättning</string>
+
+    <!-- Loans Tracker Dialog -->
+    <string name="loans_tracker_title">Lånekoll (Lån)</string>
+    <string name="outstanding_loan_debt">Utestående låneskuld</string>
+    <string name="borrowed_amount">Lånat: %1$s%2$.2f</string>
+    <string name="repaid_amount">Återbetalat: %1$s%2$.2f</string>
+    <string name="pay_installment">Betala delbetalning</string>
+    <string name="register_loan">+ Registrera lån</string>
+    <string name="loan_name_label">Lånenamn / Beskrivning</string>
+    <string name="loan_name_placeholder">t.ex. Billån, Banklån, Bolån</string>
+    <string name="lender_bank_label">Långivare / Bankinstitut</string>
+    <string name="lender_bank_placeholder">t.ex. Bank, Kreditförening, Vän</string>
+    <string name="payment_amount_label">Betalningsbelopp (%1$s)</string>
+    <string name="loan_capital_label">Lånekapital (%1$s)</string>
+    <string name="record_payment">Registrera betalning</string>
+
+    <!-- Lent / Debt Dialog -->
+    <string name="lent_debt_title">Registrera lån / skuld</string>
+    <string name="i_lent_money">Jag lånade ut pengar</string>
+    <string name="i_owe_money">Jag är skyldig pengar</string>
+    <string name="person_name_label">Personens namn</string>
+    <string name="person_name_placeholder">t.ex. Johan, Maria</string>
+    <string name="amount_label">Belopp (%1$s)</string>
+    <string name="lent_to_prefix">Utlånat till %1$s</string>
+    <string name="owed_to_prefix">Skyldig till %1$s</string>
+    <string name="save_record">Spara post</string>
+
+    <!-- Transaction Details Dialog -->
+    <string name="expense_details">Utgiftsdetaljer</string>
+    <string name="income_details">Inkomstdetaljer</string>
+    <string name="category_label">Kategori</string>
+    <string name="note_merchant_label">Anteckning / Mottagare</string>
+    <string name="no_note_provided">Ingen anteckning angiven</string>
+    <string name="date_time_label">Datum &amp; tid</string>
+    <string name="delete_record">Ta bort post</string>
+    <string name="edit_transaction_btn">Redigera post</string>
+    <string name="edit_expense_title">Redigera utgift</string>
+    <string name="edit_income_title">Redigera inkomst</string>
+    <string name="update_transaction">Uppdatera transaktion</string>
+    <string name="transaction_updated">Transaktionen har uppdaterats</string>
+    <string name="category_general">Allmänt</string>
+
+    <!-- Delete Transaction Confirmation Dialog -->
+    <string name="delete_transaction_title">Ta bort transaktion?</string>
+    <string name="delete_transaction_confirmation">Är du säker på att du vill ta bort denna transaktion permanent?</string>
+    <string name="delete_transaction_warning">Detta kommer att uppdatera ditt nettosaldo och budgeten för lönecykeln.</string>
+
+    <!-- Common Dialog Actions -->
+    <string name="btn_close">Stäng</string>
+    <string name="btn_cancel">Avbryt</string>
+    <string name="btn_change">Ändra</string>
+    <string name="btn_new">Ny</string>
+    <string name="btn_ok">OK</string>
+    <string name="btn_next">Nästa</string>
+    <string name="btn_select">Välj</string>
+    <string name="select_date">Välj datum</string>
+    <string name="select_time">Välj tid</string>
+
+    <!-- Enhanced Debt & Loans -->
+    <string name="debt_type_direct">Direkt / Privat</string>
+    <string name="debt_type_card">Kreditkort</string>
+    <string name="debt_type_bank">Banklån</string>
+    <string name="debt_type_interest">Ränta / Finansiering</string>
+    <string name="installment_plan_toggle">Avbetalningsplan (betala i månatliga delbetalningar)</string>
+    <string name="installment_monthly_amount">Månatlig delbetalning (%1$s)</string>
+    <string name="installment_duration_months">Varaktighet (månader)</string>
+    <string name="installment_months_label">%1$d månader</string>
+    <string name="debt_total_capital">Totalt lånekapital (%1$s)</string>
+    <string name="interest_rate_optional">Ränta / Avgifter (%1$s, valfritt)</string>
+    <string name="lender_entity_label">Långivare / Företag / Person</string>
+    <string name="lender_entity_placeholder">t.ex. Swedbank, Visa, Johan, Billån</string>
+    <string name="save_debt">Spara skuldpost</string>
+    <!-- Category Names Localization -->
+    <string name="cat_general_name">Allmänt</string>
+    <string name="cat_salary_name">Lön</string>
+    <string name="cat_groceries_name">Matvaror</string>
+    <string name="cat_food_name">Mat &amp; restaurang</string>
+    <string name="cat_housing_name">Boende &amp; hyra</string>
+    <string name="cat_transport_name">Transport</string>
+    <string name="cat_utilities_name">Räkningar &amp; el</string>
+    <string name="cat_entertainment_name">Underhållning</string>
+    <string name="cat_shopping_name">Shopping</string>
+    <string name="cat_health_name">Hälsa &amp; sjukvård</string>
+    <string name="cat_savings_name">Sparande</string>
+    <string name="cat_education_name">Utbildning</string>
+    <string name="cat_travel_name">Resor</string>
+    <string name="cat_fitness_name">Träning &amp; gym</string>
+    <string name="cat_pets_name">Husdjur</string>
+
+    <!-- Loans & Debts Redesign -->
+    <string name="tab_loans_all">Alla</string>
+    <string name="tab_i_owe">Jag är skyldig</string>
+    <string name="tab_owed_to_me">Skyldig till mig</string>
+    <string name="i_owe_title">Jag är skyldig någon</string>
+    <string name="owed_to_me_title">Någon är skyldig mig</string>
+    <string name="i_owe_badge">Jag är skyldig</string>
+    <string name="owed_to_me_badge">Skyldig till mig</string>
+    <string name="empty_loans_title">Håll koll på lån och skulder</string>
+    <string name="empty_loans_desc">Håll tydlig ordning på privatlån, lånade pengar och pengar att kräva in.</string>
+    <string name="add_i_owe_btn">+ Jag är skyldig någon</string>
+    <string name="add_owed_to_me_btn">+ Någon är skyldig mig</string>
+    <string name="add_loan_screen_title_owe">Pengar jag är skyldig</string>
+    <string name="add_loan_screen_title_lend">Pengar som är skyldiga mig</string>
+    <string name="tab_calc_monthly_quota">Efter månadskvot</string>
+    <string name="tab_calc_total_amount">Efter totalbelopp</string>
+    <string name="loan_monthly_quota_label">Månadskvot</string>
+    <string name="loan_total_principal_label">Totalt lånebelopp</string>
+    <string name="loan_amount_label">Totalt kapitalbelopp</string>
+    <string name="loan_duration_label">Varaktighet</string>
+    <string name="loan_duration_indefinite">Obestämd / Ingen fast löptid</string>
+    <string name="loan_start_date_label">Startdatum</string>
+    <string name="loan_end_date_label">Slutdatum</string>
+    <string name="loan_interest_label">Ränta (%)</string>
+    <string name="loan_calculated_total_pill">Totalt att betala: %1$s (%2$d mån vid %3$s/mån)</string>
+    <string name="loan_calculated_quota_pill">Månadskvot: %1$s/mån • Totalt: %2$s</string>
+    <string name="lender_creditor_label">Borgenär / Långivarens namn</string>
+    <string name="debtor_borrower_label">Gäldenär / Personens namn</string>
+    <string name="lender_creditor_placeholder">t.ex. Bank, Kreditkort, Hyresvärd, Johan</string>
+    <string name="debtor_borrower_placeholder">t.ex. Maria, Vän, Rumskamrat</string>
+    <string name="loan_due_date_label">Förfallodatum</string>
+    <string name="no_due_date">Inget förfallodatum</string>
+    <string name="repayment_plan_title">Betala / Kräva in i delbetalningar</string>
+    <string name="repayment_plan_desc">Ställ in månadskvot och varaktighet</string>
+    <string name="monthly_installment_label">Månatligt delbetalningsbelopp</string>
+    <string name="interest_rate_optional_label">Ränta (%)</string>
+    <string name="calculated_total_financing">Totalt med ränta: %1$s • %2$s/mån i %3$d mån</string>
+    <string name="loan_notes_label">Anteckningar / Beskrivning</string>
+    <string name="loan_notes_placeholder">t.ex. Semesterdelning, nödlån, handpenning för bil</string>
+    <string name="save_loan_btn">Spara post</string>
+    <string name="edit_loan_title">Redigera lån / skuld</string>
+    <string name="update_loan_btn">Uppdatera post</string>
+    <string name="btn_add_payment">Lägg till betalning / delbetalning</string>
+    <string name="payment_amount_input_label">Betalnings- / delbetalningsbelopp</string>
+    <string name="record_payment_title">Registrera betalning / delbetalning</string>
+    <string name="remaining_balance_label">Återstående: %1$s</string>
+    <string name="total_paid_so_far">Betalat: %1$s / %2$s (%3$d %%)</string>
+    <string name="mark_as_settled_btn">Markera som reglerad</string>
+    <string name="loan_settled_badge">Reglerad</string>
+    <string name="delete_loan_confirm_title">Ta bort lånepost?</string>
+    <string name="delete_loan_confirm_msg">Är du säker på att du vill ta bort denna lånepost permanent?</string>
+
+    <!-- Recurring Payments & Bills -->
+    <string name="tool_fixed_bills_title">Återkommande betalningar &amp; räkningar</string>
+    <string name="tool_fixed_bills_desc">Prenumerationer, räkningar, hyra &amp; återkommande avgifter</string>
+    <string name="fixed_bills_dialog_title">Återkommande betalningar &amp; räkningar</string>
+    <string name="fixed_bills_screen_title">Återkommande betalningar &amp; tjänster</string>
+    <string name="recurring_dialog_cancel_title">Hantera återkommande regel</string>
+    <string name="recurring_dialog_stop_future_btn">Stoppa framtida betalningar</string>
+    <string name="recurring_dialog_stop_future_desc">Behåll tidigare transaktionshistorik, men stoppa framtida automatiska betalningar.</string>
+    <string name="recurring_dialog_delete_all_btn">Ta bort regel &amp; all historik</string>
+    <string name="recurring_dialog_delete_all_desc">Radera denna regel permanent och ta bort alla tidigare transaktioner som skapats av den.</string>
+    <string name="recurring_rule_status_paused">Stoppad</string>
+    <string name="recurring_rule_status_active">Aktiv</string>
+    <string name="delete_recurring_dialog_title">Ta bort återkommande transaktion</string>
+    <string name="delete_recurring_prompt_banner">Denna transaktion är kopplad till återkommande räkning: %1$s</string>
+    <string name="delete_recurring_option_only_this_title">Ta endast bort denna betalning</string>
+    <string name="delete_recurring_option_only_this_desc">Endast denna transaktionspost kommer att tas bort. Framtida schemalagda räkningar fortsätter som vanligt.</string>
+    <string name="delete_recurring_option_stop_future_title">Ta bort betalning &amp; stoppa framtida räkningar</string>
+    <string name="delete_recurring_option_stop_future_desc">Tar bort denna transaktion och stoppar framtida schemalagda räkningar utan att radera tidigare historik.</string>
+    <string name="delete_recurring_option_delete_all_title">Ta bort regel &amp; all historik</string>
+    <string name="delete_recurring_option_delete_all_desc">Tar bort denna återkommande regel permanent och alla transaktioner som skapats av den.</string>
+    <string name="recurring_badge_label">Återkommande</string>
+    <string name="manage_in_fixed_bills">Hantera i fasta räkningar</string>
+    <string name="recurring_schedule_repeats">Upprepas %1$s</string>
+    <string name="tool_fixed_bills_pending_summary">%1$d väntande denna cykel (%2$s%3$.2f)</string>
+    <string name="tool_fixed_bills_all_paid">Alla räkningar betalda denna cykel ✓</string>
+    <string name="recurring_tx_deleted_and_stopped">Transaktion borttagen och återkommande räkning stoppad</string>
+    <string name="recurring_rule_and_all_deleted">Återkommande räkning och alla transaktioner borttagna</string>
+    <string name="edit_bill_title">Redigera återkommande betalning</string>
+    <string name="action_edit">Redigera</string>
+    <string name="loans_tracker_screen_title">Lån &amp; skulder</string>
+    <string name="add_fixed_bill_title">Lägg till ny räkning</string>
+    <string name="quick_presets_title">Snabbval</string>
+    <string name="bill_name_label">Räkningens namn / Leverantör</string>
+    <string name="bill_name_placeholder">t.ex. El (Luz), Vatten, Internet</string>
+    <string name="custom_bill_notes_label">Leverantör / Räkningens namn</string>
+    <string name="custom_bill_notes_placeholder">t.ex. Netflix, Gym, Hyresvärd, Internet</string>
+    <string name="bill_amount_label">Uppskattat / Grundbelopp</string>
+    <string name="bill_due_day_label">Förfallodag i månaden</string>
+    <string name="bill_due_day_format">Förfaller dag %1$d</string>
+    <string name="arrival_date_label">Ankomst- / Fakturadatum</string>
+    <string name="arrival_date_format">Ankommer: %1$s</string>
+    <string name="cycle_period_label">Faktureringsintervall</string>
+    <string name="period_30_days">Var 30:e dag (månadsvis)</string>
+    <string name="bill_status_paid">Betald denna cykel</string>
+    <string name="bill_status_pending">Väntande (uppskattad)</string>
+    <string name="unpaid_cycles_warning">%1$d obetalda cykler ackumulerade (%2$s%3$.2f)</string>
+    <string name="service_cutoff_alert">⚠️ Varning för avstängning av tjänst! %1$d obetalda cykler</string>
+    <string name="service_cutoff_desc">Denna tjänst har inte betalats under 3 eller fler på varandra följande cykler. Betala nu för att förhindra avstängning.</string>
+    <string name="accumulated_total_label">Ackumulerat totalbelopp</string>
+    <string name="pay_bill_btn">Registrera räkningsbetalning</string>
+    <string name="delete_bill_btn">Ta bort räkning</string>
+    <string name="save_bill_btn">Spara räkning</string>
+    <string name="preset_electricity">El</string>
+    <string name="preset_water">Vatten</string>
+    <string name="preset_internet">Internet / Wifi</string>
+    <string name="preset_gas">Gas</string>
+    <string name="preset_rent">Hyra</string>
+    <string name="preset_phone">Telefon</string>
+    <string name="preset_streaming">Streaming</string>
+
+    <!-- Walkthrough Banner -->
+    <string name="walkthrough_title">Välkommen till Spent!</string>
+    <string name="walkthrough_desc">Spåra dina utgifter per lönecykel, hantera kategorikuvert och nå dina sparmål.</string>
+    <string name="walkthrough_dismiss">Uppfattat</string>
+
+    <!-- Add Transaction Screen -->
+    <string name="add_expense_title">Lägg till utgift</string>
+    <string name="add_income_title">Lägg till inkomst</string>
+    <string name="type_expense">Utgift</string>
+    <string name="type_income">Inkomst</string>
+    <string name="category_envelope_optional">Kategorikuvert</string>
+    <string name="select_category_envelope">Välj kategorikuvert</string>
+    <string name="no_category_envelope">Ingen kategori (Allmänt)</string>
+    <string name="add_new_category">Lägg till ny kategori</string>
+    <string name="note_merchant_optional">Anteckning / Mottagare</string>
+    <string name="make_recurring_payment">Gör till återkommande betalning</string>
+    <string name="recurring_schedule_desc">Logga automatiskt enligt angivet schema</string>
+    <string name="repeat_frequency">Upprepningsintervall</string>
+    <string name="frequency_daily">Dagligen</string>
+    <string name="frequency_weekly">Veckovis</string>
+    <string name="frequency_monthly">Månadsvis</string>
+    <string name="save_transaction">Spara transaktion</string>
+
+    <!-- Create Category Dialog -->
+    <string name="create_category_title">Skapa nytt kategorikuvert</string>
+    <string name="category_name_label">Kategorinamn</string>
+    <string name="category_name_placeholder">t.ex. Prenumerationer, Husdjur</string>
+    <string name="select_color">Välj färg</string>
+    <string name="save_category">Spara kategori</string>
+
+    <!-- Analytics Screen -->
+    <string name="analytics_title">Analys &amp; rapporter</string>
+    <string name="analytics_subtitle">Utgiftsfördelning och cykelinsikter</string>
+    <string name="savings_rate">Sparkvot</string>
+    <string name="category_distribution">Kategorifördelning</string>
+    <string name="no_spending_recorded">Inga utgifter registrerade för denna cykel.</string>
+    <string name="chart_net_savings">Inkomster vs Utgifter</string>
+    <string name="chart_net_savings_desc">Jämförelse av inkomster och utgifter över den valda perioden</string>
+    <string name="chart_total_balance">Totalsaldo över tid</string>
+    <string name="chart_total_balance_desc">Pengarnas utveckling och ackumulerat saldo</string>
+    <string name="chart_current_balance">Aktuellt totalbelopp</string>
+    <string name="chart_period_change">Periodförändring</string>
+    <string name="chart_starting_balance">Startbelopp</string>
+    <string name="timeframe_7d">7 dagar</string>
+    <string name="timeframe_30d">30 dagar</string>
+    <string name="timeframe_6m">6 månader</string>
+    <string name="interval_day">Dag</string>
+    <string name="interval_week">Vecka</string>
+    <string name="interval_month">Månad</string>
+    <string name="chart_legend_income">Inkomst</string>
+    <string name="chart_legend_expense">Utgifter</string>
+    <string name="chart_legend_net">Nettosaldo</string>
+    <string name="chart_surplus">Överskott</string>
+    <string name="chart_deficit">Underskott</string>
+    <string name="chart_no_data">Inga transaktioner registrerade under denna period.</string>
+    <string name="chart_net">Netto</string>
+
+    <!-- Settings Screen -->
+    <string name="settings_title">Inställningar</string>
+    <string name="settings_subtitle">Appinställningar och datahantering</string>
+    <string name="profile_title">Användarprofil</string>
+    <string name="profile_name">Fernando Aguilar</string>
+    <string name="profile_email">fernando@example.com</string>
+    <string name="pay_cycle_title">Lönecykel</string>
+    <string name="pay_cycle_desc">Ställ in cykelintervall och basinkomst</string>
+    <string name="cycle_frequency">Frekvens</string>
+    <string name="cycle_income_label">Basinkomst (%1$s)</string>
+    <string name="payday_label">Lönedag / Startdatum</string>
+    <string name="payday_monthly_day">Lönedag: Dag %1$d i månaden</string>
+    <string name="payday_anchor_date">Startdatum för cykel: %1$s</string>
+    <string name="select_payday_title">Välj lönedag / startdatum</string>
+    <string name="freelance_flexible_title">Frilans / flexibel inkomst</string>
+    <string name="freelance_flexible_desc">Varierande lön utifrån månadens faktiska intäkter</string>
+    <string name="salary_income_note">Lönedagens grundlön (%1$s)</string>
+    <string name="save_pay_cycle">Spara lönecykel</string>
+    <string name="theme_title">Tema</string>
+    <string name="theme_system">Systemstandard</string>
+    <string name="theme_light">Ljust</string>
+    <string name="theme_dark">Mörkt</string>
+    <string name="currency_title">Valuta</string>
+    <string name="currency_desc">Välj din föredragna valutasymbol</string>
+    <string name="language_title">Språk / Language</string>
+    <string name="language_desc">Välj programmets visningsspråk</string>
+    <string name="language_system">Systemstandard</string>
+    <string name="language_en">English</string>
+    <string name="language_es">Español</string>
+    <string name="language_pt">Português</string>
+    <string name="language_fr">Français</string>
+    <string name="language_de">Deutsch</string>
+    <string name="language_it">Italiano (Italian)</string>
+    <string name="language_ja">日本語 (Japanese)</string>
+    <string name="language_hi">हिन्दी (Hindi)</string>
+    <string name="language_sv">Svenska (Swedish)</string>
+    <string name="export_data_title">Exportera data (CSV)</string>
+    <string name="export_data_desc">Ladda ner transaktioner som CSV-fil</string>
+    <string name="export_csv_btn">Exportera CSV</string>
+    <string name="app_info_title">Om Spent</string>
+    <string name="app_version">Version 1.0.0</string>
+    <string name="app_description">Spent hjälper dig spåra utgifter, budgetera per lönecykel och nå ekonomisk klarhet.</string>
+    <string name="reset_data_title">Återställ all data</string>
+    <string name="reset_data_desc">Radera alla transaktioner, kategorier och inställningar permanent</string>
+    <string name="reset_data_btn">Återställ data</string>
+    <string name="reset_data_confirm_title">Återställa all data?</string>
+    <string name="reset_data_confirm_msg">Detta kommer att radera alla poster permanent. Åtgärden kan inte ångras.</string>
+    <string name="monthly_savings_contribution_label">Månatligt sparande (%1$s)</string>
+    <string name="no_savings_goal_yet">Inget aktivt sparmål</string>
+    <string name="add_savings_goal_btn">Lägg till sparmål</string>
+    <string name="salary_funding_note">Att kategorisera inkomst under \'Lön\' finansierar ditt dagliga belopp som är säkert att spendera.</string>
+
+    <!-- Google Drive & Cloud Backup Sync -->
+    <string name="drive_sync_title">Google Drive-synkning</string>
+    <string name="drive_sync_desc">Automatisk molnsäkerhetskopiering och synkning för dina transaktioner</string>
+    <string name="drive_status_connected">Ansluten &amp; automatisk synk aktiv</string>
+    <string name="drive_status_disconnected">Inte ansluten</string>
+    <string name="drive_connected_account">Konto: %1$s</string>
+    <string name="drive_btn_connect">Anslut till Google Drive</string>
+    <string name="drive_btn_disconnect">Koppla från</string>
+    <string name="drive_btn_sync_now">Synka nu</string>
+    <string name="drive_last_synced">Senast synkad: %1$s</string>
+    <string name="drive_not_synced_yet">Inte synkad än</string>
+    <string name="drive_syncing">Synkroniserar med Google Drive…</string>
+    <string name="drive_backup_success">Säkerhetskopia sparades framgångsrikt</string>
+    <string name="drive_restore_success">Data återställdes framgångsrikt</string>
+    <string name="drive_sync_success">Google Drive synkroniserades framgångsrikt</string>
+    <string name="drive_disconnected_msg">Google Drive frånkopplat</string>
+    <string name="drive_sync_error">Fel vid synkning med Drive: %1$s</string>
+    <string name="drive_export_chooser">Spara Spent-säkerhetskopia till Drive</string>
+    <string name="drive_import_chooser">Välj Spent-säkerhetskopia</string>
+
+    <!-- Google Drive Sync Conflict Resolution -->
+    <string name="sync_conflict_dialog_title">Synkroniseringskonflikt upptäckt</string>
+    <string name="sync_conflict_dialog_desc">Både denna enhet och din Google Drive har befintliga ekonomiska data. Välj hur du vill lösa denna konflikt:</string>
+    <string name="sync_conflict_local_card_title">Denna enhet (lokalt)</string>
+    <string name="sync_conflict_cloud_card_title">Google Drive (molnet)</string>
+    <string name="sync_conflict_account_label">Konto: %1$s</string>
+    <string name="sync_conflict_transactions_count">%1$d transaktioner</string>
+    <string name="sync_conflict_loans_count">%1$d lån / skulder</string>
+    <string name="sync_conflict_backup_date">Säkerhetskopieringsdatum: %1$s</string>
+    <string name="sync_conflict_last_modified">Senaste aktivitet: %1$s</string>
+    <string name="sync_conflict_option_merge_title">Slå ihop båda (behåll allt)</string>
+    <string name="sync_conflict_option_merge_desc">Kombinerar lokala poster och molnposter utan att förlora något. Uppdaterar både enheten och Google Drive.</string>
+    <string name="sync_conflict_option_keep_local_title">Behåll lokala data</string>
+    <string name="sync_conflict_option_keep_local_desc">Behåller denna enhets data och ersätter din befintliga Google Drive-säkerhetskopia.</string>
+    <string name="sync_conflict_option_keep_cloud_title">Behåll molndata</string>
+    <string name="sync_conflict_option_keep_cloud_desc">Ersätter datan på denna enhet med säkerhetskopian från Google Drive.</string>
+    <string name="sync_conflict_recommended_badge">REKOMMENDERAS</string>
+    <string name="sync_conflict_btn_apply">Tillämpa val</string>
+    <string name="sync_conflict_btn_cancel">Avbryt</string>
+    <string name="drive_sync_conflict_merged">Data slogs ihop och synkroniserades med Google Drive</string>
+    <string name="drive_sync_conflict_local_kept">Lokala data bevarades och laddades upp till Google Drive</string>
+    <string name="drive_sync_conflict_cancelled">Synkning avbruten, lokala data oförändrade</string>
+
+    <!-- Onboarding Walkthrough -->
+    <string name="onboarding_welcome_title">Välkommen till Spent</string>
+    <string name="onboarding_welcome_desc">Börja hantera din ekonomi snabbt och privat.</string>
+    <string name="onboarding_btn_connect_drive">Anslut till Google Drive</string>
+    <string name="onboarding_btn_continue_no_account">Fortsätt utan konto</string>
+    <string name="onboarding_btn_continue">Fortsätt</string>
+    <string name="onboarding_connected_as">Ansluten som %1$s</string>
+    <string name="onboarding_restoring_drive">Kontrollerar och återställer Google Drive-säkerhetskopia…</string>
+    <string name="onboarding_profile_title">Vilken typ av profil passar dig bäst?</string>
+    <string name="onboarding_profile_subtitle">Detta hjälper till att anpassa din budgetcykel och ditt kassaflöde</string>
+    <string name="onboarding_profile_unemployed">Arbetssökande</string>
+    <string name="onboarding_profile_unemployed_desc">Flexibel budgetering utan fasta löneperioder</string>
+    <string name="onboarding_profile_freelancer">Frilansare</string>
+    <string name="onboarding_profile_freelancer_desc">Varierande projektbaserad inkomst och flexibel spårning</string>
+    <string name="onboarding_profile_employed">Anställd</string>
+    <string name="onboarding_profile_employed_desc">Regelbunden återkommande lönecykel (Veckovis, Varannan vecka, 15 dagar, Månadsvis)</string>
+    <string name="onboarding_schedule_title">När och hur ofta får du lön?</string>
+    <string name="onboarding_schedule_subtitle">Konfigurera din lönecykel och startdatum</string>
+    <string name="onboarding_schedule_frequency">Lönefrekvens</string>
+    <string name="onboarding_schedule_payday">Första lönedag / Startdatum</string>
+    <string name="onboarding_schedule_salary_optional">Uppskattad grundlön (%1$s)</string>
+    <string name="onboarding_btn_finish_setup">Slutför konfiguration</string>
+    <string name="frequency_biweekly">Varannan vecka (14 dagar)</string>
+    <string name="frequency_semimonthly">Två gånger i månaden (15 dagar)</string>
+    <string name="onboarding_initial_balance_title">Startkapital &amp; besparingar</string>
+    <string name="onboarding_initial_balance_subtitle">Ange dina nuvarande besparingar eller startpengar för att börja spåra din ekonomi med precision</string>
+    <string name="onboarding_initial_balance_label">Startsaldo / Besparingar (%1$s)</string>
+    <string name="onboarding_initial_balance_hint">Du kan lämna detta på 0,00 och lägga till inkomsttransaktioner senare.</string>
+    <string name="initial_balance_transaction_note">Startsaldo / Startkapital</string>
+    <string name="onboarding_image_storage_title">Lagring av kvitton &amp; foton</string>
+    <string name="onboarding_image_storage_subtitle">Välj var foton och kvitton kopplade till dina anteckningar sparas</string>
+
+    <!-- Image Attachment & Multi-Destination Storage -->
+    <string name="attach_image_label">Kvitto- / Anteckningsbild</string>
+    <string name="attach_image_btn">Bifoga bild</string>
+    <string name="change_image_btn">Ändra</string>
+    <string name="remove_image_btn">Ta bort</string>
+    <string name="view_image_btn">Visa</string>
+    <string name="receipt_image_preview">Förhandsgranskning av kvitto</string>
+    <string name="image_storage_title">Lagring av bilder &amp; kvitton</string>
+    <string name="image_storage_desc">Välj var bifogade bilder sparas</string>
+    <string name="storage_option_device">Enhetslagring (standard)</string>
+    <string name="storage_option_device_desc">Sparas i enhetens bildmapp (tillgänglig i galleriet)</string>
+    <string name="storage_option_in_app">Privat lagring i appen</string>
+    <string name="storage_option_in_app_desc">Lagras privat i programmets katalog</string>
+    <string name="storage_option_google_drive">Google Drive (komprimerat i molnet)</string>
+    <string name="storage_option_google_drive_desc">Komprimeras automatiskt och laddas upp till din Google Drive</string>
+    <string name="permission_media_required">Lagringsbehörighet krävs för att välja bilder</string>
+    <string name="permission_denied_msg">Behörighet nekad. Aktivera lagringsåtkomst i enhetens inställningar för att bifoga bilder.</string>
+    <string name="uploading_image_drive">Komprimerar och laddar upp bild till Google Drive…</string>
+    <string name="drive_upload_success">Bilden komprimerades och laddades upp till Drive</string>
+    <string name="drive_not_connected_warning">Google Drive är inte anslutet. Anslut i Inställningar eller välj ett annat lagringsalternativ.</string>
+    <string name="receipt_viewer_title">Kvitto / Bifogad bild</string>
+
+    <!-- Member Customization & Data Reset Warning -->
+    <string name="edit_member_name_title">Redigera medlemsnamn</string>
+    <string name="edit_member_name_desc">Anpassa hur denna medlem visas på din översikt och statistik.</string>
+    <string name="member_name_label">Medlemsnamn / Smeknamn</string>
+    <string name="member_name_placeholder">t.ex. Alex, Mamma, Partner</string>
+    <string name="save_member_name_btn">Spara namn</string>
+    <string name="edit_member_btn">Redigera namn</string>
+    <string name="reset_data_warning_badge">Varning för permanent dataförlust</string>
+    <string name="reset_data_warning_bullet1">• Alla transaktioner, kategorikuvert och lönecykler kommer att tas bort.</string>
+    <string name="reset_data_warning_bullet2">• Alla kvittobilder som lagras på denna enhet (internt och galleri) kommer att raderas.</string>
+    <string name="reset_data_warning_bullet3">• Alla återkommande regler och sparmål kommer att återställas.</string>
+    <string name="reset_data_delete_drive_images_title">Radera även bilder på Google Drive</string>
+    <string name="reset_data_delete_drive_images_desc">Raderar alla kvittobilder som laddats upp till ditt anslutna Drive-konto permanent.</string>
+    <string name="reset_data_confirm_action">Radera allt</string>
+
+    <!-- Image Source Chooser -->
+    <string name="image_source_chooser_title">Bifoga kvittobild</string>
+    <string name="image_source_camera">Ta foto (kamera)</string>
+    <string name="image_source_camera_desc">Använd kameran för att fånga kvittot</string>
+    <string name="image_source_gallery">Välj från galleri</string>
+    <string name="image_source_gallery_desc">Välj befintligt foto från enheten</string>
+    <string name="camera_permission_required">Kamerabehörighet krävs för att ta foton</string>
+</resources>

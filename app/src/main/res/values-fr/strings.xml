@@ -425,6 +425,7 @@
     <string name="language_it">Italiano</string>
     <string name="language_ja">日本語 (Japonais)</string>
     <string name="language_hi">हिन्दी (Hindi)</string>
+    <string name="language_sv">Svenska (Swedish)</string>
     <string name="export_data_title">Exporter les données (CSV)</string>
     <string name="export_data_desc">Télécharger les transactions au format CSV</string>
     <string name="export_csv_btn">Exporter CSV</string>

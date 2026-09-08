@@ -28,6 +28,7 @@ class CurrencyMappingTest {
         assertEquals("₹", LocaleHelper.getSymbolForCurrencyCode("INR"))
         assertEquals("₲", LocaleHelper.getSymbolForCurrencyCode("PYG"))
         assertEquals("₡", LocaleHelper.getSymbolForCurrencyCode("CRC"))
+        assertEquals("kr", LocaleHelper.getSymbolForCurrencyCode("SEK"))
     }
 
     @Test
@@ -39,6 +40,7 @@ class CurrencyMappingTest {
         assertEquals("PEN", LocaleHelper.COUNTRY_TO_CURRENCY_CODE["PE"])
         assertEquals("COP", LocaleHelper.COUNTRY_TO_CURRENCY_CODE["CO"])
         assertEquals("MXN", LocaleHelper.COUNTRY_TO_CURRENCY_CODE["MX"])
+        assertEquals("SEK", LocaleHelper.COUNTRY_TO_CURRENCY_CODE["SE"])
     }
 
     @Test
@@ -60,6 +62,12 @@ class CurrencyMappingTest {
             Locale.setDefault(Locale.forLanguageTag("es-PE"))
             assertEquals("S/", LocaleHelper.getSystemCurrencySymbol())
 
+            Locale.setDefault(Locale.forLanguageTag("sv-SE"))
+            assertEquals("kr", LocaleHelper.getSystemCurrencySymbol())
+
+            Locale.setDefault(Locale.forLanguageTag("sv"))
+            assertEquals("kr", LocaleHelper.getSystemCurrencySymbol())
+
             Locale.setDefault(Locale.ROOT)
             assertNotNull(LocaleHelper.getSystemCurrencySymbol())
         } finally {
@@ -73,6 +81,7 @@ class CurrencyMappingTest {
         assertEquals("$", LocaleHelper.getEffectiveSymbol("USD"))
         assertEquals("CHF", LocaleHelper.getEffectiveSymbol("CHF"))
         assertEquals("XYZ", LocaleHelper.getEffectiveSymbol("XYZ"))
+        assertEquals("kr", LocaleHelper.getEffectiveSymbol("SEK"))
     }
 
     @Test
@@ -81,5 +90,15 @@ class CurrencyMappingTest {
         val bob = LocaleHelper.getCurrencyItemForSymbol("Bs")
         assertNotNull(bob)
         assertEquals("BOB", bob?.code)
+
+        val sek = LocaleHelper.SUPPORTED_CURRENCIES.find { it.code == "SEK" }
+        assertNotNull(sek)
+        assertEquals("kr", sek?.symbol)
+    }
+
+    @Test
+    fun testSwedishLocaleResolution() {
+        val resolved = LocaleHelper.resolveLocale(languageCode = "sv")
+        assertEquals("sv", resolved.language)
     }
 }

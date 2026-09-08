@@ -280,6 +280,7 @@ object LocaleHelper {
         "ja" -> return "¥"
         "pt" -> return "R$"
         "de", "fr", "it" -> return "€"
+        "sv" -> return "kr"
       }
     }
 
@@ -290,7 +291,7 @@ object LocaleHelper {
   /**
    * Returns the active Locale based on the user-selected language code or system default.
    */
-  fun resolveLocale(context: Context, languageCode: String?): Locale {
+  fun resolveLocale(context: Context? = null, languageCode: String?): Locale {
     return when (languageCode) {
       "en" -> Locale.ENGLISH
       "es" -> Locale.forLanguageTag("es")
@@ -300,6 +301,7 @@ object LocaleHelper {
       "it" -> Locale.ITALIAN
       "ja" -> Locale.JAPANESE
       "hi" -> Locale.forLanguageTag("hi")
+      "sv" -> Locale.forLanguageTag("sv")
       else -> getSystemPreferredLocale(context)
     }
   }

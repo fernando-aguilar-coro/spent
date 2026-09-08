@@ -426,6 +426,7 @@
     <string name="language_it">Italiano (Italian)</string>
     <string name="language_ja">日本語 (Japanese)</string>
     <string name="language_hi">हिन्दी (Hindi)</string>
+    <string name="language_sv">Svenska (Swedish)</string>
     <string name="export_data_title">Daten exportieren (CSV)</string>
     <string name="export_data_desc">Buchungen als CSV-Datei herunterladen</string>
     <string name="export_csv_btn">CSV exportieren</string>
