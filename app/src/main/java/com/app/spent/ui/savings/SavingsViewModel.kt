@@ -67,6 +67,26 @@ class SavingsViewModel(
     private fun setSavingsGoal(name: String, totalGoal: Double, monthlyContribution: Double) {
         viewModelScope.launch {
             repository.setSavingsGoal(name, totalGoal, monthlyContribution)
+
+            // When establishing an automatic monthly contribution, contribute automatically up to the goal max
+            if (monthlyContribution > 0.0 && totalGoal > 0.0) {
+                val currentSaved = currentState.transactions.filter { it.type == "SAVING" }.sumOf { it.amount }
+                val remaining = (totalGoal - currentSaved).coerceAtLeast(0.0)
+                val initialContribution = minOf(monthlyContribution, remaining)
+
+                if (initialContribution > 0.0) {
+                    val tx = TransactionEntity(
+                        id = UUID.randomUUID().toString(),
+                        amount = initialContribution,
+                        type = "SAVING",
+                        categoryId = "cat_savings",
+                        note = "Monthly Savings: $name",
+                        timestamp = System.currentTimeMillis()
+                    )
+                    repository.addTransaction(tx)
+                }
+            }
+
             sendEffect(SavingsUiEffect.ShowSnackbar("Savings goal saved: $name"))
         }
     }
@@ -80,16 +100,28 @@ class SavingsViewModel(
 
     private fun depositFunds(amount: Double, note: String) {
         viewModelScope.launch {
+            if (amount <= 0.0) return@launch
+            val totalGoal = currentState.savingsGoalTotal
+            val currentSaved = currentState.transactions.filter { it.type == "SAVING" }.sumOf { it.amount }
+
+            if (totalGoal > 0.0 && currentSaved >= totalGoal) {
+                sendEffect(SavingsUiEffect.ShowSnackbar("Savings goal is already completed"))
+                return@launch
+            }
+
+            val remaining = if (totalGoal > 0.0) (totalGoal - currentSaved).coerceAtLeast(0.0) else amount
+            val actualDeposit = if (totalGoal > 0.0) minOf(amount, remaining) else amount
+
             val tx = TransactionEntity(
                 id = UUID.randomUUID().toString(),
-                amount = amount,
+                amount = actualDeposit,
                 type = "SAVING",
-                categoryId = "savings_goal",
-                note = note.ifBlank { "Savings Deposit" },
+                categoryId = "cat_savings",
+                note = note.ifBlank { "Savings Deposit: ${currentState.savingsGoalName.ifBlank { "Goal" }}" },
                 timestamp = System.currentTimeMillis()
             )
             repository.addTransaction(tx)
-            sendEffect(SavingsUiEffect.ShowSnackbar("Deposited ${currentState.currencySymbol}${"%.2f".format(amount)} to savings"))
+            sendEffect(SavingsUiEffect.ShowSnackbar("Deposited ${currentState.currencySymbol}${"%.2f".format(actualDeposit)} to savings"))
         }
     }
 }

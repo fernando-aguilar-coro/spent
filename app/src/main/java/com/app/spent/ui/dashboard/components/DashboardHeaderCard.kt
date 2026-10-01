@@ -47,12 +47,13 @@ fun DashboardHeaderCard(
 currencySymbol: String,
 totalIncome: Double,
 totalSpent: Double,
+totalSavings: Double = 0.0,
 safeToSpendToday: Double,
 isPayCycleActive: Boolean = true,
 isNetSavingsHidden: Boolean = false,
 onToggleNetSavingsVisibility: () -> Unit = {}
 ) {
-  val netBalance = totalIncome - totalSpent
+  val netBalance = totalIncome - totalSpent + totalSavings
 
   Card(
   modifier = Modifier
@@ -157,7 +158,7 @@ onToggleNetSavingsVisibility: () -> Unit = {}
             color = Color.White.copy(alpha = 0.75f)
             )
             Text(
-            text = "$currencySymbol${"%.2f".format(totalIncome)}",
+            text = if (isNetSavingsHidden) "••••" else "$currencySymbol${"%.2f".format(totalIncome)}",
             fontSize = 13.sp,
             fontWeight = FontWeight.Bold,
             color = Color.White
@@ -196,7 +197,7 @@ onToggleNetSavingsVisibility: () -> Unit = {}
             color = Color.White.copy(alpha = 0.75f)
             )
             Text(
-            text = "$currencySymbol${"%.2f".format(totalSpent)}",
+            text = if (isNetSavingsHidden) "••••" else "$currencySymbol${"%.2f".format(totalSpent)}",
             fontSize = 13.sp,
             fontWeight = FontWeight.Bold,
             color = Color.White
@@ -246,7 +247,7 @@ onToggleNetSavingsVisibility: () -> Unit = {}
           }
 
           Text(
-          text = "$currencySymbol${"%.2f".format(safeToSpendToday)} / day",
+          text = if (isNetSavingsHidden) "•••• / day" else "$currencySymbol${"%.2f".format(safeToSpendToday)} / day",
           style = MaterialTheme.typography.labelMedium,
           fontSize = 12.sp,
           fontWeight = FontWeight.Bold,

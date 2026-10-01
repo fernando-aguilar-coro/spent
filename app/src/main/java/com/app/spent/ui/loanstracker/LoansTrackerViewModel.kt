@@ -146,8 +146,13 @@ class LoansTrackerViewModel(
 
     private fun settleLoan(loanId: String) {
         viewModelScope.launch {
-            val loan = currentState.loans.find { it.id == loanId } ?: return@launch
-            repository.updateLoan(loan.copy(paidAmount = loan.principalAmount, isSettled = true))
+            val loan = currentState.loans.find { it.id == loanId } ?: repository.getLoanById(loanId) ?: return@launch
+            val remaining = loan.remainingAmount
+            if (remaining > 0.0) {
+                repository.recordLoanPayment(loanId, remaining)
+            } else {
+                repository.updateLoan(loan.copy(isSettled = true))
+            }
             sendEffect(LoansTrackerUiEffect.ShowSnackbar("Record marked as settled"))
         }
     }

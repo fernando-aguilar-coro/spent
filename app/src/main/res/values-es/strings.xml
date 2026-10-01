@@ -275,6 +275,14 @@
     <string name="loan_settled_badge">Saldado</string>
     <string name="delete_loan_confirm_title">¿Eliminar Registro de Préstamo?</string>
     <string name="delete_loan_confirm_msg">¿Estás seguro de que deseas eliminar permanentemente este registro?</string>
+    <string name="loan_tx_lent_note">Préstamo a %1$s</string>
+    <string name="loan_tx_lent_default_note">Dinero prestado</string>
+    <string name="loan_tx_borrowed_note">Préstamo de %1$s</string>
+    <string name="loan_tx_borrowed_default_note">Dinero pedido prestado</string>
+    <string name="loan_tx_collected_note">Abono recibido de %1$s</string>
+    <string name="loan_tx_collected_default_note">Abono de préstamo cobrado</string>
+    <string name="loan_tx_repaid_note">Pago de préstamo a %1$s</string>
+    <string name="loan_tx_repaid_default_note">Pago de préstamo realizado</string>
 
     <!-- Recurring Payments & Bills -->
     <string name="tool_fixed_bills_title">Pagos Recurrentes y Facturas</string>

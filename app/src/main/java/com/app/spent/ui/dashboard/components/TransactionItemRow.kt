@@ -52,6 +52,7 @@ onClick: (() -> Unit)? = null
   val category = categories.find { it.id == transaction.categoryId }
   val isExpense = transaction.type == "EXPENSE"
   val isIncome = transaction.type == "INCOME"
+  val isSaving = transaction.type == "SAVING"
   val formattedDate = remember(transaction.timestamp) {
     SimpleDateFormat("MMM dd • HH:mm", Locale.getDefault()).format(Date(transaction.timestamp))
   }
@@ -143,12 +144,13 @@ onClick: (() -> Unit)? = null
 
       val signPrefix = when {
         isExpense -> "-"
-        isIncome -> "+"
+        isIncome || isSaving -> "+"
         else -> ""
       }
       val amountColor = when {
         isExpense -> ExpenseRed
         isIncome -> IncomeGreen
+        isSaving -> com.app.spent.ui.theme.SageGreenPrimary
         else -> MaterialTheme.colorScheme.primary
       }
 

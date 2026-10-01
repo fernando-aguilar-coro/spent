@@ -27,6 +27,7 @@ data class DashboardUiState(
     val currencySymbol: String = "$",
     val totalIncome: Double = 0.0,
     val totalSpent: Double = 0.0,
+    val totalSavings: Double = 0.0,
     val safeToSpendToday: Double = 0.0,
     val daysRemainingInCycle: Int = 30,
     val pendingBillsCount: Int = 0,

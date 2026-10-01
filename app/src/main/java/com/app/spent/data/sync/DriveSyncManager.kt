@@ -234,10 +234,21 @@ object DriveSyncManager {
   ) {
     syncScope.launch {
       try {
-        val isConnected = preferencesRepository.isDriveConnectedFlow.firstOrNull() ?: false
+        val appCtx = try { context.applicationContext } catch (_: Throwable) { null }
+        if (appCtx == null) return@launch
+
+        val isConnected = try {
+          preferencesRepository.isDriveConnectedFlow.firstOrNull() ?: false
+        } catch (_: Throwable) {
+          false
+        }
         if (!isConnected) return@launch
 
-        val account = GoogleDriveRestService.getSignedInAccount(context) ?: return@launch
+        val account = try {
+          GoogleDriveRestService.getSignedInAccount(context)
+        } catch (_: Throwable) {
+          null
+        } ?: return@launch
 
         syncMutex.withLock {
           _isSyncing.value = true

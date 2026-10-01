@@ -275,6 +275,14 @@
     <string name="loan_settled_badge">Settled</string>
     <string name="delete_loan_confirm_title">Delete Loan Record?</string>
     <string name="delete_loan_confirm_msg">Are you sure you want to permanently delete this loan record?</string>
+    <string name="loan_tx_lent_note">Lent to %1$s</string>
+    <string name="loan_tx_lent_default_note">Money lent</string>
+    <string name="loan_tx_borrowed_note">Loan from %1$s</string>
+    <string name="loan_tx_borrowed_default_note">Money borrowed</string>
+    <string name="loan_tx_collected_note">Loan payment from %1$s</string>
+    <string name="loan_tx_collected_default_note">Loan payment collected</string>
+    <string name="loan_tx_repaid_note">Loan payment to %1$s</string>
+    <string name="loan_tx_repaid_default_note">Loan payment repaid</string>
 
     <!-- Recurring Payments & Bills -->
     <string name="tool_fixed_bills_title">Recurring Payments &amp; Bills</string>

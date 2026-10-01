@@ -113,6 +113,10 @@ class DashboardViewModel(
                     .filter { it.type == "EXPENSE" }
                     .sumOf { it.amount }
 
+                val totalSavings = transactions
+                    .filter { it.type == "SAVING" }
+                    .sumOf { it.amount }
+
                 // Safe to Spend Today: funded strictly by Base Salary + Salary-categorized income, reserving monthly savings contribution
                 val safeToSpend = if (isPayCycleActive) {
                     val baseIncome = payCycle?.income ?: 0.0
@@ -174,14 +178,15 @@ class DashboardViewModel(
                     currencySymbol = currency,
                     totalIncome = totalIncome,
                     totalSpent = totalSpent,
+                    totalSavings = totalSavings,
                     safeToSpendToday = safeToSpend,
                     daysRemainingInCycle = daysRemaining,
                     pendingBillsCount = pendingBillsCount,
                     pendingBillsTotal = pendingFixedBills,
                     isPayCycleActive = isPayCycleActive,
                     categoriesWithProgress = envelopes,
-                    recentTransactions = transactions.filter { it.type != "SAVING" }.take(20),
-                    allTransactions = transactions.filter { it.type != "SAVING" },
+                    recentTransactions = transactions.take(20),
+                    allTransactions = transactions,
                     allCategories = categories,
                     recurringRules = recurringRules,
                     loans = loans,
@@ -303,8 +308,10 @@ class DashboardViewModel(
     }
 
     private fun toggleNetSavingsVisibility() {
+        val newHidden = !currentState.isNetSavingsHidden
+        setState { copy(isNetSavingsHidden = newHidden) }
         viewModelScope.launch {
-            repository.setNetSavingsHidden(!currentState.isNetSavingsHidden)
+            repository.setNetSavingsHidden(newHidden)
         }
     }
 

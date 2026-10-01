@@ -1,6 +1,7 @@
 package com.app.spent.data.repository
 
 import android.content.Context
+import com.app.spent.R
 import com.app.spent.data.local.dao.SpentDao
 import com.app.spent.data.local.entity.CategoryEntity
 import com.app.spent.data.local.entity.FamilyMemberEntity
@@ -83,7 +84,14 @@ class SpentRepositoryImpl(
         DriveSyncManager.syncNow(context, this, preferencesRepository)
 
     override fun triggerAutoSync() {
-        DriveSyncManager.triggerAutoSync(context, this, preferencesRepository)
+        try {
+            val appCtx = try { context.applicationContext } catch (_: Throwable) { null }
+            if (appCtx != null) {
+                DriveSyncManager.triggerAutoSync(context, this, preferencesRepository)
+            }
+        } catch (_: Throwable) {
+            // Silently ignore sync failures in unit tests or offline environments
+        }
     }
 
     override suspend fun getOwnBackupFileId(): Result<String?> {
@@ -229,6 +237,47 @@ class SpentRepositoryImpl(
 
     override suspend fun addLoan(loan: LoanEntity) {
         dao.insertLoan(loan)
+        val isOwedToMe = loan.type == "OWED_TO_ME"
+        val txType = if (isOwedToMe) "EXPENSE" else "INCOME"
+        val fallbackNote = if (isOwedToMe) {
+            if (loan.counterpartyName.isNotBlank()) "Lent to ${loan.counterpartyName}" else "Money lent"
+        } else {
+            if (loan.counterpartyName.isNotBlank()) "Loan from ${loan.counterpartyName}" else "Money borrowed"
+        }
+        val note: String = try {
+            val appCtx = try { context.applicationContext } catch (_: Throwable) { null }
+            if (appCtx != null) {
+                val resString: String? = if (isOwedToMe) {
+                    if (loan.counterpartyName.isNotBlank()) {
+                        context.getString(R.string.loan_tx_lent_note, loan.counterpartyName)
+                    } else {
+                        context.getString(R.string.loan_tx_lent_default_note)
+                    }
+                } else {
+                    if (loan.counterpartyName.isNotBlank()) {
+                        context.getString(R.string.loan_tx_borrowed_note, loan.counterpartyName)
+                    } else {
+                        context.getString(R.string.loan_tx_borrowed_default_note)
+                    }
+                }
+                resString?.takeIf { it.isNotBlank() } ?: fallbackNote
+            } else {
+                fallbackNote
+            }
+        } catch (_: Throwable) {
+            fallbackNote
+        }
+
+        dao.insertTransaction(
+            TransactionEntity(
+                ownerProfileId = loan.ownerProfileId,
+                amount = loan.principalAmount,
+                type = txType,
+                categoryId = loan.categoryId,
+                timestamp = loan.startDate,
+                note = note
+            )
+        )
         triggerAutoSync()
     }
 
@@ -251,6 +300,48 @@ class SpentRepositoryImpl(
         val newPaid = (loan.paidAmount + amount).coerceAtLeast(0.0)
         val isSettled = newPaid >= loan.principalAmount
         dao.updateLoan(loan.copy(paidAmount = newPaid, isSettled = isSettled))
+
+        val isOwedToMe = loan.type == "OWED_TO_ME"
+        val txType = if (isOwedToMe) "INCOME" else "EXPENSE"
+        val fallbackNote = if (isOwedToMe) {
+            if (loan.counterpartyName.isNotBlank()) "Loan payment from ${loan.counterpartyName}" else "Loan payment collected"
+        } else {
+            if (loan.counterpartyName.isNotBlank()) "Loan payment to ${loan.counterpartyName}" else "Loan payment paid"
+        }
+        val note: String = try {
+            val appCtx = try { context.applicationContext } catch (_: Throwable) { null }
+            if (appCtx != null) {
+                val resString: String? = if (isOwedToMe) {
+                    if (loan.counterpartyName.isNotBlank()) {
+                        context.getString(R.string.loan_tx_collected_note, loan.counterpartyName)
+                    } else {
+                        context.getString(R.string.loan_tx_collected_default_note)
+                    }
+                } else {
+                    if (loan.counterpartyName.isNotBlank()) {
+                        context.getString(R.string.loan_tx_repaid_note, loan.counterpartyName)
+                    } else {
+                        context.getString(R.string.loan_tx_repaid_default_note)
+                    }
+                }
+                resString?.takeIf { it.isNotBlank() } ?: fallbackNote
+            } else {
+                fallbackNote
+            }
+        } catch (_: Throwable) {
+            fallbackNote
+        }
+
+        dao.insertTransaction(
+            TransactionEntity(
+                ownerProfileId = loan.ownerProfileId,
+                amount = amount,
+                type = txType,
+                categoryId = loan.categoryId,
+                timestamp = System.currentTimeMillis(),
+                note = note
+            )
+        )
         triggerAutoSync()
     }
 

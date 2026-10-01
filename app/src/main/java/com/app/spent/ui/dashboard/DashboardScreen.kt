@@ -99,6 +99,7 @@ fun DashboardScreen(
                     currencySymbol = state.currencySymbol,
                     totalIncome = state.totalIncome,
                     totalSpent = state.totalSpent,
+                    totalSavings = state.totalSavings,
                     safeToSpendToday = state.safeToSpendToday,
                     isPayCycleActive = state.isPayCycleActive,
                     isNetSavingsHidden = state.isNetSavingsHidden,
