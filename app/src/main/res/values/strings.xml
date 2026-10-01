@@ -12,6 +12,8 @@
     <string name="total_spent">Total Spent</string>
     <string name="total_income">Total Income</string>
     <string name="net_savings">Net Savings</string>
+    <string name="hide_net_savings">Hide Net Savings</string>
+    <string name="show_net_savings">Show Net Savings</string>
     <string name="remaining_in_cycle">Days Left</string>
     <string name="no_active_pay_cycle">No pay cycle active</string>
     <string name="days_left">%1$d days left in pay cycle</string>

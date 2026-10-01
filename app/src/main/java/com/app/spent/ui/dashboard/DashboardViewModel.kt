@@ -33,18 +33,32 @@ class DashboardViewModel(
                 Triple(transactions, categories, payCycle)
             }
 
+            val preferencesFlow = combine(
+                repository.isWalkthroughCompletedFlow,
+                repository.currencySymbolFlow,
+                repository.savingsMonthlyContributionFlow,
+                repository.isNetSavingsHiddenFlow
+            ) { walkthroughDone, currency, monthlySavings, isNetSavingsHidden ->
+                PreferencesMeta(walkthroughDone, currency, monthlySavings, isNetSavingsHidden)
+            }
+
             val metaDataFlow = combine(
                 repository.getRecurringRulesFlow(),
                 repository.getLoansFlow(),
-                repository.isWalkthroughCompletedFlow,
-                repository.currencySymbolFlow,
-                repository.savingsMonthlyContributionFlow
-            ) { recurringRules, loans, walkthroughDone, currency, monthlySavings ->
-                DashboardMetaData(recurringRules, loans, walkthroughDone, currency, monthlySavings)
+                preferencesFlow
+            ) { recurringRules, loans, prefMeta ->
+                DashboardMetaData(
+                    recurringRules = recurringRules,
+                    loans = loans,
+                    walkthroughDone = prefMeta.walkthroughDone,
+                    currency = prefMeta.currency,
+                    monthlySavings = prefMeta.monthlySavings,
+                    isNetSavingsHidden = prefMeta.isNetSavingsHidden
+                )
             }
 
             combine(coreDataFlow, metaDataFlow) { (transactions, categories, payCycle), meta ->
-                val (recurringRules, loans, walkthroughDone, currency, monthlySavings) = meta
+                val (recurringRules, loans, walkthroughDone, currency, monthlySavings, isNetSavingsHidden) = meta
                 val isPayCycleActive = payCycle != null && payCycle.frequency != "NONE"
 
                 val cyclePeriod = if (isPayCycleActive) {
@@ -172,7 +186,8 @@ class DashboardViewModel(
                     recurringRules = recurringRules,
                     loans = loans,
                     currentPayCycle = payCycle,
-                    isWalkthroughCompleted = walkthroughDone
+                    isWalkthroughCompleted = walkthroughDone,
+                    isNetSavingsHidden = isNetSavingsHidden
                 )
             }.collect { newState ->
                 setState { newState }
@@ -180,12 +195,20 @@ class DashboardViewModel(
         }
     }
 
+    private data class PreferencesMeta(
+        val walkthroughDone: Boolean,
+        val currency: String,
+        val monthlySavings: Double,
+        val isNetSavingsHidden: Boolean
+    )
+
     private data class DashboardMetaData(
         val recurringRules: List<RecurringRuleEntity>,
         val loans: List<com.app.spent.data.local.entity.LoanEntity>,
         val walkthroughDone: Boolean,
         val currency: String,
-        val monthlySavings: Double
+        val monthlySavings: Double,
+        val isNetSavingsHidden: Boolean
     )
 
     private data class CyclePeriod(
@@ -275,6 +298,13 @@ class DashboardViewModel(
             is DashboardUiIntent.DeleteTransaction -> deleteTransaction(intent.transaction, intent.recurringDeleteMode)
             is DashboardUiIntent.UndoDelete -> undoDelete(intent.transaction)
             is DashboardUiIntent.DismissWalkthrough -> dismissWalkthrough()
+            is DashboardUiIntent.ToggleNetSavingsVisibility -> toggleNetSavingsVisibility()
+        }
+    }
+
+    private fun toggleNetSavingsVisibility() {
+        viewModelScope.launch {
+            repository.setNetSavingsHidden(!currentState.isNetSavingsHidden)
         }
     }
 

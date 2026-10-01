@@ -17,9 +17,12 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDownward
 import androidx.compose.material.icons.filled.ArrowUpward
 import androidx.compose.material.icons.filled.Shield
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -45,7 +48,9 @@ currencySymbol: String,
 totalIncome: Double,
 totalSpent: Double,
 safeToSpendToday: Double,
-isPayCycleActive: Boolean = true
+isPayCycleActive: Boolean = true,
+isNetSavingsHidden: Boolean = false,
+onToggleNetSavingsVisibility: () -> Unit = {}
 ) {
   val netBalance = totalIncome - totalSpent
 
@@ -65,11 +70,30 @@ isPayCycleActive: Boolean = true
       horizontalArrangement = Arrangement.SpaceBetween,
       verticalAlignment = Alignment.CenterVertically
       ) {
-        Text(
-        text = stringResource(R.string.net_savings),
-        style = MaterialTheme.typography.bodyMedium,
-        color = Color.White.copy(alpha = 0.8f)
-        )
+        Row(
+          verticalAlignment = Alignment.CenterVertically,
+          horizontalArrangement = Arrangement.spacedBy(6.dp)
+        ) {
+          Text(
+            text = stringResource(R.string.net_savings),
+            style = MaterialTheme.typography.bodyMedium,
+            color = Color.White.copy(alpha = 0.8f)
+          )
+
+          IconButton(
+            onClick = onToggleNetSavingsVisibility,
+            modifier = Modifier.size(24.dp)
+          ) {
+            Icon(
+              imageVector = if (isNetSavingsHidden) Icons.Default.VisibilityOff else Icons.Default.Visibility,
+              contentDescription = stringResource(
+                if (isNetSavingsHidden) R.string.show_net_savings else R.string.hide_net_savings
+              ),
+              tint = Color.White.copy(alpha = 0.85f),
+              modifier = Modifier.size(18.dp)
+            )
+          }
+        }
 
         Box(
         modifier = Modifier
@@ -89,7 +113,7 @@ isPayCycleActive: Boolean = true
       Spacer(modifier = Modifier.height(4.dp))
 
       Text(
-      text = "$currencySymbol${"%.2f".format(netBalance)}",
+      text = if (isNetSavingsHidden) "••••••" else "$currencySymbol${"%.2f".format(netBalance)}",
       fontSize = 34.sp,
       fontWeight = FontWeight.Bold,
       color = Color.White

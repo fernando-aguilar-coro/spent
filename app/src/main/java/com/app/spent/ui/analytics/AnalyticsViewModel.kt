@@ -24,8 +24,9 @@ class AnalyticsViewModel(
                 repository.getTransactionsFlow().distinctUntilChanged(),
                 repository.getCategoriesFlow().distinctUntilChanged(),
                 repository.getCurrentPayCycleFlow().distinctUntilChanged(),
-                repository.currencySymbolFlow.distinctUntilChanged()
-            ) { transactions, categories, payCycle, currency ->
+                repository.currencySymbolFlow.distinctUntilChanged(),
+                repository.isNetSavingsHiddenFlow.distinctUntilChanged()
+            ) { transactions, categories, payCycle, currency, isNetSavingsHidden ->
                 withContext(Dispatchers.Default) {
                     val isPayCycleActive = payCycle != null && payCycle.frequency != "NONE"
                     val baseIncome = if (isPayCycleActive) payCycle?.income ?: 0.0 else 0.0
@@ -77,7 +78,8 @@ class AnalyticsViewModel(
                         recentTransactions = nonSavingTransactions,
                         totalBalancePoints = balancePoints,
                         netSavingsPoints = netSavingsPoints,
-                        selectedInterval = interval
+                        selectedInterval = interval,
+                        isNetSavingsHidden = isNetSavingsHidden
                     )
                 }
             }.collect { newState ->
@@ -89,6 +91,12 @@ class AnalyticsViewModel(
     override fun onIntent(intent: AnalyticsUiIntent) {
         when (intent) {
             is AnalyticsUiIntent.RefreshData -> observeAnalytics()
+            is AnalyticsUiIntent.ToggleNetSavingsVisibility -> {
+                viewModelScope.launch {
+                    val newHidden = !currentState.isNetSavingsHidden
+                    repository.setNetSavingsHidden(newHidden)
+                }
+            }
             is AnalyticsUiIntent.SelectInterval -> {
                 setState { copy(selectedInterval = intent.interval) }
                 viewModelScope.launch(Dispatchers.Default) {

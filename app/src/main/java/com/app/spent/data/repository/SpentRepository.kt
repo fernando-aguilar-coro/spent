@@ -40,6 +40,7 @@ interface SpentRepository {
   val isPartnerPairedFlow: Flow<Boolean>
   val sharedMembersFlow: Flow<List<com.app.spent.data.sync.SharedMemberInfo>>
   val imageStorageLocationFlow: Flow<String>
+  val isNetSavingsHiddenFlow: Flow<Boolean>
 
   suspend fun connectGoogleDrive(account: com.google.android.gms.auth.api.signin.GoogleSignInAccount): com.app.spent.data.sync.DriveConnectResult
   suspend fun resolveDriveConflict(
@@ -97,6 +98,7 @@ interface SpentRepository {
   suspend fun setImageStorageLocation(location: String)
   suspend fun setSavingsGoal(name: String, totalGoal: Double, monthlyContribution: Double)
   suspend fun clearSavingsGoal()
+  suspend fun setNetSavingsHidden(hidden: Boolean)
   suspend fun setLastDriveSyncTimestamp(timestamp: Long)
   suspend fun restoreAllData(
     categories: List<CategoryEntity>,

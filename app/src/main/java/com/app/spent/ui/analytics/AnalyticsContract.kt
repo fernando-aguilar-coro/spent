@@ -28,11 +28,13 @@ data class AnalyticsUiState(
     val recentTransactions: List<TransactionEntity> = emptyList(),
     val totalBalancePoints: List<com.app.spent.ui.analytics.components.TotalBalancePoint> = emptyList(),
     val netSavingsPoints: List<com.app.spent.ui.analytics.components.NetSavingsPoint> = emptyList(),
-    val selectedInterval: ChartInterval = ChartInterval.DAY
+    val selectedInterval: ChartInterval = ChartInterval.DAY,
+    val isNetSavingsHidden: Boolean = false
 ) : UiState
 
 sealed class AnalyticsUiIntent : UiIntent {
     object RefreshData : AnalyticsUiIntent()
+    object ToggleNetSavingsVisibility : AnalyticsUiIntent()
     data class SelectInterval(val interval: ChartInterval) : AnalyticsUiIntent()
 }
 

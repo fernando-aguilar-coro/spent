@@ -201,6 +201,7 @@ class DriveSyncConflictTest {
         override val isPartnerPairedFlow: Flow<Boolean> = flowOf(false)
         override val sharedMembersFlow: Flow<List<SharedMemberInfo>> = flowOf(emptyList())
         override val imageStorageLocationFlow: Flow<String> = flowOf("IN_APP")
+        override val isNetSavingsHiddenFlow: Flow<Boolean> = flowOf(false)
 
         override suspend fun connectGoogleDrive(account: com.google.android.gms.auth.api.signin.GoogleSignInAccount): DriveConnectResult = DriveConnectResult.ConnectedNew
         override suspend fun resolveDriveConflict(
@@ -255,6 +256,7 @@ class DriveSyncConflictTest {
             savingsMonthlyContribution = monthlyContribution
         }
         override suspend fun clearSavingsGoal() {}
+        override suspend fun setNetSavingsHidden(hidden: Boolean) {}
         override suspend fun setLastDriveSyncTimestamp(timestamp: Long) {}
         override suspend fun restoreAllData(
             categories: List<CategoryEntity>,

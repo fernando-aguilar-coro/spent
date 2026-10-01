@@ -61,7 +61,11 @@ fun AnalyticsScreen(
         totalIncome = state.totalIncome,
         totalSpent = state.totalSpent,
         netSavings = state.netSavings,
-        savingsRatePercentage = state.savingsRatePercentage
+        savingsRatePercentage = state.savingsRatePercentage,
+        isNetSavingsHidden = state.isNetSavingsHidden,
+        onToggleNetSavingsVisibility = {
+          viewModel.onIntent(AnalyticsUiIntent.ToggleNetSavingsVisibility)
+        }
       )
       Spacer(modifier = Modifier.height(20.dp))
     }

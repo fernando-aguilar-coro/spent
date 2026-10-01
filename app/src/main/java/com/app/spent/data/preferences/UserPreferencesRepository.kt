@@ -34,6 +34,7 @@ class UserPreferencesRepository(private val context: Context) {
     val IS_PARTNER_PAIRED = booleanPreferencesKey("is_partner_paired")
     val SHARED_MEMBERS_JSON = stringPreferencesKey("shared_members_json")
     val IMAGE_STORAGE_LOCATION = stringPreferencesKey("image_storage_location")
+    val IS_NET_SAVINGS_HIDDEN = booleanPreferencesKey("is_net_savings_hidden")
   }
 
   val imageStorageLocationFlow: Flow<String> get() = context.dataStore.data.map { preferences ->
@@ -145,6 +146,16 @@ class UserPreferencesRepository(private val context: Context) {
 
   val savingsMonthlyContributionFlow: Flow<Double> get() = context.dataStore.data.map { preferences ->
     preferences[PreferencesKeys.SAVINGS_MONTHLY_CONTRIBUTION] ?: 0.0
+  }
+
+  val isNetSavingsHiddenFlow: Flow<Boolean> get() = context.dataStore.data.map { preferences ->
+    preferences[PreferencesKeys.IS_NET_SAVINGS_HIDDEN] ?: false
+  }
+
+  suspend fun setNetSavingsHidden(hidden: Boolean) {
+    context.dataStore.edit { preferences ->
+      preferences[PreferencesKeys.IS_NET_SAVINGS_HIDDEN] = hidden
+    }
   }
 
   suspend fun setWalkthroughCompleted(completed: Boolean) {

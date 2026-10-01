@@ -100,7 +100,11 @@ fun DashboardScreen(
                     totalIncome = state.totalIncome,
                     totalSpent = state.totalSpent,
                     safeToSpendToday = state.safeToSpendToday,
-                    isPayCycleActive = state.isPayCycleActive
+                    isPayCycleActive = state.isPayCycleActive,
+                    isNetSavingsHidden = state.isNetSavingsHidden,
+                    onToggleNetSavingsVisibility = {
+                        viewModel.onIntent(DashboardUiIntent.ToggleNetSavingsVisibility)
+                    }
                 )
             }
 

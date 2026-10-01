@@ -59,6 +59,7 @@ class SpentRepositoryImpl(
     override val isPartnerPairedFlow: Flow<Boolean> get() = preferencesRepository.isPartnerPairedFlow
     override val sharedMembersFlow: Flow<List<com.app.spent.data.sync.SharedMemberInfo>> get() = preferencesRepository.sharedMembersFlow
     override val imageStorageLocationFlow: Flow<String> get() = preferencesRepository.imageStorageLocationFlow
+    override val isNetSavingsHiddenFlow: Flow<Boolean> get() = preferencesRepository.isNetSavingsHiddenFlow
 
     override suspend fun connectGoogleDrive(account: GoogleSignInAccount): DriveConnectResult =
         DriveSyncManager.connectAccount(context, account, this, preferencesRepository)
@@ -355,6 +356,9 @@ class SpentRepositoryImpl(
 
     override suspend fun clearSavingsGoal() =
         preferencesRepository.clearSavingsGoal()
+
+    override suspend fun setNetSavingsHidden(hidden: Boolean) =
+        preferencesRepository.setNetSavingsHidden(hidden)
 
     override suspend fun setLastDriveSyncTimestamp(timestamp: Long) =
         preferencesRepository.setLastDriveSyncTimestamp(timestamp)

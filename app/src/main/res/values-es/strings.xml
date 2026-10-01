@@ -12,6 +12,8 @@
     <string name="total_spent">Gasto Total</string>
     <string name="total_income">Ingreso Total</string>
     <string name="net_savings">Ahorro Neto</string>
+    <string name="hide_net_savings">Ocultar Ahorro Neto</string>
+    <string name="show_net_savings">Mostrar Ahorro Neto</string>
     <string name="remaining_in_cycle">Días restantes</string>
     <string name="no_active_pay_cycle">Sin ciclo de pago activo</string>
     <string name="days_left">Quedan %1$d días en el ciclo</string>

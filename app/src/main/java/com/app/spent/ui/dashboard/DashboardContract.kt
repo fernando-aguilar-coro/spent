@@ -40,11 +40,13 @@ data class DashboardUiState(
     val currentPayCycle: PayCycleEntity? = null,
     val isWalkthroughCompleted: Boolean = true,
     val isPayCycleActive: Boolean = true,
-    val activeProfileName: String = "Primary Account"
+    val activeProfileName: String = "Primary Account",
+    val isNetSavingsHidden: Boolean = false
 ) : UiState
 
 sealed class DashboardUiIntent : UiIntent {
     object LoadData : DashboardUiIntent()
+    object ToggleNetSavingsVisibility : DashboardUiIntent()
     data class AddTransaction(
         val amount: Double,
         val type: String,

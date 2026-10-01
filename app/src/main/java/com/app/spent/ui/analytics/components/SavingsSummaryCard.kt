@@ -7,13 +7,17 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.TrendingUp
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -33,7 +37,9 @@ currencySymbol: String,
 totalIncome: Double,
 totalSpent: Double,
 netSavings: Double,
-savingsRatePercentage: Float
+savingsRatePercentage: Float,
+isNetSavingsHidden: Boolean = false,
+onToggleNetSavingsVisibility: (() -> Unit)? = null
 ) {
   Card(
   modifier = Modifier.fillMaxWidth(),
@@ -104,12 +110,32 @@ savingsRatePercentage: Float
           )
         }
         Column {
-          Text(stringResource(R.string.net_savings), style = MaterialTheme.typography.bodySmall)
+          Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(4.dp)
+          ) {
+            Text(stringResource(R.string.net_savings), style = MaterialTheme.typography.bodySmall)
+            if (onToggleNetSavingsVisibility != null) {
+              IconButton(
+                onClick = onToggleNetSavingsVisibility,
+                modifier = Modifier.size(18.dp)
+              ) {
+                Icon(
+                  imageVector = if (isNetSavingsHidden) Icons.Default.VisibilityOff else Icons.Default.Visibility,
+                  contentDescription = stringResource(
+                    if (isNetSavingsHidden) R.string.show_net_savings else R.string.hide_net_savings
+                  ),
+                  tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                  modifier = Modifier.size(13.dp)
+                )
+              }
+            }
+          }
           Text(
-          "$currencySymbol${"%.2f".format(netSavings)}",
-          style = MaterialTheme.typography.titleMedium,
-          fontWeight = FontWeight.Bold,
-          color = MaterialTheme.colorScheme.primary
+            text = if (isNetSavingsHidden) "••••" else "$currencySymbol${"%.2f".format(netSavings)}",
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.primary
           )
         }
       }

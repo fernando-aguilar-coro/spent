@@ -342,6 +342,7 @@ private class FakeSpentRepository : SpentRepository {
     override val isPartnerPairedFlow: Flow<Boolean> = MutableStateFlow(false)
     override val sharedMembersFlow: Flow<List<SharedMemberInfo>> = MutableStateFlow(emptyList())
     override val imageStorageLocationFlow: Flow<String> = MutableStateFlow("GOOGLE_DRIVE")
+    override val isNetSavingsHiddenFlow: Flow<Boolean> = MutableStateFlow(false)
 
     override suspend fun connectGoogleDrive(account: GoogleSignInAccount): DriveConnectResult = DriveConnectResult.ConnectedNew
     override suspend fun resolveDriveConflict(
@@ -440,6 +441,7 @@ private class FakeSpentRepository : SpentRepository {
     override suspend fun setImageStorageLocation(location: String) {}
     override suspend fun setSavingsGoal(name: String, totalGoal: Double, monthlyContribution: Double) {}
     override suspend fun clearSavingsGoal() {}
+    override suspend fun setNetSavingsHidden(hidden: Boolean) {}
     override suspend fun setLastDriveSyncTimestamp(timestamp: Long) {}
     override suspend fun restoreAllData(
         categories: List<CategoryEntity>,
