@@ -235,6 +235,9 @@ class DriveSyncConflictTest {
         override suspend fun setPayCycle(payCycle: PayCycleEntity) {}
         override suspend fun addRecurringRule(rule: RecurringRuleEntity) {}
         override suspend fun updateRecurringRule(rule: RecurringRuleEntity) {}
+        override suspend fun updateRecurringRuleAndSyncTransactions(rule: RecurringRuleEntity, syncAmount: Boolean) {}
+        override suspend fun getTransactionCountForRecurringRule(ruleId: String): Int = 0
+        override suspend fun getTransactionsByRecurringRuleId(ruleId: String): List<TransactionEntity> = emptyList()
         override suspend fun stopRecurringRule(id: String) {}
         override suspend fun deleteRecurringRuleById(id: String) {}
         override suspend fun deleteRecurringRuleAndTransactions(id: String) {}

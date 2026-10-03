@@ -219,6 +219,35 @@ class SpentRepositoryImpl(
         triggerAutoSync()
     }
 
+    override suspend fun updateRecurringRuleAndSyncTransactions(rule: RecurringRuleEntity, syncAmount: Boolean) {
+        dao.updateRecurringRule(rule)
+        if (syncAmount) {
+            dao.updateTransactionsForRecurringRule(
+                ruleId = rule.id,
+                note = rule.note,
+                categoryId = rule.categoryId,
+                type = rule.type,
+                amount = rule.amount
+            )
+        } else {
+            dao.updateTransactionsMetadataForRecurringRule(
+                ruleId = rule.id,
+                note = rule.note,
+                categoryId = rule.categoryId,
+                type = rule.type
+            )
+        }
+        triggerAutoSync()
+    }
+
+    override suspend fun getTransactionCountForRecurringRule(ruleId: String): Int {
+        return dao.getTransactionCountForRecurringRule(ruleId)
+    }
+
+    override suspend fun getTransactionsByRecurringRuleId(ruleId: String): List<TransactionEntity> {
+        return dao.getTransactionsByRecurringRuleId(ruleId)
+    }
+
     override suspend fun stopRecurringRule(id: String) {
         dao.updateRecurringRuleActiveStatus(id, false)
         triggerAutoSync()
@@ -362,11 +391,15 @@ class SpentRepositoryImpl(
 
                     if (pendingOccurrences.isEmpty()) continue
 
+                    val existingTransactions = dao.getTransactionsByRecurringRuleId(rule.id)
+                    val existingDueDates = existingTransactions.map { tx ->
+                        java.time.Instant.ofEpochMilli(tx.timestamp).atZone(zone).toLocalDate()
+                    }.toSet()
+
                     var latestExecutedTs = rule.lastExecuted
 
                     for (occurrence in pendingOccurrences) {
-                        val existingCount = dao.getTransactionCountForRecurringRule(rule.id)
-                        if (occurrence.timestamp == rule.startDate && existingCount > 0) {
+                        if (occurrence.dueDate in existingDueDates) {
                             latestExecutedTs = maxOf(latestExecutedTs, occurrence.timestamp)
                             continue
                         }

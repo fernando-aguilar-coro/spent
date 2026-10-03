@@ -288,6 +288,28 @@ class FakeSpentDao : SpentDao {
         return transactions.count { it.recurringRuleId == ruleId }
     }
 
+    override suspend fun getTransactionsByRecurringRuleId(ruleId: String): List<TransactionEntity> {
+        return transactions.filter { it.recurringRuleId == ruleId }
+    }
+
+    override suspend fun updateTransactionsMetadataForRecurringRule(ruleId: String, note: String, categoryId: String, type: String) {
+        for (i in transactions.indices) {
+            val tx = transactions[i]
+            if (tx.recurringRuleId == ruleId) {
+                transactions[i] = tx.copy(note = note, categoryId = categoryId, type = type)
+            }
+        }
+    }
+
+    override suspend fun updateTransactionsForRecurringRule(ruleId: String, note: String, categoryId: String, type: String, amount: Double) {
+        for (i in transactions.indices) {
+            val tx = transactions[i]
+            if (tx.recurringRuleId == ruleId) {
+                transactions[i] = tx.copy(note = note, categoryId = categoryId, type = type, amount = amount)
+            }
+        }
+    }
+
     override fun getUserAccountFlow(): Flow<UserAccountEntity?> = MutableStateFlow(null)
     override suspend fun insertOrUpdateUserAccount(account: UserAccountEntity) {}
     override fun getFamilyMembersFlow(): Flow<List<FamilyMemberEntity>> = MutableStateFlow(emptyList())

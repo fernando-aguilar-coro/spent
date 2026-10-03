@@ -232,10 +232,174 @@ class TransactionEditAndResetTest {
         viewModel.onIntent(AddTransactionUiIntent.SaveTransaction)
         advanceUntilIdle()
 
-        // Recurring rule should be deleted
+        // Recurring rule should be deleted when it had only 1 transaction
         assertEquals(0, fakeRepository.storedRecurringRules.size)
         val updatedTx = fakeRepository.updatedTransactions[0]
         assertEquals(null, updatedTx.recurringRuleId)
+    }
+
+    @Test
+    fun testEditRecurringTransactionCascadesChangesToAllOccurrences() = runTest {
+        val rule = RecurringRuleEntity(
+            id = "rule-cascade-1",
+            amount = 100.0,
+            categoryId = "cat_general",
+            frequency = "MONTHLY",
+            startDate = 1700000000000L,
+            lastExecuted = 1702000000000L,
+            note = "Old Internet",
+            type = "EXPENSE"
+        )
+        fakeRepository.storedRecurringRules["rule-cascade-1"] = rule
+
+        val tx1 = TransactionEntity(
+            id = "tx-month-1",
+            amount = 100.0,
+            type = "EXPENSE",
+            categoryId = "cat_general",
+            note = "Old Internet",
+            timestamp = 1700000000000L,
+            recurringRuleId = "rule-cascade-1"
+        )
+        val tx2 = TransactionEntity(
+            id = "tx-month-2",
+            amount = 100.0,
+            type = "EXPENSE",
+            categoryId = "cat_general",
+            note = "Old Internet",
+            timestamp = 1702000000000L,
+            recurringRuleId = "rule-cascade-1"
+        )
+        fakeRepository.storedTransactions["tx-month-1"] = tx1
+        fakeRepository.storedTransactions["tx-month-2"] = tx2
+
+        val viewModel = AddTransactionViewModel(
+            repository = fakeRepository,
+            initialType = "EXPENSE",
+            transactionId = "tx-month-2"
+        )
+        advanceUntilIdle()
+
+        // Edit note, amount, and category on tx2
+        viewModel.onIntent(AddTransactionUiIntent.UpdateAmount("120.00"))
+        viewModel.onIntent(AddTransactionUiIntent.UpdateNote("Fiber 500Mbps"))
+        viewModel.onIntent(AddTransactionUiIntent.SelectCategory("cat_salary"))
+        viewModel.onIntent(AddTransactionUiIntent.SaveTransaction)
+        advanceUntilIdle()
+
+        // Verify the rule itself updated
+        val updatedRule = fakeRepository.storedRecurringRules["rule-cascade-1"]!!
+        assertEquals("Fiber 500Mbps", updatedRule.note)
+        assertEquals(120.0, updatedRule.amount, 0.001)
+        assertEquals("cat_salary", updatedRule.categoryId)
+
+        // Verify that tx1 ALSO received the cascading updates!
+        val cascadedTx1 = fakeRepository.storedTransactions["tx-month-1"]!!
+        assertEquals("Fiber 500Mbps", cascadedTx1.note)
+        assertEquals(120.0, cascadedTx1.amount, 0.001)
+        assertEquals("cat_salary", cascadedTx1.categoryId)
+    }
+
+    @Test
+    fun testEditStoppedRecurringTransactionPreservesPausedStatus() = runTest {
+        val stoppedRule = RecurringRuleEntity(
+            id = "rule-stopped",
+            amount = 50.0,
+            categoryId = "cat_general",
+            frequency = "MONTHLY",
+            startDate = 1700000000000L,
+            lastExecuted = 1700000000000L,
+            note = "Cancelled Membership",
+            type = "EXPENSE",
+            isActive = false // Paused/stopped!
+        )
+        fakeRepository.storedRecurringRules["rule-stopped"] = stoppedRule
+
+        val tx = TransactionEntity(
+            id = "tx-stopped-1",
+            amount = 50.0,
+            type = "EXPENSE",
+            categoryId = "cat_general",
+            note = "Cancelled Membership",
+            timestamp = 1700000000000L,
+            recurringRuleId = "rule-stopped"
+        )
+        fakeRepository.storedTransactions["tx-stopped-1"] = tx
+
+        val viewModel = AddTransactionViewModel(
+            repository = fakeRepository,
+            initialType = "EXPENSE",
+            transactionId = "tx-stopped-1"
+        )
+        advanceUntilIdle()
+
+        viewModel.onIntent(AddTransactionUiIntent.UpdateNote("Updated Name For Record"))
+        viewModel.onIntent(AddTransactionUiIntent.SaveTransaction)
+        advanceUntilIdle()
+
+        val savedRule = fakeRepository.storedRecurringRules["rule-stopped"]!!
+        assertEquals("Updated Name For Record", savedRule.note)
+        // Must still be inactive!
+        assertFalse(savedRule.isActive)
+    }
+
+    @Test
+    fun testUncheckingRecurringWithMultipleTransactionsOnlyUnlinksCurrent() = runTest {
+        val rule = RecurringRuleEntity(
+            id = "rule-multi",
+            amount = 15.0,
+            categoryId = "cat_general",
+            frequency = "MONTHLY",
+            startDate = 1700000000000L,
+            lastExecuted = 1700000000000L,
+            note = "Streaming",
+            type = "EXPENSE"
+        )
+        fakeRepository.storedRecurringRules["rule-multi"] = rule
+
+        val tx1 = TransactionEntity(
+            id = "tx-s1",
+            amount = 15.0,
+            type = "EXPENSE",
+            categoryId = "cat_general",
+            note = "Streaming",
+            timestamp = 1700000000000L,
+            recurringRuleId = "rule-multi"
+        )
+        val tx2 = TransactionEntity(
+            id = "tx-s2",
+            amount = 15.0,
+            type = "EXPENSE",
+            categoryId = "cat_general",
+            note = "Streaming",
+            timestamp = 1702000000000L,
+            recurringRuleId = "rule-multi"
+        )
+        fakeRepository.storedTransactions["tx-s1"] = tx1
+        fakeRepository.storedTransactions["tx-s2"] = tx2
+
+        val viewModel = AddTransactionViewModel(
+            repository = fakeRepository,
+            initialType = "EXPENSE",
+            transactionId = "tx-s2"
+        )
+        advanceUntilIdle()
+
+        // Uncheck recurring on tx2 only
+        viewModel.onIntent(AddTransactionUiIntent.ToggleRecurring(false))
+        viewModel.onIntent(AddTransactionUiIntent.SaveTransaction)
+        advanceUntilIdle()
+
+        // Rule MUST NOT be deleted because tx1 is still using it!
+        assertEquals(1, fakeRepository.storedRecurringRules.size)
+        assertTrue(fakeRepository.storedRecurringRules.containsKey("rule-multi"))
+
+        // tx2 should be unlinked
+        val updatedTx2 = fakeRepository.updatedTransactions.find { it.id == "tx-s2" }!!
+        assertEquals(null, updatedTx2.recurringRuleId)
+
+        // tx1 must still be linked to the rule
+        assertEquals("rule-multi", fakeRepository.storedTransactions["tx-s1"]?.recurringRuleId)
     }
 
     @Test
@@ -397,6 +561,25 @@ private class FakeSpentRepository : SpentRepository {
     }
     override suspend fun updateRecurringRule(rule: RecurringRuleEntity) {
         storedRecurringRules[rule.id] = rule
+    }
+    override suspend fun updateRecurringRuleAndSyncTransactions(rule: RecurringRuleEntity, syncAmount: Boolean) {
+        storedRecurringRules[rule.id] = rule
+        storedTransactions.values.toList().forEach { tx ->
+            if (tx.recurringRuleId == rule.id) {
+                storedTransactions[tx.id] = tx.copy(
+                    note = rule.note,
+                    categoryId = rule.categoryId,
+                    type = rule.type,
+                    amount = if (syncAmount) rule.amount else tx.amount
+                )
+            }
+        }
+    }
+    override suspend fun getTransactionCountForRecurringRule(ruleId: String): Int {
+        return storedTransactions.values.count { it.recurringRuleId == ruleId }
+    }
+    override suspend fun getTransactionsByRecurringRuleId(ruleId: String): List<TransactionEntity> {
+        return storedTransactions.values.filter { it.recurringRuleId == ruleId }
     }
     override suspend fun stopRecurringRule(id: String) {
         val existing = storedRecurringRules[id]

@@ -116,7 +116,7 @@ class FixedBillsViewModel(
 
     private fun updateBill(rule: RecurringRuleEntity) {
         viewModelScope.launch {
-            repository.updateRecurringRule(rule)
+            repository.updateRecurringRuleAndSyncTransactions(rule, syncAmount = true)
             repository.executePendingRecurringRules()
             sendEffect(FixedBillsUiEffect.ShowSnackbar("Bill updated successfully"))
         }
@@ -156,16 +156,22 @@ class FixedBillsViewModel(
 
     private fun payBill(amount: Double, name: String, categoryId: String, ruleId: String) {
         viewModelScope.launch {
+            val now = System.currentTimeMillis()
             val tx = TransactionEntity(
                 id = UUID.randomUUID().toString(),
                 amount = amount,
                 type = "EXPENSE",
                 categoryId = categoryId,
                 note = "Bill Payment: $name",
-                timestamp = System.currentTimeMillis(),
+                timestamp = now,
                 recurringRuleId = ruleId
             )
             repository.addTransaction(tx)
+            val rule = currentState.recurringRules.find { it.id == ruleId }
+            if (rule != null) {
+                val updatedLastExecuted = maxOf(rule.lastExecuted, now)
+                repository.updateRecurringRule(rule.copy(lastExecuted = updatedLastExecuted))
+            }
             repository.executePendingRecurringRules()
             sendEffect(FixedBillsUiEffect.ShowSnackbar("Payment recorded for $name"))
         }

@@ -278,23 +278,26 @@ class AddTransactionViewModel(
                 val isFuture = state.selectedTimestamp > now
 
                 var ruleId: String? = state.editingRecurringRuleId
+                val existingRule = if (ruleId != null) {
+                    repository.getRecurringRulesFlow().firstOrNull()?.find { it.id == ruleId }
+                } else null
+
                 if (state.isRecurring) {
                     if (ruleId != null) {
-                        val existingRule = repository.getRecurringRulesFlow().firstOrNull()?.find { it.id == ruleId }
                         val updatedRule = RecurringRuleEntity(
                             id = ruleId,
                             ownerProfileId = existingRule?.ownerProfileId ?: "primary_account",
                             amount = finalAmount,
                             categoryId = targetCatId,
                             frequency = state.selectedFrequency,
-                            startDate = state.selectedTimestamp,
+                            startDate = existingRule?.startDate ?: state.selectedTimestamp,
                             endDate = existingRule?.endDate,
-                            lastExecuted = if (isFuture) 0L else (existingRule?.lastExecuted ?: state.selectedTimestamp),
+                            lastExecuted = existingRule?.lastExecuted ?: if (isFuture) 0L else state.selectedTimestamp,
                             note = state.noteText,
                             type = state.selectedType,
-                            isActive = true
+                            isActive = existingRule?.isActive ?: true
                         )
-                        repository.updateRecurringRule(updatedRule)
+                        repository.updateRecurringRuleAndSyncTransactions(updatedRule, syncAmount = true)
                     } else {
                         val newRuleId = UUID.randomUUID().toString()
                         ruleId = newRuleId
@@ -313,7 +316,10 @@ class AddTransactionViewModel(
                     }
                 } else {
                     if (ruleId != null) {
-                        repository.deleteRecurringRuleById(ruleId)
+                        val remainingCount = repository.getTransactionCountForRecurringRule(ruleId)
+                        if (remainingCount <= 1) {
+                            repository.deleteRecurringRuleById(ruleId)
+                        }
                         ruleId = null
                     }
                 }
@@ -346,7 +352,7 @@ class AddTransactionViewModel(
                     }
                 }
 
-                if (state.isRecurring) {
+                if (state.isRecurring && (existingRule?.isActive != false)) {
                     repository.executePendingRecurringRules()
                 }
 

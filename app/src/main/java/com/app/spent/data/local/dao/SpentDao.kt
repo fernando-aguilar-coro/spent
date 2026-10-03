@@ -107,6 +107,15 @@ interface SpentDao {
   @Query("SELECT COUNT(*) FROM transactions WHERE recurringRuleId = :ruleId")
   suspend fun getTransactionCountForRecurringRule(ruleId: String): Int
 
+  @Query("SELECT * FROM transactions WHERE recurringRuleId = :ruleId ORDER BY timestamp DESC")
+  suspend fun getTransactionsByRecurringRuleId(ruleId: String): List<TransactionEntity>
+
+  @Query("UPDATE transactions SET note = :note, categoryId = :categoryId, type = :type WHERE recurringRuleId = :ruleId")
+  suspend fun updateTransactionsMetadataForRecurringRule(ruleId: String, note: String, categoryId: String, type: String)
+
+  @Query("UPDATE transactions SET note = :note, categoryId = :categoryId, type = :type, amount = :amount WHERE recurringRuleId = :ruleId")
+  suspend fun updateTransactionsForRecurringRule(ruleId: String, note: String, categoryId: String, type: String, amount: Double)
+
   // Recurring Rules
   @Query("SELECT * FROM recurring_rules")
   fun getRecurringRulesFlow(): Flow<List<RecurringRuleEntity>>

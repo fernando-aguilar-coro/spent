@@ -345,6 +345,29 @@ private class TestSpentRepository : SpentRepository {
         refreshFlows()
     }
 
+    override suspend fun updateRecurringRuleAndSyncTransactions(rule: RecurringRuleEntity, syncAmount: Boolean) {
+        rulesMap[rule.id] = rule
+        txMap.values.toList().forEach { tx ->
+            if (tx.recurringRuleId == rule.id) {
+                txMap[tx.id] = tx.copy(
+                    note = rule.note,
+                    categoryId = rule.categoryId,
+                    type = rule.type,
+                    amount = if (syncAmount) rule.amount else tx.amount
+                )
+            }
+        }
+        refreshFlows()
+    }
+
+    override suspend fun getTransactionCountForRecurringRule(ruleId: String): Int {
+        return txMap.values.count { it.recurringRuleId == ruleId }
+    }
+
+    override suspend fun getTransactionsByRecurringRuleId(ruleId: String): List<TransactionEntity> {
+        return txMap.values.filter { it.recurringRuleId == ruleId }
+    }
+
     override suspend fun stopRecurringRule(id: String) {
         val rule = rulesMap[id]
         if (rule != null) {
