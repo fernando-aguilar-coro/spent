@@ -21,9 +21,10 @@ private val repository: SpentRepository
       val prefs1Flow = combine(
       repository.getCurrentPayCycleFlow(),
       repository.isDarkThemeFlow,
-      repository.currencySymbolFlow
-      ) { payCycle, isDark, currency ->
-        Triple(payCycle, isDark, currency)
+      repository.currencySymbolFlow,
+      repository.currencyCodeFlow
+      ) { payCycle, isDark, currency, currencyCode ->
+        Prefs1Data(payCycle, isDark, currency, currencyCode)
       }
 
       val prefs2Flow = combine(
@@ -34,8 +35,8 @@ private val repository: SpentRepository
         Triple(language, imageStorage, lastSync)
       }
 
-      val coreFlow = combine(prefs1Flow, prefs2Flow) { (payCycle, isDark, currency), (language, imageStorage, lastSync) ->
-        SettingsCoreData(payCycle, isDark, currency, language, imageStorage, lastSync)
+      val coreFlow = combine(prefs1Flow, prefs2Flow) { prefs1, (language, imageStorage, lastSync) ->
+        SettingsCoreData(prefs1.payCycle, prefs1.isDark, prefs1.currency, prefs1.currencyCode, language, imageStorage, lastSync)
       }
 
       val driveFlow = combine(
@@ -58,6 +59,7 @@ private val repository: SpentRepository
         currentPayCycle = core.payCycle,
         isDarkThemeOverride = core.isDark,
         currencySymbol = core.currency,
+        currencyCode = core.currencyCode,
         appLanguage = core.language,
         imageStorageLocation = core.imageStorageLocation,
         transactions = transactions,
@@ -74,10 +76,18 @@ private val repository: SpentRepository
     }
   }
 
+  private data class Prefs1Data(
+    val payCycle: PayCycleEntity?,
+    val isDark: Boolean?,
+    val currency: String,
+    val currencyCode: String
+  )
+
   private data class SettingsCoreData(
   val payCycle: PayCycleEntity?,
   val isDark: Boolean?,
   val currency: String,
+  val currencyCode: String,
   val language: String?,
   val imageStorageLocation: String,
   val lastSync: Long
@@ -88,6 +98,7 @@ private val repository: SpentRepository
       is SettingsUiIntent.SavePayCycle -> savePayCycle(intent.frequency, intent.income, intent.startDate)
       is SettingsUiIntent.SetDarkThemeMode -> setThemeMode(intent.isDark)
       is SettingsUiIntent.SetCurrencySymbol -> setCurrencySymbol(intent.symbol)
+      is SettingsUiIntent.SetCurrency -> setCurrency(intent.symbol, intent.code)
       is SettingsUiIntent.SetAppLanguage -> setAppLanguage(intent.languageCode)
       is SettingsUiIntent.SetImageStorageLocation -> setImageStorageLocation(intent.location)
       is SettingsUiIntent.ConnectDriveAccount -> connectDriveAccount(intent.account)
@@ -200,6 +211,13 @@ private val repository: SpentRepository
     viewModelScope.launch {
       repository.setCurrencySymbol(symbol)
       sendEffect(SettingsUiEffect.ShowSnackbar("Currency updated to $symbol"))
+    }
+  }
+
+  private fun setCurrency(symbol: String, code: String) {
+    viewModelScope.launch {
+      repository.setCurrency(symbol, code)
+      sendEffect(SettingsUiEffect.ShowSnackbar("Currency updated to $symbol ($code)"))
     }
   }
 

@@ -22,9 +22,30 @@ data class CategoryEnvelopeState(
     val progress: Float
 )
 
+sealed interface DashboardActivityItem {
+    val id: String
+    val timestamp: Long
+
+    data class TransactionRecord(
+        val transaction: TransactionEntity,
+        val category: CategoryEntity? = null
+    ) : DashboardActivityItem {
+        override val id: String get() = transaction.id
+        override val timestamp: Long get() = transaction.timestamp
+    }
+
+    data class AssetHoldingRecord(
+        val asset: com.app.spent.domain.asset.model.ValuedAsset
+    ) : DashboardActivityItem {
+        override val id: String get() = "asset_${asset.holding.id}"
+        override val timestamp: Long get() = asset.holding.createdAt
+    }
+}
+
 data class DashboardUiState(
     val isLoading: Boolean = true,
     val currencySymbol: String = "$",
+    val currencyCode: String = "USD",
     val totalIncome: Double = 0.0,
     val totalSpent: Double = 0.0,
     val totalSavings: Double = 0.0,
@@ -34,6 +55,7 @@ data class DashboardUiState(
     val pendingBillsTotal: Double = 0.0,
     val categoriesWithProgress: List<CategoryEnvelopeState> = emptyList(),
     val recentTransactions: List<TransactionEntity> = emptyList(),
+    val recentActivityItems: List<DashboardActivityItem> = emptyList(),
     val allTransactions: List<TransactionEntity> = emptyList(),
     val allCategories: List<CategoryEntity> = emptyList(),
     val recurringRules: List<RecurringRuleEntity> = emptyList(),

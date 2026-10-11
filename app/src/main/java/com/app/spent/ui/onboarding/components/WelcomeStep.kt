@@ -54,18 +54,23 @@ import com.app.spent.util.LocaleHelper
 @Composable
 fun WelcomeStep(
   currencySymbol: String,
+  currencyCode: String = "USD",
   isRestoring: Boolean,
   isConnected: Boolean,
   accountEmail: String?,
-  onSelectCurrency: (String) -> Unit,
+  onSelectCurrency: (symbol: String, code: String) -> Unit,
   onConnectDrive: () -> Unit,
   onContinue: () -> Unit
 ) {
   var showCurrencyPicker by remember { mutableStateOf(false) }
-  val currencyItem = remember(currencySymbol) {
-    LocaleHelper.getCurrencyItemForSymbol(currencySymbol)
+  val currencyItem = remember(currencySymbol, currencyCode) {
+    if (currencyCode.isNotBlank()) {
+      LocaleHelper.getCurrencyItemForCode(currencyCode)
+    } else {
+      null
+    } ?: LocaleHelper.getCurrencyItemForSymbol(currencySymbol)
   }
-  val currencyLabel = currencyItem?.name ?: "$currencySymbol (Custom)"
+  val currencyLabel = currencyItem?.let { "${it.name} (${it.code})" } ?: "$currencySymbol (Custom)"
 
   Column(
     modifier = Modifier
@@ -321,8 +326,13 @@ fun WelcomeStep(
   if (showCurrencyPicker) {
     CurrencyPickerDialog(
       currentCurrencySymbol = currencySymbol,
+      currentCurrencyCode = currencyCode,
+      onSelectCurrency = { symbol, code ->
+        onSelectCurrency(symbol, code)
+        showCurrencyPicker = false
+      },
       onSelectCurrencySymbol = {
-        onSelectCurrency(it)
+        onSelectCurrency(it, currencyCode)
         showCurrencyPicker = false
       },
       onDismiss = { showCurrencyPicker = false }

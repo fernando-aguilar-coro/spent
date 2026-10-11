@@ -6,10 +6,13 @@ import com.app.spent.data.repository.AssetRepository
 import com.app.spent.domain.asset.model.AssetType
 import com.app.spent.ui.mvi.BaseViewModel
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.launch
 
+@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
 class PortfolioViewModel(
-    private val repository: AssetRepository
+    private val repository: AssetRepository,
+    private val spentRepository: com.app.spent.data.repository.SpentRepository? = null
 ) : BaseViewModel<PortfolioUiState, PortfolioUiIntent, PortfolioUiEffect>(PortfolioUiState()) {
 
     init {
@@ -19,18 +22,29 @@ class PortfolioViewModel(
 
     private fun observePortfolio() {
         viewModelScope.launch {
-            repository.getPortfolioSummaryFlow(currentState.baseCurrency)
-                .catch { throwable ->
-                    setState { copy(errorMessage = throwable.message, isLoading = false) }
+            val currencyFlow = spentRepository?.currencyCodeFlow ?: kotlinx.coroutines.flow.flowOf(currentState.baseCurrency)
+            currencyFlow.collect { code ->
+                setState { copy(baseCurrency = code) }
+                repository.refreshPrices(code)
+            }
+        }
+
+        viewModelScope.launch {
+            val currencyFlow = spentRepository?.currencyCodeFlow ?: kotlinx.coroutines.flow.flowOf(currentState.baseCurrency)
+            currencyFlow.flatMapLatest { code ->
+                repository.getPortfolioSummaryFlow(code)
+            }
+            .catch { throwable ->
+                setState { copy(errorMessage = throwable.message, isLoading = false) }
+            }
+            .collect { summary ->
+                setState {
+                    copy(
+                        portfolioSummary = summary,
+                        isLoading = false
+                    )
                 }
-                .collect { summary ->
-                    setState {
-                        copy(
-                            portfolioSummary = summary,
-                            isLoading = false
-                        )
-                    }
-                }
+            }
         }
     }
 

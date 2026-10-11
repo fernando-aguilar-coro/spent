@@ -20,6 +20,7 @@ class UserPreferencesRepository(private val context: Context) {
     val IS_WALKTHROUGH_COMPLETED = booleanPreferencesKey("is_walkthrough_completed")
     val DARK_THEME_ENABLED = booleanPreferencesKey("dark_theme_enabled")
     val CURRENCY_SYMBOL = stringPreferencesKey("currency_symbol")
+    val CURRENCY_CODE = stringPreferencesKey("currency_code")
     val APP_LANGUAGE = stringPreferencesKey("app_language")
     val SAVINGS_GOAL_NAME = stringPreferencesKey("savings_goal_name")
     val SAVINGS_GOAL_TOTAL = doublePreferencesKey("savings_goal_total")
@@ -138,6 +139,16 @@ class UserPreferencesRepository(private val context: Context) {
     }
   }
 
+  val currencyCodeFlow: Flow<String> get() = context.dataStore.data.map { preferences ->
+    val storedCode = preferences[PreferencesKeys.CURRENCY_CODE]
+    if (!storedCode.isNullOrBlank()) {
+      storedCode
+    } else {
+      val symbol = preferences[PreferencesKeys.CURRENCY_SYMBOL] ?: LocaleHelper.getSystemCurrencySymbol(context)
+      LocaleHelper.inferCurrencyCode(symbol, context)
+    }
+  }
+
   val appLanguageFlow: Flow<String?> get() = context.dataStore.data.map { preferences ->
     preferences[PreferencesKeys.APP_LANGUAGE]
   }
@@ -180,10 +191,16 @@ class UserPreferencesRepository(private val context: Context) {
     }
   }
 
-  suspend fun setCurrencySymbol(symbol: String) {
+  suspend fun setCurrency(symbol: String, code: String) {
     context.dataStore.edit { preferences ->
       preferences[PreferencesKeys.CURRENCY_SYMBOL] = symbol
+      preferences[PreferencesKeys.CURRENCY_CODE] = code
     }
+  }
+
+  suspend fun setCurrencySymbol(symbol: String) {
+    val inferred = LocaleHelper.inferCurrencyCode(symbol, context)
+    setCurrency(symbol, inferred)
   }
 
   suspend fun setAppLanguage(languageCode: String?) {

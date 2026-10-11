@@ -28,10 +28,10 @@ val appModule = module {
     single { UserPreferencesRepository(androidContext()) }
 
     // Remote & Simulation Market Price Providers
-    single { com.app.spent.data.remote.FrankfurterPriceProvider() }
+    single { com.app.spent.data.remote.ExchangeRateApiPriceProvider() }
     single<com.app.spent.domain.asset.MarketPriceProvider> {
         com.app.spent.domain.asset.CompositeMarketPriceProvider(
-            frankfurterProvider = get(),
+            exchangeRateApiProvider = get(),
             simulatedEngine = com.app.spent.domain.asset.SimulatedMarketPriceEngine()
         )
     }
@@ -67,6 +67,6 @@ val appModule = module {
     viewModel { SharedLedgerViewModel(repository = get()) }
     viewModel { OnboardingViewModel(repository = get()) }
     viewModel { TransactionHistoryViewModel(repository = get()) }
-    viewModel { com.app.spent.ui.portfolio.PortfolioViewModel(repository = get()) }
+    viewModel { com.app.spent.ui.portfolio.PortfolioViewModel(repository = get(), spentRepository = get()) }
 }
 

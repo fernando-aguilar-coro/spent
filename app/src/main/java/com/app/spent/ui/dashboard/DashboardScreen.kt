@@ -29,6 +29,7 @@ import androidx.compose.ui.unit.dp
 import com.app.spent.R
 import com.app.spent.data.local.entity.TransactionEntity
 import com.app.spent.ui.components.WalkthroughBanner
+import com.app.spent.ui.dashboard.components.AssetFeedItemRow
 import com.app.spent.ui.dashboard.components.CategoryEnvelopeRow
 import com.app.spent.ui.dashboard.components.DashboardHeaderCard
 import com.app.spent.ui.dashboard.components.DashboardProfileHeader
@@ -159,7 +160,7 @@ fun DashboardScreen(
                 )
             }
 
-            if (state.recentTransactions.isEmpty()) {
+            if (state.recentActivityItems.isEmpty()) {
                 item {
                     Box(
                         modifier = Modifier
@@ -176,15 +177,28 @@ fun DashboardScreen(
                 }
             } else {
                 items(
-                    items = state.recentTransactions,
+                    items = state.recentActivityItems,
                     key = { it.id }
-                ) { transaction ->
-                    TransactionItemRow(
-                        transaction = transaction,
-                        categories = state.allCategories,
-                        currencySymbol = state.currencySymbol,
-                        onClick = { selectedTransactionForDetails = transaction }
-                    )
+                ) { item ->
+                    when (item) {
+                        is DashboardActivityItem.TransactionRecord -> {
+                            TransactionItemRow(
+                                transaction = item.transaction,
+                                categories = state.allCategories,
+                                currencySymbol = state.currencySymbol,
+                                currencyCode = state.currencyCode,
+                                onClick = { selectedTransactionForDetails = item.transaction }
+                            )
+                        }
+                        is DashboardActivityItem.AssetHoldingRecord -> {
+                            AssetFeedItemRow(
+                                asset = item.asset,
+                                currencySymbol = state.currencySymbol,
+                                currencyCode = state.currencyCode,
+                                onClick = onNavigateToPortfolio
+                            )
+                        }
+                    }
                 }
 
                 // "See All" button placed after transactions for improved UX

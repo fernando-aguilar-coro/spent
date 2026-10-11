@@ -107,7 +107,7 @@ class OnboardingViewModel(
                 handleSelectImageStorageLocation(intent.location)
             }
             is OnboardingUiIntent.SelectCurrency -> {
-                handleSelectCurrency(intent.symbol)
+                handleSelectCurrency(intent.symbol, intent.code)
             }
             is OnboardingUiIntent.CompleteSetup -> {
                 finishOnboardingSetup()
@@ -127,10 +127,10 @@ class OnboardingViewModel(
         }
     }
 
-    private fun handleSelectCurrency(symbol: String) {
+    private fun handleSelectCurrency(symbol: String, code: String) {
         viewModelScope.launch {
-            setState { copy(currencySymbol = symbol) }
-            repository.setCurrencySymbol(symbol)
+            setState { copy(currencySymbol = symbol, currencyCode = code) }
+            repository.setCurrency(symbol, code)
         }
     }
 

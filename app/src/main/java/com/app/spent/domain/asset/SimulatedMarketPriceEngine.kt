@@ -55,6 +55,14 @@ class SimulatedMarketPriceEngine(
             "AUD" to 0.665,
             "MXN" to 0.052,
             "CHF" to 1.160,
+            "BOB" to 0.1447,
+            "ARS" to 0.00102,
+            "BRL" to 0.180,
+            "PEN" to 0.270,
+            "COP" to 0.00024,
+            "CLP" to 0.00105,
+            "UYU" to 0.024,
+            "VES" to 0.027,
 
             // Commodities
             "XAU" to 2650.00,

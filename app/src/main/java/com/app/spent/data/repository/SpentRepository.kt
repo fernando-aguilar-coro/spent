@@ -25,6 +25,7 @@ interface SpentRepository {
   val isWalkthroughCompletedFlow: Flow<Boolean>
   val isDarkThemeFlow: Flow<Boolean?>
   val currencySymbolFlow: Flow<String>
+  val currencyCodeFlow: Flow<String> get() = kotlinx.coroutines.flow.flowOf("USD")
   val appLanguageFlow: Flow<String?>
   val savingsGoalNameFlow: Flow<String>
   val savingsGoalTotalFlow: Flow<Double>
@@ -97,6 +98,7 @@ interface SpentRepository {
   suspend fun setWalkthroughCompleted(completed: Boolean)
   suspend fun setDarkThemeMode(enabled: Boolean?)
   suspend fun setCurrencySymbol(symbol: String)
+  suspend fun setCurrency(symbol: String, code: String) {}
   suspend fun setAppLanguage(languageCode: String?)
   suspend fun setImageStorageLocation(location: String)
   suspend fun setSavingsGoal(name: String, totalGoal: Double, monthlyContribution: Double)

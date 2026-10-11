@@ -12,9 +12,11 @@ import com.app.spent.data.repository.SpentRepository
 import com.app.spent.domain.asset.model.PortfolioSummary
 import com.app.spent.ui.mvi.BaseViewModel
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
 
+@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
 class DashboardViewModel(
     private val repository: SpentRepository,
     private val assetRepository: AssetRepository? = null
@@ -25,6 +27,12 @@ class DashboardViewModel(
     }
 
     private fun observeData() {
+        viewModelScope.launch {
+            repository.currencyCodeFlow.collect { code ->
+                assetRepository?.refreshPrices(code)
+            }
+        }
+
         viewModelScope.launch {
             repository.seedStarterDataIfEmpty()
             repository.executePendingRecurringRules()
@@ -40,10 +48,11 @@ class DashboardViewModel(
             val preferencesFlow = combine(
                 repository.isWalkthroughCompletedFlow,
                 repository.currencySymbolFlow,
+                repository.currencyCodeFlow,
                 repository.savingsMonthlyContributionFlow,
                 repository.isNetSavingsHiddenFlow
-            ) { walkthroughDone, currency, monthlySavings, isNetSavingsHidden ->
-                PreferencesMeta(walkthroughDone, currency, monthlySavings, isNetSavingsHidden)
+            ) { walkthroughDone, currency, currencyCode, monthlySavings, isNetSavingsHidden ->
+                PreferencesMeta(walkthroughDone, currency, currencyCode, monthlySavings, isNetSavingsHidden)
             }
 
             val metaDataFlow = combine(
@@ -56,18 +65,21 @@ class DashboardViewModel(
                     loans = loans,
                     walkthroughDone = prefMeta.walkthroughDone,
                     currency = prefMeta.currency,
+                    currencyCode = prefMeta.currencyCode,
                     monthlySavings = prefMeta.monthlySavings,
                     isNetSavingsHidden = prefMeta.isNetSavingsHidden
                 )
             }
 
-            val portfolioFlow = assetRepository?.getPortfolioSummaryFlow() ?: flowOf(
-                PortfolioSummary(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, emptyList())
-            )
+            val portfolioFlow = preferencesFlow.flatMapLatest { meta ->
+                assetRepository?.getPortfolioSummaryFlow(meta.currencyCode) ?: flowOf(
+                    PortfolioSummary(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, emptyList())
+                )
+            }
 
             combine(coreDataFlow, metaDataFlow, portfolioFlow) { (transactions, categories, payCycle), meta, portfolioSummary ->
 
-                val (recurringRules, loans, walkthroughDone, currency, monthlySavings, isNetSavingsHidden) = meta
+                val (recurringRules, loans, walkthroughDone, currency, currencyCode, monthlySavings, isNetSavingsHidden) = meta
                 val isPayCycleActive = payCycle != null && payCycle.frequency != "NONE"
 
                 val cyclePeriod = if (isPayCycleActive) {
@@ -182,9 +194,24 @@ class DashboardViewModel(
                     )
                 }
 
+                val categoryMap = categories.associateBy { it.id }
+                val transactionItems: List<DashboardActivityItem> = transactions.take(20).map { tx ->
+                    DashboardActivityItem.TransactionRecord(
+                        transaction = tx,
+                        category = categoryMap[tx.categoryId]
+                    )
+                }
+                val assetItems: List<DashboardActivityItem> = portfolioSummary.assets.map { asset ->
+                    DashboardActivityItem.AssetHoldingRecord(asset = asset)
+                }
+                val mergedActivityItems: List<DashboardActivityItem> = (transactionItems + assetItems)
+                    .sortedByDescending { it.timestamp }
+                    .take(25)
+
                 DashboardUiState(
                     isLoading = false,
                     currencySymbol = currency,
+                    currencyCode = currencyCode,
                     totalIncome = totalIncome,
                     totalSpent = totalSpent,
                     totalSavings = totalSavings,
@@ -195,6 +222,7 @@ class DashboardViewModel(
                     isPayCycleActive = isPayCycleActive,
                     categoriesWithProgress = envelopes,
                     recentTransactions = transactions.take(20),
+                    recentActivityItems = mergedActivityItems,
                     allTransactions = transactions,
                     allCategories = categories,
                     recurringRules = recurringRules,
@@ -215,6 +243,7 @@ class DashboardViewModel(
     private data class PreferencesMeta(
         val walkthroughDone: Boolean,
         val currency: String,
+        val currencyCode: String,
         val monthlySavings: Double,
         val isNetSavingsHidden: Boolean
     )
@@ -224,6 +253,7 @@ class DashboardViewModel(
         val loans: List<com.app.spent.data.local.entity.LoanEntity>,
         val walkthroughDone: Boolean,
         val currency: String,
+        val currencyCode: String,
         val monthlySavings: Double,
         val isNetSavingsHidden: Boolean
     )

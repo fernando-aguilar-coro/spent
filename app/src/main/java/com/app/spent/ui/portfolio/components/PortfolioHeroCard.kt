@@ -175,12 +175,5 @@ fun PortfolioHeroCard(
 }
 
 private fun formatCurrency(amount: Double, currency: String): String {
-    val symbol = when (currency.uppercase()) {
-        "USD" -> "$"
-        "EUR" -> "€"
-        "GBP" -> "£"
-        "JPY" -> "¥"
-        else -> "$currency "
-    }
-    return "$symbol${String.format(Locale.US, "%,.2f", amount)}"
+    return com.app.spent.util.CurrencyFormatter.format(amount, currencyCode = currency)
 }

@@ -48,6 +48,7 @@ class SpentRepositoryImpl(
     override val isWalkthroughCompletedFlow: Flow<Boolean> get() = preferencesRepository.isWalkthroughCompletedFlow
     override val isDarkThemeFlow: Flow<Boolean?> get() = preferencesRepository.isDarkThemeFlow
     override val currencySymbolFlow: Flow<String> get() = preferencesRepository.currencySymbolFlow
+    override val currencyCodeFlow: Flow<String> get() = preferencesRepository.currencyCodeFlow
     override val appLanguageFlow: Flow<String?> get() = preferencesRepository.appLanguageFlow
     override val savingsGoalNameFlow: Flow<String> get() = preferencesRepository.savingsGoalNameFlow
     override val savingsGoalTotalFlow: Flow<Double> get() = preferencesRepository.savingsGoalTotalFlow
@@ -480,6 +481,9 @@ class SpentRepositoryImpl(
 
     override suspend fun setCurrencySymbol(symbol: String) =
         preferencesRepository.setCurrencySymbol(symbol)
+
+    override suspend fun setCurrency(symbol: String, code: String) =
+        preferencesRepository.setCurrency(symbol, code)
 
     override suspend fun setAppLanguage(languageCode: String?) =
         preferencesRepository.setAppLanguage(languageCode)

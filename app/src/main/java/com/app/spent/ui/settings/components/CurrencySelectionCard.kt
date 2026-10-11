@@ -47,12 +47,18 @@ import com.app.spent.util.LocaleHelper
 @Composable
 fun CurrencySelectionCard(
   currentCurrencySymbol: String,
-  onSelectCurrencySymbol: (symbol: String) -> Unit,
+  currentCurrencyCode: String = "",
+  onSelectCurrency: (symbol: String, code: String) -> Unit = { _, _ -> },
+  onSelectCurrencySymbol: (symbol: String) -> Unit = {},
   modifier: Modifier = Modifier
 ) {
   var showDialog by remember { mutableStateOf(false) }
-  val selectedLabel = remember(currentCurrencySymbol) {
-    LocaleHelper.getCurrencyItemForSymbol(currentCurrencySymbol)?.name ?: currentCurrencySymbol
+  val selectedLabel = remember(currentCurrencySymbol, currentCurrencyCode) {
+    if (currentCurrencyCode.isNotBlank()) {
+      LocaleHelper.getCurrencyItemForCode(currentCurrencyCode)?.name
+    } else {
+      null
+    } ?: LocaleHelper.getCurrencyItemForSymbol(currentCurrencySymbol)?.name ?: currentCurrencySymbol
   }
 
   Card(
@@ -90,6 +96,12 @@ fun CurrencySelectionCard(
   if (showDialog) {
     CurrencyPickerDialog(
       currentCurrencySymbol = currentCurrencySymbol,
+      currentCurrencyCode = currentCurrencyCode,
+      onSelectCurrency = { symbol, code ->
+        onSelectCurrency(symbol, code)
+        onSelectCurrencySymbol(symbol)
+        showDialog = false
+      },
       onSelectCurrencySymbol = {
         onSelectCurrencySymbol(it)
         showDialog = false
@@ -102,7 +114,9 @@ fun CurrencySelectionCard(
 @Composable
 fun CurrencyPickerDialog(
   currentCurrencySymbol: String,
-  onSelectCurrencySymbol: (symbol: String) -> Unit,
+  currentCurrencyCode: String = "",
+  onSelectCurrency: (symbol: String, code: String) -> Unit = { _, _ -> },
+  onSelectCurrencySymbol: (symbol: String) -> Unit = {},
   onDismiss: () -> Unit
 ) {
   var searchQuery by remember { mutableStateOf("") }
@@ -168,10 +182,18 @@ fun CurrencyPickerDialog(
             .heightIn(max = 380.dp)
         ) {
           items(filteredList, key = { it.code }) { item ->
+            val isSelected = if (currentCurrencyCode.isNotBlank()) {
+              currentCurrencyCode.equals(item.code, ignoreCase = true)
+            } else {
+              currentCurrencySymbol == item.symbol
+            }
             Row(
               modifier = Modifier
                 .fillMaxWidth()
-                .clickable { onSelectCurrencySymbol(item.symbol) }
+                .clickable {
+                  onSelectCurrency(item.symbol, item.code)
+                  onSelectCurrencySymbol(item.symbol)
+                }
                 .padding(vertical = 8.dp, horizontal = 4.dp),
               verticalAlignment = Alignment.CenterVertically
             ) {
@@ -193,14 +215,17 @@ fun CurrencyPickerDialog(
               }
               Spacer(modifier = Modifier.width(12.dp))
               Text(
-                text = item.name,
+                text = "${item.name} (${item.code})",
                 style = MaterialTheme.typography.bodyMedium,
                 fontWeight = FontWeight.Medium,
                 modifier = Modifier.weight(1f)
               )
               RadioButton(
-                selected = currentCurrencySymbol == item.symbol,
-                onClick = { onSelectCurrencySymbol(item.symbol) }
+                selected = isSelected,
+                onClick = {
+                  onSelectCurrency(item.symbol, item.code)
+                  onSelectCurrencySymbol(item.symbol)
+                }
               )
             }
           }

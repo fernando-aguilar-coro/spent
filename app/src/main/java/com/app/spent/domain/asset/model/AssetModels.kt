@@ -29,11 +29,11 @@ data class ValuedAsset(
     val holding: AssetHoldingEntity,
     val effectiveUnitPrice: Double,
     val totalValuation: Double,
-    val costBasis: Double?,
-    val unrealizedPnL: Double?,
-    val unrealizedPnLPct: Double?,
-    val change24hPct: Double,
-    val isUsingManualPrice: Boolean
+    val costBasis: Double? = null,
+    val unrealizedPnL: Double? = null,
+    val unrealizedPnLPct: Double? = null,
+    val change24hPct: Double = 0.0,
+    val isUsingManualPrice: Boolean = false
 )
 
 data class PortfolioSummary(
