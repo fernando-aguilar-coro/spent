@@ -7,13 +7,17 @@ import com.app.spent.data.local.entity.CategoryEntity
 import com.app.spent.data.local.entity.PayCycleEntity
 import com.app.spent.data.local.entity.RecurringRuleEntity
 import com.app.spent.data.local.entity.TransactionEntity
+import com.app.spent.data.repository.AssetRepository
 import com.app.spent.data.repository.SpentRepository
+import com.app.spent.domain.asset.model.PortfolioSummary
 import com.app.spent.ui.mvi.BaseViewModel
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
 
 class DashboardViewModel(
-    private val repository: SpentRepository
+    private val repository: SpentRepository,
+    private val assetRepository: AssetRepository? = null
 ) : BaseViewModel<DashboardUiState, DashboardUiIntent, DashboardUiEffect>(DashboardUiState()) {
 
     init {
@@ -57,7 +61,12 @@ class DashboardViewModel(
                 )
             }
 
-            combine(coreDataFlow, metaDataFlow) { (transactions, categories, payCycle), meta ->
+            val portfolioFlow = assetRepository?.getPortfolioSummaryFlow() ?: flowOf(
+                PortfolioSummary(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, emptyList())
+            )
+
+            combine(coreDataFlow, metaDataFlow, portfolioFlow) { (transactions, categories, payCycle), meta, portfolioSummary ->
+
                 val (recurringRules, loans, walkthroughDone, currency, monthlySavings, isNetSavingsHidden) = meta
                 val isPayCycleActive = payCycle != null && payCycle.frequency != "NONE"
 
@@ -192,8 +201,11 @@ class DashboardViewModel(
                     loans = loans,
                     currentPayCycle = payCycle,
                     isWalkthroughCompleted = walkthroughDone,
-                    isNetSavingsHidden = isNetSavingsHidden
+                    isNetSavingsHidden = isNetSavingsHidden,
+                    totalVariableAssetsValuation = portfolioSummary.totalValuation,
+                    variableAssetsCount = portfolioSummary.assets.size
                 )
+
             }.collect { newState ->
                 setState { newState }
             }

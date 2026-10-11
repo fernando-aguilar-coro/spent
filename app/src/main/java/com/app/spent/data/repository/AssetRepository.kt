@@ -118,8 +118,9 @@ class AssetRepositoryImpl(
     }
 
     override suspend fun simulateMarketTick(baseCurrency: String): Result<Unit> = runCatching {
-        if (priceProvider is SimulatedMarketPriceEngine) {
-            priceProvider.tickSimulation()
+        when (priceProvider) {
+            is com.app.spent.domain.asset.CompositeMarketPriceProvider -> priceProvider.tickSimulation()
+            is SimulatedMarketPriceEngine -> priceProvider.tickSimulation()
         }
         refreshPrices(baseCurrency)
     }

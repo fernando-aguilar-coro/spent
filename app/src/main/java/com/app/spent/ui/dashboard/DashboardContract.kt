@@ -42,8 +42,11 @@ data class DashboardUiState(
     val isWalkthroughCompleted: Boolean = true,
     val isPayCycleActive: Boolean = true,
     val activeProfileName: String = "Primary Account",
-    val isNetSavingsHidden: Boolean = false
+    val isNetSavingsHidden: Boolean = false,
+    val totalVariableAssetsValuation: Double = 0.0,
+    val variableAssetsCount: Int = 0
 ) : UiState
+
 
 sealed class DashboardUiIntent : UiIntent {
     object LoadData : DashboardUiIntent()

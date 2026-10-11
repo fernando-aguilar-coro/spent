@@ -48,12 +48,15 @@ currencySymbol: String,
 totalIncome: Double,
 totalSpent: Double,
 totalSavings: Double = 0.0,
+totalVariableAssetsValuation: Double = 0.0,
+variableAssetsCount: Int = 0,
 safeToSpendToday: Double,
 isPayCycleActive: Boolean = true,
 isNetSavingsHidden: Boolean = false,
 onToggleNetSavingsVisibility: () -> Unit = {}
 ) {
-  val netBalance = totalIncome - totalSpent + totalSavings
+  val netBalance = (totalIncome - totalSpent + totalSavings) + totalVariableAssetsValuation
+
 
   Card(
   modifier = Modifier
@@ -120,7 +123,18 @@ onToggleNetSavingsVisibility: () -> Unit = {}
       color = Color.White
       )
 
+      if (totalVariableAssetsValuation > 0.0 && !isNetSavingsHidden) {
+        Spacer(modifier = Modifier.height(3.dp))
+        Text(
+          text = "+$currencySymbol${"%.2f".format(totalVariableAssetsValuation)} in variable assets & currencies",
+          fontSize = 11.sp,
+          fontWeight = FontWeight.Medium,
+          color = Color.White.copy(alpha = 0.85f)
+        )
+      }
+
       Spacer(modifier = Modifier.height(14.dp))
+
 
       // Dual Stats Sub-row (Income & Expense)
       Row(

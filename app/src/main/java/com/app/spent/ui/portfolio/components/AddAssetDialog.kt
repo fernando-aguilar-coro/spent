@@ -59,13 +59,17 @@ fun AddAssetDialog(
     var isManualPrice by remember { mutableStateOf(false) }
 
     val presetSymbols = listOf(
-        Triple("AAPL", "Apple Inc.", AssetType.STOCK),
-        Triple("MSFT", "Microsoft", AssetType.STOCK),
-        Triple("BTC", "Bitcoin", AssetType.CRYPTO),
-        Triple("ETH", "Ethereum", AssetType.CRYPTO),
-        Triple("EUR", "Euro", AssetType.FIAT),
+        Triple("EUR", "Euro (Cash/Bank)", AssetType.FIAT),
         Triple("GBP", "British Pound", AssetType.FIAT),
         Triple("JPY", "Japanese Yen", AssetType.FIAT),
+        Triple("MXN", "Mexican Peso", AssetType.FIAT),
+        Triple("CAD", "Canadian Dollar", AssetType.FIAT),
+        Triple("CHF", "Swiss Franc", AssetType.FIAT),
+        Triple("USD", "US Dollar", AssetType.FIAT),
+        Triple("BTC", "Bitcoin", AssetType.CRYPTO),
+        Triple("ETH", "Ethereum", AssetType.CRYPTO),
+        Triple("AAPL", "Apple Inc.", AssetType.STOCK),
+        Triple("MSFT", "Microsoft", AssetType.STOCK),
         Triple("XAU", "Gold (oz)", AssetType.COMMODITY)
     )
 
@@ -73,7 +77,7 @@ fun AddAssetDialog(
         onDismissRequest = onDismiss,
         title = {
             Text(
-                text = "Add Variable Asset",
+                text = "Add Asset / Currency",
                 fontWeight = FontWeight.Bold,
                 fontSize = 20.sp
             )
@@ -86,7 +90,7 @@ fun AddAssetDialog(
             ) {
                 // Preset chips
                 Text(
-                    text = "Popular Presets",
+                    text = "Quick Presets & Currencies",
                     style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -110,13 +114,23 @@ fun AddAssetDialog(
                     }
                 }
 
+                if (selectedType == AssetType.FIAT) {
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = "• Live ECB rate via Frankfurter API automatically applied",
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Medium,
+                        color = SageGreenPrimary
+                    )
+                }
+
                 Spacer(modifier = Modifier.height(14.dp))
 
                 // Symbol input
                 OutlinedTextField(
                     value = symbol,
                     onValueChange = { symbol = it.uppercase() },
-                    label = { Text("Ticker Symbol (e.g. AAPL, BTC, EUR)") },
+                    label = { Text("Currency / Ticker Symbol (e.g. EUR, MXN, AAPL)") },
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -127,7 +141,7 @@ fun AddAssetDialog(
                 OutlinedTextField(
                     value = name,
                     onValueChange = { name = it },
-                    label = { Text("Asset Name (optional)") },
+                    label = { Text("Asset / Wallet Name (e.g. Euro Cash, Bank MXN)") },
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -136,7 +150,7 @@ fun AddAssetDialog(
 
                 // Asset Type Selector
                 Text(
-                    text = "Asset Category",
+                    text = "Category",
                     style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -162,9 +176,10 @@ fun AddAssetDialog(
                 OutlinedTextField(
                     value = quantityText,
                     onValueChange = { quantityText = it },
-                    label = { Text("Units / Quantity Owned") },
-                    placeholder = { Text("e.g. 5.5") },
+                    label = { Text(if (selectedType == AssetType.FIAT) "Amount held in $symbol" else "Units / Quantity Owned") },
+                    placeholder = { Text(if (selectedType == AssetType.FIAT) "e.g. 500.00" else "e.g. 5.5") },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth()
                 )

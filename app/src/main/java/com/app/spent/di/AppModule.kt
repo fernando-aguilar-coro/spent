@@ -27,9 +27,13 @@ val appModule = module {
     // DataStore Preferences
     single { UserPreferencesRepository(androidContext()) }
 
-    // Market Price Provider (Simulated Market Engine)
+    // Remote & Simulation Market Price Providers
+    single { com.app.spent.data.remote.FrankfurterPriceProvider() }
     single<com.app.spent.domain.asset.MarketPriceProvider> {
-        com.app.spent.domain.asset.SimulatedMarketPriceEngine()
+        com.app.spent.domain.asset.CompositeMarketPriceProvider(
+            frankfurterProvider = get(),
+            simulatedEngine = com.app.spent.domain.asset.SimulatedMarketPriceEngine()
+        )
     }
 
     // Repository Single Source of Truth
@@ -49,7 +53,8 @@ val appModule = module {
     }
 
     // ViewModels
-    viewModel { DashboardViewModel(repository = get()) }
+    viewModel { DashboardViewModel(repository = get(), assetRepository = get()) }
+
     viewModel { AnalyticsViewModel(repository = get()) }
     viewModel { SettingsViewModel(repository = get()) }
     viewModel { (initialType: String, transactionId: String?) ->

@@ -101,6 +101,8 @@ fun DashboardScreen(
                     totalIncome = state.totalIncome,
                     totalSpent = state.totalSpent,
                     totalSavings = state.totalSavings,
+                    totalVariableAssetsValuation = state.totalVariableAssetsValuation,
+                    variableAssetsCount = state.variableAssetsCount,
                     safeToSpendToday = state.safeToSpendToday,
                     isPayCycleActive = state.isPayCycleActive,
                     isNetSavingsHidden = state.isNetSavingsHidden,
@@ -108,6 +110,7 @@ fun DashboardScreen(
                         viewModel.onIntent(DashboardUiIntent.ToggleNetSavingsVisibility)
                     }
                 )
+
             }
 
             // Hero Quick Action Buttons Component
