@@ -48,7 +48,8 @@ fun DashboardScreen(
     onNavigateToFixedBills: () -> Unit = {},
     onNavigateToLoansTracker: () -> Unit = {},
     onNavigateToSharedLedgers: () -> Unit = {},
-    onNavigateToHistory: () -> Unit = {}
+    onNavigateToHistory: () -> Unit = {},
+    onNavigateToPortfolio: () -> Unit = {}
 ) {
     val state by viewModel.uiState.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
@@ -138,7 +139,8 @@ fun DashboardScreen(
                     onNavigateToSavingsTracker = onNavigateToSavingsTracker,
                     onNavigateToFixedBills = onNavigateToFixedBills,
                     onNavigateToLoansTracker = onNavigateToLoansTracker,
-                    onNavigateToSharedLedgers = onNavigateToSharedLedgers
+                    onNavigateToSharedLedgers = onNavigateToSharedLedgers,
+                    onNavigateToPortfolio = onNavigateToPortfolio
                 )
             }
 

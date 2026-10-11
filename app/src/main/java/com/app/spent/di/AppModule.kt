@@ -22,9 +22,15 @@ val appModule = module {
     // Local Room DB & DAO
     single { SpentDatabase.getInstance(androidContext()) }
     single { get<SpentDatabase>().spentDao() }
+    single { get<SpentDatabase>().assetDao() }
 
     // DataStore Preferences
     single { UserPreferencesRepository(androidContext()) }
+
+    // Market Price Provider (Simulated Market Engine)
+    single<com.app.spent.domain.asset.MarketPriceProvider> {
+        com.app.spent.domain.asset.SimulatedMarketPriceEngine()
+    }
 
     // Repository Single Source of Truth
     single<SpentRepository> {
@@ -32,6 +38,13 @@ val appModule = module {
             context = androidContext(),
             dao = get(),
             preferencesRepository = get()
+        )
+    }
+
+    single<com.app.spent.data.repository.AssetRepository> {
+        com.app.spent.data.repository.AssetRepositoryImpl(
+            assetDao = get(),
+            priceProvider = get()
         )
     }
 
@@ -48,4 +61,6 @@ val appModule = module {
     viewModel { SharedLedgerViewModel(repository = get()) }
     viewModel { OnboardingViewModel(repository = get()) }
     viewModel { TransactionHistoryViewModel(repository = get()) }
+    viewModel { com.app.spent.ui.portfolio.PortfolioViewModel(repository = get()) }
 }
+
