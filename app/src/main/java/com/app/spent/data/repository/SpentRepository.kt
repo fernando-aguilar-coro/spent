@@ -103,6 +103,9 @@ interface SpentRepository {
   suspend fun clearSavingsGoal()
   suspend fun setNetSavingsHidden(hidden: Boolean)
   suspend fun setLastDriveSyncTimestamp(timestamp: Long)
+  fun getAssetHoldingsFlow(): Flow<List<com.app.spent.data.local.entity.AssetHoldingEntity>> =
+    kotlinx.coroutines.flow.flowOf(emptyList())
+
   suspend fun restoreAllData(
     categories: List<CategoryEntity>,
     transactions: List<TransactionEntity>,
@@ -111,5 +114,17 @@ interface SpentRepository {
     userAccount: UserAccountEntity?,
     loans: List<LoanEntity> = emptyList()
   )
+
+  suspend fun restoreAllData(
+    categories: List<CategoryEntity>,
+    transactions: List<TransactionEntity>,
+    payCycle: PayCycleEntity?,
+    recurringRules: List<RecurringRuleEntity>,
+    userAccount: UserAccountEntity?,
+    loans: List<LoanEntity>,
+    assetHoldings: List<com.app.spent.data.local.entity.AssetHoldingEntity>
+  ) {
+    restoreAllData(categories, transactions, payCycle, recurringRules, userAccount, loans)
+  }
   suspend fun resetAllData(deleteDriveImages: Boolean = false)
 }

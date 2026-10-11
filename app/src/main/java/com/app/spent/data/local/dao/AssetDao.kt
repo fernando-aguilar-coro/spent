@@ -25,11 +25,17 @@ interface AssetDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertOrUpdateHolding(holding: AssetHoldingEntity)
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertHoldings(holdings: List<AssetHoldingEntity>)
+
     @Update
     suspend fun updateHolding(holding: AssetHoldingEntity)
 
     @Query("DELETE FROM asset_holdings WHERE id = :id")
     suspend fun deleteHoldingById(id: String)
+
+    @Query("DELETE FROM asset_holdings")
+    suspend fun deleteAllHoldings()
 
     // Market Prices Cache
     @Query("SELECT * FROM market_prices")
@@ -46,4 +52,8 @@ interface AssetDao {
 
     @Query("DELETE FROM market_prices WHERE symbol = :symbol")
     suspend fun deletePrice(symbol: String)
+
+    @Query("DELETE FROM market_prices")
+    suspend fun deleteAllPrices()
 }
+

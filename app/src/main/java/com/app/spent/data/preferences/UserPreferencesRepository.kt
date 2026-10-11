@@ -35,7 +35,13 @@ class UserPreferencesRepository(private val context: Context) {
     val SHARED_MEMBERS_JSON = stringPreferencesKey("shared_members_json")
     val IMAGE_STORAGE_LOCATION = stringPreferencesKey("image_storage_location")
     val IS_NET_SAVINGS_HIDDEN = booleanPreferencesKey("is_net_savings_hidden")
+    val IS_DRIVE_AUTH_REQUIRED = booleanPreferencesKey("is_drive_auth_required")
   }
+
+  val isDriveAuthRequiredFlow: Flow<Boolean> get() = context.dataStore.data.map { preferences ->
+    preferences[PreferencesKeys.IS_DRIVE_AUTH_REQUIRED] ?: false
+  }
+
 
   val imageStorageLocationFlow: Flow<String> get() = context.dataStore.data.map { preferences ->
     val explicitLocation = preferences[PreferencesKeys.IMAGE_STORAGE_LOCATION]
@@ -217,10 +223,18 @@ class UserPreferencesRepository(private val context: Context) {
       if (email != null) {
         preferences[PreferencesKeys.IS_DRIVE_CONNECTED] = true
         preferences[PreferencesKeys.DRIVE_ACCOUNT_EMAIL] = email
+        preferences[PreferencesKeys.IS_DRIVE_AUTH_REQUIRED] = false
       } else {
         preferences[PreferencesKeys.IS_DRIVE_CONNECTED] = false
         preferences.remove(PreferencesKeys.DRIVE_ACCOUNT_EMAIL)
+        preferences[PreferencesKeys.IS_DRIVE_AUTH_REQUIRED] = false
       }
+    }
+  }
+
+  suspend fun setDriveAuthRequired(required: Boolean) {
+    context.dataStore.edit { preferences ->
+      preferences[PreferencesKeys.IS_DRIVE_AUTH_REQUIRED] = required
     }
   }
 

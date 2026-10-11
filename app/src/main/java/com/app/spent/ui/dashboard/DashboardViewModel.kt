@@ -144,7 +144,7 @@ class DashboardViewModel(
                         .sumOf { it.amount }
 
                     val remainingDiscretionary = cycleTotalIncome - pendingFixedBills - monthlySavings - spentInCycle
-                    (remainingDiscretionary.coerceAtLeast(0.0)) / (daysRemaining + 1)
+                    (remainingDiscretionary.coerceAtLeast(0.0)) / ((daysRemaining + 1).coerceAtLeast(1))
                 } else {
                     val salaryIncomeThisMonth = transactions
                         .filter {
@@ -159,7 +159,7 @@ class DashboardViewModel(
                         .sumOf { it.amount }
 
                     val remainingDiscretionary = salaryIncomeThisMonth - pendingFixedBills - monthlySavings - spentThisMonth
-                    (remainingDiscretionary.coerceAtLeast(0.0)) / (daysRemaining + 1)
+                    (remainingDiscretionary.coerceAtLeast(0.0)) / ((daysRemaining + 1).coerceAtLeast(1))
                 }
 
                 // Envelope calculations (scoped to current cycle period)

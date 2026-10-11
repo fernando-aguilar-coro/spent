@@ -41,7 +41,8 @@ val appModule = module {
         SpentRepositoryImpl(
             context = androidContext(),
             dao = get(),
-            preferencesRepository = get()
+            preferencesRepository = get(),
+            assetDao = get()
         )
     }
 

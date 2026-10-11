@@ -24,10 +24,14 @@ import kotlinx.coroutines.sync.withLock
 class SpentRepositoryImpl(
     private val context: Context,
     private val dao: SpentDao,
-    private val preferencesRepository: UserPreferencesRepository
+    private val preferencesRepository: UserPreferencesRepository,
+    private val assetDao: com.app.spent.data.local.dao.AssetDao? = null
 ) : SpentRepository {
 
     private val recurringMutex = Mutex()
+
+    override fun getAssetHoldingsFlow(): Flow<List<com.app.spent.data.local.entity.AssetHoldingEntity>> =
+        assetDao?.getHoldingsFlow() ?: kotlinx.coroutines.flow.flowOf(emptyList())
 
     override fun getTransactionsFlow(): Flow<List<TransactionEntity>> = dao.getTransactionsFlow()
     override fun getRecentTransactionsFlow(limit: Int): Flow<List<TransactionEntity>> = dao.getRecentTransactionsFlow(limit)
@@ -185,6 +189,9 @@ class SpentRepositoryImpl(
     }
 
     override suspend fun deleteCategoryById(id: String) {
+        if (id == "cat_general") return
+        dao.reassignTransactionsToGeneral(id)
+        dao.reassignRecurringRulesToGeneral(id)
         dao.deleteCategoryById(id)
         triggerAutoSync()
     }
@@ -397,6 +404,7 @@ class SpentRepositoryImpl(
                     }.toSet()
 
                     var latestExecutedTs = rule.lastExecuted
+                    val newTransactions = mutableListOf<TransactionEntity>()
 
                     for (occurrence in pendingOccurrences) {
                         if (occurrence.dueDate in existingDueDates) {
@@ -404,7 +412,7 @@ class SpentRepositoryImpl(
                             continue
                         }
 
-                        dao.insertTransaction(
+                        newTransactions.add(
                             TransactionEntity(
                                 ownerProfileId = rule.ownerProfileId,
                                 amount = rule.amount,
@@ -416,6 +424,10 @@ class SpentRepositoryImpl(
                             )
                         )
                         latestExecutedTs = maxOf(latestExecutedTs, occurrence.timestamp)
+                    }
+
+                    if (newTransactions.isNotEmpty()) {
+                        dao.insertTransactions(newTransactions)
                     }
 
                     if (latestExecutedTs != rule.lastExecuted) {
@@ -495,11 +507,25 @@ class SpentRepositoryImpl(
         userAccount: UserAccountEntity?,
         loans: List<LoanEntity>
     ) {
+        restoreAllData(categories, transactions, payCycle, recurringRules, userAccount, loans, emptyList())
+    }
+
+    override suspend fun restoreAllData(
+        categories: List<CategoryEntity>,
+        transactions: List<TransactionEntity>,
+        payCycle: PayCycleEntity?,
+        recurringRules: List<RecurringRuleEntity>,
+        userAccount: UserAccountEntity?,
+        loans: List<LoanEntity>,
+        assetHoldings: List<com.app.spent.data.local.entity.AssetHoldingEntity>
+    ) {
         dao.deleteAllTransactions()
         dao.deleteAllCategories()
         dao.deleteAllRecurringRules()
         dao.deleteAllPayCycles()
         dao.deleteAllLoans()
+        assetDao?.deleteAllHoldings()
+        assetDao?.deleteAllPrices()
 
         if (categories.isNotEmpty()) dao.insertCategories(categories)
         if (transactions.isNotEmpty()) dao.insertTransactions(transactions)
@@ -507,6 +533,7 @@ class SpentRepositoryImpl(
         if (payCycle != null) dao.insertPayCycle(payCycle)
         if (userAccount != null) dao.insertOrUpdateUserAccount(userAccount)
         if (loans.isNotEmpty()) dao.insertLoans(loans)
+        if (assetHoldings.isNotEmpty()) assetDao?.insertHoldings(assetHoldings)
     }
 
     override suspend fun resetAllData(deleteDriveImages: Boolean) {
@@ -515,6 +542,8 @@ class SpentRepositoryImpl(
         dao.deleteAllRecurringRules()
         dao.deleteAllPayCycles()
         dao.deleteAllLoans()
+        assetDao?.deleteAllHoldings()
+        assetDao?.deleteAllPrices()
         preferencesRepository.clearSavingsGoal()
         seedStarterDataIfEmpty()
         com.app.spent.util.ImageStorageHelper.deleteAllStoredImages(context)

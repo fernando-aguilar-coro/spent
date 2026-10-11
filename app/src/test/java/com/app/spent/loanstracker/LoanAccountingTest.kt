@@ -348,6 +348,13 @@ class LoanAccountingTest {
         override suspend fun insertCategories(categories: List<CategoryEntity>) {}
         override suspend fun insertCategory(category: CategoryEntity) {}
         override suspend fun updateCategory(category: CategoryEntity) {}
+        override suspend fun reassignTransactionsToGeneral(categoryId: String) {
+            transactionsMap.values.filter { it.categoryId == categoryId }.forEach {
+                transactionsMap[it.id] = it.copy(categoryId = "cat_general")
+            }
+            refresh()
+        }
+        override suspend fun reassignRecurringRulesToGeneral(categoryId: String) {}
         override suspend fun deleteCategoryById(id: String) {}
         override suspend fun deleteAllCategories() {}
 

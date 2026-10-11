@@ -169,8 +169,23 @@ class AssetRepositoryTest {
             updateFlows()
         }
 
+        override suspend fun insertHoldings(holdings: List<AssetHoldingEntity>) {
+            holdings.forEach { holdingsMap[it.id] = it }
+            updateFlows()
+        }
+
+        override suspend fun deleteAllHoldings() {
+            holdingsMap.clear()
+            updateFlows()
+        }
+
         override suspend fun deletePrice(symbol: String) {
             pricesMap.remove(symbol.uppercase())
+            updateFlows()
+        }
+
+        override suspend fun deleteAllPrices() {
+            pricesMap.clear()
             updateFlows()
         }
     }

@@ -80,12 +80,15 @@ class AssetRepositoryImpl(
             val totalPnLPct = if (totalCostBasis > 0) (totalUnrealizedPnL / totalCostBasis) * 100.0 else 0.0
 
             val totalDayChangeAmount = valuedAssets.sumOf { asset ->
-                val prevPrice = asset.effectiveUnitPrice / (1.0 + (asset.change24hPct / 100.0))
+                val denominator = (1.0 + (asset.change24hPct / 100.0)).coerceAtLeast(0.0001)
+                val prevPrice = asset.effectiveUnitPrice / denominator
                 val prevVal = asset.holding.quantity * prevPrice
                 asset.totalValuation - prevVal
             }
-            val previousDayTotal = totalValuation - totalDayChangeAmount
-            val totalDayChangePct = if (previousDayTotal > 0) (totalDayChangeAmount / previousDayTotal) * 100.0 else 0.0
+            val previousDayTotal = (totalValuation - totalDayChangeAmount).coerceAtLeast(0.0)
+            val totalDayChangePct = if (previousDayTotal > 0.0001) {
+                ((totalDayChangeAmount / previousDayTotal) * 100.0).coerceIn(-100.0, 10000.0)
+            } else 0.0
 
             PortfolioSummary(
                 totalValuation = totalValuation,
