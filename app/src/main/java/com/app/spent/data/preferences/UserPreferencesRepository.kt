@@ -130,23 +130,36 @@ class UserPreferencesRepository(private val context: Context) {
     preferences[PreferencesKeys.DARK_THEME_ENABLED]
   }
 
+  @Volatile
+  private var _cachedCurrencySymbol: String = LocaleHelper.getSystemCurrencySymbol(context)
+
+  @Volatile
+  private var _cachedCurrencyCode: String = LocaleHelper.inferCurrencyCode(_cachedCurrencySymbol, context)
+
+  val currentCurrencySymbol: String get() = _cachedCurrencySymbol
+  val currentCurrencyCode: String get() = _cachedCurrencyCode
+
   val currencySymbolFlow: Flow<String> get() = context.dataStore.data.map { preferences ->
     val storedSymbol = preferences[PreferencesKeys.CURRENCY_SYMBOL]
-    if (!storedSymbol.isNullOrBlank()) {
+    val symbol = if (!storedSymbol.isNullOrBlank()) {
       storedSymbol
     } else {
       LocaleHelper.getSystemCurrencySymbol(context)
     }
+    _cachedCurrencySymbol = symbol
+    symbol
   }
 
   val currencyCodeFlow: Flow<String> get() = context.dataStore.data.map { preferences ->
     val storedCode = preferences[PreferencesKeys.CURRENCY_CODE]
-    if (!storedCode.isNullOrBlank()) {
+    val code = if (!storedCode.isNullOrBlank()) {
       storedCode
     } else {
       val symbol = preferences[PreferencesKeys.CURRENCY_SYMBOL] ?: LocaleHelper.getSystemCurrencySymbol(context)
       LocaleHelper.inferCurrencyCode(symbol, context)
     }
+    _cachedCurrencyCode = code
+    code
   }
 
   val appLanguageFlow: Flow<String?> get() = context.dataStore.data.map { preferences ->
@@ -192,6 +205,8 @@ class UserPreferencesRepository(private val context: Context) {
   }
 
   suspend fun setCurrency(symbol: String, code: String) {
+    _cachedCurrencySymbol = symbol
+    _cachedCurrencyCode = code
     context.dataStore.edit { preferences ->
       preferences[PreferencesKeys.CURRENCY_SYMBOL] = symbol
       preferences[PreferencesKeys.CURRENCY_CODE] = code

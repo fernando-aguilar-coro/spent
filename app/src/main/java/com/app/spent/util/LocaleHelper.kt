@@ -20,14 +20,14 @@ object LocaleHelper {
    * Custom mapping of ISO-4217 Currency Codes to their user-friendly, standard display symbols.
    */
   val CUSTOM_CURRENCY_SYMBOLS: Map<String, String> = mapOf(
-    "BOB" to "Bs.",
+    "BOB" to "Bs",
     "USD" to "$",
     "VES" to "Bs.",
     "EUR" to "€",
     "PEN" to "S/",
     "COP" to "$",
     "MXN" to "$",
-    "ARS" to "ARS",
+    "ARS" to "$",
     "CLP" to "$",
     "UYU" to "$",
     "PYG" to "₲",
@@ -68,14 +68,14 @@ object LocaleHelper {
   )
 
   val SUPPORTED_CURRENCIES: List<CurrencyItem> = listOf(
-    CurrencyItem("BOB", "Bs.", "Bolivian Boliviano (Bs. • BOB)"),
+    CurrencyItem("BOB", "Bs", "Bolivian Boliviano (Bs • BOB)"),
     CurrencyItem("USD", "$", "US Dollar ($ • USD)"),
     CurrencyItem("VES", "Bs.", "Venezuelan Bolívar (Bs. • VES)"),
     CurrencyItem("EUR", "€", "Euro (€ • EUR)"),
     CurrencyItem("PEN", "S/", "Peruvian Sol (S/ • PEN)"),
     CurrencyItem("COP", "$", "Colombian Peso ($ • COP)"),
     CurrencyItem("MXN", "$", "Mexican Peso ($ • MXN)"),
-    CurrencyItem("ARS", "ARS", "Argentine Peso (ARS • ARS)"),
+    CurrencyItem("ARS", "$", "Argentine Peso ($ • ARS)"),
     CurrencyItem("CLP", "$", "Chilean Peso ($ • CLP)"),
     CurrencyItem("BRL", "R$", "Brazilian Real (R$ • BRL)"),
     CurrencyItem("GBP", "£", "British Pound (£ • GBP)"),
@@ -182,7 +182,14 @@ object LocaleHelper {
   }
 
   fun getCurrencyItemForSymbol(symbol: String): CurrencyItem? {
-    return SUPPORTED_CURRENCIES.find { it.symbol == symbol }
+    val clean = symbol.trim()
+    if (clean.equals("bs.", ignoreCase = true) || clean.equals("bs", ignoreCase = true)) {
+      return SUPPORTED_CURRENCIES.find { it.code == "BOB" }
+    }
+    if (clean.equals("ars", ignoreCase = true)) {
+      return SUPPORTED_CURRENCIES.find { it.code == "ARS" }
+    }
+    return SUPPORTED_CURRENCIES.find { it.symbol == clean }
   }
 
   fun getCurrencyItemForCode(code: String): CurrencyItem? {
@@ -208,9 +215,12 @@ object LocaleHelper {
       "₩", "KRW" -> return "KRW"
       "₹", "INR" -> return "INR"
       "$" -> {
-        val loc = getSystemPreferredLocale(context)
-        val country = loc.country.uppercase()
-        return COUNTRY_TO_CURRENCY_CODE[country] ?: "USD"
+        if (context != null) {
+          val loc = getSystemPreferredLocale(context)
+          val country = loc.country.uppercase()
+          return COUNTRY_TO_CURRENCY_CODE[country] ?: "USD"
+        }
+        return "USD"
       }
     }
     val itemByCode = SUPPORTED_CURRENCIES.find { it.code.equals(clean, ignoreCase = true) }

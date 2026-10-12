@@ -99,6 +99,7 @@ fun DashboardScreen(
             item {
                 DashboardHeaderCard(
                     currencySymbol = state.currencySymbol,
+                    currencyCode = state.currencyCode,
                     totalIncome = state.totalIncome,
                     totalSpent = state.totalSpent,
                     totalSavings = state.totalSavings,

@@ -53,7 +53,7 @@ fun AssetHoldingCard(
     asset: ValuedAsset,
     baseCurrency: String,
     onEditQuantity: () -> Unit,
-    onToggleManualPrice: () -> Unit,
+    onToggleManualPrice: () -> Unit = {},
     onDelete: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -189,13 +189,6 @@ fun AssetHoldingCard(
                         },
                         leadingIcon = {
                             Icon(Icons.Default.Edit, contentDescription = null)
-                        }
-                    )
-                    DropdownMenuItem(
-                        text = { Text(if (asset.isUsingManualPrice) "Use Market Price" else "Set Manual Price") },
-                        onClick = {
-                            menuExpanded = false
-                            onToggleManualPrice()
                         }
                     )
                     DropdownMenuItem(

@@ -13,11 +13,14 @@ import kotlinx.coroutines.launch
 class PortfolioViewModel(
     private val repository: AssetRepository,
     private val spentRepository: com.app.spent.data.repository.SpentRepository? = null
-) : BaseViewModel<PortfolioUiState, PortfolioUiIntent, PortfolioUiEffect>(PortfolioUiState()) {
+) : BaseViewModel<PortfolioUiState, PortfolioUiIntent, PortfolioUiEffect>(
+    PortfolioUiState(
+        baseCurrency = spentRepository?.currentCurrencyCode ?: "USD"
+    )
+) {
 
     init {
         observePortfolio()
-        onIntent(PortfolioUiIntent.RefreshPrices)
     }
 
     private fun observePortfolio() {

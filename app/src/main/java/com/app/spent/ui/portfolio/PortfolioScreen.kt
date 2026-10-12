@@ -206,15 +206,6 @@ fun PortfolioScreen(
                             asset = asset,
                             baseCurrency = state.baseCurrency,
                             onEditQuantity = { editingAsset = asset },
-                            onToggleManualPrice = {
-                                viewModel.onIntent(
-                                    PortfolioUiIntent.ToggleManualPrice(
-                                        assetId = asset.holding.id,
-                                        overridePrice = asset.effectiveUnitPrice,
-                                        isManual = !asset.holding.isManualPrice
-                                    )
-                                )
-                            },
                             onDelete = {
                                 viewModel.onIntent(PortfolioUiIntent.DeleteAsset(asset.holding.id))
                             }
@@ -229,7 +220,7 @@ fun PortfolioScreen(
     if (showAddDialog) {
         AddAssetDialog(
             onDismiss = { showAddDialog = false },
-            onConfirm = { symbol, name, type, quantity, buyPrice, manualPrice, isManual ->
+            onConfirm = { symbol, name, type, quantity, buyPrice ->
                 showAddDialog = false
                 viewModel.onIntent(
                     PortfolioUiIntent.AddAsset(
@@ -237,9 +228,7 @@ fun PortfolioScreen(
                         name = name,
                         type = type,
                         quantity = quantity,
-                        averageBuyPrice = buyPrice,
-                        manualPriceOverride = manualPrice,
-                        isManualPrice = isManual
+                        averageBuyPrice = buyPrice
                     )
                 )
             }

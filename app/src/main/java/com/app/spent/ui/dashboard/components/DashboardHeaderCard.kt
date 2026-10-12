@@ -42,9 +42,12 @@ import com.app.spent.ui.theme.IncomeGreenContainer
 import com.app.spent.ui.theme.SageGreenDark
 import com.app.spent.ui.theme.SageGreenLight
 import com.app.spent.ui.theme.SageGreenPrimary
+import com.app.spent.util.CurrencyFormatter
+
 @Composable
 fun DashboardHeaderCard(
 currencySymbol: String,
+currencyCode: String = "USD",
 totalIncome: Double,
 totalSpent: Double,
 totalSavings: Double = 0.0,
@@ -117,7 +120,7 @@ onToggleNetSavingsVisibility: () -> Unit = {}
       Spacer(modifier = Modifier.height(4.dp))
 
       Text(
-      text = if (isNetSavingsHidden) "••••••" else "$currencySymbol${"%.2f".format(netBalance)}",
+      text = if (isNetSavingsHidden) "••••••" else CurrencyFormatter.format(netBalance, currencySymbol, currencyCode),
       fontSize = 34.sp,
       fontWeight = FontWeight.Bold,
       color = Color.White
@@ -126,7 +129,7 @@ onToggleNetSavingsVisibility: () -> Unit = {}
       if (totalVariableAssetsValuation > 0.0 && !isNetSavingsHidden) {
         Spacer(modifier = Modifier.height(3.dp))
         Text(
-          text = "+$currencySymbol${"%.2f".format(totalVariableAssetsValuation)} in variable assets & currencies",
+          text = "+${CurrencyFormatter.format(totalVariableAssetsValuation, currencySymbol, currencyCode)} in variable assets & currencies",
           fontSize = 11.sp,
           fontWeight = FontWeight.Medium,
           color = Color.White.copy(alpha = 0.85f)
@@ -172,7 +175,7 @@ onToggleNetSavingsVisibility: () -> Unit = {}
             color = Color.White.copy(alpha = 0.75f)
             )
             Text(
-            text = if (isNetSavingsHidden) "••••" else "$currencySymbol${"%.2f".format(totalIncome)}",
+            text = if (isNetSavingsHidden) "••••" else CurrencyFormatter.format(totalIncome, currencySymbol, currencyCode),
             fontSize = 13.sp,
             fontWeight = FontWeight.Bold,
             color = Color.White
@@ -211,7 +214,7 @@ onToggleNetSavingsVisibility: () -> Unit = {}
             color = Color.White.copy(alpha = 0.75f)
             )
             Text(
-            text = if (isNetSavingsHidden) "••••" else "$currencySymbol${"%.2f".format(totalSpent)}",
+            text = if (isNetSavingsHidden) "••••" else CurrencyFormatter.format(totalSpent, currencySymbol, currencyCode),
             fontSize = 13.sp,
             fontWeight = FontWeight.Bold,
             color = Color.White
@@ -261,7 +264,7 @@ onToggleNetSavingsVisibility: () -> Unit = {}
           }
 
           Text(
-          text = if (isNetSavingsHidden) "•••• / day" else "$currencySymbol${"%.2f".format(safeToSpendToday)} / day",
+          text = if (isNetSavingsHidden) "•••• / day" else "${CurrencyFormatter.format(safeToSpendToday, currencySymbol, currencyCode)} / day",
           style = MaterialTheme.typography.labelMedium,
           fontSize = 12.sp,
           fontWeight = FontWeight.Bold,

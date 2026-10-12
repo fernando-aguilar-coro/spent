@@ -26,6 +26,8 @@ interface SpentRepository {
   val isDarkThemeFlow: Flow<Boolean?>
   val currencySymbolFlow: Flow<String>
   val currencyCodeFlow: Flow<String> get() = kotlinx.coroutines.flow.flowOf("USD")
+  val currentCurrencySymbol: String get() = "$"
+  val currentCurrencyCode: String get() = "USD"
   val appLanguageFlow: Flow<String?>
   val savingsGoalNameFlow: Flow<String>
   val savingsGoalTotalFlow: Flow<Double>

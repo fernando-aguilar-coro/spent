@@ -20,7 +20,12 @@ import kotlinx.coroutines.launch
 class DashboardViewModel(
     private val repository: SpentRepository,
     private val assetRepository: AssetRepository? = null
-) : BaseViewModel<DashboardUiState, DashboardUiIntent, DashboardUiEffect>(DashboardUiState()) {
+) : BaseViewModel<DashboardUiState, DashboardUiIntent, DashboardUiEffect>(
+    DashboardUiState(
+        currencySymbol = repository.currentCurrencySymbol,
+        currencyCode = repository.currentCurrencyCode
+    )
+) {
 
     init {
         observeData()

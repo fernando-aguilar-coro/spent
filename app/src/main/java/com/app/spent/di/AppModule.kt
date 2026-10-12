@@ -29,10 +29,14 @@ val appModule = module {
 
     // Remote & Simulation Market Price Providers
     single { com.app.spent.data.remote.ExchangeRateApiPriceProvider() }
+    single { com.app.spent.data.remote.CryptoPriceProvider(exchangeRateApiProvider = get()) }
+    single { com.app.spent.data.remote.StockPriceProvider(exchangeRateApiProvider = get()) }
     single<com.app.spent.domain.asset.MarketPriceProvider> {
         com.app.spent.domain.asset.CompositeMarketPriceProvider(
             exchangeRateApiProvider = get(),
-            simulatedEngine = com.app.spent.domain.asset.SimulatedMarketPriceEngine()
+            simulatedEngine = com.app.spent.domain.asset.SimulatedMarketPriceEngine(),
+            cryptoPriceProvider = get(),
+            stockPriceProvider = get()
         )
     }
 

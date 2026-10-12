@@ -1,26 +1,39 @@
 package com.app.spent.ui.portfolio.components
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ShowChart
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material.icons.filled.CurrencyBitcoin
+import androidx.compose.material.icons.filled.CurrencyExchange
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.FilterChip
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Switch
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -30,10 +43,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.app.spent.domain.asset.catalog.AssetCatalog
+import com.app.spent.domain.asset.catalog.CatalogAsset
 import com.app.spent.domain.asset.model.AssetType
 import com.app.spent.ui.theme.SageGreenPrimary
 
@@ -45,39 +62,30 @@ fun AddAssetDialog(
         name: String,
         type: AssetType,
         quantity: Double,
-        averageBuyPrice: Double?,
-        manualPriceOverride: Double?,
-        isManualPrice: Boolean
+        averageBuyPrice: Double?
     ) -> Unit
 ) {
-    var symbol by remember { mutableStateOf("") }
-    var name by remember { mutableStateOf("") }
-    var selectedType by remember { mutableStateOf(AssetType.STOCK) }
+    var searchQuery by remember { mutableStateOf("") }
+    var selectedCategoryFilter by remember { mutableStateOf<AssetType?>(null) }
+    var selectedAsset by remember { mutableStateOf<CatalogAsset?>(null) }
     var quantityText by remember { mutableStateOf("") }
     var buyPriceText by remember { mutableStateOf("") }
-    var manualPriceText by remember { mutableStateOf("") }
-    var isManualPrice by remember { mutableStateOf(false) }
 
-    val presetSymbols = listOf(
-        Triple("EUR", "Euro (Cash/Bank)", AssetType.FIAT),
-        Triple("GBP", "British Pound", AssetType.FIAT),
-        Triple("JPY", "Japanese Yen", AssetType.FIAT),
-        Triple("MXN", "Mexican Peso", AssetType.FIAT),
-        Triple("CAD", "Canadian Dollar", AssetType.FIAT),
-        Triple("CHF", "Swiss Franc", AssetType.FIAT),
-        Triple("USD", "US Dollar", AssetType.FIAT),
-        Triple("BTC", "Bitcoin", AssetType.CRYPTO),
-        Triple("ETH", "Ethereum", AssetType.CRYPTO),
-        Triple("AAPL", "Apple Inc.", AssetType.STOCK),
-        Triple("MSFT", "Microsoft", AssetType.STOCK),
-        Triple("XAU", "Gold (oz)", AssetType.COMMODITY)
-    )
+    val filteredList = remember(searchQuery, selectedCategoryFilter) {
+        val baseResults = AssetCatalog.search(searchQuery)
+        val filter = selectedCategoryFilter
+        if (filter != null) {
+            baseResults.filter { it.type == filter }
+        } else {
+            baseResults
+        }
+    }
 
     AlertDialog(
         onDismissRequest = onDismiss,
         title = {
             Text(
-                text = "Add Asset / Currency",
+                text = "Add Asset / Holding",
                 fontWeight = FontWeight.Bold,
                 fontSize = 20.sp
             )
@@ -86,152 +94,229 @@ fun AddAssetDialog(
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .verticalScroll(rememberScrollState())
             ) {
-                // Preset chips
-                Text(
-                    text = "Quick Presets & Currencies",
-                    style = MaterialTheme.typography.labelMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                Spacer(modifier = Modifier.height(6.dp))
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .horizontalScroll(rememberScrollState()),
-                    horizontalArrangement = Arrangement.spacedBy(6.dp)
-                ) {
-                    presetSymbols.forEach { (sym, n, type) ->
-                        FilterChip(
-                            selected = symbol.equals(sym, ignoreCase = true),
-                            onClick = {
-                                symbol = sym
-                                name = n
-                                selectedType = type
-                            },
-                            label = { Text(sym, fontSize = 12.sp) }
-                        )
-                    }
-                }
-
-                if (selectedType == AssetType.FIAT) {
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text(
-                        text = "• Live ECB rate via Frankfurter API automatically applied",
-                        fontSize = 11.sp,
-                        fontWeight = FontWeight.Medium,
-                        color = SageGreenPrimary
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(14.dp))
-
-                // Symbol input
-                OutlinedTextField(
-                    value = symbol,
-                    onValueChange = { symbol = it.uppercase() },
-                    label = { Text("Currency / Ticker Symbol (e.g. EUR, MXN, AAPL)") },
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth()
-                )
-
-                Spacer(modifier = Modifier.height(10.dp))
-
-                // Name input
-                OutlinedTextField(
-                    value = name,
-                    onValueChange = { name = it },
-                    label = { Text("Asset / Wallet Name (e.g. Euro Cash, Bank MXN)") },
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth()
-                )
-
-                Spacer(modifier = Modifier.height(14.dp))
-
-                // Asset Type Selector
-                Text(
-                    text = "Category",
-                    style = MaterialTheme.typography.labelMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                Spacer(modifier = Modifier.height(6.dp))
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .horizontalScroll(rememberScrollState()),
-                    horizontalArrangement = Arrangement.spacedBy(6.dp)
-                ) {
-                    AssetType.entries.forEach { type ->
-                        FilterChip(
-                            selected = selectedType == type,
-                            onClick = { selectedType = type },
-                            label = { Text(type.name, fontSize = 11.sp) }
-                        )
-                    }
-                }
-
-                Spacer(modifier = Modifier.height(14.dp))
-
-                // Quantity input
-                OutlinedTextField(
-                    value = quantityText,
-                    onValueChange = { quantityText = it },
-                    label = { Text(if (selectedType == AssetType.FIAT) "Amount held in $symbol" else "Units / Quantity Owned") },
-                    placeholder = { Text(if (selectedType == AssetType.FIAT) "e.g. 500.00" else "e.g. 5.5") },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth()
-                )
-
-                Spacer(modifier = Modifier.height(10.dp))
-
-                // Average Purchase Price (Cost Basis)
-                OutlinedTextField(
-                    value = buyPriceText,
-                    onValueChange = { buyPriceText = it },
-                    label = { Text("Avg Purchase Price (optional for P&L)") },
-                    placeholder = { Text("e.g. 210.00") },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth()
-                )
-
-                Spacer(modifier = Modifier.height(14.dp))
-
-                // Manual Price toggle
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Column(modifier = Modifier.weight(1f)) {
-                        Text(
-                            text = "Manual Fixed Price",
-                            fontWeight = FontWeight.SemiBold,
-                            fontSize = 14.sp
-                        )
-                        Text(
-                            text = "Override dynamic market quotes",
-                            fontSize = 11.sp,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                    Switch(
-                        checked = isManualPrice,
-                        onCheckedChange = { isManualPrice = it }
-                    )
-                }
-
-                if (isManualPrice) {
-                    Spacer(modifier = Modifier.height(10.dp))
+                if (selectedAsset == null) {
+                    // Search box
                     OutlinedTextField(
-                        value = manualPriceText,
-                        onValueChange = { manualPriceText = it },
-                        label = { Text("Manual Unit Price") },
+                        value = searchQuery,
+                        onValueChange = { searchQuery = it },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 8.dp),
+                        placeholder = { Text("Search currency, stock, crypto…", fontSize = 13.sp) },
+                        leadingIcon = {
+                            Icon(
+                                imageVector = Icons.Default.Search,
+                                contentDescription = "Search",
+                                modifier = Modifier.size(18.dp)
+                            )
+                        },
+                        trailingIcon = {
+                            if (searchQuery.isNotEmpty()) {
+                                IconButton(onClick = { searchQuery = "" }) {
+                                    Icon(
+                                        imageVector = Icons.Default.Clear,
+                                        contentDescription = "Clear",
+                                        modifier = Modifier.size(18.dp)
+                                    )
+                                }
+                            }
+                        },
+                        singleLine = true,
+                        shape = RoundedCornerShape(12.dp)
+                    )
+
+                    // Quick category chips
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 8.dp),
+                        horizontalArrangement = Arrangement.spacedBy(6.dp)
+                    ) {
+                        FilterChip(
+                            selected = selectedCategoryFilter == null,
+                            onClick = { selectedCategoryFilter = null },
+                            label = { Text("All", fontSize = 11.sp) }
+                        )
+                        FilterChip(
+                            selected = selectedCategoryFilter == AssetType.FIAT,
+                            onClick = { selectedCategoryFilter = AssetType.FIAT },
+                            label = { Text("Currencies", fontSize = 11.sp) }
+                        )
+                        FilterChip(
+                            selected = selectedCategoryFilter == AssetType.CRYPTO,
+                            onClick = { selectedCategoryFilter = AssetType.CRYPTO },
+                            label = { Text("Crypto", fontSize = 11.sp) }
+                        )
+                        FilterChip(
+                            selected = selectedCategoryFilter == AssetType.STOCK,
+                            onClick = { selectedCategoryFilter = AssetType.STOCK },
+                            label = { Text("Stocks", fontSize = 11.sp) }
+                        )
+                    }
+
+                    // Catalog items list
+                    LazyColumn(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .heightIn(max = 260.dp),
+                        verticalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        items(filteredList, key = { it.symbol }) { item ->
+                            val itemColor = when (item.type) {
+                                AssetType.CRYPTO -> Color(0xFFF59E0B)
+                                AssetType.STOCK -> Color(0xFF3B82F6)
+                                else -> SageGreenPrimary
+                            }
+                            val itemIcon = when (item.type) {
+                                AssetType.CRYPTO -> Icons.Default.CurrencyBitcoin
+                                AssetType.STOCK -> Icons.AutoMirrored.Filled.ShowChart
+                                else -> Icons.Default.CurrencyExchange
+                            }
+
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clip(RoundedCornerShape(10.dp))
+                                    .clickable { selectedAsset = item }
+                                    .padding(vertical = 8.dp, horizontal = 6.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Box(
+                                    modifier = Modifier
+                                        .size(32.dp)
+                                        .clip(CircleShape)
+                                        .background(itemColor.copy(alpha = 0.15f)),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Icon(
+                                        imageVector = itemIcon,
+                                        contentDescription = item.type.name,
+                                        tint = itemColor,
+                                        modifier = Modifier.size(16.dp)
+                                    )
+                                }
+                                Spacer(modifier = Modifier.width(10.dp))
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Text(
+                                        text = "${item.name} (${item.symbol})",
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        fontWeight = FontWeight.SemiBold
+                                    )
+                                    if (!item.description.isNullOrBlank()) {
+                                        Text(
+                                            text = item.description,
+                                            fontSize = 11.sp,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                                        )
+                                    }
+                                }
+                                Surface(
+                                    shape = RoundedCornerShape(6.dp),
+                                    color = itemColor.copy(alpha = 0.12f)
+                                ) {
+                                    Text(
+                                        text = item.type.name,
+                                        fontSize = 10.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = itemColor,
+                                        modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                                    )
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    // Selected Asset Banner
+                    val asset = selectedAsset!!
+                    val itemColor = when (asset.type) {
+                        AssetType.CRYPTO -> Color(0xFFF59E0B)
+                        AssetType.STOCK -> Color(0xFF3B82F6)
+                        else -> SageGreenPrimary
+                    }
+
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(12.dp))
+                            .background(itemColor.copy(alpha = 0.10f))
+                            .padding(12.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Box(
+                                modifier = Modifier
+                                    .size(36.dp)
+                                    .clip(CircleShape)
+                                    .background(itemColor.copy(alpha = 0.2f)),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Check,
+                                    contentDescription = null,
+                                    tint = itemColor,
+                                    modifier = Modifier.size(18.dp)
+                                )
+                            }
+                            Spacer(modifier = Modifier.width(10.dp))
+                            Column {
+                                Text(
+                                    text = "${asset.name} (${asset.symbol})",
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    fontWeight = FontWeight.Bold
+                                )
+                                Text(
+                                    text = "Auto-priced from live market feed",
+                                    fontSize = 11.sp,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                        }
+
+                        IconButton(
+                            onClick = { selectedAsset = null },
+                            modifier = Modifier.size(28.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Clear,
+                                contentDescription = "Change Asset",
+                                modifier = Modifier.size(18.dp)
+                            )
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(14.dp))
+
+                    // Quantity input
+                    OutlinedTextField(
+                        value = quantityText,
+                        onValueChange = { quantityText = it },
+                        label = { Text(if (asset.type == AssetType.FIAT) "Amount held in ${asset.symbol}" else "Quantity / Units Owned") },
+                        placeholder = { Text(if (asset.type == AssetType.FIAT) "e.g. 500.00" else "e.g. 10.5") },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth()
+                    )
+
+                    Spacer(modifier = Modifier.height(10.dp))
+
+                    // Average Buy Price (optional)
+                    OutlinedTextField(
+                        value = buyPriceText,
+                        onValueChange = { buyPriceText = it },
+                        label = { Text("Avg Purchase Price (optional for P&L)") },
+                        placeholder = { Text("e.g. 180.00") },
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
+                    Spacer(modifier = Modifier.height(6.dp))
+                    Text(
+                        text = "• Live market valuations are automatically calculated in your active currency.",
+                        fontSize = 11.sp,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
             }
@@ -239,25 +324,23 @@ fun AddAssetDialog(
         confirmButton = {
             Button(
                 onClick = {
+                    val asset = selectedAsset
                     val quantity = quantityText.toDoubleOrNull() ?: 0.0
                     val buyPrice = buyPriceText.toDoubleOrNull()
-                    val manualPrice = manualPriceText.toDoubleOrNull()
-                    if (symbol.isNotBlank() && quantity > 0) {
+                    if (asset != null && quantity > 0) {
                         onConfirm(
-                            symbol.trim().uppercase(),
-                            name.trim(),
-                            selectedType,
+                            asset.symbol,
+                            asset.name,
+                            asset.type,
                             quantity,
-                            buyPrice,
-                            manualPrice,
-                            isManualPrice
+                            buyPrice
                         )
                     }
                 },
-                enabled = symbol.isNotBlank() && (quantityText.toDoubleOrNull() ?: 0.0) > 0,
+                enabled = selectedAsset != null && (quantityText.toDoubleOrNull() ?: 0.0) > 0,
                 colors = ButtonDefaults.buttonColors(containerColor = SageGreenPrimary)
             ) {
-                Text("Add Asset")
+                Text("Add Holding")
             }
         },
         dismissButton = {

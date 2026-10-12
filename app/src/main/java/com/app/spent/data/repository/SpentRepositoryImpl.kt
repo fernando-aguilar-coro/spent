@@ -49,6 +49,8 @@ class SpentRepositoryImpl(
     override val isDarkThemeFlow: Flow<Boolean?> get() = preferencesRepository.isDarkThemeFlow
     override val currencySymbolFlow: Flow<String> get() = preferencesRepository.currencySymbolFlow
     override val currencyCodeFlow: Flow<String> get() = preferencesRepository.currencyCodeFlow
+    override val currentCurrencySymbol: String get() = preferencesRepository.currentCurrencySymbol
+    override val currentCurrencyCode: String get() = preferencesRepository.currentCurrencyCode
     override val appLanguageFlow: Flow<String?> get() = preferencesRepository.appLanguageFlow
     override val savingsGoalNameFlow: Flow<String> get() = preferencesRepository.savingsGoalNameFlow
     override val savingsGoalTotalFlow: Flow<Double> get() = preferencesRepository.savingsGoalTotalFlow
