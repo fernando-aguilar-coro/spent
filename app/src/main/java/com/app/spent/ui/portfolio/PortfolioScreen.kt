@@ -219,6 +219,7 @@ fun PortfolioScreen(
     // Add Asset Dialog
     if (showAddDialog) {
         AddAssetDialog(
+            baseCurrency = state.baseCurrency,
             onDismiss = { showAddDialog = false },
             onConfirm = { symbol, name, type, quantity, buyPrice ->
                 showAddDialog = false
@@ -240,6 +241,7 @@ fun PortfolioScreen(
         EditQuantityDialog(
             symbol = asset.holding.symbol,
             currentQuantity = asset.holding.quantity,
+            unitPrice = asset.effectiveUnitPrice,
             onDismiss = { editingAsset = null },
             onConfirm = { newQty ->
                 editingAsset = null
