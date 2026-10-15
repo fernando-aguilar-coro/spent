@@ -415,6 +415,7 @@
     <string name="theme_dark">Scuro</string>
     <string name="currency_title">Valuta</string>
     <string name="currency_desc">Seleziona il tuo simbolo di valuta preferito</string>
+    <string name="currency_change_notice">Azioni, criptovalute e altri asset verranno aggiornati in base alla valuta scelta. Gli acquisti e le spese comuni non verranno convertiti: cambierà solo il simbolo della valuta.</string>
     <string name="language_title">Lingua / Language</string>
     <string name="language_desc">Scegli la lingua di visualizzazione dell\'app</string>
     <string name="language_system">Predefinito di sistema</string>

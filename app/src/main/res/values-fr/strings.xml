@@ -414,6 +414,7 @@
     <string name="theme_dark">Sombre</string>
     <string name="currency_title">Devise</string>
     <string name="currency_desc">Sélectionnez votre symbole monétaire préféré</string>
+    <string name="currency_change_notice">Les actions, cryptomonnaies et autres actifs seront mis à jour dans la devise choisie. Les achats et dépenses courants ne seront pas convertis ; seul leur symbole monétaire changera.</string>
     <string name="language_title">Langue / Idioma</string>
     <string name="language_desc">Choisir la langue d\'affichage de l\'application</string>
     <string name="language_system">Par défaut du système</string>

@@ -426,6 +426,7 @@
     <string name="theme_dark">Dark</string>
     <string name="currency_title">Currency</string>
     <string name="currency_desc">Select your preferred currency symbol</string>
+    <string name="currency_change_notice">Stocks, cryptocurrencies, and other assets will update to reflect the selected currency. Common purchases and expenses will not be converted; only their currency symbol will change.</string>
     <string name="language_title">Language / Idioma</string>
     <string name="language_desc">Choose application display language</string>
     <string name="language_system">System Default</string>

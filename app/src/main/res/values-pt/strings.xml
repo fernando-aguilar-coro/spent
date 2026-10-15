@@ -415,6 +415,7 @@
     <string name="theme_dark">Escuro</string>
     <string name="currency_title">Moeda</string>
     <string name="currency_desc">Selecione seu símbolo de moeda preferido</string>
+    <string name="currency_change_notice">Ações, criptomoedas e outros ativos serão atualizados para refletir a moeda escolhida. Compras e despesas comuns não serão convertidas; apenas o símbolo da moeda mudará.</string>
     <string name="language_title">Idioma / Language</string>
     <string name="language_desc">Escolha o idioma de exibição do aplicativo</string>
     <string name="language_system">Padrão do Sistema</string>

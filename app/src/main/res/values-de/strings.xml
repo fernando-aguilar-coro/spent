@@ -415,6 +415,7 @@
     <string name="theme_dark">Dunkel</string>
     <string name="currency_title">Währung</string>
     <string name="currency_desc">Bevorzugtes Währungssymbol wählen</string>
+    <string name="currency_change_notice">Aktien, Kryptowährungen und andere Vermögenswerte werden aktualisiert, um die gewählte Währung widerzuspiegeln. Übliche Käufe und Ausgaben werden nicht umgerechnet; nur das Währungssymbol ändert sich.</string>
     <string name="language_title">Sprache / Language</string>
     <string name="language_desc">Anzeigesprache der App wählen</string>
     <string name="language_system">Systemstandard</string>

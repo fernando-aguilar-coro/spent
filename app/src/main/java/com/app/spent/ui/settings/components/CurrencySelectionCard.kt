@@ -28,6 +28,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.RadioButton
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -176,10 +177,25 @@ fun CurrencyPickerDialog(
           )
         )
 
+        Surface(
+          modifier = Modifier
+            .fillMaxWidth()
+            .padding(bottom = 12.dp),
+          shape = RoundedCornerShape(12.dp),
+          color = MaterialTheme.colorScheme.secondaryContainer
+        ) {
+          Text(
+            text = stringResource(R.string.currency_change_notice),
+            modifier = Modifier.padding(12.dp),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSecondaryContainer
+          )
+        }
+
         LazyColumn(
           modifier = Modifier
             .fillMaxWidth()
-            .heightIn(max = 380.dp)
+            .heightIn(max = 320.dp)
         ) {
           items(filteredList, key = { it.code }) { item ->
             val isSelected = if (currentCurrencyCode.isNotBlank()) {

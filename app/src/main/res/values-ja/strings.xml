@@ -415,6 +415,7 @@
     <string name="theme_dark">ダーク</string>
     <string name="currency_title">通貨</string>
     <string name="currency_desc">使用する通貨記号を選択</string>
+    <string name="currency_change_notice">株式、暗号資産などの資産は、選択した通貨に合わせて更新されます。通常の購入や支出は換算されず、通貨記号のみが変更されます。</string>
     <string name="language_title">言語 / Language</string>
     <string name="language_desc">アプリの表示言語を選択</string>
     <string name="language_system">システム設定に従う</string>

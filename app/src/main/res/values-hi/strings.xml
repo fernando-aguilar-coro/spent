@@ -415,6 +415,7 @@
     <string name="theme_dark">डार्क</string>
     <string name="currency_title">मुद्रा</string>
     <string name="currency_desc">अपना पसंदीदा मुद्रा प्रतीक चुनें</string>
+    <string name="currency_change_notice">स्टॉक, क्रिप्टोकरेंसी और अन्य संपत्तियाँ चुनी गई मुद्रा के अनुसार अपडेट होंगी। सामान्य खरीदारी और खर्चों का रूपांतरण नहीं होगा; केवल मुद्रा का प्रतीक बदलेगा।</string>
     <string name="language_title">भाषा (Language)</string>
     <string name="language_desc">एप्लिकेशन प्रदर्शन भाषा चुनें</string>
     <string name="language_system">सिस्टम डिफ़ॉल्ट</string>

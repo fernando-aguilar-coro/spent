@@ -425,6 +425,7 @@
     <string name="theme_dark">Oscuro</string>
     <string name="currency_title">Moneda</string>
     <string name="currency_desc">Selecciona tu símbolo de moneda preferido</string>
+    <string name="currency_change_notice">Las acciones, criptomonedas y otros activos se actualizarán para reflejar la moneda elegida. Las compras y los gastos comunes no se convertirán; solo cambiará su símbolo de moneda.</string>
     <string name="language_title">Idioma / Language</string>
     <string name="language_desc">Elige el idioma visual de la aplicación</string>
     <string name="language_system">Predeterminado del Sistema</string>

@@ -415,6 +415,7 @@
     <string name="theme_dark">Mörkt</string>
     <string name="currency_title">Valuta</string>
     <string name="currency_desc">Välj din föredragna valutasymbol</string>
+    <string name="currency_change_notice">Aktier, kryptovalutor och andra tillgångar uppdateras för att återspegla den valda valutan. Vanliga köp och utgifter konverteras inte; endast valutasymbolen ändras.</string>
     <string name="language_title">Språk / Language</string>
     <string name="language_desc">Välj programmets visningsspråk</string>
     <string name="language_system">Systemstandard</string>
