@@ -4,6 +4,7 @@ import com.app.spent.data.local.entity.AssetHoldingEntity
 import com.app.spent.data.local.entity.MarketPriceEntity
 import com.app.spent.data.repository.AssetRepository
 import com.app.spent.domain.asset.model.AssetType
+import com.app.spent.domain.asset.model.MarketQuote
 import com.app.spent.domain.asset.model.PortfolioSummary
 import com.app.spent.domain.asset.model.ValuedAsset
 import com.app.spent.ui.portfolio.PortfolioUiEffect
@@ -71,6 +72,26 @@ class PortfolioViewModelTest {
         val state = viewModel.uiState.value
         assertEquals(1, state.portfolioSummary.assets.size)
         assertEquals("AAPL", state.portfolioSummary.assets.first().holding.symbol)
+    }
+
+    @Test
+    fun testAddStockFromUsdValueCalculatesUnitsFromCurrentQuote() = runTest {
+        advanceUntilIdle()
+
+        viewModel.onIntent(
+            PortfolioUiIntent.AddAsset(
+                symbol = "AAPL",
+                name = "Apple Inc.",
+                type = AssetType.STOCK,
+                quantity = 0.0,
+                totalValueUsd = 1000.0
+            )
+        )
+        advanceUntilIdle()
+
+        val holding = viewModel.uiState.value.portfolioSummary.assets.first().holding
+        assertEquals(5.0, holding.quantity, 0.001)
+        assertTrue(holding.averageBuyPrice == null)
     }
 
     @Test
@@ -155,6 +176,9 @@ class PortfolioViewModelTest {
         override fun getHoldingsFlow(): Flow<List<AssetHoldingEntity>> = MutableStateFlow(holdings)
         override fun getMarketPricesFlow(): Flow<List<MarketPriceEntity>> = MutableStateFlow(emptyList())
         override fun getPortfolioSummaryFlow(baseCurrency: String): Flow<PortfolioSummary> = summaryFlow
+
+        override suspend fun getQuote(symbol: String, baseCurrency: String): MarketQuote? =
+            MarketQuote(symbol = symbol, priceInBaseCurrency = 200.0)
 
         override suspend fun refreshPrices(baseCurrency: String): Result<Unit> = Result.success(Unit)
 

@@ -5,6 +5,7 @@ import com.app.spent.data.local.entity.AssetHoldingEntity
 import com.app.spent.data.local.entity.MarketPriceEntity
 import com.app.spent.domain.asset.MarketPriceProvider
 import com.app.spent.domain.asset.SimulatedMarketPriceEngine
+import com.app.spent.domain.asset.model.MarketQuote
 import com.app.spent.domain.asset.model.PortfolioSummary
 import com.app.spent.domain.asset.model.ValuedAsset
 import kotlinx.coroutines.flow.Flow
@@ -14,6 +15,7 @@ interface AssetRepository {
     fun getHoldingsFlow(): Flow<List<AssetHoldingEntity>>
     fun getMarketPricesFlow(): Flow<List<MarketPriceEntity>>
     fun getPortfolioSummaryFlow(baseCurrency: String = "USD"): Flow<PortfolioSummary>
+    suspend fun getQuote(symbol: String, baseCurrency: String = "USD"): MarketQuote?
     suspend fun refreshPrices(baseCurrency: String = "USD"): Result<Unit>
     suspend fun simulateMarketTick(baseCurrency: String = "USD"): Result<Unit>
     suspend fun addAsset(holding: AssetHoldingEntity)
@@ -100,6 +102,10 @@ class AssetRepositoryImpl(
                 assets = valuedAssets
             )
         }
+    }
+
+    override suspend fun getQuote(symbol: String, baseCurrency: String): MarketQuote? {
+        return priceProvider.getQuote(symbol.trim().uppercase(), baseCurrency)
     }
 
     override suspend fun refreshPrices(baseCurrency: String): Result<Unit> = runCatching {

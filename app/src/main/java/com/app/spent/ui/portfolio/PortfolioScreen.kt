@@ -221,7 +221,7 @@ fun PortfolioScreen(
         AddAssetDialog(
             baseCurrency = state.baseCurrency,
             onDismiss = { showAddDialog = false },
-            onConfirm = { symbol, name, type, quantity, buyPrice ->
+            onConfirm = { symbol, name, type, quantity, buyPrice, totalValueUsd ->
                 showAddDialog = false
                 viewModel.onIntent(
                     PortfolioUiIntent.AddAsset(
@@ -229,7 +229,8 @@ fun PortfolioScreen(
                         name = name,
                         type = type,
                         quantity = quantity,
-                        averageBuyPrice = buyPrice
+                        averageBuyPrice = buyPrice,
+                        totalValueUsd = totalValueUsd
                     )
                 )
             }

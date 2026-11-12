@@ -53,7 +53,6 @@ import com.app.spent.domain.asset.catalog.AssetCatalog
 import com.app.spent.domain.asset.catalog.CatalogAsset
 import com.app.spent.domain.asset.model.AssetType
 import com.app.spent.ui.theme.SageGreenPrimary
-import java.util.Locale
 
 enum class AddAssetInputMode { UNITS, USD_VALUE }
 
@@ -66,7 +65,8 @@ fun AddAssetDialog(
         name: String,
         type: AssetType,
         quantity: Double,
-        averageBuyPrice: Double?
+        averageBuyPrice: Double?,
+        totalValueUsd: Double?
     ) -> Unit
 ) {
     var searchQuery by remember { mutableStateOf("") }
@@ -87,7 +87,13 @@ fun AddAssetDialog(
         }
     }
 
-    val computedQuantity: Double = remember(inputMode, quantityText, totalUsdText, buyPriceText) {
+    val computedQuantity: Double = remember(
+        selectedAsset?.type,
+        inputMode,
+        quantityText,
+        totalUsdText,
+        buyPriceText
+    ) {
         if (inputMode == AddAssetInputMode.UNITS) {
             quantityText.toDoubleOrNull() ?: 0.0
         } else {
@@ -308,73 +314,83 @@ fun AddAssetDialog(
 
                     Spacer(modifier = Modifier.height(12.dp))
 
-                    // Input Mode Selector
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(bottom = 6.dp),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        FilterChip(
-                            selected = inputMode == AddAssetInputMode.UNITS,
-                            onClick = { inputMode = AddAssetInputMode.UNITS },
-                            label = { Text("Por Unidades", fontSize = 11.sp) }
-                        )
-                        FilterChip(
-                            selected = inputMode == AddAssetInputMode.USD_VALUE,
-                            onClick = { inputMode = AddAssetInputMode.USD_VALUE },
-                            label = { Text("Por Valor Total ($baseCurrency)", fontSize = 11.sp) }
-                        )
-                    }
-
-                    if (inputMode == AddAssetInputMode.UNITS) {
-                        OutlinedTextField(
-                            value = quantityText,
-                            onValueChange = { quantityText = it },
-                            label = { Text(if (asset.type == AssetType.FIAT) "Cantidad en ${asset.symbol}" else "Unidades / Acciones") },
-                            placeholder = { Text(if (asset.type == AssetType.FIAT) "e.g. 500.00" else "e.g. 10.5") },
-                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                            singleLine = true,
-                            modifier = Modifier.fillMaxWidth()
-                        )
-                    } else {
+                    if (asset.type == AssetType.STOCK) {
                         OutlinedTextField(
                             value = totalUsdText,
                             onValueChange = { totalUsdText = it },
-                            label = { Text("Valor Total Equivalente ($baseCurrency)") },
+                            label = { Text("Valor total que tienes en USD ($)") },
                             placeholder = { Text("e.g. 1000.00") },
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                             singleLine = true,
                             modifier = Modifier.fillMaxWidth()
                         )
-                    }
-
-                    Spacer(modifier = Modifier.height(10.dp))
-
-                    // Average Buy Price
-                    OutlinedTextField(
-                        value = buyPriceText,
-                        onValueChange = { buyPriceText = it },
-                        label = { Text("Precio de Compra por Unidad ($baseCurrency)") },
-                        placeholder = { Text("e.g. 180.00") },
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                        singleLine = true,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-
-                    if (inputMode == AddAssetInputMode.USD_VALUE && computedQuantity > 0) {
                         Spacer(modifier = Modifier.height(6.dp))
                         Text(
-                            text = "Acciones calculadas: ${String.format(Locale.US, "%.4f", computedQuantity)}",
+                            text = "Las unidades se calcularán con la cotización actual.",
                             fontSize = 12.sp,
-                            color = SageGreenPrimary,
-                            fontWeight = FontWeight.SemiBold
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    } else {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(bottom = 6.dp),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            FilterChip(
+                                selected = inputMode == AddAssetInputMode.UNITS,
+                                onClick = { inputMode = AddAssetInputMode.UNITS },
+                                label = { Text("Por Unidades", fontSize = 11.sp) }
+                            )
+                            FilterChip(
+                                selected = inputMode == AddAssetInputMode.USD_VALUE,
+                                onClick = { inputMode = AddAssetInputMode.USD_VALUE },
+                                label = { Text("Por Valor Total ($baseCurrency)", fontSize = 11.sp) }
+                            )
+                        }
+
+                        if (inputMode == AddAssetInputMode.UNITS) {
+                            OutlinedTextField(
+                                value = quantityText,
+                                onValueChange = { quantityText = it },
+                                label = { Text(if (asset.type == AssetType.FIAT) "Cantidad en ${asset.symbol}" else "Unidades") },
+                                placeholder = { Text("e.g. 10.5") },
+                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                                singleLine = true,
+                                modifier = Modifier.fillMaxWidth()
+                            )
+                        } else {
+                            OutlinedTextField(
+                                value = totalUsdText,
+                                onValueChange = { totalUsdText = it },
+                                label = { Text("Valor Total Equivalente ($baseCurrency)") },
+                                placeholder = { Text("e.g. 1000.00") },
+                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                                singleLine = true,
+                                modifier = Modifier.fillMaxWidth()
+                            )
+                        }
+
+                        Spacer(modifier = Modifier.height(10.dp))
+
+                        OutlinedTextField(
+                            value = buyPriceText,
+                            onValueChange = { buyPriceText = it },
+                            label = { Text("Precio de Compra por Unidad ($baseCurrency)") },
+                            placeholder = { Text("e.g. 180.00") },
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                            singleLine = true,
+                            modifier = Modifier.fillMaxWidth()
                         )
                     }
 
                     Spacer(modifier = Modifier.height(6.dp))
                     Text(
-                        text = "• Live market valuations are automatically calculated in your active currency.",
+                        text = if (asset.type == AssetType.STOCK) {
+                            "• El valor de mercado se mostrará en tu moneda activa."
+                        } else {
+                            "• Live market valuations are automatically calculated in your active currency."
+                        },
                         fontSize = 11.sp,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -385,18 +401,32 @@ fun AddAssetDialog(
             Button(
                 onClick = {
                     val asset = selectedAsset
-                    val buyPrice = buyPriceText.toDoubleOrNull()
-                    if (asset != null && computedQuantity > 0) {
+                    val isStock = asset?.type == AssetType.STOCK
+                    val totalValueUsd = if (isStock) {
+                        totalUsdText.toDoubleOrNull()?.takeIf { it.isFinite() && it > 0.0 }
+                    } else {
+                        null
+                    }
+                    val quantity = if (isStock) 0.0 else computedQuantity
+                    val buyPrice = if (isStock) null else buyPriceText.toDoubleOrNull()
+                    if (asset != null && (totalValueUsd ?: quantity) > 0) {
                         onConfirm(
                             asset.symbol,
                             asset.name,
                             asset.type,
-                            computedQuantity,
-                            buyPrice
+                            quantity,
+                            buyPrice,
+                            totalValueUsd
                         )
                     }
                 },
-                enabled = selectedAsset != null && computedQuantity > 0,
+                enabled = selectedAsset != null && (
+                    if (selectedAsset?.type == AssetType.STOCK) {
+                        totalUsdText.toDoubleOrNull()?.let { it.isFinite() && it > 0.0 } == true
+                    } else {
+                        computedQuantity > 0
+                    }
+                ),
                 colors = ButtonDefaults.buttonColors(containerColor = SageGreenPrimary)
             ) {
                 Text("Add Holding")

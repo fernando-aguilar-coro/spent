@@ -34,6 +34,7 @@ sealed interface PortfolioUiIntent : UiIntent {
         val type: AssetType,
         val quantity: Double,
         val averageBuyPrice: Double? = null,
+        val totalValueUsd: Double? = null,
         val manualPriceOverride: Double? = null,
         val isManualPrice: Boolean = false,
         val notes: String? = null

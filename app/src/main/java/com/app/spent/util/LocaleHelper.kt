@@ -326,6 +326,7 @@ object LocaleHelper {
         "pt" -> return "R$"
         "de", "fr", "it" -> return "€"
         "sv" -> return "kr"
+        "ko" -> return "₩"
       }
     }
 
@@ -347,6 +348,7 @@ object LocaleHelper {
       "ja" -> Locale.JAPANESE
       "hi" -> Locale.forLanguageTag("hi")
       "sv" -> Locale.forLanguageTag("sv")
+      "ko" -> Locale.KOREAN
       else -> getSystemPreferredLocale(context)
     }
   }

@@ -5,6 +5,7 @@ import com.app.spent.data.local.entity.AssetHoldingEntity
 import com.app.spent.data.repository.AssetRepository
 import com.app.spent.domain.asset.model.AssetType
 import com.app.spent.ui.mvi.BaseViewModel
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.launch
@@ -108,19 +109,46 @@ class PortfolioViewModel(
 
     private fun addAsset(intent: PortfolioUiIntent.AddAsset) {
         viewModelScope.launch {
-            val holding = AssetHoldingEntity(
-                symbol = intent.symbol.trim().uppercase(),
-                name = intent.name.trim().ifBlank { intent.symbol.trim().uppercase() },
-                type = intent.type.name,
-                quantity = intent.quantity,
-                averageBuyPrice = intent.averageBuyPrice,
-                currency = currentState.baseCurrency,
-                manualPriceOverride = intent.manualPriceOverride,
-                isManualPrice = intent.isManualPrice,
-                notes = intent.notes
-            )
-            repository.addAsset(holding)
-            sendEffect(PortfolioUiEffect.ShowToast("Added ${holding.symbol} to portfolio"))
+            try {
+                val symbol = intent.symbol.trim().uppercase()
+                val quantity = if (intent.totalValueUsd != null) {
+                    if (!intent.totalValueUsd.isFinite() || intent.totalValueUsd <= 0.0) {
+                        sendEffect(PortfolioUiEffect.ShowToast("Enter a valid positive USD amount for $symbol"))
+                        return@launch
+                    }
+                    val quote = repository.getQuote(symbol, "USD")
+                    val unitPriceUsd = quote?.priceInBaseCurrency
+                    if (unitPriceUsd == null || !unitPriceUsd.isFinite() || unitPriceUsd <= 0.0) {
+                        sendEffect(PortfolioUiEffect.ShowToast("Could not get a valid USD quote for $symbol"))
+                        return@launch
+                    }
+                    intent.totalValueUsd / unitPriceUsd
+                } else {
+                    intent.quantity
+                }
+                if (!quantity.isFinite() || quantity <= 0.0) {
+                    sendEffect(PortfolioUiEffect.ShowToast("The holding quantity for $symbol is invalid"))
+                    return@launch
+                }
+
+                val holding = AssetHoldingEntity(
+                    symbol = symbol,
+                    name = intent.name.trim().ifBlank { symbol },
+                    type = intent.type.name,
+                    quantity = quantity,
+                    averageBuyPrice = intent.averageBuyPrice,
+                    currency = currentState.baseCurrency,
+                    manualPriceOverride = intent.manualPriceOverride,
+                    isManualPrice = intent.isManualPrice,
+                    notes = intent.notes
+                )
+                repository.addAsset(holding)
+                sendEffect(PortfolioUiEffect.ShowToast("Added ${holding.symbol} to portfolio"))
+            } catch (cancellation: CancellationException) {
+                throw cancellation
+            } catch (error: Exception) {
+                sendEffect(PortfolioUiEffect.ShowToast("Failed to add ${intent.symbol}: ${error.message}"))
+            }
         }
     }
 

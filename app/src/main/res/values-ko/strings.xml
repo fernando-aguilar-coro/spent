@@ -1,0 +1,577 @@
+<resources>
+    <string name="app_name">Spent</string>
+
+    <!-- Navigation -->
+    <string name="nav_dashboard">대시보드</string>
+    <string name="nav_analytics">분석</string>
+    <string name="nav_settings">설정</string>
+    <string name="portfolio_title">포트폴리오 &amp; 자산</string>
+
+    <!-- Dashboard Header & Profile -->
+    <string name="user_greeting">안녕하세요, Fernando님</string>
+    <string name="safe_to_spend_today">오늘 쓸 수 있는 안전 금액</string>
+    <string name="total_spent">총 지출</string>
+    <string name="total_income">총 수입</string>
+    <string name="net_savings">순저축</string>
+    <string name="hide_net_savings">순저축 숨기기</string>
+    <string name="show_net_savings">순저축 보기</string>
+    <string name="remaining_in_cycle">남은 일수</string>
+    <string name="no_active_pay_cycle">활성화된 급여 주기 없음</string>
+    <string name="days_left">급여 주기 종료까지 %1$d일 남음</string>
+    <string name="day_left">급여 주기 종료까지 %1$d일 남음</string>
+    <string name="manage_cycle">급여 주기 관리</string>
+
+    <!-- Quick Actions -->
+    <string name="action_add_expense">지출 추가</string>
+    <string name="action_add_income">수입 추가</string>
+
+    <!-- Category Envelopes -->
+    <string name="category_envelopes">카테고리 봉투</string>
+    <string name="envelopes_count">봉투 %1$d개</string>
+    <string name="envelope_of">/</string>
+    <string name="no_budget_set">예산이 설정되지 않음</string>
+    <string name="over_budget">예산 초과</string>
+
+    <!-- Extra Tools & Shortcuts -->
+    <string name="extra_tools_title">추가 도구 &amp; 바로가기</string>
+    <string name="tool_savings_title">저축</string>
+    <string name="tool_savings_goal">목표: %1$s%2$.0f</string>
+    <string name="tool_savings_desc">목표 &amp; 자금 관리</string>
+    <string name="tool_loans_title">대출</string>
+    <string name="tool_loans_debt">부채: %1$s%2$.0f</string>
+    <string name="tool_loans_desc">은행 &amp; 개인 대출</string>
+    <string name="tool_lent_debt_title">빌려준 돈 / 빚</string>
+    <string name="tool_lent_debt_desc">빚과 차용증 관리</string>
+    <string name="tool_recurring_title">반복 규칙</string>
+    <string name="tool_recurring_desc">자동 예약 규칙</string>
+    <string name="tool_recurring_toast">활성 반복 규칙: 거래 %1$d건이 자동 기록됨</string>
+    <string name="tool_export_excel_title">Excel로 내보내기 (.xlsx)</string>
+    <string name="tool_export_excel_desc">날짜와 시간이 별도 열로 구분된 스프레드시트 다운로드</string>
+    <string name="tool_shared_ledgers_title">공동 재정</string>
+    <string name="tool_shared_ledgers_desc">공동 예산 &amp; 멤버 동기화</string>
+
+    <!-- Shared Finances Screen -->
+    <string name="shared_finances_screen_title">공동 재정</string>
+    <string name="shared_finances_subtitle">공동 예산 &amp; 실시간 멤버 동기화</string>
+    <string name="shared_ledgers_screen_title">공동 재정</string>
+    <string name="shared_ledgers_subtitle">공동 예산 &amp; 실시간 멤버 동기화</string>
+    <string name="shared_ledgers_drive_status_connected">%1$s 계정으로 Drive에 연결됨</string>
+    <string name="shared_ledgers_drive_status_disconnected">Google Drive에 연결되지 않았습니다. 동기화를 사용하려면 설정에서 연결하세요.</string>
+    <string name="shared_ledgers_share_guide_btn">사용 방법</string>
+    <string name="shared_ledgers_copy_my_id">Drive 파일 ID 복사</string>
+    <string name="shared_ledgers_my_file_id_copied">Drive 링크가 클립보드에 복사되었습니다!</string>
+    <string name="shared_ledgers_enter_id_or_url">Drive 링크 또는 파일 ID 입력</string>
+    <string name="shared_ledgers_fetch_btn">멤버 추가</string>
+    <string name="shared_ledgers_load_sample_btn">샘플 데모 미리보기</string>
+    <string name="shared_ledgers_no_file_loaded">아직 연결된 멤버가 없습니다. \'멤버 추가\'를 누르거나 내 링크를 공유하세요.</string>
+    <string name="shared_ledgers_owner_label">장부 소유자</string>
+    <string name="shared_ledgers_last_synced">마지막 업데이트: %1$s</string>
+    <string name="shared_ledgers_category_breakdown">카테고리 봉투</string>
+    <string name="shared_ledgers_recent_txs">공동 활동 피드</string>
+    <string name="shared_ledgers_pay_cycle_info">급여 주기 정보</string>
+    <string name="shared_ledgers_guide_title">공동 재정 사용 방법</string>
+    <string name="shared_ledgers_guide_step1">1. Spent 데이터를 내 Google Drive에 동기화하세요.</string>
+    <string name="shared_ledgers_guide_step2">2. \'내 재정 공유\'를 눌러 공개 보기 권한이 있는 읽기 전용 Google Drive 링크를 생성하세요.</string>
+    <string name="shared_ledgers_guide_step3">3. HTTPS Drive 링크를 그룹 멤버와 공유하세요.</string>
+    <string name="shared_ledgers_guide_step4">4. 멤버가 \'멤버 추가\'에 링크를 붙여넣으면 예산과 실시간 통계가 즉시 합쳐집니다!</string>
+    <string name="shared_ledgers_guide_understood">확인</string>
+    <string name="tab_statistics">📊 통계</string>
+    <string name="tab_members">👥 멤버</string>
+    <string name="tab_invite_join">🔗 초대 / 참여</string>
+    <string name="household_tab_combined">📊 통계</string>
+    <string name="household_tab_me">👥 멤버</string>
+    <string name="household_tab_partner">🔗 초대 / 참여</string>
+    <string name="household_kpi_combined_income">합산 수입</string>
+    <string name="household_kpi_combined_spent">합산 지출</string>
+    <string name="household_kpi_combined_safe_today">오늘 쓸 수 있는 안전 금액</string>
+    <string name="household_you_spent">나: %1$s</string>
+    <string name="household_badge_you">나</string>
+    <string name="household_privacy_note">100% 비공개: Google Drive 링크 공유 기반입니다. 제3자 서버를 사용하지 않습니다.</string>
+    <string name="members_panel_title">멤버 패널</string>
+    <string name="members_connected_count">멤버 %1$d명 연결됨</string>
+    <string name="share_my_finances_title">내 재정 공유</string>
+    <string name="share_my_finances_desc">읽기 전용 Google Drive 링크 공유를 활성화하여 다른 사람이 내 재정을 볼 수 있게 합니다.</string>
+    <string name="share_my_finances_btn">내 재정 공유 (링크 복사)</string>
+    <string name="add_member_title">멤버 추가</string>
+    <string name="add_member_desc">멤버의 Google Drive 웹 링크 또는 파일 ID를 붙여넣어 예산을 동기화하세요.</string>
+    <string name="add_member_btn">멤버 추가</string>
+    <string name="add_member_input_placeholder">https://drive.google.com/file/d/...</string>
+    <string name="unlink_member_btn">삭제</string>
+    <string name="sync_all_members_btn">모두 동기화</string>
+
+
+    <!-- Recent Activity & History -->
+    <string name="recent_activity">최근 활동</string>
+    <string name="see_all_transactions">전체 보기</string>
+    <string name="no_transactions_yet">아직 거래 내역이 없습니다. + 지출 추가를 눌러 기록을 시작하세요!</string>
+    <string name="history_title">거래 내역</string>
+    <string name="history_subtitle">모든 기록을 검색, 필터링 및 관리하세요</string>
+    <string name="search_transactions_placeholder">메모 또는 상호명으로 검색…</string>
+    <string name="filter_all">전체</string>
+    <string name="filter_expenses">지출</string>
+    <string name="filter_income">수입</string>
+    <string name="filter_active">필터 적용됨</string>
+    <string name="history_results_count">건</string>
+    <string name="no_matching_transactions">일치하는 거래를 찾을 수 없습니다.</string>
+
+    <!-- Savings Tracker Dialog & Screen -->
+    <string name="savings_tracker_title">저축 관리</string>
+    <string name="total_saved">총 저축액</string>
+    <string name="savings_goal">저축 목표</string>
+    <string name="savings_progress_text">목표의 %1$d%% 달성</string>
+    <string name="add_funds_to_savings">저축에 자금 추가</string>
+    <string name="deposit_amount_label">입금액 (%1$s)</string>
+    <string name="note_goal_name_label">메모 / 목표 이름</string>
+    <string name="deposit_into_savings">저축에 입금</string>
+    <string name="edit_target_goal">목표 금액 수정</string>
+    <string name="update_target_savings_goal">저축 목표 금액 업데이트</string>
+    <string name="goal_target_label">목표 금액 (%1$s)</string>
+    <string name="back_to_deposit">입금으로 돌아가기</string>
+    <string name="deposit_funds">자금 입금</string>
+    <string name="save_goal">목표 저장</string>
+    <string name="savings_history_title">저축 내역</string>
+    <string name="savings_no_history">기록된 저축 입금이 없습니다. +를 눌러 자금을 입금하세요!</string>
+    <string name="savings_monthly_reservation">월 적립액</string>
+    <string name="savings_months_left">약 %1$d개월 남음</string>
+    <string name="savings_to_go">%1$s%2$.2f 남음</string>
+    <string name="savings_info_note">월 적립액은 하루 안전 지출 허용액에서 차감되는 금액으로, 장기 목표를 쌓으면서 일상 예산을 보호해 줍니다.</string>
+    <string name="savings_default_deposit_note">저축 입금</string>
+
+    <!-- Loans Tracker Dialog -->
+    <string name="loans_tracker_title">대출 관리</string>
+    <string name="outstanding_loan_debt">대출 잔액</string>
+    <string name="borrowed_amount">대출금: %1$s%2$.2f</string>
+    <string name="repaid_amount">상환액: %1$s%2$.2f</string>
+    <string name="pay_installment">할부금 납부</string>
+    <string name="register_loan">+ 대출 등록</string>
+    <string name="loan_name_label">대출 이름 / 설명</string>
+    <string name="loan_name_placeholder">예: 자동차 대출, 은행 대출, 주택담보대출</string>
+    <string name="lender_bank_label">대출 기관 / 은행</string>
+    <string name="lender_bank_placeholder">예: 은행, 신용협동조합, 친구</string>
+    <string name="payment_amount_label">납부 금액 (%1$s)</string>
+    <string name="loan_capital_label">대출 원금 (%1$s)</string>
+    <string name="record_payment">납부 기록</string>
+
+    <!-- Lent / Debt Dialog -->
+    <string name="lent_debt_title">빌려준 돈 / 빚 기록 추가</string>
+    <string name="i_lent_money">내가 빌려줌</string>
+    <string name="i_owe_money">내가 빌림</string>
+    <string name="person_name_label">상대방 이름</string>
+    <string name="person_name_placeholder">예: 민수, 지영</string>
+    <string name="amount_label">금액 (%1$s)</string>
+    <string name="lent_to_prefix">%1$s에게 빌려줌</string>
+    <string name="owed_to_prefix">%1$s에게 빚짐</string>
+    <string name="save_record">기록 저장</string>
+
+    <!-- Transaction Details Dialog -->
+    <string name="expense_details">지출 상세</string>
+    <string name="income_details">수입 상세</string>
+    <string name="category_label">카테고리</string>
+    <string name="note_merchant_label">메모 / 상호명</string>
+    <string name="no_note_provided">메모 없음</string>
+    <string name="date_time_label">날짜 &amp; 시간</string>
+    <string name="delete_record">기록 삭제</string>
+    <string name="edit_transaction_btn">기록 수정</string>
+    <string name="edit_expense_title">지출 수정</string>
+    <string name="edit_income_title">수입 수정</string>
+    <string name="update_transaction">거래 업데이트</string>
+    <string name="transaction_updated">거래가 업데이트되었습니다</string>
+    <string name="category_general">일반</string>
+
+    <!-- Delete Transaction Confirmation Dialog -->
+    <string name="delete_transaction_title">거래를 삭제할까요?</string>
+    <string name="delete_transaction_confirmation">이 거래를 영구적으로 삭제하시겠습니까?</string>
+    <string name="delete_transaction_warning">순잔액과 급여 주기 예산에 반영됩니다.</string>
+
+    <!-- Common Dialog Actions -->
+    <string name="btn_close">닫기</string>
+    <string name="btn_cancel">취소</string>
+    <string name="btn_change">변경</string>
+    <string name="btn_new">새로 만들기</string>
+    <string name="btn_ok">확인</string>
+    <string name="btn_next">다음</string>
+    <string name="btn_select">선택</string>
+    <string name="select_date">날짜 선택</string>
+    <string name="select_time">시간 선택</string>
+
+    <!-- Enhanced Debt & Loans -->
+    <string name="debt_type_direct">직접 / 개인</string>
+    <string name="debt_type_card">신용카드</string>
+    <string name="debt_type_bank">은행 대출</string>
+    <string name="debt_type_interest">이자 / 할부 금융</string>
+    <string name="installment_plan_toggle">할부 계획 (월 할부로 납부)</string>
+    <string name="installment_monthly_amount">월 할부금 (%1$s)</string>
+    <string name="installment_duration_months">기간 (개월)</string>
+    <string name="installment_months_label">%1$d개월</string>
+    <string name="debt_total_capital">부채 원금 총액 (%1$s)</string>
+    <string name="interest_rate_optional">이자 / 추가 비용 (%1$s, 선택 사항)</string>
+    <string name="lender_entity_label">대출 기관 / 단체 / 사람</string>
+    <string name="lender_entity_placeholder">예: 국민은행, 비자, 민수, 자동차 대출</string>
+    <string name="save_debt">부채 기록 저장</string>
+    <!-- Category Names Localization -->
+    <string name="cat_general_name">일반</string>
+    <string name="cat_salary_name">급여</string>
+    <string name="cat_groceries_name">식료품</string>
+    <string name="cat_food_name">식비 &amp; 외식</string>
+    <string name="cat_housing_name">주거 &amp; 월세</string>
+    <string name="cat_transport_name">교통</string>
+    <string name="cat_utilities_name">공과금 &amp; 청구서</string>
+    <string name="cat_entertainment_name">여가 &amp; 오락</string>
+    <string name="cat_shopping_name">쇼핑</string>
+    <string name="cat_health_name">건강 &amp; 의료</string>
+    <string name="cat_savings_name">저축</string>
+    <string name="cat_education_name">교육</string>
+    <string name="cat_travel_name">여행</string>
+    <string name="cat_fitness_name">운동 &amp; 헬스</string>
+    <string name="cat_pets_name">반려동물</string>
+
+    <!-- Loans & Debts Redesign -->
+    <string name="tab_loans_all">전체</string>
+    <string name="tab_i_owe">내가 갚을 돈</string>
+    <string name="tab_owed_to_me">받을 돈</string>
+    <string name="i_owe_title">누군가에게 빚짐</string>
+    <string name="owed_to_me_title">누군가 나에게 빚짐</string>
+    <string name="i_owe_badge">갚을 돈</string>
+    <string name="owed_to_me_badge">받을 돈</string>
+    <string name="empty_loans_title">빚과 빌려준 돈을 관리하세요</string>
+    <string name="empty_loans_desc">개인 대출, 빌린 돈, 받을 돈을 명확하게 기록하세요.</string>
+    <string name="add_i_owe_btn">+ 내가 갚을 돈</string>
+    <string name="add_owed_to_me_btn">+ 받을 돈</string>
+    <string name="add_loan_screen_title_owe">내가 갚을 돈</string>
+    <string name="add_loan_screen_title_lend">받을 돈</string>
+    <string name="tab_calc_monthly_quota">월 납입액 기준</string>
+    <string name="tab_calc_total_amount">총액 기준</string>
+    <string name="loan_monthly_quota_label">월 납입액</string>
+    <string name="loan_total_principal_label">대출 총액</string>
+    <string name="loan_amount_label">원금 총액</string>
+    <string name="loan_duration_label">기간</string>
+    <string name="loan_duration_indefinite">무기한 / 정해진 기간 없음</string>
+    <string name="loan_start_date_label">시작일</string>
+    <string name="loan_end_date_label">종료일</string>
+    <string name="loan_interest_label">이자율 (%)</string>
+    <string name="loan_calculated_total_pill">총 납부액: %1$s (월 %3$s × %2$d개월)</string>
+    <string name="loan_calculated_quota_pill">월 납입액: %1$s/월 • 총액: %2$s</string>
+    <string name="lender_creditor_label">채권자 / 대출 기관 이름</string>
+    <string name="debtor_borrower_label">채무자 / 상대방 이름</string>
+    <string name="lender_creditor_placeholder">예: 은행, 신용카드, 집주인, 민수</string>
+    <string name="debtor_borrower_placeholder">예: 지영, 친구, 룸메이트</string>
+    <string name="loan_due_date_label">만기일</string>
+    <string name="no_due_date">만기일 없음</string>
+    <string name="repayment_plan_title">분할 납부 / 분할 수금</string>
+    <string name="repayment_plan_desc">월 납입액과 기간을 설정하세요</string>
+    <string name="monthly_installment_label">월 할부금</string>
+    <string name="interest_rate_optional_label">이자율 (%)</string>
+    <string name="calculated_total_financing">이자 포함 총액: %1$s • %3$d개월간 월 %2$s</string>
+    <string name="loan_notes_label">메모 / 설명</string>
+    <string name="loan_notes_placeholder">예: 여행 경비 정산, 긴급 대출, 자동차 계약금</string>
+    <string name="save_loan_btn">기록 저장</string>
+    <string name="edit_loan_title">대출 / 빚 수정</string>
+    <string name="update_loan_btn">기록 업데이트</string>
+    <string name="btn_add_payment">납부 / 상환 추가</string>
+    <string name="payment_amount_input_label">납부 / 상환 금액</string>
+    <string name="record_payment_title">납부 / 상환 기록</string>
+    <string name="remaining_balance_label">잔액: %1$s</string>
+    <string name="total_paid_so_far">납부: %1$s / %2$s (%3$d%%)</string>
+    <string name="mark_as_settled_btn">정산 완료로 표시</string>
+    <string name="loan_settled_badge">정산 완료</string>
+    <string name="delete_loan_confirm_title">대출 기록을 삭제할까요?</string>
+    <string name="delete_loan_confirm_msg">이 대출 기록을 영구적으로 삭제하시겠습니까?</string>
+    <string name="loan_tx_lent_note">%1$s에게 빌려줌</string>
+    <string name="loan_tx_lent_default_note">빌려준 돈</string>
+    <string name="loan_tx_borrowed_note">%1$s에게서 대출</string>
+    <string name="loan_tx_borrowed_default_note">빌린 돈</string>
+    <string name="loan_tx_collected_note">%1$s에게서 대출금 수금</string>
+    <string name="loan_tx_collected_default_note">대출금 수금</string>
+    <string name="loan_tx_repaid_note">%1$s에게 대출금 상환</string>
+    <string name="loan_tx_repaid_default_note">대출금 상환</string>
+
+    <!-- Recurring Payments & Bills -->
+    <string name="tool_fixed_bills_title">정기 결제 &amp; 청구서</string>
+    <string name="tool_fixed_bills_desc">구독, 공과금, 월세 &amp; 반복 청구</string>
+    <string name="fixed_bills_dialog_title">정기 결제 &amp; 청구서</string>
+    <string name="fixed_bills_screen_title">정기 결제 &amp; 서비스</string>
+    <string name="recurring_dialog_cancel_title">반복 규칙 관리</string>
+    <string name="recurring_dialog_stop_future_btn">향후 결제 중단</string>
+    <string name="recurring_dialog_stop_future_desc">과거 거래 내역은 유지하고 앞으로의 자동 결제만 중단합니다.</string>
+    <string name="recurring_dialog_delete_all_btn">규칙 &amp; 모든 내역 삭제</string>
+    <string name="recurring_dialog_delete_all_desc">이 규칙을 영구 삭제하고 이 규칙으로 생성된 과거 거래도 모두 삭제합니다.</string>
+    <string name="recurring_rule_status_paused">중단됨</string>
+    <string name="recurring_rule_status_active">활성</string>
+    <string name="delete_recurring_dialog_title">반복 거래 삭제</string>
+    <string name="delete_recurring_prompt_banner">이 거래는 정기 청구서 %1$s에 연결되어 있습니다</string>
+    <string name="delete_recurring_option_only_this_title">이 결제만 삭제</string>
+    <string name="delete_recurring_option_only_this_desc">이 거래 기록만 삭제됩니다. 앞으로 예정된 청구서는 그대로 유지됩니다.</string>
+    <string name="delete_recurring_option_stop_future_title">결제 삭제 &amp; 향후 청구 중단</string>
+    <string name="delete_recurring_option_stop_future_desc">이 거래를 삭제하고 과거 내역은 유지한 채 앞으로 예정된 청구를 중단합니다.</string>
+    <string name="delete_recurring_option_delete_all_title">규칙 &amp; 모든 내역 삭제</string>
+    <string name="delete_recurring_option_delete_all_desc">이 반복 규칙과 이 규칙으로 생성된 모든 거래를 영구적으로 삭제합니다.</string>
+    <string name="recurring_badge_label">반복</string>
+    <string name="manage_in_fixed_bills">고정 청구서에서 관리</string>
+    <string name="recurring_schedule_repeats">%1$s 반복</string>
+    <string name="tool_fixed_bills_pending_summary">이번 주기 미결제 %1$d건 (%2$s%3$.2f)</string>
+    <string name="tool_fixed_bills_all_paid">이번 주기 청구서 모두 결제 완료 ✓</string>
+    <string name="recurring_tx_deleted_and_stopped">거래가 삭제되고 정기 청구가 중단되었습니다</string>
+    <string name="recurring_rule_and_all_deleted">정기 청구서와 모든 거래가 삭제되었습니다</string>
+    <string name="edit_bill_title">정기 결제 수정</string>
+    <string name="action_edit">수정</string>
+    <string name="loans_tracker_screen_title">대출 &amp; 빚</string>
+    <string name="add_fixed_bill_title">새 청구서 추가</string>
+    <string name="quick_presets_title">빠른 프리셋</string>
+    <string name="bill_name_label">청구서 이름 / 공급업체</string>
+    <string name="bill_name_placeholder">예: 전기, 수도, 인터넷</string>
+    <string name="custom_bill_notes_label">공급업체 / 청구서 이름</string>
+    <string name="custom_bill_notes_placeholder">예: 넷플릭스, 헬스장, 집주인, 인터넷</string>
+    <string name="bill_amount_label">예상 / 기준 금액</string>
+    <string name="bill_due_day_label">매월 납부일</string>
+    <string name="bill_due_day_format">매월 %1$d일 납부</string>
+    <string name="arrival_date_label">도착 / 발행일</string>
+    <string name="arrival_date_format">도착일: %1$s</string>
+    <string name="cycle_period_label">청구 주기</string>
+    <string name="period_30_days">30일마다 (매월)</string>
+    <string name="bill_status_paid">이번 주기 결제 완료</string>
+    <string name="bill_status_pending">결제 대기 중 (예상)</string>
+    <string name="unpaid_cycles_warning">미납 주기 %1$d회 누적 (%2$s%3$.2f)</string>
+    <string name="service_cutoff_alert">⚠️ 서비스 중단 경고! 미납 주기 %1$d회</string>
+    <string name="service_cutoff_desc">이 서비스는 3회 이상 연속으로 결제되지 않았습니다. 서비스 중단을 막으려면 지금 결제하세요.</string>
+    <string name="accumulated_total_label">누적 합계</string>
+    <string name="pay_bill_btn">청구서 결제 기록</string>
+    <string name="delete_bill_btn">청구서 삭제</string>
+    <string name="save_bill_btn">청구서 저장</string>
+    <string name="preset_electricity">전기</string>
+    <string name="preset_water">수도</string>
+    <string name="preset_internet">인터넷 / Wi-Fi</string>
+    <string name="preset_gas">가스</string>
+    <string name="preset_rent">월세</string>
+    <string name="preset_phone">휴대폰</string>
+    <string name="preset_streaming">스트리밍</string>
+
+    <!-- Walkthrough Banner -->
+    <string name="walkthrough_title">Spent에 오신 것을 환영합니다!</string>
+    <string name="walkthrough_desc">급여 주기별로 지출을 관리하고, 카테고리 봉투를 운영하며, 저축 목표를 달성하세요.</string>
+    <string name="walkthrough_dismiss">확인</string>
+
+    <!-- Add Transaction Screen -->
+    <string name="add_expense_title">지출 추가</string>
+    <string name="add_income_title">수입 추가</string>
+    <string name="type_expense">지출</string>
+    <string name="type_income">수입</string>
+    <string name="category_envelope_optional">카테고리 봉투</string>
+    <string name="select_category_envelope">카테고리 봉투 선택</string>
+    <string name="no_category_envelope">카테고리 없음 (일반)</string>
+    <string name="add_new_category">새 카테고리 추가</string>
+    <string name="note_merchant_optional">메모 / 상호명</string>
+    <string name="make_recurring_payment">정기 결제로 설정</string>
+    <string name="recurring_schedule_desc">지정한 일정에 따라 자동 기록</string>
+    <string name="repeat_frequency">반복 주기</string>
+    <string name="frequency_daily">매일</string>
+    <string name="frequency_weekly">매주</string>
+    <string name="frequency_monthly">매월</string>
+    <string name="save_transaction">거래 저장</string>
+
+    <!-- Create Category Dialog -->
+    <string name="create_category_title">새 카테고리 봉투 만들기</string>
+    <string name="category_name_label">카테고리 이름</string>
+    <string name="category_name_placeholder">예: 구독, 반려동물</string>
+    <string name="select_color">색상 선택</string>
+    <string name="save_category">카테고리 저장</string>
+
+    <!-- Analytics Screen -->
+    <string name="analytics_title">분석 &amp; 리포트</string>
+    <string name="analytics_subtitle">지출 내역과 주기별 인사이트</string>
+    <string name="savings_rate">저축률</string>
+    <string name="category_distribution">카테고리별 분포</string>
+    <string name="no_spending_recorded">이번 주기에 기록된 지출이 없습니다.</string>
+    <string name="chart_net_savings">수입 vs 지출</string>
+    <string name="chart_net_savings_desc">선택한 기간의 수입과 지출 비교</string>
+    <string name="chart_total_balance">시간별 총 잔액</string>
+    <string name="chart_total_balance_desc">총 자금 추이와 누적 잔액</string>
+    <string name="chart_current_balance">현재 합계</string>
+    <string name="chart_period_change">기간 변동</string>
+    <string name="chart_starting_balance">시작</string>
+    <string name="timeframe_7d">7일</string>
+    <string name="timeframe_30d">30일</string>
+    <string name="timeframe_6m">6개월</string>
+    <string name="interval_day">일</string>
+    <string name="interval_week">주</string>
+    <string name="interval_month">월</string>
+    <string name="chart_legend_income">수입</string>
+    <string name="chart_legend_expense">지출</string>
+    <string name="chart_legend_net">순잔액</string>
+    <string name="chart_surplus">흑자</string>
+    <string name="chart_deficit">적자</string>
+    <string name="chart_no_data">이 기간에 기록된 거래가 없습니다.</string>
+    <string name="chart_net">순액</string>
+
+    <!-- Settings Screen -->
+    <string name="settings_title">설정</string>
+    <string name="settings_subtitle">앱 환경설정 및 데이터 관리</string>
+    <string name="profile_title">사용자 프로필</string>
+    <string name="profile_name">Fernando Aguilar</string>
+    <string name="profile_email">fernando@example.com</string>
+    <string name="pay_cycle_title">급여 주기</string>
+    <string name="pay_cycle_desc">주기 빈도와 기본 수입을 설정하세요</string>
+    <string name="cycle_frequency">빈도</string>
+    <string name="cycle_income_label">기본 수입 (%1$s)</string>
+    <string name="payday_label">급여일 / 시작일</string>
+    <string name="payday_monthly_day">급여일: 매월 %1$d일</string>
+    <string name="payday_anchor_date">주기 기준일: %1$s</string>
+    <string name="select_payday_title">급여일 / 시작일 선택</string>
+    <string name="freelance_flexible_title">프리랜서 / 변동 수입</string>
+    <string name="freelance_flexible_desc">월별 실제 수입에 따른 변동 급여</string>
+    <string name="salary_income_note">급여일 기본 급여 (%1$s)</string>
+    <string name="save_pay_cycle">급여 주기 저장</string>
+    <string name="theme_title">테마</string>
+    <string name="theme_system">시스템 기본값</string>
+    <string name="theme_light">라이트</string>
+    <string name="theme_dark">다크</string>
+    <string name="currency_title">통화</string>
+    <string name="currency_desc">선호하는 통화 기호를 선택하세요</string>
+    <string name="currency_change_notice">주식, 암호화폐 및 기타 자산은 선택한 통화에 맞게 업데이트됩니다. 일반 구매 및 지출은 환산되지 않으며 통화 기호만 변경됩니다.</string>
+    <string name="language_title">언어 / Language</string>
+    <string name="language_desc">앱 표시 언어를 선택하세요</string>
+    <string name="language_system">시스템 기본값</string>
+    <string name="language_en">English</string>
+    <string name="language_es">Español</string>
+    <string name="language_pt">Português</string>
+    <string name="language_fr">Français</string>
+    <string name="language_de">Deutsch</string>
+    <string name="language_it">Italiano (Italian)</string>
+    <string name="language_ja">日本語 (Japanese)</string>
+    <string name="language_hi">हिन्दी (Hindi)</string>
+    <string name="language_sv">Svenska (Swedish)</string>
+    <string name="export_data_title">데이터 내보내기 (CSV)</string>
+    <string name="export_data_desc">거래 내역을 CSV 파일로 다운로드</string>
+    <string name="export_csv_btn">CSV 내보내기</string>
+    <string name="app_info_title">Spent 정보</string>
+    <string name="app_version">버전 1.0.0</string>
+    <string name="app_description">Spent는 지출을 기록하고, 급여 주기별로 예산을 세우며, 재정 상황을 명확하게 파악하도록 도와줍니다.</string>
+    <string name="reset_data_title">모든 데이터 초기화</string>
+    <string name="reset_data_desc">모든 거래, 카테고리 및 설정을 영구적으로 삭제합니다</string>
+    <string name="reset_data_btn">데이터 초기화</string>
+    <string name="reset_data_confirm_title">모든 데이터를 초기화할까요?</string>
+    <string name="reset_data_confirm_msg">모든 기록이 영구적으로 삭제됩니다. 이 작업은 되돌릴 수 없습니다.</string>
+    <string name="monthly_savings_contribution_label">월 적립액 (%1$s)</string>
+    <string name="no_savings_goal_yet">활성화된 저축 목표 없음</string>
+    <string name="add_savings_goal_btn">저축 목표 추가</string>
+    <string name="salary_funding_note">수입을 \'급여\' 카테고리로 분류하면 하루 안전 지출 허용액이 채워집니다.</string>
+
+    <!-- Google Drive & Cloud Backup Sync -->
+    <string name="drive_sync_title">Google Drive 동기화</string>
+    <string name="drive_sync_desc">거래 내역 자동 클라우드 백업 및 동기화</string>
+    <string name="drive_status_connected">연결됨 &amp; 자동 동기화 활성화</string>
+    <string name="drive_status_disconnected">연결되지 않음</string>
+    <string name="drive_connected_account">계정: %1$s</string>
+    <string name="drive_btn_connect">Google Drive에 연결</string>
+    <string name="drive_btn_disconnect">연결 해제</string>
+    <string name="drive_btn_sync_now">지금 동기화</string>
+    <string name="drive_last_synced">마지막 동기화: %1$s</string>
+    <string name="drive_not_synced_yet">아직 동기화되지 않음</string>
+    <string name="drive_syncing">Google Drive와 동기화 중…</string>
+    <string name="drive_backup_success">백업이 저장되었습니다</string>
+    <string name="drive_restore_success">데이터가 복원되었습니다</string>
+    <string name="drive_sync_success">Google Drive 동기화가 완료되었습니다</string>
+    <string name="drive_disconnected_msg">Google Drive 연결이 해제되었습니다</string>
+    <string name="drive_sync_error">Drive 동기화 오류: %1$s</string>
+    <string name="drive_export_chooser">Spent 백업을 Drive에 저장</string>
+    <string name="drive_import_chooser">Spent 백업 파일 선택</string>
+
+    <!-- Google Drive Sync Conflict Resolution -->
+    <string name="sync_conflict_dialog_title">동기화 충돌 감지됨</string>
+    <string name="sync_conflict_dialog_desc">이 기기와 Google Drive 모두에 기존 재정 데이터가 있습니다. 충돌을 해결할 방법을 선택하세요:</string>
+    <string name="sync_conflict_local_card_title">이 기기 (로컬)</string>
+    <string name="sync_conflict_cloud_card_title">Google Drive (클라우드)</string>
+    <string name="sync_conflict_account_label">계정: %1$s</string>
+    <string name="sync_conflict_transactions_count">거래 %1$d건</string>
+    <string name="sync_conflict_loans_count">대출 / 빚 %1$d건</string>
+    <string name="sync_conflict_backup_date">백업 날짜: %1$s</string>
+    <string name="sync_conflict_last_modified">마지막 활동: %1$s</string>
+    <string name="sync_conflict_option_merge_title">둘 다 병합 (모두 유지)</string>
+    <string name="sync_conflict_option_merge_desc">로컬과 클라우드 기록을 손실 없이 합칩니다. 기기와 Google Drive가 모두 업데이트됩니다.</string>
+    <string name="sync_conflict_option_keep_local_title">로컬 데이터 유지</string>
+    <string name="sync_conflict_option_keep_local_desc">이 기기의 데이터를 유지하고 기존 Google Drive 백업을 덮어씁니다.</string>
+    <string name="sync_conflict_option_keep_cloud_title">클라우드 데이터 유지</string>
+    <string name="sync_conflict_option_keep_cloud_desc">이 기기의 데이터를 Google Drive 클라우드 백업으로 교체합니다.</string>
+    <string name="sync_conflict_recommended_badge">추천</string>
+    <string name="sync_conflict_btn_apply">선택 적용</string>
+    <string name="sync_conflict_btn_cancel">취소</string>
+    <string name="drive_sync_conflict_merged">데이터가 병합되어 Google Drive와 동기화되었습니다</string>
+    <string name="drive_sync_conflict_local_kept">로컬 데이터가 유지되고 Google Drive에 업로드되었습니다</string>
+    <string name="drive_sync_conflict_cancelled">동기화가 취소되었으며 로컬 데이터는 변경되지 않았습니다</string>
+
+    <!-- Onboarding Walkthrough -->
+    <string name="onboarding_welcome_title">Spent에 오신 것을 환영합니다</string>
+    <string name="onboarding_welcome_desc">재정 관리를 빠르고 안전하게 시작하세요.</string>
+    <string name="onboarding_btn_connect_drive">Google Drive에 연결</string>
+    <string name="onboarding_btn_continue_no_account">계정 없이 계속하기</string>
+    <string name="onboarding_btn_continue">계속</string>
+    <string name="onboarding_connected_as">%1$s 계정으로 연결됨</string>
+    <string name="onboarding_restoring_drive">Google Drive 백업을 확인하고 복원하는 중…</string>
+    <string name="onboarding_profile_title">어떤 유형이 가장 잘 맞나요?</string>
+    <string name="onboarding_profile_subtitle">예산 주기와 현금 흐름을 맞춤 설정하는 데 도움이 됩니다</string>
+    <string name="onboarding_profile_unemployed">무직</string>
+    <string name="onboarding_profile_unemployed_desc">고정 급여 주기 없는 유연한 예산 관리</string>
+    <string name="onboarding_profile_freelancer">프리랜서</string>
+    <string name="onboarding_profile_freelancer_desc">프로젝트 기반 변동 수입과 유연한 관리</string>
+    <string name="onboarding_profile_employed">직장인 / 월급쟁이</string>
+    <string name="onboarding_profile_employed_desc">정기적인 급여 주기 (매주, 격주, 15일, 매월)</string>
+    <string name="onboarding_schedule_title">급여는 언제, 얼마나 자주 받나요?</string>
+    <string name="onboarding_schedule_subtitle">급여 주기와 기준일을 설정하세요</string>
+    <string name="onboarding_schedule_frequency">급여 빈도</string>
+    <string name="onboarding_schedule_payday">첫 급여일 / 기준일</string>
+    <string name="onboarding_schedule_salary_optional">예상 기본 급여 (%1$s)</string>
+    <string name="onboarding_btn_finish_setup">설정 완료</string>
+    <string name="frequency_biweekly">격주 (14일)</string>
+    <string name="frequency_semimonthly">반월 (15일)</string>
+    <string name="onboarding_initial_balance_title">시작 자금 &amp; 저축</string>
+    <string name="onboarding_initial_balance_subtitle">현재 저축액 또는 시작 자금을 설정하여 정확하게 재정 관리를 시작하세요</string>
+    <string name="onboarding_initial_balance_label">시작 잔액 / 저축 (%1$s)</string>
+    <string name="onboarding_initial_balance_hint">0.00으로 두고 나중에 수입 거래를 추가해도 됩니다.</string>
+    <string name="initial_balance_transaction_note">초기 잔액 / 시작 자금</string>
+    <string name="onboarding_image_storage_title">영수증 &amp; 사진 저장</string>
+    <string name="onboarding_image_storage_subtitle">메모에 첨부한 사진과 영수증을 저장할 위치를 선택하세요</string>
+
+    <!-- Image Attachment & Multi-Destination Storage -->
+    <string name="attach_image_label">영수증 / 메모 이미지</string>
+    <string name="attach_image_btn">이미지 첨부</string>
+    <string name="change_image_btn">변경</string>
+    <string name="remove_image_btn">삭제</string>
+    <string name="view_image_btn">보기</string>
+    <string name="receipt_image_preview">영수증 미리보기</string>
+    <string name="image_storage_title">이미지 &amp; 영수증 저장소</string>
+    <string name="image_storage_desc">메모 첨부 이미지를 저장할 위치를 선택하세요</string>
+    <string name="storage_option_device">기기 저장소 (기본값)</string>
+    <string name="storage_option_device_desc">기기의 사진 폴더에 저장됩니다 (갤러리에서 확인 가능)</string>
+    <string name="storage_option_in_app">앱 내부 비공개 저장소</string>
+    <string name="storage_option_in_app_desc">앱 디렉터리 내부에 비공개로 저장됩니다</string>
+    <string name="storage_option_google_drive">Google Drive (압축 클라우드)</string>
+    <string name="storage_option_google_drive_desc">자동으로 압축하여 Google Drive에 업로드합니다</string>
+    <string name="permission_media_required">이미지를 선택하려면 저장소 권한이 필요합니다</string>
+    <string name="permission_denied_msg">권한이 거부되었습니다. 이미지를 첨부하려면 기기 설정에서 저장소 접근을 허용하세요.</string>
+    <string name="uploading_image_drive">이미지를 압축하여 Google Drive에 업로드하는 중…</string>
+    <string name="drive_upload_success">이미지가 압축되어 Drive에 업로드되었습니다</string>
+    <string name="drive_not_connected_warning">Google Drive에 연결되지 않았습니다. 설정에서 연결하거나 다른 저장 옵션을 선택하세요.</string>
+    <string name="receipt_viewer_title">영수증 / 첨부 이미지</string>
+
+    <!-- Member Customization & Data Reset Warning -->
+    <string name="edit_member_name_title">멤버 이름 수정</string>
+    <string name="edit_member_name_desc">대시보드와 통계에 표시되는 이 멤버의 이름을 지정하세요.</string>
+    <string name="member_name_label">멤버 이름 / 닉네임</string>
+    <string name="member_name_placeholder">예: 민수, 엄마, 배우자</string>
+    <string name="save_member_name_btn">이름 저장</string>
+    <string name="edit_member_btn">이름 수정</string>
+    <string name="reset_data_warning_badge">영구 데이터 삭제 경고</string>
+    <string name="reset_data_warning_bullet1">• 모든 거래, 카테고리 봉투 및 급여 주기가 삭제됩니다.</string>
+    <string name="reset_data_warning_bullet2">• 이 기기에 저장된 모든 영수증 이미지(내부 저장소 및 갤러리)가 삭제됩니다.</string>
+    <string name="reset_data_warning_bullet3">• 모든 반복 규칙과 저축 목표가 초기화됩니다.</string>
+    <string name="reset_data_delete_drive_images_title">Google Drive의 이미지도 함께 삭제</string>
+    <string name="reset_data_delete_drive_images_desc">연결된 Drive 계정에 업로드된 모든 영수증 사진을 영구적으로 삭제합니다.</string>
+    <string name="reset_data_confirm_action">모두 삭제</string>
+
+    <!-- Image Source Chooser -->
+    <string name="image_source_chooser_title">영수증 이미지 첨부</string>
+    <string name="image_source_camera">사진 촬영 (카메라)</string>
+    <string name="image_source_camera_desc">카메라로 영수증 촬영</string>
+    <string name="image_source_gallery">갤러리에서 선택</string>
+    <string name="image_source_gallery_desc">기기에서 기존 사진 선택</string>
+    <string name="camera_permission_required">사진을 촬영하려면 카메라 권한이 필요합니다</string>
+</resources>

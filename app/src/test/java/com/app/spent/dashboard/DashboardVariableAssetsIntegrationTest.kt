@@ -14,6 +14,7 @@ import com.app.spent.data.repository.AssetRepository
 import com.app.spent.data.repository.SpentRepository
 import com.app.spent.data.sync.DriveConnectResult
 import com.app.spent.data.sync.SharedMemberInfo
+import com.app.spent.domain.asset.model.MarketQuote
 import com.app.spent.domain.asset.model.PortfolioSummary
 import com.app.spent.domain.asset.model.ValuedAsset
 import com.app.spent.ui.dashboard.DashboardViewModel
@@ -114,6 +115,7 @@ class DashboardVariableAssetsIntegrationTest {
         override fun getHoldingsFlow(): Flow<List<AssetHoldingEntity>> = MutableStateFlow(emptyList())
         override fun getMarketPricesFlow(): Flow<List<MarketPriceEntity>> = MutableStateFlow(emptyList())
         override fun getPortfolioSummaryFlow(baseCurrency: String): Flow<PortfolioSummary> = summaryFlow.asStateFlow()
+        override suspend fun getQuote(symbol: String, baseCurrency: String): MarketQuote? = null
         override suspend fun refreshPrices(baseCurrency: String): Result<Unit> = Result.success(Unit)
         override suspend fun simulateMarketTick(baseCurrency: String): Result<Unit> = Result.success(Unit)
         override suspend fun addAsset(holding: AssetHoldingEntity) {}
@@ -219,5 +221,4 @@ class DashboardVariableAssetsIntegrationTest {
         override suspend fun resetAllData(deleteDriveImages: Boolean) {}
     }
 }
-
 
