@@ -26,6 +26,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.app.spent.R
+import com.app.spent.data.local.entity.AssetHoldingEntity
 import com.app.spent.data.local.entity.CategoryEntity
 import com.app.spent.data.local.entity.TransactionEntity
 import com.app.spent.ui.components.ExportExcelDialog
@@ -33,7 +34,10 @@ import com.app.spent.ui.components.ExportExcelDialog
 @Composable
 fun ExportCsvCard(
   transactions: List<TransactionEntity>,
-  categories: List<CategoryEntity>
+  categories: List<CategoryEntity>,
+  holdings: List<AssetHoldingEntity> = emptyList(),
+  currencySymbol: String = "",
+  currencyCode: String = ""
 ) {
   var showExportDialog by remember { mutableStateOf(false) }
 
@@ -73,6 +77,9 @@ fun ExportCsvCard(
     ExportExcelDialog(
       transactions = transactions,
       categories = categories,
+      holdings = holdings,
+      currencySymbol = currencySymbol,
+      currencyCode = currencyCode,
       onDismiss = { showExportDialog = false }
     )
   }

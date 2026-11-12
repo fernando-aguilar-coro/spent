@@ -202,7 +202,10 @@ repository: SpentRepository
       item {
         ExportCsvCard(
         transactions = state.transactions,
-        categories = state.categories
+        categories = state.categories,
+        holdings = state.assetHoldings,
+        currencySymbol = state.currencySymbol,
+        currencyCode = state.currencyCode
         )
         Spacer(modifier = Modifier.height(12.dp))
       }

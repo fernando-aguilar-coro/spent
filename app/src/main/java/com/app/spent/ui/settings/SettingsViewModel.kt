@@ -49,12 +49,13 @@ private val repository: SpentRepository
 
       val dataFlow = combine(
       repository.getTransactionsFlow(),
-      repository.getCategoriesFlow()
-      ) { transactions, categories ->
-        Pair(transactions, categories)
+      repository.getCategoriesFlow(),
+      repository.getAssetHoldingsFlow()
+      ) { transactions, categories, holdings ->
+        Triple(transactions, categories, holdings)
       }
 
-      combine(coreFlow, driveFlow, dataFlow) { core, (isConnected, email, isSyncing), (transactions, categories) ->
+      combine(coreFlow, driveFlow, dataFlow) { core, (isConnected, email, isSyncing), (transactions, categories, holdings) ->
         SettingsUiState(
         currentPayCycle = core.payCycle,
         isDarkThemeOverride = core.isDark,
@@ -64,6 +65,7 @@ private val repository: SpentRepository
         imageStorageLocation = core.imageStorageLocation,
         transactions = transactions,
         categories = categories,
+        assetHoldings = holdings,
         lastDriveSyncTimestamp = core.lastSync,
         isDriveConnected = isConnected,
         driveAccountEmail = email,

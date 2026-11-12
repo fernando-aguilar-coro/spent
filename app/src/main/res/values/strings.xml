@@ -47,6 +47,21 @@
     <string name="tool_recurring_toast">Active Recurring Rules: %1$d transactions auto-logged</string>
     <string name="tool_export_excel_title">Export to Excel (.xlsx)</string>
     <string name="tool_export_excel_desc">Download spreadsheet with separate Date &amp; Time columns</string>
+    <string name="export_date_from">From</string>
+    <string name="export_date_to">To</string>
+    <string name="export_all_dates">All dates</string>
+    <string name="export_clear">Clear</string>
+    <string name="export_detail_simple">Simple</string>
+    <string name="export_detail_detailed">Detailed</string>
+    <string name="export_include_holdings">Include portfolio snapshot (%1$d assets)</string>
+    <string name="export_copy_clipboard_title">Copy to Clipboard</string>
+    <string name="export_copy_clipboard_desc">Paste into WhatsApp, Telegram, etc.</string>
+    <string name="export_copied_toast">Copied to clipboard</string>
+    <string name="export_label_income">Income</string>
+    <string name="export_label_expenses">Expenses</string>
+    <string name="export_label_total">Total</string>
+    <string name="export_label_portfolio">Portfolio</string>
+    <string name="export_label_portfolio_total">Portfolio total</string>
     <string name="tool_shared_ledgers_title">Shared Finances</string>
     <string name="tool_shared_ledgers_desc">Collaborative budgets &amp; member sync</string>
 
