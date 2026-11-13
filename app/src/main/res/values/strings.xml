@@ -57,6 +57,10 @@
     <string name="export_copy_clipboard_title">Copy to Clipboard</string>
     <string name="export_copy_clipboard_desc">Paste into WhatsApp, Telegram, etc.</string>
     <string name="export_copied_toast">Copied to clipboard</string>
+    <string name="export_save_device_title">Save to Device</string>
+    <string name="export_save_device_desc">Choose folder on device storage</string>
+    <string name="export_share_apps_title">Share with Apps</string>
+    <string name="export_share_apps_desc">Send via WhatsApp, Drive, Gmail, etc.</string>
     <string name="export_label_income">Income</string>
     <string name="export_label_expenses">Expenses</string>
     <string name="export_label_total">Total</string>
