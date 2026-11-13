@@ -11,6 +11,7 @@ import java.util.Locale
 import android.content.Context
 import android.net.Uri
 import android.util.Log
+import com.app.spent.data.local.entity.AssetHoldingEntity
 import com.app.spent.data.local.entity.CategoryEntity
 import com.app.spent.data.local.entity.LoanEntity
 import com.app.spent.data.local.entity.PayCycleEntity
@@ -186,6 +187,27 @@ object DriveBackupManager {
     }
     root.put("preferences", prefObj)
 
+    // 9. Asset Holdings
+    val holdings = repository.getAssetHoldingsFlow().firstOrNull() ?: emptyList()
+    val holdingsArray = JSONArray()
+    for (h in holdings) {
+      val obj = JSONObject().apply {
+        put("id", h.id)
+        put("symbol", h.symbol)
+        put("name", h.name)
+        put("type", h.type)
+        put("quantity", h.quantity)
+        if (h.averageBuyPrice != null) put("averageBuyPrice", h.averageBuyPrice)
+        put("currency", h.currency)
+        if (h.manualPriceOverride != null) put("manualPriceOverride", h.manualPriceOverride)
+        put("isManualPrice", h.isManualPrice)
+        if (h.notes != null) put("notes", h.notes)
+        put("createdAt", h.createdAt)
+      }
+      holdingsArray.put(obj)
+    }
+    root.put("assetHoldings", holdingsArray)
+
     root.toString(2)
   }
 
@@ -200,7 +222,8 @@ object DriveBackupManager {
     val savingsGoalTotal: Double,
     val savingsMonthlyContribution: Double,
     val exportTimestamp: Long,
-    val preferences: JSONObject?
+    val preferences: JSONObject?,
+    val assetHoldings: List<AssetHoldingEntity> = emptyList()
   )
 
   private val defaultCategoryIds = setOf(
@@ -231,6 +254,9 @@ object DriveBackupManager {
       val hasCustomOrBudgetedCategories = categories.any { it.id !in defaultCategoryIds || it.budgetAmount > 0.0 }
       if (hasCustomOrBudgetedCategories) return@withContext true
 
+      val holdings = repository.getAssetHoldingsFlow().firstOrNull() ?: emptyList()
+      if (holdings.isNotEmpty()) return@withContext true
+
       false
     } catch (e: Exception) {
       Log.e("DriveBackupManager", "Error checking local user data", e)
@@ -249,8 +275,9 @@ object DriveBackupManager {
       val hasSavings = parsed.savingsGoalTotal > 0.0 || parsed.savingsGoalName.isNotBlank()
       val hasPayCycle = parsed.payCycle != null && parsed.payCycle.income > 0.0
       val hasCustomCategories = parsed.categories.any { it.id !in defaultCategoryIds || it.budgetAmount > 0.0 }
+      val hasHoldings = parsed.assetHoldings.isNotEmpty()
 
-      hasTransactions || hasLoans || hasRules || hasSavings || hasPayCycle || hasCustomCategories
+      hasTransactions || hasLoans || hasRules || hasSavings || hasPayCycle || hasCustomCategories || hasHoldings
     } catch (e: Exception) {
       Log.e("DriveBackupManager", "Error checking cloud user data", e)
       false
@@ -443,6 +470,32 @@ object DriveBackupManager {
     val preferences = if (root.has("preferences")) root.getJSONObject("preferences") else null
     val exportTimestamp = root.optLong("exportTimestamp", System.currentTimeMillis())
 
+    val holdingsList = mutableListOf<AssetHoldingEntity>()
+    if (root.has("assetHoldings")) {
+      val holdingsArray = root.getJSONArray("assetHoldings")
+      for (i in 0 until holdingsArray.length()) {
+        val obj = holdingsArray.getJSONObject(i)
+        val avgPrice = if (obj.has("averageBuyPrice") && !obj.isNull("averageBuyPrice")) obj.optDouble("averageBuyPrice") else null
+        val manualPrice = if (obj.has("manualPriceOverride") && !obj.isNull("manualPriceOverride")) obj.optDouble("manualPriceOverride") else null
+        val notes = if (obj.has("notes") && !obj.isNull("notes")) obj.optString("notes").ifEmpty { null } else null
+        holdingsList.add(
+          AssetHoldingEntity(
+            id = obj.optString("id", java.util.UUID.randomUUID().toString()),
+            symbol = obj.optString("symbol", ""),
+            name = obj.optString("name", ""),
+            type = obj.optString("type", "STOCK"),
+            quantity = obj.optDouble("quantity", 0.0),
+            averageBuyPrice = avgPrice,
+            currency = obj.optString("currency", "USD"),
+            manualPriceOverride = manualPrice,
+            isManualPrice = obj.optBoolean("isManualPrice", false),
+            notes = notes,
+            createdAt = obj.optLong("createdAt", System.currentTimeMillis())
+          )
+        )
+      }
+    }
+
     return ParsedBackupData(
       categories = categoriesList,
       transactions = transactionsList,
@@ -454,7 +507,8 @@ object DriveBackupManager {
       savingsGoalTotal = savingsGoalTotal,
       savingsMonthlyContribution = savingsMonthlyContribution,
       exportTimestamp = exportTimestamp,
-      preferences = preferences
+      preferences = preferences,
+      assetHoldings = holdingsList
     )
   }
 
@@ -474,7 +528,8 @@ object DriveBackupManager {
         payCycle = parsed.payCycle,
         recurringRules = parsed.recurringRules,
         userAccount = parsed.userAccount,
-        loans = parsed.loans
+        loans = parsed.loans,
+        assetHoldings = parsed.assetHoldings
       )
 
       // Restore Preferences
@@ -593,6 +648,17 @@ object DriveBackupManager {
         Triple("", 0.0, 0.0)
       }
 
+      // 8. Asset Holdings
+      val localHoldings = repository.getAssetHoldingsFlow().firstOrNull() ?: emptyList()
+      val holdingMap = linkedMapOf<String, AssetHoldingEntity>()
+      for (h in cloudData.assetHoldings) {
+        holdingMap[h.id] = h
+      }
+      for (h in localHoldings) {
+        holdingMap[h.id] = h
+      }
+      val mergedHoldings = holdingMap.values.toList()
+
       // Restore combined dataset to database
       repository.restoreAllData(
         categories = mergedCategories,
@@ -600,7 +666,8 @@ object DriveBackupManager {
         payCycle = finalPayCycle,
         recurringRules = mergedRules,
         userAccount = finalAccount,
-        loans = mergedLoans
+        loans = mergedLoans,
+        assetHoldings = mergedHoldings
       )
 
       if (finalGoalName.isNotBlank() || finalGoalTotal > 0.0) {

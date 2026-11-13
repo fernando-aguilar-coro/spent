@@ -19,6 +19,7 @@ val selectedStartDate: Long = System.currentTimeMillis(),
 val salaryText: String = "",
 val initialBalanceText: String = "",
 val currencySymbol: String = "$",
+val currencyCode: String = "USD",
 val imageStorageLocation: String = "IN_APP",
 val isLoading: Boolean = false,
 val isRestoring: Boolean = false,
@@ -39,7 +40,7 @@ sealed class OnboardingUiIntent : UiIntent {
   data class UpdateInitialBalanceText(val initialBalance: String) : OnboardingUiIntent()
   object ProceedFromInitialBalance : OnboardingUiIntent()
   data class SelectImageStorageLocation(val location: String) : OnboardingUiIntent()
-  data class SelectCurrency(val symbol: String) : OnboardingUiIntent()
+  data class SelectCurrency(val symbol: String, val code: String = "USD") : OnboardingUiIntent()
   object CompleteSetup : OnboardingUiIntent()
 
   // Drive single unified intent

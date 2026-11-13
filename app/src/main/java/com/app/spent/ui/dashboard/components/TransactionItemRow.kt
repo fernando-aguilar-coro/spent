@@ -47,6 +47,7 @@ fun TransactionItemRow(
 transaction: TransactionEntity,
 categories: List<CategoryEntity>,
 currencySymbol: String,
+currencyCode: String = "",
 onClick: (() -> Unit)? = null
 ) {
   val category = categories.find { it.id == transaction.categoryId }
@@ -154,8 +155,11 @@ onClick: (() -> Unit)? = null
         else -> MaterialTheme.colorScheme.primary
       }
 
+      val formattedAmount = com.app.spent.util.CurrencyFormatter.format(transaction.amount, currencySymbol, currencyCode)
+      val displayText = if (signPrefix.isNotEmpty()) "$signPrefix$formattedAmount" else formattedAmount
+
       Text(
-      text = "$signPrefix$currencySymbol${"%.2f".format(transaction.amount)}",
+      text = displayText,
       fontSize = 15.sp,
       fontWeight = FontWeight.Bold,
       color = amountColor

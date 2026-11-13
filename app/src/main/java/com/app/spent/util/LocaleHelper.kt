@@ -182,7 +182,52 @@ object LocaleHelper {
   }
 
   fun getCurrencyItemForSymbol(symbol: String): CurrencyItem? {
-    return SUPPORTED_CURRENCIES.find { it.symbol == symbol }
+    val clean = symbol.trim()
+    if (clean.equals("bs.", ignoreCase = true) || clean.equals("bs", ignoreCase = true)) {
+      return SUPPORTED_CURRENCIES.find { it.code == "BOB" }
+    }
+    if (clean.equals("ars", ignoreCase = true)) {
+      return SUPPORTED_CURRENCIES.find { it.code == "ARS" }
+    }
+    return SUPPORTED_CURRENCIES.find { it.symbol == clean }
+  }
+
+  fun getCurrencyItemForCode(code: String): CurrencyItem? {
+    return SUPPORTED_CURRENCIES.find { it.code.equals(code, ignoreCase = true) }
+  }
+
+  fun inferCurrencyCode(symbol: String, context: Context? = null): String {
+    val clean = symbol.trim()
+    when (clean) {
+      "Bs", "Bs.", "BOB" -> return "BOB"
+      "ARS" -> return "ARS"
+      "VES" -> return "VES"
+      "€", "EUR" -> return "EUR"
+      "£", "GBP" -> return "GBP"
+      "R$", "BRL" -> return "BRL"
+      "S/", "PEN" -> return "PEN"
+      "CA$", "CAD" -> return "CAD"
+      "A$", "AUD" -> return "AUD"
+      "¥", "JPY" -> return "JPY"
+      "CHF" -> return "CHF"
+      "kr" -> return "SEK"
+      "zł", "PLN" -> return "PLN"
+      "₩", "KRW" -> return "KRW"
+      "₹", "INR" -> return "INR"
+      "$" -> {
+        if (context != null) {
+          val loc = getSystemPreferredLocale(context)
+          val country = loc.country.uppercase()
+          return COUNTRY_TO_CURRENCY_CODE[country] ?: "USD"
+        }
+        return "USD"
+      }
+    }
+    val itemByCode = SUPPORTED_CURRENCIES.find { it.code.equals(clean, ignoreCase = true) }
+    if (itemByCode != null) return itemByCode.code
+    val itemBySymbol = SUPPORTED_CURRENCIES.find { it.symbol.equals(clean, ignoreCase = true) }
+    if (itemBySymbol != null) return itemBySymbol.code
+    return "USD"
   }
 
   /**
@@ -281,6 +326,7 @@ object LocaleHelper {
         "pt" -> return "R$"
         "de", "fr", "it" -> return "€"
         "sv" -> return "kr"
+        "ko" -> return "₩"
       }
     }
 
@@ -302,6 +348,7 @@ object LocaleHelper {
       "ja" -> Locale.JAPANESE
       "hi" -> Locale.forLanguageTag("hi")
       "sv" -> Locale.forLanguageTag("sv")
+      "ko" -> Locale.KOREAN
       else -> getSystemPreferredLocale(context)
     }
   }

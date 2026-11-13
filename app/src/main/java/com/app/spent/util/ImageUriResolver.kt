@@ -62,7 +62,8 @@ object ImageUriResolver {
             }
         }
 
-        return rawUriOrFileName
+        // 4. Missing local file fallback: return null so Coil cleanly renders the placeholder
+        return null
     }
 
     /**

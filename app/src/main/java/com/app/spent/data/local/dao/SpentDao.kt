@@ -54,6 +54,12 @@ interface SpentDao {
   @Update
   suspend fun updateCategory(category: CategoryEntity)
 
+  @Query("UPDATE transactions SET categoryId = 'cat_general' WHERE categoryId = :categoryId")
+  suspend fun reassignTransactionsToGeneral(categoryId: String)
+
+  @Query("UPDATE recurring_rules SET categoryId = 'cat_general' WHERE categoryId = :categoryId")
+  suspend fun reassignRecurringRulesToGeneral(categoryId: String)
+
   @Query("DELETE FROM categories WHERE id = :id")
   suspend fun deleteCategoryById(id: String)
 

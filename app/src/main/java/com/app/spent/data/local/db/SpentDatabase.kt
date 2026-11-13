@@ -6,10 +6,13 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
+import com.app.spent.data.local.dao.AssetDao
 import com.app.spent.data.local.dao.SpentDao
+import com.app.spent.data.local.entity.AssetHoldingEntity
 import com.app.spent.data.local.entity.CategoryEntity
 import com.app.spent.data.local.entity.FamilyMemberEntity
 import com.app.spent.data.local.entity.LoanEntity
+import com.app.spent.data.local.entity.MarketPriceEntity
 import com.app.spent.data.local.entity.ParentalControlConfigEntity
 import com.app.spent.data.local.entity.PayCycleEntity
 import com.app.spent.data.local.entity.RecurringRuleEntity
@@ -25,14 +28,17 @@ import com.app.spent.data.local.entity.UserAccountEntity
         PayCycleEntity::class,
         TransactionEntity::class,
         RecurringRuleEntity::class,
-        LoanEntity::class
+        LoanEntity::class,
+        AssetHoldingEntity::class,
+        MarketPriceEntity::class
     ],
-    version = 5,
+    version = 7,
     exportSchema = true
 )
 abstract class SpentDatabase : RoomDatabase() {
 
   abstract fun spentDao(): SpentDao
+  abstract fun assetDao(): AssetDao
 
   companion object {
     @Volatile
@@ -135,6 +141,69 @@ abstract class SpentDatabase : RoomDatabase() {
       }
     }
 
+    val MIGRATION_5_6 = object : Migration(5, 6) {
+      override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL(
+          """
+          CREATE TABLE IF NOT EXISTS `asset_holdings` (
+              `id` TEXT NOT NULL,
+              `symbol` TEXT NOT NULL,
+              `name` TEXT NOT NULL,
+              `type` TEXT NOT NULL,
+              `quantity` REAL NOT NULL,
+              `averageBuyPrice` REAL,
+              `currency` TEXT NOT NULL,
+              `manualPriceOverride` REAL,
+              `isManualPrice` INTEGER NOT NULL,
+              `notes` TEXT,
+              `createdAt` INTEGER NOT NULL,
+              PRIMARY KEY(`id`)
+          )
+          """.trimIndent()
+        )
+        db.execSQL(
+          """
+          CREATE TABLE IF NOT EXISTS `market_prices` (
+              `symbol` TEXT NOT NULL,
+              `priceInBaseCurrency` REAL NOT NULL,
+              `change24hPct` REAL NOT NULL,
+              `high24h` REAL,
+              `low24h` REAL,
+              `lastUpdated` INTEGER NOT NULL,
+              PRIMARY KEY(`symbol`)
+          )
+          """.trimIndent()
+        )
+      }
+    }
+
+    val MIGRATION_6_7 = object : Migration(6, 7) {
+      override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL(
+          """
+          CREATE TABLE IF NOT EXISTS `market_prices_new` (
+              `symbol` TEXT NOT NULL,
+              `baseCurrency` TEXT NOT NULL,
+              `priceInBaseCurrency` REAL NOT NULL,
+              `change24hPct` REAL NOT NULL,
+              `high24h` REAL,
+              `low24h` REAL,
+              `lastUpdated` INTEGER NOT NULL,
+              PRIMARY KEY(`symbol`, `baseCurrency`)
+          )
+          """.trimIndent()
+        )
+        db.execSQL(
+          """
+          INSERT INTO `market_prices_new` (`symbol`, `baseCurrency`, `priceInBaseCurrency`, `change24hPct`, `high24h`, `low24h`, `lastUpdated`)
+          SELECT `symbol`, 'USD', `priceInBaseCurrency`, `change24hPct`, `high24h`, `low24h`, `lastUpdated` FROM `market_prices`
+          """.trimIndent()
+        )
+        db.execSQL("DROP TABLE `market_prices`")
+        db.execSQL("ALTER TABLE `market_prices_new` RENAME TO `market_prices`")
+      }
+    }
+
     fun getInstance(context: Context): SpentDatabase {
       return INSTANCE ?: synchronized(this) {
         val instance = Room.databaseBuilder(
@@ -142,7 +211,7 @@ abstract class SpentDatabase : RoomDatabase() {
           SpentDatabase::class.java,
           "spent_database"
         )
-        .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_1_3, MIGRATION_3_4, MIGRATION_4_5)
+        .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_1_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7)
         .build()
         INSTANCE = instance
         instance

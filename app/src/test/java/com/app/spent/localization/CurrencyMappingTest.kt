@@ -29,6 +29,7 @@ class CurrencyMappingTest {
         assertEquals("₲", LocaleHelper.getSymbolForCurrencyCode("PYG"))
         assertEquals("₡", LocaleHelper.getSymbolForCurrencyCode("CRC"))
         assertEquals("kr", LocaleHelper.getSymbolForCurrencyCode("SEK"))
+        assertEquals("₩", LocaleHelper.getSymbolForCurrencyCode("KRW"))
     }
 
     @Test
@@ -41,6 +42,7 @@ class CurrencyMappingTest {
         assertEquals("COP", LocaleHelper.COUNTRY_TO_CURRENCY_CODE["CO"])
         assertEquals("MXN", LocaleHelper.COUNTRY_TO_CURRENCY_CODE["MX"])
         assertEquals("SEK", LocaleHelper.COUNTRY_TO_CURRENCY_CODE["SE"])
+        assertEquals("KRW", LocaleHelper.COUNTRY_TO_CURRENCY_CODE["KR"])
     }
 
     @Test
@@ -67,6 +69,12 @@ class CurrencyMappingTest {
 
             Locale.setDefault(Locale.forLanguageTag("sv"))
             assertEquals("kr", LocaleHelper.getSystemCurrencySymbol())
+
+            Locale.setDefault(Locale.forLanguageTag("ko-KR"))
+            assertEquals("₩", LocaleHelper.getSystemCurrencySymbol())
+
+            Locale.setDefault(Locale.forLanguageTag("ko"))
+            assertEquals("₩", LocaleHelper.getSystemCurrencySymbol())
 
             Locale.setDefault(Locale.ROOT)
             assertNotNull(LocaleHelper.getSystemCurrencySymbol())
@@ -100,5 +108,11 @@ class CurrencyMappingTest {
     fun testSwedishLocaleResolution() {
         val resolved = LocaleHelper.resolveLocale(languageCode = "sv")
         assertEquals("sv", resolved.language)
+    }
+
+    @Test
+    fun testKoreanLocaleResolution() {
+        val resolved = LocaleHelper.resolveLocale(languageCode = "ko")
+        assertEquals("ko", resolved.language)
     }
 }

@@ -25,6 +25,9 @@ interface SpentRepository {
   val isWalkthroughCompletedFlow: Flow<Boolean>
   val isDarkThemeFlow: Flow<Boolean?>
   val currencySymbolFlow: Flow<String>
+  val currencyCodeFlow: Flow<String> get() = kotlinx.coroutines.flow.flowOf("USD")
+  val currentCurrencySymbol: String get() = "$"
+  val currentCurrencyCode: String get() = "USD"
   val appLanguageFlow: Flow<String?>
   val savingsGoalNameFlow: Flow<String>
   val savingsGoalTotalFlow: Flow<Double>
@@ -97,12 +100,16 @@ interface SpentRepository {
   suspend fun setWalkthroughCompleted(completed: Boolean)
   suspend fun setDarkThemeMode(enabled: Boolean?)
   suspend fun setCurrencySymbol(symbol: String)
+  suspend fun setCurrency(symbol: String, code: String) {}
   suspend fun setAppLanguage(languageCode: String?)
   suspend fun setImageStorageLocation(location: String)
   suspend fun setSavingsGoal(name: String, totalGoal: Double, monthlyContribution: Double)
   suspend fun clearSavingsGoal()
   suspend fun setNetSavingsHidden(hidden: Boolean)
   suspend fun setLastDriveSyncTimestamp(timestamp: Long)
+  fun getAssetHoldingsFlow(): Flow<List<com.app.spent.data.local.entity.AssetHoldingEntity>> =
+    kotlinx.coroutines.flow.flowOf(emptyList())
+
   suspend fun restoreAllData(
     categories: List<CategoryEntity>,
     transactions: List<TransactionEntity>,
@@ -111,5 +118,17 @@ interface SpentRepository {
     userAccount: UserAccountEntity?,
     loans: List<LoanEntity> = emptyList()
   )
+
+  suspend fun restoreAllData(
+    categories: List<CategoryEntity>,
+    transactions: List<TransactionEntity>,
+    payCycle: PayCycleEntity?,
+    recurringRules: List<RecurringRuleEntity>,
+    userAccount: UserAccountEntity?,
+    loans: List<LoanEntity>,
+    assetHoldings: List<com.app.spent.data.local.entity.AssetHoldingEntity>
+  ) {
+    restoreAllData(categories, transactions, payCycle, recurringRules, userAccount, loans)
+  }
   suspend fun resetAllData(deleteDriveImages: Boolean = false)
 }

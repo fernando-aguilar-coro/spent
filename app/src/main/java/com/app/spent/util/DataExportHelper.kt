@@ -9,15 +9,26 @@ import java.util.Locale
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
 
+import android.content.ClipData
+import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.widget.Toast
 import androidx.core.content.FileProvider
+import com.app.spent.data.local.entity.AssetHoldingEntity
 import com.app.spent.data.local.entity.CategoryEntity
 import com.app.spent.data.local.entity.TransactionEntity
 
 object DataExportHelper {
+
+  data class ExportLabels(
+    val income: String = "Income",
+    val expenses: String = "Expenses",
+    val total: String = "Total",
+    val portfolio: String = "Portfolio",
+    val portfolioTotal: String = "Portfolio total"
+  )
 
   /**
    * Generates a standard default filename for transaction exports.
@@ -30,15 +41,142 @@ object DataExportHelper {
   /**
    * Exports transactions directly to a selected Content URI (e.g. from ACTION_CREATE_DOCUMENT / Storage Access Framework).
    */
+  fun filterByDateRange(
+    transactions: List<TransactionEntity>,
+    fromMillis: Long?,
+    toMillis: Long?
+  ): List<TransactionEntity> {
+    return transactions.filter { tx ->
+      (fromMillis == null || tx.timestamp >= fromMillis) &&
+        (toMillis == null || tx.timestamp <= toMillis)
+    }
+  }
+
+  /**
+   * Builds a plain-text, messaging-app friendly summary (e.g. WhatsApp).
+   * Transactions are grouped by month; each row keeps few columns:
+   * dd/MM  ±amount  Category  (detailed mode adds time, type and note).
+   */
+  fun buildWhatsAppText(
+    transactions: List<TransactionEntity>,
+    categories: List<CategoryEntity>,
+    holdings: List<AssetHoldingEntity> = emptyList(),
+    currencySymbol: String = "",
+    currencyCode: String = "",
+    detailed: Boolean = false,
+    labels: ExportLabels = ExportLabels()
+  ): String {
+    val categoryMap = categories.associateBy({ it.id }, { it.name })
+    val dayFormat = SimpleDateFormat("dd/MM", Locale.getDefault())
+    val monthFormat = SimpleDateFormat("MMMM yyyy", Locale.getDefault())
+    val timeFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
+    val sorted = transactions.sortedBy { it.timestamp }
+
+    val sb = StringBuilder()
+    var currentMonthKey: String? = null
+    var totalIncome = 0.0
+    var totalExpense = 0.0
+
+    sorted.forEach { tx ->
+      val date = Date(tx.timestamp)
+      val monthKey = monthFormat.format(date)
+      if (monthKey != currentMonthKey) {
+        if (currentMonthKey != null) sb.append('\n')
+        sb.append('*').append(monthKey.replaceFirstChar { it.uppercase() }).append("*\n")
+        currentMonthKey = monthKey
+      }
+
+      val isIncome = tx.type.equals("INCOME", ignoreCase = true)
+      val signed = if (isIncome) tx.amount else -tx.amount
+      if (isIncome) totalIncome += tx.amount else totalExpense += tx.amount
+
+      val amountStr = formatSignedAmount(signed, currencySymbol)
+      val categoryName = categoryMap[tx.categoryId] ?: "General"
+      val row = if (detailed) {
+        val typeStr = tx.type.lowercase().replaceFirstChar { it.uppercase() }
+        val note = tx.note.trim()
+        buildString {
+          append(dayFormat.format(date))
+          append(' ').append(timeFormat.format(date))
+          append("  ").append(amountStr)
+          append("  ").append(typeStr)
+          append("  ").append(categoryName)
+          if (note.isNotEmpty()) append(" — ").append(note)
+        }
+      } else {
+        "${dayFormat.format(date)}  $amountStr  $categoryName"
+      }
+      sb.append(row).append('\n')
+    }
+
+    if (sorted.isNotEmpty()) {
+      sb.append("------------------------\n")
+      sb.append("${labels.income} : ").append(formatSignedAmount(totalIncome, currencySymbol)).append('\n')
+      sb.append("${labels.expenses} : ").append(formatSignedAmount(-totalExpense, currencySymbol)).append('\n')
+      sb.append("${labels.total} : ").append(
+        formatSignedAmount(totalIncome - totalExpense, currencySymbol)
+      ).append('\n')
+    }
+
+    if (holdings.isNotEmpty()) {
+      sb.append('\n').append('*').append(labels.portfolio).append("*\n")
+      var portfolioTotal = 0.0
+      holdings.forEach { holding ->
+        val unitPrice = holding.manualPriceOverride ?: holding.averageBuyPrice
+        val line = if (unitPrice != null && unitPrice > 0.0) {
+          val total = holding.quantity * unitPrice
+          portfolioTotal += total
+          "${holding.symbol} · ${holding.name} — ${formatQty(holding.quantity)} × ${formatPlain(unitPrice, currencySymbol)} = ${formatPlain(total, currencySymbol)} $currencyCode"
+        } else {
+          "${holding.symbol} · ${holding.name} — ${formatQty(holding.quantity)} units"
+        }
+        sb.append(line).append('\n')
+      }
+      if (portfolioTotal > 0.0) {
+        sb.append("${labels.portfolioTotal} : ${formatPlain(portfolioTotal, currencySymbol)} $currencyCode\n")
+      }
+    }
+
+    return sb.toString().trimEnd()
+  }
+
+  /**
+   * Copies [text] to the system clipboard and confirms with a toast.
+   */
+  fun copyTextToClipboard(context: Context, text: String, toastMessage: String = "Copied to clipboard") {
+    val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+    clipboard.setPrimaryClip(ClipData.newPlainText("Spent export", text))
+    Toast.makeText(context, toastMessage, Toast.LENGTH_SHORT).show()
+  }
+
+  private fun formatSignedAmount(value: Double, currencySymbol: String): String {
+    val sign = if (value < 0) "-" else "+"
+    val abs = kotlin.math.abs(value)
+    return "$sign$currencySymbol${String.format(Locale.US, "%.2f", abs)}"
+  }
+
+  private fun formatPlain(value: Double, currencySymbol: String): String {
+    return "$currencySymbol${String.format(Locale.US, "%.2f", value)}"
+  }
+
+  private fun formatQty(value: Double): String {
+    return if (value == value.toLong().toDouble()) {
+      value.toLong().toString()
+    } else {
+      String.format(Locale.US, "%.4f", value).trimEnd('0').trimEnd('.')
+    }
+  }
+
   fun writeExcelToUri(
     context: Context,
     uri: Uri,
     transactions: List<TransactionEntity>,
-    categories: List<CategoryEntity>
+    categories: List<CategoryEntity>,
+    holdings: List<AssetHoldingEntity> = emptyList()
   ): Boolean {
     return try {
       context.contentResolver.openOutputStream(uri)?.use { outputStream ->
-        generateXlsxToStream(outputStream, transactions, categories)
+        generateXlsxToStream(outputStream, transactions, categories, holdings)
       }
       Toast.makeText(context, "Spreadsheet saved successfully", Toast.LENGTH_SHORT).show()
       true
@@ -55,10 +193,11 @@ object DataExportHelper {
   fun shareExcelFile(
     context: Context,
     transactions: List<TransactionEntity>,
-    categories: List<CategoryEntity>
+    categories: List<CategoryEntity>,
+    holdings: List<AssetHoldingEntity> = emptyList()
   ) {
-    if (transactions.isEmpty()) {
-      Toast.makeText(context, "No transactions available to export", Toast.LENGTH_SHORT).show()
+    if (transactions.isEmpty() && holdings.isEmpty()) {
+      Toast.makeText(context, "No data available to export", Toast.LENGTH_SHORT).show()
       return
     }
 
@@ -68,7 +207,7 @@ object DataExportHelper {
       val xlsxFile = File(exportDir, xlsxFileName)
 
       FileOutputStream(xlsxFile).use { outputStream ->
-        generateXlsxToStream(outputStream, transactions, categories)
+        generateXlsxToStream(outputStream, transactions, categories, holdings)
       }
 
       val fileUri = FileProvider.getUriForFile(
@@ -100,9 +239,10 @@ object DataExportHelper {
   fun exportTransactionsToExcel(
     context: Context,
     transactions: List<TransactionEntity>,
-    categories: List<CategoryEntity>
+    categories: List<CategoryEntity>,
+    holdings: List<AssetHoldingEntity> = emptyList()
   ) {
-    shareExcelFile(context, transactions, categories)
+    shareExcelFile(context, transactions, categories, holdings)
   }
 
   /**
@@ -111,7 +251,8 @@ object DataExportHelper {
   fun generateXlsxToStream(
     outputStream: OutputStream,
     transactions: List<TransactionEntity>,
-    categories: List<CategoryEntity>
+    categories: List<CategoryEntity>,
+    holdings: List<AssetHoldingEntity> = emptyList()
   ) {
     val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
     val timeFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
@@ -236,6 +377,39 @@ object DataExportHelper {
         sheetBuilder.append("""<c r="E$rowIndex" t="inlineStr"><is><t>$catName</t></is></c>""")
         sheetBuilder.append("""<c r="F$rowIndex" t="inlineStr"><is><t>$noteStr</t></is></c>""")
         sheetBuilder.append("""</row>""")
+      }
+
+      // Portfolio holdings snapshot rows (appended after a blank separator row)
+      if (holdings.isNotEmpty()) {
+        var rowIndex = sortedTransactions.size + 2
+        sheetBuilder.append("""<row r="$rowIndex"/>""")
+        rowIndex++
+        holdings.forEach { holding ->
+          val unitPrice = holding.manualPriceOverride ?: holding.averageBuyPrice
+          val amount = if (unitPrice != null && unitPrice > 0.0) holding.quantity * unitPrice else holding.quantity
+          val amountStr = String.format(Locale.US, "%.2f", amount)
+          val catName = escapeXml(holding.name.ifBlank { holding.symbol })
+          val noteStr = escapeXml(
+            buildString {
+              append(formatQty(holding.quantity))
+              append(' ').append(holding.symbol)
+              if (unitPrice != null && unitPrice > 0.0) {
+                append(" @ ").append(String.format(Locale.US, "%.2f", unitPrice)).append(' ').append(holding.currency)
+              }
+            }
+          )
+          val dateStr = dateFormat.format(Date(holding.createdAt))
+
+          sheetBuilder.append("""<row r="$rowIndex">""")
+          sheetBuilder.append("""<c r="A$rowIndex" t="inlineStr"><is><t>$dateStr</t></is></c>""")
+          sheetBuilder.append("""<c r="B$rowIndex" t="inlineStr"><is><t></t></is></c>""")
+          sheetBuilder.append("""<c r="C$rowIndex" t="inlineStr"><is><t>HOLDING</t></is></c>""")
+          sheetBuilder.append("""<c r="D$rowIndex"><v>$amountStr</v></c>""")
+          sheetBuilder.append("""<c r="E$rowIndex" t="inlineStr"><is><t>$catName</t></is></c>""")
+          sheetBuilder.append("""<c r="F$rowIndex" t="inlineStr"><is><t>$noteStr</t></is></c>""")
+          sheetBuilder.append("""</row>""")
+          rowIndex++
+        }
       }
 
       sheetBuilder.append("""</sheetData>""")

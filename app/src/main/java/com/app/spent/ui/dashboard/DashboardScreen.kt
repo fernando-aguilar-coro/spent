@@ -29,6 +29,7 @@ import androidx.compose.ui.unit.dp
 import com.app.spent.R
 import com.app.spent.data.local.entity.TransactionEntity
 import com.app.spent.ui.components.WalkthroughBanner
+import com.app.spent.ui.dashboard.components.AssetFeedItemRow
 import com.app.spent.ui.dashboard.components.CategoryEnvelopeRow
 import com.app.spent.ui.dashboard.components.DashboardHeaderCard
 import com.app.spent.ui.dashboard.components.DashboardProfileHeader
@@ -48,7 +49,8 @@ fun DashboardScreen(
     onNavigateToFixedBills: () -> Unit = {},
     onNavigateToLoansTracker: () -> Unit = {},
     onNavigateToSharedLedgers: () -> Unit = {},
-    onNavigateToHistory: () -> Unit = {}
+    onNavigateToHistory: () -> Unit = {},
+    onNavigateToPortfolio: () -> Unit = {}
 ) {
     val state by viewModel.uiState.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
@@ -97,9 +99,12 @@ fun DashboardScreen(
             item {
                 DashboardHeaderCard(
                     currencySymbol = state.currencySymbol,
+                    currencyCode = state.currencyCode,
                     totalIncome = state.totalIncome,
                     totalSpent = state.totalSpent,
                     totalSavings = state.totalSavings,
+                    totalVariableAssetsValuation = state.totalVariableAssetsValuation,
+                    variableAssetsCount = state.variableAssetsCount,
                     safeToSpendToday = state.safeToSpendToday,
                     isPayCycleActive = state.isPayCycleActive,
                     isNetSavingsHidden = state.isNetSavingsHidden,
@@ -107,6 +112,7 @@ fun DashboardScreen(
                         viewModel.onIntent(DashboardUiIntent.ToggleNetSavingsVisibility)
                     }
                 )
+
             }
 
             // Hero Quick Action Buttons Component
@@ -132,13 +138,16 @@ fun DashboardScreen(
                     categories = state.allCategories,
                     recurringRules = state.recurringRules,
                     loans = state.loans,
+                    holdings = state.assetHoldings,
                     currencySymbol = state.currencySymbol,
+                    currencyCode = state.currencyCode,
                     pendingBillsCount = state.pendingBillsCount,
                     pendingBillsTotal = state.pendingBillsTotal,
                     onNavigateToSavingsTracker = onNavigateToSavingsTracker,
                     onNavigateToFixedBills = onNavigateToFixedBills,
                     onNavigateToLoansTracker = onNavigateToLoansTracker,
-                    onNavigateToSharedLedgers = onNavigateToSharedLedgers
+                    onNavigateToSharedLedgers = onNavigateToSharedLedgers,
+                    onNavigateToPortfolio = onNavigateToPortfolio
                 )
             }
 
@@ -154,7 +163,7 @@ fun DashboardScreen(
                 )
             }
 
-            if (state.recentTransactions.isEmpty()) {
+            if (state.recentActivityItems.isEmpty()) {
                 item {
                     Box(
                         modifier = Modifier
@@ -171,15 +180,28 @@ fun DashboardScreen(
                 }
             } else {
                 items(
-                    items = state.recentTransactions,
+                    items = state.recentActivityItems,
                     key = { it.id }
-                ) { transaction ->
-                    TransactionItemRow(
-                        transaction = transaction,
-                        categories = state.allCategories,
-                        currencySymbol = state.currencySymbol,
-                        onClick = { selectedTransactionForDetails = transaction }
-                    )
+                ) { item ->
+                    when (item) {
+                        is DashboardActivityItem.TransactionRecord -> {
+                            TransactionItemRow(
+                                transaction = item.transaction,
+                                categories = state.allCategories,
+                                currencySymbol = state.currencySymbol,
+                                currencyCode = state.currencyCode,
+                                onClick = { selectedTransactionForDetails = item.transaction }
+                            )
+                        }
+                        is DashboardActivityItem.AssetHoldingRecord -> {
+                            AssetFeedItemRow(
+                                asset = item.asset,
+                                currencySymbol = state.currencySymbol,
+                                currencyCode = state.currencyCode,
+                                onClick = onNavigateToPortfolio
+                            )
+                        }
+                    }
                 }
 
                 // "See All" button placed after transactions for improved UX

@@ -116,6 +116,9 @@ fun SpentAppNavHost(
                     },
                     onNavigateToHistory = {
                         navController.navigate(Screen.TransactionHistory.route)
+                    },
+                    onNavigateToPortfolio = {
+                        navController.navigate(Screen.Portfolio.route)
                     }
                 )
             }
@@ -203,6 +206,15 @@ fun SpentAppNavHost(
                     onNavigateBack = { navController.popBackStack() }
                 )
             }
+
+            composable(Screen.Portfolio.route) {
+                val portfolioViewModel: com.app.spent.ui.portfolio.PortfolioViewModel = koinViewModel()
+                com.app.spent.ui.portfolio.PortfolioScreen(
+                    viewModel = portfolioViewModel,
+                    onNavigateBack = { navController.popBackStack() }
+                )
+            }
         }
     }
 }
+

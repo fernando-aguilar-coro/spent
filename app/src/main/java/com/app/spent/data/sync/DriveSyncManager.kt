@@ -215,12 +215,20 @@ object DriveSyncManager {
         if (uploadResult.isSuccess) {
           val now = System.currentTimeMillis()
           preferencesRepository.setLastDriveSyncTimestamp(now)
+          preferencesRepository.setDriveAuthRequired(false)
           Result.success(true)
         } else {
-          Result.failure(uploadResult.exceptionOrNull() ?: Exception("Failed to upload backup"))
+          val ex = uploadResult.exceptionOrNull() ?: Exception("Failed to upload backup")
+          if (isAuthException(ex)) {
+            preferencesRepository.setDriveAuthRequired(true)
+          }
+          Result.failure(ex)
         }
       } catch (e: Exception) {
         Log.e(TAG, "Error syncing to Drive", e)
+        if (isAuthException(e)) {
+          preferencesRepository.setDriveAuthRequired(true)
+        }
         _isSyncing.value = false
         Result.failure(e)
       }
@@ -259,15 +267,30 @@ object DriveSyncManager {
           if (uploadResult.isSuccess) {
             val now = System.currentTimeMillis()
             preferencesRepository.setLastDriveSyncTimestamp(now)
+            preferencesRepository.setDriveAuthRequired(false)
             Log.d(TAG, "Auto-sync to Google Drive completed successfully")
           } else {
-            Log.w(TAG, "Auto-sync to Google Drive failed: ${uploadResult.exceptionOrNull()?.message}")
+            val err = uploadResult.exceptionOrNull()
+            if (err != null && isAuthException(err)) {
+              preferencesRepository.setDriveAuthRequired(true)
+            }
+            Log.w(TAG, "Auto-sync to Google Drive failed: ${err?.message}")
           }
         }
       } catch (e: Exception) {
         Log.e(TAG, "Auto-sync exception", e)
+        if (isAuthException(e)) {
+          preferencesRepository.setDriveAuthRequired(true)
+        }
         _isSyncing.value = false
       }
     }
+  }
+
+  private fun isAuthException(t: Throwable): Boolean {
+    if (t is com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException) return true
+    if (t is com.google.api.client.googleapis.json.GoogleJsonResponseException && (t.statusCode == 401 || t.statusCode == 403)) return true
+    val msg = t.message?.lowercase() ?: ""
+    return msg.contains("401") || msg.contains("auth") || msg.contains("token") || msg.contains("unauthorized")
   }
 }

@@ -42,7 +42,7 @@
     <string name="tool_recurring_title">定期支払ルール</string>
     <string name="tool_recurring_desc">自動記録スケジュール</string>
     <string name="tool_recurring_toast">有効な定期ルール: %1$d 件を自動記録しました</string>
-    <string name="tool_export_excel_title">Excelに出力 (.xlsx)</string>
+    <string name="tool_export_excel_title">Export</string>
     <string name="tool_export_excel_desc">日付と時刻を分けてスプレッドシートをダウンロード</string>
     <string name="tool_shared_ledgers_title">共有家計簿</string>
     <string name="tool_shared_ledgers_desc">共同予算とメンバー同期</string>
@@ -415,6 +415,7 @@
     <string name="theme_dark">ダーク</string>
     <string name="currency_title">通貨</string>
     <string name="currency_desc">使用する通貨記号を選択</string>
+    <string name="currency_change_notice">株式、暗号資産などの資産は、選択した通貨に合わせて更新されます。通常の購入や支出は換算されず、通貨記号のみが変更されます。</string>
     <string name="language_title">言語 / Language</string>
     <string name="language_desc">アプリの表示言語を選択</string>
     <string name="language_system">システム設定に従う</string>
@@ -427,6 +428,7 @@
     <string name="language_ja">日本語 (Japanese)</string>
     <string name="language_hi">हिन्दी (Hindi)</string>
     <string name="language_sv">Svenska (Swedish)</string>
+    <string name="language_ko">한국어 (韓国語)</string>
     <string name="export_data_title">データをエクスポート (CSV)</string>
     <string name="export_data_desc">取引履歴をCSVファイルとしてダウンロード</string>
     <string name="export_csv_btn">CSVエクスポート</string>

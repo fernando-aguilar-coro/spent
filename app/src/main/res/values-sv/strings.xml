@@ -42,7 +42,7 @@
     <string name="tool_recurring_title">Återkommande regler</string>
     <string name="tool_recurring_desc">Automatiskt schemalagda regler</string>
     <string name="tool_recurring_toast">Aktiva återkommande regler: %1$d transaktioner loggades automatiskt</string>
-    <string name="tool_export_excel_title">Exportera till Excel (.xlsx)</string>
+    <string name="tool_export_excel_title">Export</string>
     <string name="tool_export_excel_desc">Ladda ner kalkylblad med separata datum- och tidskolumner</string>
     <string name="tool_shared_ledgers_title">Delad ekonomi</string>
     <string name="tool_shared_ledgers_desc">Gemensamma budgetar &amp; medlemssynk</string>
@@ -415,6 +415,7 @@
     <string name="theme_dark">Mörkt</string>
     <string name="currency_title">Valuta</string>
     <string name="currency_desc">Välj din föredragna valutasymbol</string>
+    <string name="currency_change_notice">Aktier, kryptovalutor och andra tillgångar uppdateras för att återspegla den valda valutan. Vanliga köp och utgifter konverteras inte; endast valutasymbolen ändras.</string>
     <string name="language_title">Språk / Language</string>
     <string name="language_desc">Välj programmets visningsspråk</string>
     <string name="language_system">Systemstandard</string>
@@ -427,6 +428,7 @@
     <string name="language_ja">日本語 (Japanese)</string>
     <string name="language_hi">हिन्दी (Hindi)</string>
     <string name="language_sv">Svenska (Swedish)</string>
+    <string name="language_ko">한국어 (Koreanska)</string>
     <string name="export_data_title">Exportera data (CSV)</string>
     <string name="export_data_desc">Ladda ner transaktioner som CSV-fil</string>
     <string name="export_csv_btn">Exportera CSV</string>

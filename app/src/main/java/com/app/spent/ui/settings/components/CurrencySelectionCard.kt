@@ -28,6 +28,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.RadioButton
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -47,12 +48,18 @@ import com.app.spent.util.LocaleHelper
 @Composable
 fun CurrencySelectionCard(
   currentCurrencySymbol: String,
-  onSelectCurrencySymbol: (symbol: String) -> Unit,
+  currentCurrencyCode: String = "",
+  onSelectCurrency: (symbol: String, code: String) -> Unit = { _, _ -> },
+  onSelectCurrencySymbol: (symbol: String) -> Unit = {},
   modifier: Modifier = Modifier
 ) {
   var showDialog by remember { mutableStateOf(false) }
-  val selectedLabel = remember(currentCurrencySymbol) {
-    LocaleHelper.getCurrencyItemForSymbol(currentCurrencySymbol)?.name ?: currentCurrencySymbol
+  val selectedLabel = remember(currentCurrencySymbol, currentCurrencyCode) {
+    if (currentCurrencyCode.isNotBlank()) {
+      LocaleHelper.getCurrencyItemForCode(currentCurrencyCode)?.name
+    } else {
+      null
+    } ?: LocaleHelper.getCurrencyItemForSymbol(currentCurrencySymbol)?.name ?: currentCurrencySymbol
   }
 
   Card(
@@ -90,6 +97,12 @@ fun CurrencySelectionCard(
   if (showDialog) {
     CurrencyPickerDialog(
       currentCurrencySymbol = currentCurrencySymbol,
+      currentCurrencyCode = currentCurrencyCode,
+      onSelectCurrency = { symbol, code ->
+        onSelectCurrency(symbol, code)
+        onSelectCurrencySymbol(symbol)
+        showDialog = false
+      },
       onSelectCurrencySymbol = {
         onSelectCurrencySymbol(it)
         showDialog = false
@@ -102,7 +115,9 @@ fun CurrencySelectionCard(
 @Composable
 fun CurrencyPickerDialog(
   currentCurrencySymbol: String,
-  onSelectCurrencySymbol: (symbol: String) -> Unit,
+  currentCurrencyCode: String = "",
+  onSelectCurrency: (symbol: String, code: String) -> Unit = { _, _ -> },
+  onSelectCurrencySymbol: (symbol: String) -> Unit = {},
   onDismiss: () -> Unit
 ) {
   var searchQuery by remember { mutableStateOf("") }
@@ -162,16 +177,39 @@ fun CurrencyPickerDialog(
           )
         )
 
+        Surface(
+          modifier = Modifier
+            .fillMaxWidth()
+            .padding(bottom = 12.dp),
+          shape = RoundedCornerShape(12.dp),
+          color = MaterialTheme.colorScheme.secondaryContainer
+        ) {
+          Text(
+            text = stringResource(R.string.currency_change_notice),
+            modifier = Modifier.padding(12.dp),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSecondaryContainer
+          )
+        }
+
         LazyColumn(
           modifier = Modifier
             .fillMaxWidth()
-            .heightIn(max = 380.dp)
+            .heightIn(max = 320.dp)
         ) {
           items(filteredList, key = { it.code }) { item ->
+            val isSelected = if (currentCurrencyCode.isNotBlank()) {
+              currentCurrencyCode.equals(item.code, ignoreCase = true)
+            } else {
+              currentCurrencySymbol == item.symbol
+            }
             Row(
               modifier = Modifier
                 .fillMaxWidth()
-                .clickable { onSelectCurrencySymbol(item.symbol) }
+                .clickable {
+                  onSelectCurrency(item.symbol, item.code)
+                  onSelectCurrencySymbol(item.symbol)
+                }
                 .padding(vertical = 8.dp, horizontal = 4.dp),
               verticalAlignment = Alignment.CenterVertically
             ) {
@@ -193,14 +231,17 @@ fun CurrencyPickerDialog(
               }
               Spacer(modifier = Modifier.width(12.dp))
               Text(
-                text = item.name,
+                text = "${item.name} (${item.code})",
                 style = MaterialTheme.typography.bodyMedium,
                 fontWeight = FontWeight.Medium,
                 modifier = Modifier.weight(1f)
               )
               RadioButton(
-                selected = currentCurrencySymbol == item.symbol,
-                onClick = { onSelectCurrencySymbol(item.symbol) }
+                selected = isSelected,
+                onClick = {
+                  onSelectCurrency(item.symbol, item.code)
+                  onSelectCurrencySymbol(item.symbol)
+                }
               )
             }
           }

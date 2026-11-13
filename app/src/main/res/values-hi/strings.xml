@@ -42,7 +42,7 @@
     <string name="tool_recurring_title">आवर्ती नियम</string>
     <string name="tool_recurring_desc">स्वतः निर्धारित नियम</string>
     <string name="tool_recurring_toast">सक्रिय आवर्ती नियम: %1$d लेनदेन स्वतः दर्ज</string>
-    <string name="tool_export_excel_title">एक्सेल में निर्यात करें (.xlsx)</string>
+    <string name="tool_export_excel_title">Export</string>
     <string name="tool_export_excel_desc">अलग दिनांक और समय कॉलम के साथ स्प्रेडशीट डाउनलोड करें</string>
     <string name="tool_shared_ledgers_title">साझा वित्त</string>
     <string name="tool_shared_ledgers_desc">सहयोगात्मक बजट और सदस्य सिंक</string>
@@ -415,6 +415,7 @@
     <string name="theme_dark">डार्क</string>
     <string name="currency_title">मुद्रा</string>
     <string name="currency_desc">अपना पसंदीदा मुद्रा प्रतीक चुनें</string>
+    <string name="currency_change_notice">स्टॉक, क्रिप्टोकरेंसी और अन्य संपत्तियाँ चुनी गई मुद्रा के अनुसार अपडेट होंगी। सामान्य खरीदारी और खर्चों का रूपांतरण नहीं होगा; केवल मुद्रा का प्रतीक बदलेगा।</string>
     <string name="language_title">भाषा (Language)</string>
     <string name="language_desc">एप्लिकेशन प्रदर्शन भाषा चुनें</string>
     <string name="language_system">सिस्टम डिफ़ॉल्ट</string>
@@ -427,6 +428,7 @@
     <string name="language_ja">日本語 (Japanese)</string>
     <string name="language_hi">हिन्दी (Hindi)</string>
     <string name="language_sv">Svenska (Swedish)</string>
+    <string name="language_ko">한국어 (कोरियाई)</string>
     <string name="export_data_title">डेटा निर्यात करें (CSV)</string>
     <string name="export_data_desc">लेनदेन को CSV फ़ाइल के रूप में डाउनलोड करें</string>
     <string name="export_csv_btn">CSV निर्यात करें</string>

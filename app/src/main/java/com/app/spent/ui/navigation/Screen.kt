@@ -9,6 +9,7 @@ import androidx.compose.material.icons.filled.Bolt
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Savings
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.TrendingUp
 import androidx.compose.ui.graphics.vector.ImageVector
 import com.app.spent.R
 sealed class Screen(val route: String, @StringRes val titleResId: Int, val icon: ImageVector) {
@@ -18,6 +19,7 @@ sealed class Screen(val route: String, @StringRes val titleResId: Int, val icon:
   object FixedBills : Screen("fixed_bills", R.string.fixed_bills_screen_title, Icons.Default.Bolt)
   object LoansTracker : Screen("loans_tracker", R.string.loans_tracker_screen_title, Icons.Default.AccountBalance)
   object SavingsTracker : Screen("savings_tracker", R.string.savings_tracker_title, Icons.Default.Savings)
+  object Portfolio : Screen("portfolio", R.string.portfolio_title, Icons.Default.TrendingUp)
   object SharedLedgers : Screen("shared_ledgers", R.string.shared_ledgers_screen_title, Icons.Default.AccountBalance)
   object TransactionHistory : Screen("transaction_history", R.string.history_title, Icons.Default.AccountBalance)
   object Onboarding : Screen("onboarding", R.string.onboarding_welcome_title, Icons.Default.AccountBalance)

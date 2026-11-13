@@ -175,10 +175,14 @@ repository: SpentRepository
       // Currency Selector Option
       item {
         CurrencySelectionCard(
-        currentCurrencySymbol = state.currencySymbol,
-        onSelectCurrencySymbol = { symbol ->
-          viewModel.onIntent(SettingsUiIntent.SetCurrencySymbol(symbol))
-        }
+          currentCurrencySymbol = state.currencySymbol,
+          currentCurrencyCode = state.currencyCode,
+          onSelectCurrency = { symbol, code ->
+            viewModel.onIntent(SettingsUiIntent.SetCurrency(symbol, code))
+          },
+          onSelectCurrencySymbol = { symbol ->
+            viewModel.onIntent(SettingsUiIntent.SetCurrencySymbol(symbol))
+          }
         )
         Spacer(modifier = Modifier.height(12.dp))
       }
@@ -198,7 +202,10 @@ repository: SpentRepository
       item {
         ExportCsvCard(
         transactions = state.transactions,
-        categories = state.categories
+        categories = state.categories,
+        holdings = state.assetHoldings,
+        currencySymbol = state.currencySymbol,
+        currencyCode = state.currencyCode
         )
         Spacer(modifier = Modifier.height(12.dp))
       }

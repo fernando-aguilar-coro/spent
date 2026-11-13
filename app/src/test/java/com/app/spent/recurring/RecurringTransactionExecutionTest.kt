@@ -321,6 +321,18 @@ class FakeSpentDao : SpentDao {
     override suspend fun insertCategory(category: CategoryEntity) {}
     override suspend fun insertCategories(categories: List<CategoryEntity>) {}
     override suspend fun updateCategory(category: CategoryEntity) {}
+    override suspend fun reassignTransactionsToGeneral(categoryId: String) {
+        for (i in transactions.indices) {
+            if (transactions[i].categoryId == categoryId) {
+                transactions[i] = transactions[i].copy(categoryId = "cat_general")
+            }
+        }
+    }
+    override suspend fun reassignRecurringRulesToGeneral(categoryId: String) {
+        recurringRules.values.filter { it.categoryId == categoryId }.forEach {
+            recurringRules[it.id] = it.copy(categoryId = "cat_general")
+        }
+    }
     override suspend fun deleteCategoryById(id: String) {}
     override fun getCurrentPayCycleFlow(): Flow<PayCycleEntity?> = MutableStateFlow(null)
     override suspend fun getCurrentPayCycle(): PayCycleEntity? = null

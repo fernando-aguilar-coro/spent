@@ -245,423 +245,64 @@ fun AddLoanFormCard(
             }
 
             // Direction Selector: "Debo a" vs "Me deben"
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(12.dp))
-                    .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
-                    .padding(3.dp),
-                horizontalArrangement = Arrangement.SpaceEvenly
-            ) {
-                Button(
-                    onClick = { loanType = "I_OWE" },
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = if (isIOwe) ExpenseRed else Color.Transparent,
-                        contentColor = if (isIOwe) Color.White else MaterialTheme.colorScheme.onSurface
-                    ),
-                    shape = RoundedCornerShape(10.dp),
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Text(
-                        text = stringResource(R.string.tab_i_owe),
-                        fontSize = 13.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
-
-                Spacer(modifier = Modifier.width(4.dp))
-
-                Button(
-                    onClick = { loanType = "OWED_TO_ME" },
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = if (!isIOwe) IncomeGreen else Color.Transparent,
-                        contentColor = if (!isIOwe) Color.White else MaterialTheme.colorScheme.onSurface
-                    ),
-                    shape = RoundedCornerShape(10.dp),
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Text(
-                        text = stringResource(R.string.tab_owed_to_me),
-                        fontSize = 13.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
-            }
+            LoanDirectionSelector(
+                loanType = loanType,
+                onTypeChanged = { loanType = it }
+            )
 
             // Mode Selector Tabs (Monthly Quota vs Total Principal)
-            TabRow(
-                selectedTabIndex = selectedTabMode,
-                containerColor = Color.Transparent,
-                indicator = { tabPositions ->
-                    TabRowDefaults.SecondaryIndicator(
-                        Modifier.tabIndicatorOffset(tabPositions[selectedTabMode]),
-                        color = accentColor
-                    )
-                },
-                divider = {}
-            ) {
-                Tab(
-                    selected = selectedTabMode == 0,
-                    onClick = { selectedTabMode = 0 },
-                    text = {
-                        Text(
-                            text = stringResource(R.string.tab_calc_monthly_quota),
-                            fontWeight = if (selectedTabMode == 0) FontWeight.Bold else FontWeight.Normal,
-                            fontSize = 13.sp,
-                            color = if (selectedTabMode == 0) accentColor else MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                )
-                Tab(
-                    selected = selectedTabMode == 1,
-                    onClick = { selectedTabMode = 1 },
-                    text = {
-                        Text(
-                            text = stringResource(R.string.tab_calc_total_amount),
-                            fontWeight = if (selectedTabMode == 1) FontWeight.Bold else FontWeight.Normal,
-                            fontSize = 13.sp,
-                            color = if (selectedTabMode == 1) accentColor else MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                )
-            }
+            LoanCalculationModeTabs(
+                selectedTabMode = selectedTabMode,
+                onTabChanged = { selectedTabMode = it },
+                accentColor = accentColor
+            )
 
             // ==================== PATH 1: BY MONTHLY QUOTA ====================
             if (selectedTabMode == 0) {
-                val parsedQuota = monthlyQuotaText.replace(',', '.').toDoubleOrNull() ?: 0.0
-                val computedTotal = parsedQuota * quotaDurationMonths
-
-                // 1. Monthly Quota Input Field
-                OutlinedTextField(
-                    value = monthlyQuotaText,
-                    onValueChange = { input ->
-                        if (input.isEmpty() || input.matches(Regex("^[0-9+×÷\\-\\.\\,\\s]*$"))) {
-                            monthlyQuotaText = input
-                        }
+                LoanMonthlyQuotaSection(
+                    monthlyQuotaText = monthlyQuotaText,
+                    onMonthlyQuotaChange = { monthlyQuotaText = it },
+                    durationMonths = quotaDurationMonths,
+                    onDurationChange = { months ->
+                        quotaDurationMonths = months
+                        customEndDateMillis = Calendar.getInstance().apply {
+                            timeInMillis = startDateMillis
+                            add(Calendar.MONTH, months)
+                        }.timeInMillis
                     },
-                    label = { Text(stringResource(R.string.loan_monthly_quota_label), fontSize = 13.sp) },
-                    placeholder = { Text("0.00", fontSize = 13.sp) },
-                    prefix = {
-                        Text(
-                            text = "$currencySymbol ",
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 16.sp,
-                            color = accentColor
-                        )
-                    },
-                    singleLine = true,
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                    shape = RoundedCornerShape(14.dp),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedContainerColor = MaterialTheme.colorScheme.surface,
-                        unfocusedContainerColor = MaterialTheme.colorScheme.surface
-                    ),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .focusRequester(focusRequesterQuota)
+                    startDateMillis = startDateMillis,
+                    customEndDateMillis = customEndDateMillis,
+                    onDateClick = { activeDatePickerTarget = it },
+                    currencySymbol = currencySymbol,
+                    accentColor = accentColor,
+                    focusRequester = focusRequesterQuota
                 )
-
-                // 2. Duration Shortcuts (Months)
-                Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                    Text(
-                        text = stringResource(R.string.loan_duration_label),
-                        style = MaterialTheme.typography.labelMedium,
-                        fontWeight = FontWeight.SemiBold,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                    LazyRow(
-                        horizontalArrangement = Arrangement.spacedBy(6.dp),
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        items(listOf(3, 6, 12, 18, 24, 36, 48)) { months ->
-                            FilterChip(
-                                selected = quotaDurationMonths == months,
-                                onClick = {
-                                    quotaDurationMonths = months
-                                    // Update end date automatically based on duration
-                                    val cal = Calendar.getInstance().apply {
-                                        timeInMillis = startDateMillis
-                                        add(Calendar.MONTH, months)
-                                    }
-                                    customEndDateMillis = cal.timeInMillis
-                                },
-                                label = { Text("$months m", fontSize = 12.sp) }
-                            )
-                        }
-                    }
-                }
-
-                // 3. Start Date & End Date Row
-                val computedEndDate = remember(startDateMillis, quotaDurationMonths, customEndDateMillis) {
-                    customEndDateMillis ?: Calendar.getInstance().apply {
-                        timeInMillis = startDateMillis
-                        add(Calendar.MONTH, quotaDurationMonths)
-                    }.timeInMillis
-                }
-                val dateFormat = remember { SimpleDateFormat("MMM dd, yyyy", Locale.getDefault()) }
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    // Start Date Card
-                    Box(
-                        modifier = Modifier
-                            .weight(1f)
-                            .clip(RoundedCornerShape(12.dp))
-                            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f))
-                            .clickable { activeDatePickerTarget = "START" }
-                            .padding(10.dp)
-                    ) {
-                        Column {
-                            Text(
-                                text = stringResource(R.string.loan_start_date_label),
-                                style = MaterialTheme.typography.labelSmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                            Spacer(modifier = Modifier.height(2.dp))
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Icon(Icons.Default.CalendarMonth, contentDescription = null, modifier = Modifier.size(14.dp), tint = MaterialTheme.colorScheme.primary)
-                                Spacer(modifier = Modifier.width(4.dp))
-                                Text(dateFormat.format(Date(startDateMillis)), fontSize = 12.sp, fontWeight = FontWeight.Bold)
-                            }
-                        }
-                    }
-
-                    // End Date Card
-                    Box(
-                        modifier = Modifier
-                            .weight(1f)
-                            .clip(RoundedCornerShape(12.dp))
-                            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f))
-                            .clickable { activeDatePickerTarget = "END" }
-                            .padding(10.dp)
-                    ) {
-                        Column {
-                            Text(
-                                text = stringResource(R.string.loan_end_date_label),
-                                style = MaterialTheme.typography.labelSmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                            Spacer(modifier = Modifier.height(2.dp))
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Icon(Icons.Default.CalendarMonth, contentDescription = null, modifier = Modifier.size(14.dp), tint = MaterialTheme.colorScheme.primary)
-                                Spacer(modifier = Modifier.width(4.dp))
-                                Text(dateFormat.format(Date(computedEndDate)), fontSize = 12.sp, fontWeight = FontWeight.Bold)
-                            }
-                        }
-                    }
-                }
-
-                // 4. Live Total Summary Pill
-                if (parsedQuota > 0) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clip(RoundedCornerShape(12.dp))
-                            .background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f))
-                            .padding(horizontal = 12.dp, vertical = 8.dp)
-                    ) {
-                        Text(
-                            text = stringResource(
-                                R.string.loan_calculated_total_pill,
-                                "$currencySymbol${"%.2f".format(computedTotal)}",
-                                quotaDurationMonths,
-                                "$currencySymbol${"%.2f".format(parsedQuota)}"
-                            ),
-                            style = MaterialTheme.typography.bodySmall,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onPrimaryContainer
-                        )
-                    }
-                }
             }
 
             // ==================== PATH 2: BY TOTAL LOAN AMOUNT ====================
             if (selectedTabMode == 1) {
-                val parsedPrincipal = totalPrincipalText.replace(',', '.').toDoubleOrNull() ?: 0.0
-                val parsedRate = interestRateText.replace(',', '.').toDoubleOrNull() ?: 0.0
-                val totalWithInterest = if (parsedRate > 0) parsedPrincipal * (1.0 + (parsedRate / 100.0)) else parsedPrincipal
-                val activeDuration = totalDurationMonths
-                val isIndefinite = activeDuration == null || activeDuration <= 0
-
-                // Safe monthly quota computation (guards against division by 0 / infinity)
-                val safeMonthlyQuota = if (!isIndefinite && activeDuration != null && activeDuration > 0) {
-                    totalWithInterest / activeDuration
-                } else null
-
-                // 1. Total Principal Amount Input
-                OutlinedTextField(
-                    value = totalPrincipalText,
-                    onValueChange = { input ->
-                        if (input.isEmpty() || input.matches(Regex("^[0-9+×÷\\-\\.\\,\\s]*$"))) {
-                            totalPrincipalText = input
+                LoanTotalPrincipalSection(
+                    principalText = totalPrincipalText,
+                    onPrincipalChange = { totalPrincipalText = it },
+                    interestRateText = interestRateText,
+                    onInterestRateChange = { interestRateText = it },
+                    durationMonths = totalDurationMonths,
+                    onDurationChange = { months ->
+                        totalDurationMonths = months
+                        customEndDateMillis = months?.let {
+                            Calendar.getInstance().apply {
+                                timeInMillis = startDateMillis
+                                add(Calendar.MONTH, it)
+                            }.timeInMillis
                         }
                     },
-                    label = { Text(stringResource(R.string.loan_total_principal_label), fontSize = 13.sp) },
-                    placeholder = { Text("0.00", fontSize = 13.sp) },
-                    prefix = {
-                        Text(
-                            text = "$currencySymbol ",
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 16.sp,
-                            color = accentColor
-                        )
-                    },
-                    singleLine = true,
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                    shape = RoundedCornerShape(14.dp),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedContainerColor = MaterialTheme.colorScheme.surface,
-                        unfocusedContainerColor = MaterialTheme.colorScheme.surface
-                    ),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .focusRequester(focusRequesterTotal)
+                    startDateMillis = startDateMillis,
+                    customEndDateMillis = customEndDateMillis,
+                    onDateClick = { activeDatePickerTarget = it },
+                    currencySymbol = currencySymbol,
+                    accentColor = accentColor,
+                    focusRequester = focusRequesterTotal
                 )
-
-                // 2. Interest Rate (%) Input Field (Default 0%)
-                OutlinedTextField(
-                    value = interestRateText,
-                    onValueChange = { input ->
-                        val normalized = input.replace(',', '.')
-                        if (normalized.isEmpty() || normalized.matches(Regex("^\\d*\\.?\\d{0,2}$"))) {
-                            interestRateText = normalized
-                        }
-                    },
-                    label = { Text(stringResource(R.string.loan_interest_label), fontSize = 13.sp) },
-                    placeholder = { Text("0.0%", fontSize = 13.sp) },
-                    trailingIcon = {
-                        Icon(imageVector = Icons.Default.Percent, contentDescription = null, modifier = Modifier.size(16.dp))
-                    },
-                    singleLine = true,
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                    shape = RoundedCornerShape(14.dp),
-                    modifier = Modifier.fillMaxWidth()
-                )
-
-                // 3. Duration Selector (Default Indefinite / or Duration Shortcuts)
-                Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                    Text(
-                        text = stringResource(R.string.loan_duration_label),
-                        style = MaterialTheme.typography.labelMedium,
-                        fontWeight = FontWeight.SemiBold,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                    LazyRow(
-                        horizontalArrangement = Arrangement.spacedBy(6.dp),
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        item {
-                            FilterChip(
-                                selected = isIndefinite,
-                                onClick = {
-                                    totalDurationMonths = null
-                                    customEndDateMillis = null
-                                },
-                                label = { Text(stringResource(R.string.loan_duration_indefinite), fontSize = 12.sp) }
-                            )
-                        }
-                        items(listOf(3, 6, 12, 18, 24, 36, 48)) { months ->
-                            FilterChip(
-                                selected = totalDurationMonths == months,
-                                onClick = {
-                                    totalDurationMonths = months
-                                    val cal = Calendar.getInstance().apply {
-                                        timeInMillis = startDateMillis
-                                        add(Calendar.MONTH, months)
-                                    }
-                                    customEndDateMillis = cal.timeInMillis
-                                },
-                                label = { Text("$months m", fontSize = 12.sp) }
-                            )
-                        }
-                    }
-                }
-
-                // 4. Start & End Dates (shown when not indefinite)
-                val dateFormat = remember { SimpleDateFormat("MMM dd, yyyy", Locale.getDefault()) }
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    // Start Date Card
-                    Box(
-                        modifier = Modifier
-                            .weight(1f)
-                            .clip(RoundedCornerShape(12.dp))
-                            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f))
-                            .clickable { activeDatePickerTarget = "START" }
-                            .padding(10.dp)
-                    ) {
-                        Column {
-                            Text(
-                                text = stringResource(R.string.loan_start_date_label),
-                                style = MaterialTheme.typography.labelSmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                            Spacer(modifier = Modifier.height(2.dp))
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Icon(Icons.Default.CalendarMonth, contentDescription = null, modifier = Modifier.size(14.dp), tint = MaterialTheme.colorScheme.primary)
-                                Spacer(modifier = Modifier.width(4.dp))
-                                Text(dateFormat.format(Date(startDateMillis)), fontSize = 12.sp, fontWeight = FontWeight.Bold)
-                            }
-                        }
-                    }
-
-                    if (!isIndefinite && customEndDateMillis != null) {
-                        // End Date Card
-                        Box(
-                            modifier = Modifier
-                                .weight(1f)
-                                .clip(RoundedCornerShape(12.dp))
-                                .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f))
-                                .clickable { activeDatePickerTarget = "END" }
-                                .padding(10.dp)
-                        ) {
-                            Column {
-                                Text(
-                                    text = stringResource(R.string.loan_end_date_label),
-                                    style = MaterialTheme.typography.labelSmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                                Spacer(modifier = Modifier.height(2.dp))
-                                Row(verticalAlignment = Alignment.CenterVertically) {
-                                    Icon(Icons.Default.CalendarMonth, contentDescription = null, modifier = Modifier.size(14.dp), tint = MaterialTheme.colorScheme.primary)
-                                    Spacer(modifier = Modifier.width(4.dp))
-                                    Text(dateFormat.format(Date(customEndDateMillis!!)), fontSize = 12.sp, fontWeight = FontWeight.Bold)
-                                }
-                            }
-                        }
-                    }
-                }
-
-                // 5. Live Summary Pill
-                if (parsedPrincipal > 0) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clip(RoundedCornerShape(12.dp))
-                            .background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f))
-                            .padding(horizontal = 12.dp, vertical = 8.dp)
-                    ) {
-                        val summaryText = if (safeMonthlyQuota != null) {
-                            stringResource(
-                                R.string.loan_calculated_quota_pill,
-                                "$currencySymbol${"%.2f".format(safeMonthlyQuota)}",
-                                "$currencySymbol${"%.2f".format(totalWithInterest)}"
-                            )
-                        } else {
-                            "Total: $currencySymbol${"%.2f".format(totalWithInterest)}"
-                        }
-                        Text(
-                            text = summaryText,
-                            style = MaterialTheme.typography.bodySmall,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onPrimaryContainer
-                        )
-                    }
-                }
             }
 
             // ==================== COMMON: CATEGORY SELECTOR ====================

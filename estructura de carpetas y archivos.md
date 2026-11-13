@@ -195,18 +195,3 @@ Spent/
 +-- settings.gradle.kts
 ```
 
----
-
-### Elementos Omitidos y Justificación
-
-1. **Configuraciones de IDE (`.idea/`)**:
-   - Contienen ajustes de inspección, layouts de ventanas y proyectos locales de Android Studio (`compiler.xml`, `misc.xml`, `runConfigurations.xml`). No aportan contexto lógico ni arquitectónico para una IA.
-2. **Archivos Binarios / Compilados**:
-   - `app/release/app-release.aab` y `release-keystore.jks`: Binarios opacos que no son legibles ni editables como texto.
-   - `gradle/wrapper/gradle-wrapper.jar`: Binario de Gradle.
-3. **Logs temporales (`.kotlin/errors/`)**:
-   - Reportes de fallos temporales del compilador.
-4. **Recursos de imagen rasterizada repetitivos (`mipmap-*/*.webp`)**:
-   - Variantes por densidad de resolución de iconos del lanzador. Se conservan únicamente las definiciones vectoriales/XML en `mipmap-anydpi-v26/` y `drawable/`.
-5. **Scripts ejecutables de wrapper (`gradlew`, `gradlew.bat`) y archivos `.gitignore` secundarios**:
-   - Scripts genéricos de Gradle que no contienen lógica propia del proyecto.

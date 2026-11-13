@@ -42,7 +42,7 @@
     <string name="tool_recurring_title">Regole ricorrenti</string>
     <string name="tool_recurring_desc">Transazioni pianificate</string>
     <string name="tool_recurring_toast">Regole ricorrenti attive: %1$d transazioni registrate</string>
-    <string name="tool_export_excel_title">Esporta in Excel (.xlsx)</string>
+    <string name="tool_export_excel_title">Export</string>
     <string name="tool_export_excel_desc">Scarica foglio di calcolo con colonne Data e Ora separate</string>
     <string name="tool_shared_ledgers_title">Finanze condivise</string>
     <string name="tool_shared_ledgers_desc">Budget collaborativi e sincronizzazione membri</string>
@@ -415,6 +415,7 @@
     <string name="theme_dark">Scuro</string>
     <string name="currency_title">Valuta</string>
     <string name="currency_desc">Seleziona il tuo simbolo di valuta preferito</string>
+    <string name="currency_change_notice">Azioni, criptovalute e altri asset verranno aggiornati in base alla valuta scelta. Gli acquisti e le spese comuni non verranno convertiti: cambierà solo il simbolo della valuta.</string>
     <string name="language_title">Lingua / Language</string>
     <string name="language_desc">Scegli la lingua di visualizzazione dell\'app</string>
     <string name="language_system">Predefinito di sistema</string>
@@ -427,6 +428,7 @@
     <string name="language_ja">日本語 (Japanese)</string>
     <string name="language_hi">हिन्दी (Hindi)</string>
     <string name="language_sv">Svenska (Swedish)</string>
+    <string name="language_ko">한국어 (Coreano)</string>
     <string name="export_data_title">Esporta dati (CSV)</string>
     <string name="export_data_desc">Scarica le transazioni come file CSV</string>
     <string name="export_csv_btn">Esporta CSV</string>

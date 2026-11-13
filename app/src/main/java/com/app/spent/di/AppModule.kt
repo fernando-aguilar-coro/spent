@@ -22,21 +22,44 @@ val appModule = module {
     // Local Room DB & DAO
     single { SpentDatabase.getInstance(androidContext()) }
     single { get<SpentDatabase>().spentDao() }
+    single { get<SpentDatabase>().assetDao() }
 
     // DataStore Preferences
     single { UserPreferencesRepository(androidContext()) }
+
+    // Remote & Simulation Market Price Providers
+    single { com.app.spent.data.remote.ExchangeRateApiPriceProvider() }
+    single { com.app.spent.data.remote.CryptoPriceProvider(exchangeRateApiProvider = get()) }
+    single { com.app.spent.data.remote.StockPriceProvider(exchangeRateApiProvider = get()) }
+    single<com.app.spent.domain.asset.MarketPriceProvider> {
+        com.app.spent.domain.asset.CompositeMarketPriceProvider(
+            exchangeRateApiProvider = get(),
+            simulatedEngine = com.app.spent.domain.asset.SimulatedMarketPriceEngine(),
+            cryptoPriceProvider = get(),
+            stockPriceProvider = get()
+        )
+    }
 
     // Repository Single Source of Truth
     single<SpentRepository> {
         SpentRepositoryImpl(
             context = androidContext(),
             dao = get(),
-            preferencesRepository = get()
+            preferencesRepository = get(),
+            assetDao = get()
+        )
+    }
+
+    single<com.app.spent.data.repository.AssetRepository> {
+        com.app.spent.data.repository.AssetRepositoryImpl(
+            assetDao = get(),
+            priceProvider = get()
         )
     }
 
     // ViewModels
-    viewModel { DashboardViewModel(repository = get()) }
+    viewModel { DashboardViewModel(repository = get(), assetRepository = get()) }
+
     viewModel { AnalyticsViewModel(repository = get()) }
     viewModel { SettingsViewModel(repository = get()) }
     viewModel { (initialType: String, transactionId: String?) ->
@@ -48,4 +71,6 @@ val appModule = module {
     viewModel { SharedLedgerViewModel(repository = get()) }
     viewModel { OnboardingViewModel(repository = get()) }
     viewModel { TransactionHistoryViewModel(repository = get()) }
+    viewModel { com.app.spent.ui.portfolio.PortfolioViewModel(repository = get()) }
 }
+

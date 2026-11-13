@@ -10,9 +10,11 @@ data class SettingsUiState(
 val currentPayCycle: PayCycleEntity? = null,
 val isDarkThemeOverride: Boolean? = null,
 val currencySymbol: String = "$",
+val currencyCode: String = "USD",
 val appLanguage: String? = null,
 val transactions: List<TransactionEntity> = emptyList(),
 val categories: List<CategoryEntity> = emptyList(),
+val assetHoldings: List<com.app.spent.data.local.entity.AssetHoldingEntity> = emptyList(),
 val lastDriveSyncTimestamp: Long = 0L,
 val isDriveConnected: Boolean = false,
 val driveAccountEmail: String? = null,
@@ -26,6 +28,7 @@ sealed class SettingsUiIntent : UiIntent {
   data class SavePayCycle(val frequency: String, val income: Double, val startDate: Long) : SettingsUiIntent()
   data class SetDarkThemeMode(val isDark: Boolean?) : SettingsUiIntent()
   data class SetCurrencySymbol(val symbol: String) : SettingsUiIntent()
+  data class SetCurrency(val symbol: String, val code: String) : SettingsUiIntent()
   data class SetAppLanguage(val languageCode: String?) : SettingsUiIntent()
   data class SetImageStorageLocation(val location: String) : SettingsUiIntent()
   data class ConnectDriveAccount(val account: com.google.android.gms.auth.api.signin.GoogleSignInAccount) : SettingsUiIntent()
