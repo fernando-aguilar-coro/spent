@@ -45,7 +45,7 @@
     <string name="tool_recurring_title">반복 규칙</string>
     <string name="tool_recurring_desc">자동 예약 규칙</string>
     <string name="tool_recurring_toast">활성 반복 규칙: 거래 %1$d건이 자동 기록됨</string>
-    <string name="tool_export_excel_title">Excel로 내보내기 (.xlsx)</string>
+    <string name="tool_export_excel_title">Export</string>
     <string name="tool_export_excel_desc">날짜와 시간이 별도 열로 구분된 스프레드시트 다운로드</string>
     <string name="tool_shared_ledgers_title">공동 재정</string>
     <string name="tool_shared_ledgers_desc">공동 예산 &amp; 멤버 동기화</string>

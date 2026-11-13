@@ -42,7 +42,9 @@ class AssetRepositoryImpl(
             assetDao.getHoldingsFlow(),
             assetDao.getMarketPricesFlow()
         ) { holdings, marketPrices ->
-            val priceMap = marketPrices.associateBy { it.symbol.uppercase() }
+            val priceMap = marketPrices
+                .filter { it.baseCurrency.equals(baseCurrency, ignoreCase = true) }
+                .associateBy { it.symbol.uppercase() }
 
             val valuedAssets = holdings.map { holding ->
                 val cachedQuote = priceMap[holding.symbol.uppercase()]
@@ -116,6 +118,7 @@ class AssetRepositoryImpl(
         val entities = quotes.values.map { quote ->
             MarketPriceEntity(
                 symbol = quote.symbol.uppercase(),
+                baseCurrency = baseCurrency.uppercase(),
                 priceInBaseCurrency = quote.priceInBaseCurrency,
                 change24hPct = quote.change24hPct,
                 high24h = quote.high24h,

@@ -32,7 +32,7 @@ import com.app.spent.data.local.entity.UserAccountEntity
         AssetHoldingEntity::class,
         MarketPriceEntity::class
     ],
-    version = 6,
+    version = 7,
     exportSchema = true
 )
 abstract class SpentDatabase : RoomDatabase() {
@@ -177,6 +177,33 @@ abstract class SpentDatabase : RoomDatabase() {
       }
     }
 
+    val MIGRATION_6_7 = object : Migration(6, 7) {
+      override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL(
+          """
+          CREATE TABLE IF NOT EXISTS `market_prices_new` (
+              `symbol` TEXT NOT NULL,
+              `baseCurrency` TEXT NOT NULL,
+              `priceInBaseCurrency` REAL NOT NULL,
+              `change24hPct` REAL NOT NULL,
+              `high24h` REAL,
+              `low24h` REAL,
+              `lastUpdated` INTEGER NOT NULL,
+              PRIMARY KEY(`symbol`, `baseCurrency`)
+          )
+          """.trimIndent()
+        )
+        db.execSQL(
+          """
+          INSERT INTO `market_prices_new` (`symbol`, `baseCurrency`, `priceInBaseCurrency`, `change24hPct`, `high24h`, `low24h`, `lastUpdated`)
+          SELECT `symbol`, 'USD', `priceInBaseCurrency`, `change24hPct`, `high24h`, `low24h`, `lastUpdated` FROM `market_prices`
+          """.trimIndent()
+        )
+        db.execSQL("DROP TABLE `market_prices`")
+        db.execSQL("ALTER TABLE `market_prices_new` RENAME TO `market_prices`")
+      }
+    }
+
     fun getInstance(context: Context): SpentDatabase {
       return INSTANCE ?: synchronized(this) {
         val instance = Room.databaseBuilder(
@@ -184,7 +211,7 @@ abstract class SpentDatabase : RoomDatabase() {
           SpentDatabase::class.java,
           "spent_database"
         )
-        .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_1_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6)
+        .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_1_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7)
         .build()
         INSTANCE = instance
         instance

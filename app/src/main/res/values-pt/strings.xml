@@ -42,7 +42,7 @@
     <string name="tool_recurring_title">Regras Recorrentes</string>
     <string name="tool_recurring_desc">Regras agendadas automáticas</string>
     <string name="tool_recurring_toast">Regras Recorrentes Ativas: %1$d transações registradas automaticamente</string>
-    <string name="tool_export_excel_title">Exportar para Excel (.xlsx)</string>
+    <string name="tool_export_excel_title">Export</string>
     <string name="tool_export_excel_desc">Baixar planilha com colunas separadas de Data e Hora</string>
     <string name="tool_shared_ledgers_title">Finanças Compartilhadas</string>
     <string name="tool_shared_ledgers_desc">Orçamentos colaborativos e sincronização de membros</string>

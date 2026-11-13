@@ -71,6 +71,6 @@ val appModule = module {
     viewModel { SharedLedgerViewModel(repository = get()) }
     viewModel { OnboardingViewModel(repository = get()) }
     viewModel { TransactionHistoryViewModel(repository = get()) }
-    viewModel { com.app.spent.ui.portfolio.PortfolioViewModel(repository = get(), spentRepository = get()) }
+    viewModel { com.app.spent.ui.portfolio.PortfolioViewModel(repository = get()) }
 }
 

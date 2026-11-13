@@ -66,7 +66,8 @@ data class DashboardUiState(
     val activeProfileName: String = "Primary Account",
     val isNetSavingsHidden: Boolean = false,
     val totalVariableAssetsValuation: Double = 0.0,
-    val variableAssetsCount: Int = 0
+    val variableAssetsCount: Int = 0,
+    val assetHoldings: List<com.app.spent.data.local.entity.AssetHoldingEntity> = emptyList()
 ) : UiState
 
 

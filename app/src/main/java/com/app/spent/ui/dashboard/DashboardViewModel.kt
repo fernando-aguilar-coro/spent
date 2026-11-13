@@ -236,7 +236,8 @@ class DashboardViewModel(
                     isWalkthroughCompleted = walkthroughDone,
                     isNetSavingsHidden = isNetSavingsHidden,
                     totalVariableAssetsValuation = portfolioSummary.totalValuation,
-                    variableAssetsCount = portfolioSummary.assets.size
+                    variableAssetsCount = portfolioSummary.assets.size,
+                    assetHoldings = portfolioSummary.assets.map { it.holding }
                 )
 
             }.collect { newState ->

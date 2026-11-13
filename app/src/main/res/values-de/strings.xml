@@ -42,7 +42,7 @@
     <string name="tool_recurring_title">Wiederkehrende Regeln</string>
     <string name="tool_recurring_desc">Automatisch geplante Buchungen</string>
     <string name="tool_recurring_toast">Aktive Regeln: %1$d Buchungen automatisch erfasst</string>
-    <string name="tool_export_excel_title">Nach Excel exportieren (.xlsx)</string>
+    <string name="tool_export_excel_title">Export</string>
     <string name="tool_export_excel_desc">Tabelle mit separaten Datums- &amp; Uhrzeitspalten herunterladen</string>
     <string name="tool_shared_ledgers_title">Gemeinsame Finanzen</string>
     <string name="tool_shared_ledgers_desc">Gemeinsame Budgets &amp; Mitgliedersynchronisation</string>

@@ -42,7 +42,7 @@
     <string name="tool_recurring_title">Återkommande regler</string>
     <string name="tool_recurring_desc">Automatiskt schemalagda regler</string>
     <string name="tool_recurring_toast">Aktiva återkommande regler: %1$d transaktioner loggades automatiskt</string>
-    <string name="tool_export_excel_title">Exportera till Excel (.xlsx)</string>
+    <string name="tool_export_excel_title">Export</string>
     <string name="tool_export_excel_desc">Ladda ner kalkylblad med separata datum- och tidskolumner</string>
     <string name="tool_shared_ledgers_title">Delad ekonomi</string>
     <string name="tool_shared_ledgers_desc">Gemensamma budgetar &amp; medlemssynk</string>

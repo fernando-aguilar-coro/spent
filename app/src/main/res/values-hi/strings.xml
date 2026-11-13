@@ -42,7 +42,7 @@
     <string name="tool_recurring_title">आवर्ती नियम</string>
     <string name="tool_recurring_desc">स्वतः निर्धारित नियम</string>
     <string name="tool_recurring_toast">सक्रिय आवर्ती नियम: %1$d लेनदेन स्वतः दर्ज</string>
-    <string name="tool_export_excel_title">एक्सेल में निर्यात करें (.xlsx)</string>
+    <string name="tool_export_excel_title">Export</string>
     <string name="tool_export_excel_desc">अलग दिनांक और समय कॉलम के साथ स्प्रेडशीट डाउनलोड करें</string>
     <string name="tool_shared_ledgers_title">साझा वित्त</string>
     <string name="tool_shared_ledgers_desc">सहयोगात्मक बजट और सदस्य सिंक</string>

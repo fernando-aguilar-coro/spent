@@ -40,6 +40,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.app.spent.R
+import com.app.spent.data.local.entity.AssetHoldingEntity
 import com.app.spent.data.local.entity.CategoryEntity
 import com.app.spent.data.local.entity.LoanEntity
 import com.app.spent.data.local.entity.RecurringRuleEntity
@@ -54,7 +55,9 @@ fun DashboardQuickTools(
     categories: List<CategoryEntity> = emptyList(),
     recurringRules: List<RecurringRuleEntity> = emptyList(),
     loans: List<LoanEntity> = emptyList(),
+    holdings: List<AssetHoldingEntity> = emptyList(),
     currencySymbol: String = "$",
+    currencyCode: String = "",
     pendingBillsCount: Int = 0,
     pendingBillsTotal: Double = 0.0,
     onNavigateToSavingsTracker: () -> Unit = {},
@@ -417,6 +420,9 @@ fun DashboardQuickTools(
         ExportExcelDialog(
             transactions = transactions,
             categories = categories,
+            holdings = holdings,
+            currencySymbol = currencySymbol,
+            currencyCode = currencyCode,
             onDismiss = { showExportDialog = false }
         )
     }

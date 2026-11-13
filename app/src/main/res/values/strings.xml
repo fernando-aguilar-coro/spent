@@ -45,7 +45,7 @@
     <string name="tool_recurring_title">Recurring Rules</string>
     <string name="tool_recurring_desc">Auto-scheduled rules</string>
     <string name="tool_recurring_toast">Active Recurring Rules: %1$d transactions auto-logged</string>
-    <string name="tool_export_excel_title">Export to Excel (.xlsx)</string>
+    <string name="tool_export_excel_title">Export</string>
     <string name="tool_export_excel_desc">Download spreadsheet with separate Date &amp; Time columns</string>
     <string name="export_date_from">From</string>
     <string name="export_date_to">To</string>

@@ -7,17 +7,12 @@ import com.app.spent.domain.asset.model.AssetType
 import com.app.spent.ui.mvi.BaseViewModel
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.launch
 
-@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
 class PortfolioViewModel(
-    private val repository: AssetRepository,
-    private val spentRepository: com.app.spent.data.repository.SpentRepository? = null
+    private val repository: AssetRepository
 ) : BaseViewModel<PortfolioUiState, PortfolioUiIntent, PortfolioUiEffect>(
-    PortfolioUiState(
-        baseCurrency = spentRepository?.currentCurrencyCode ?: "USD"
-    )
+    PortfolioUiState(baseCurrency = BASE_CURRENCY)
 ) {
 
     init {
@@ -26,18 +21,11 @@ class PortfolioViewModel(
 
     private fun observePortfolio() {
         viewModelScope.launch {
-            val currencyFlow = spentRepository?.currencyCodeFlow ?: kotlinx.coroutines.flow.flowOf(currentState.baseCurrency)
-            currencyFlow.collect { code ->
-                setState { copy(baseCurrency = code) }
-                repository.refreshPrices(code)
-            }
+            repository.refreshPrices(BASE_CURRENCY)
         }
 
         viewModelScope.launch {
-            val currencyFlow = spentRepository?.currencyCodeFlow ?: kotlinx.coroutines.flow.flowOf(currentState.baseCurrency)
-            currencyFlow.flatMapLatest { code ->
-                repository.getPortfolioSummaryFlow(code)
-            }
+            repository.getPortfolioSummaryFlow(BASE_CURRENCY)
             .catch { throwable ->
                 setState { copy(errorMessage = throwable.message, isLoading = false) }
             }
@@ -171,5 +159,9 @@ class PortfolioViewModel(
             repository.deleteAsset(assetId)
             sendEffect(PortfolioUiEffect.ShowToast("Asset removed"))
         }
+    }
+
+    companion object {
+        private const val BASE_CURRENCY = "USD"
     }
 }
